@@ -462,6 +462,9 @@
                                     <li>
                                         <a href="ModelCar.html">Model Car</a>
                                     </li>
+                                    <li>
+                                        <a href="BrandCar.html">Brand Car</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -507,6 +510,9 @@
                             <ul class="sub-menu">
                                 <li>
                                     <a href="User.html">User</a>
+                                </li>
+                                <li>
+                                    <a href="Delegate.html">Delegate</a>
                                 </li>
                             </ul>
                             <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
@@ -815,6 +821,9 @@
                                             <li>
                                                 <a href="ModelCar.html">Model Car</a>
                                             </li>
+                                            <li>
+                                                <a href="BrandCar.html">Brand Car</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -916,7 +925,7 @@
                                         <a href="User.html">User</a>
                                     </li>
                                     <li>
-                                        <a href="Product.html">Product</a>
+                                        <a href="Delegate.html">Delegate</a>
                                     </li>
                                 </ul>
                             </li>
@@ -964,7 +973,6 @@
                                     <li>
                                         <a href="Stations.html">Station</a>
                                     </li>
-                            
                                 </ul>
                             </li>
                             <li class="menu nav-item relative">
@@ -1149,6 +1157,9 @@
                                     <li>
                                         <a href="Users.html">Users</a>
                                     </li>
+                                    <li>
+                                        <a href="Delegate.html">Delegate</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="menu nav-item relative">
@@ -1269,15 +1280,15 @@
                     :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
                 >
                     <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
-                        <h5 class="text-lg font-bold">Update Confirmation</h5>
+                        <h5 class="text-lg font-bold">Update Model</h5>
                         <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
                     </div>
                     <div class="p-5">
                         <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
                             <div class="overflow-hidden">
                                 <!-- form grid -->
-                                <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
-                                    <input type="text" placeholder="Enter Name" class="form-input" x-model="$store.global.sharedData.fullname2" />
+                                <div class="grid grid-cols-1 gap-5">
+                                    <input type="text" placeholder="Enter Model Name" class="form-input" x-model="$store.global.sharedData.name" />
                                 </div>
 
                                 <div class="mt-8 flex items-center justify-end">
@@ -1402,12 +1413,13 @@
                     },
                 });
                 Alpine.store('updateModal', {
-                    apiBaseUrl: API_CONFIG.BASE_URL, // Ensure API_CONFIG is defined
-                    managerId: null,
+                    apiBaseUrl: API_CONFIG.BASE_URL,
+                    modelId: null,
                     callback: null,
+                    isOpen: false,
 
                     openModal(id, callback) {
-                        this.managerId = id;
+                        this.modelId = id;
                         this.callback = callback;
                         this.isOpen = true;
                     },
@@ -1417,13 +1429,12 @@
                     },
 
                     confirmUpdate() {
-                        if (this.callback && this.managerId) {
-                            this.callback(this.managerId);
+                        if (this.callback && this.modelId) {
+                            this.callback(this.modelId);
                         }
                         this.closeModal();
                     },
-                });
-                // header section
+                }); // header section
                 Alpine.data('header', () => ({
                     init() {
                         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -1618,6 +1629,13 @@
                     },
 
                     async updateManager(managerId) {
+                        // الحصول على بيانات الموديل الحالية
+                        const model = this.tableData.find((m) => m.id == managerId[0]);
+                        if (!model) return;
+
+                        // تعبئة النموذج بالبيانات الحالية
+                        Alpine.store('global').sharedData.name = model.name;
+
                         const updateConfirmed = await new Promise((resolve) => {
                             Alpine.store('updateModal').openModal(managerId, () => {
                                 resolve(true);
@@ -1627,26 +1645,56 @@
                         if (!updateConfirmed) return;
 
                         try {
-                            const formData = new FormData();
-                            formData.append('name', Alpine.store('global').sharedData.fullname2);
                             const token = localStorage.getItem('authToken');
                             const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/update/${managerId[0]}`, {
                                 method: 'PUT',
                                 headers: {
+                                    'Content-Type': 'application/json',
                                     Accept: 'application/json',
                                     Authorization: `Bearer ${token}`,
                                 },
-                                body: formData,
+                                body: JSON.stringify({
+                                    name: Alpine.store('global').sharedData.name,
+                                }),
                             });
 
-                            coloredToast('success', 'Update Car Successful');
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Failed to update model');
+                            }
+
+                            // استخدام SweetAlert2 بشكل صحيح
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-start',
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Model updated successfully',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                customClass: {
+                                    popup: 'color-success',
+                                },
+                            });
 
                             await this.fetchManagers();
                         } catch (error) {
-                            this.showError(error.message || 'فشل في حذف المدير. الرجاء المحاولة لاحقاً.');
+                            console.error('Update error:', error);
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-start',
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'Failed to update model',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                customClass: {
+                                    popup: 'color-danger',
+                                },
+                            });
                         }
                     },
-
                     // حذف المدير
                     async deleteManager(managerId) {
                         // استخدام المودال بدلاً من confirm
@@ -1734,22 +1782,19 @@
                     },
                 }));
                 coloredToast = (color, message) => {
-                    const toast = window.Swal.mixin({
+                    const icon = color === 'success' ? 'success' : 'error';
+                    Swal.fire({
                         toast: true,
                         position: 'bottom-start',
+                        icon: icon,
+                        title: message,
                         showConfirmButton: false,
                         timer: 3000,
-                        showCloseButton: true,
-                        animation: false,
                         customClass: {
                             popup: `color-${color}`,
                         },
                     });
-                    toast.fire({
-                        title: message, // Show the custom message
-                    });
                 };
-
                 Alpine.data('Add_Category', () => ({
                     apiBaseUrl: API_CONFIG.BASE_URL, // Ensure API_CONFIG is defined
                     fullname: '',

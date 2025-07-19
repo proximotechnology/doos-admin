@@ -457,53 +457,13 @@
                             <li class="menu nav-item">
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Category.html">Category</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="menu nav-item">
-                                <button
-                                    type="button"
-                                    class="nav-link group"
-                                    :class="{'active' : activeDropdown === 'SellPick'}"
-                                    @click="activeDropdown === 'SellPick' ? activeDropdown = null : activeDropdown = 'SellPick'"
-                                >
-                                    <div class="flex items-center">
-                                        <svg
-                                            class="shrink-0 group-hover:!text-primary"
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                clip-rule="evenodd"
-                                                d="M10.4036 22.4797L10.6787 22.015C11.1195 21.2703 11.3399 20.8979 11.691 20.6902C12.0422 20.4825 12.5001 20.4678 13.4161 20.4385C14.275 20.4111 14.8523 20.3361 15.3458 20.1317C16.385 19.7012 17.2106 18.8756 17.641 17.8365C17.9639 17.0571 17.9639 16.0691 17.9639 14.093V13.2448C17.9639 10.4683 17.9639 9.08006 17.3389 8.06023C16.9892 7.48958 16.5094 7.0098 15.9388 6.66011C14.919 6.03516 13.5307 6.03516 10.7542 6.03516H8.20964C5.43314 6.03516 4.04489 6.03516 3.02507 6.66011C2.45442 7.0098 1.97464 7.48958 1.62495 8.06023C1 9.08006 1 10.4683 1 13.2448V14.093C1 16.0691 1 17.0571 1.32282 17.8365C1.75326 18.8756 2.57886 19.7012 3.61802 20.1317C4.11158 20.3361 4.68882 20.4111 5.5477 20.4385C6.46368 20.4678 6.92167 20.4825 7.27278 20.6902C7.6239 20.8979 7.84431 21.2703 8.28514 22.015L8.5602 22.4797C8.97002 23.1721 9.9938 23.1721 10.4036 22.4797ZM13.1928 14.5171C13.7783 14.5171 14.253 14.0424 14.253 13.4568C14.253 12.8713 13.7783 12.3966 13.1928 12.3966C12.6072 12.3966 12.1325 12.8713 12.1325 13.4568C12.1325 14.0424 12.6072 14.5171 13.1928 14.5171ZM10.5422 13.4568C10.5422 14.0424 10.0675 14.5171 9.48193 14.5171C8.89637 14.5171 8.42169 14.0424 8.42169 13.4568C8.42169 12.8713 8.89637 12.3966 9.48193 12.3966C10.0675 12.3966 10.5422 12.8713 10.5422 13.4568ZM5.77108 14.5171C6.35664 14.5171 6.83133 14.0424 6.83133 13.4568C6.83133 12.8713 6.35664 12.3966 5.77108 12.3966C5.18553 12.3966 4.71084 12.8713 4.71084 13.4568C4.71084 14.0424 5.18553 14.5171 5.77108 14.5171Z"
-                                                fill="currentColor"
-                                            />
-                                            <path
-                                                opacity="0.5"
-                                                d="M15.486 1C16.7529 0.999992 17.7603 0.999986 18.5683 1.07681C19.3967 1.15558 20.0972 1.32069 20.7212 1.70307C21.3632 2.09648 21.9029 2.63623 22.2963 3.27821C22.6787 3.90219 22.8438 4.60265 22.9226 5.43112C22.9994 6.23907 22.9994 7.24658 22.9994 8.51343V9.37869C22.9994 10.2803 22.9994 10.9975 22.9597 11.579C22.9191 12.174 22.8344 12.6848 22.6362 13.1632C22.152 14.3323 21.2232 15.2611 20.0541 15.7453C20.0249 15.7574 19.9955 15.7691 19.966 15.7804C19.8249 15.8343 19.7039 15.8806 19.5978 15.915H17.9477C17.9639 15.416 17.9639 14.8217 17.9639 14.093V13.2448C17.9639 10.4683 17.9639 9.08006 17.3389 8.06023C16.9892 7.48958 16.5094 7.0098 15.9388 6.66011C14.919 6.03516 13.5307 6.03516 10.7542 6.03516H8.20964C7.22423 6.03516 6.41369 6.03516 5.73242 6.06309V4.4127C5.76513 4.29934 5.80995 4.16941 5.86255 4.0169C5.95202 3.75751 6.06509 3.51219 6.20848 3.27821C6.60188 2.63623 7.14163 2.09648 7.78361 1.70307C8.40759 1.32069 9.10805 1.15558 9.93651 1.07681C10.7445 0.999986 11.7519 0.999992 13.0188 1H15.486Z"
-                                                fill="currentColor"
-                                            />
-                                        </svg>
-
-                                        <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">Subscribe</span>
-                                    </div>
-                                    <div class="rtl:rotate-180" :class="{'!rotate-90' : activeDropdown === 'SellPick'}">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </div>
-                                </button>
-                                <ul x-cloak x-show="activeDropdown === 'SellPick'" x-collapse class="sub-menu text-gray-500">
-                                    <li>
-                                        <a href="Subscribe.html">Subscribe</a>
+                                        <a href="Car.html">Cars</a>
                                     </li>
                                     <li>
-                                        <a href="Web_subscribe.html">Web Subscribe</a>
+                                        <a href="ModelCar.html">Model Car</a>
+                                    </li>
+                                    <li>
+                                        <a href="BrandCar.html">Brand Car</a>
                                     </li>
                                 </ul>
                             </li>
@@ -520,20 +480,17 @@
                                 >
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                <span>Provider</span>
+                                <span>Plan & Subscriptions</span>
                             </h2>
                             <ul class="sub-menu">
                                 <li>
-                                    <a href="Product_provider.html">Product Provider</a>
+                                    <a href="Plan.html">Plan</a>
                                 </li>
                                 <li>
-                                    <a href="Service_provider.html">Service Provider</a>
+                                    <a href="subscribe.html">Subscribe</a>
                                 </li>
                                 <li>
-                                    <a href="Driver.html">Driver</a>
-                                </li>
-                                <li>
-                                    <a href="Food.html">Food</a>
+                                    <a href="driverprice.html">Driver Price</a>
                                 </li>
                             </ul>
                             <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
@@ -552,29 +509,10 @@
                             </h2>
                             <ul class="sub-menu">
                                 <li>
-                                    <a href="Rate.html">Rate</a>
+                                    <a href="User.html">User</a>
                                 </li>
                                 <li>
-                                    <a href="Product.html">Product</a>
-                                </li>
-                            </ul>
-                            <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <svg
-                                    class="hidden h-5 w-4 flex-none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                <span>Reservation</span>
-                            </h2>
-                            <ul class="sub-menu">
-                                <li>
-                                    <a href="Reservation.html">Reservation</a>
+                                    <a href="Delegate.html">Delegate</a>
                                 </li>
                             </ul>
                             <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
@@ -589,50 +527,11 @@
                                 >
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                <span>Order</span>
+                                <span>Stations </span>
                             </h2>
                             <ul class="sub-menu">
                                 <li>
-                                    <a href="Order.html">Order</a>
-                                </li>
-                            </ul>
-
-                            <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <svg
-                                    class="hidden h-5 w-4 flex-none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                <span>Coupon</span>
-                            </h2>
-                            <ul class="sub-menu">
-                                <li>
-                                    <a href="Coupon.html">Coupon</a>
-                                </li>
-                            </ul>
-                            <h2 class="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <svg
-                                    class="hidden h-5 w-4 flex-none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                <span>Users</span>
-                            </h2>
-                            <ul class="sub-menu">
-                                <li>
-                                    <a href="Users.html">Users</a>
+                                    <a href="Stations.html">Station</a>
                                 </li>
                             </ul>
                         </ul>
@@ -917,33 +816,13 @@
                                         </a>
                                         <ul class="sub-menu">
                                             <li>
-                                                <a href="Category.html">Category</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="relative">
-                                        <a href="javascript:;"
-                                            >Subscribe
-                                            <div class="ltr:ml-auto rtl:mr-auto rtl:rotate-180">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M9 5L15 12L9 19"
-                                                        stroke="currentColor"
-                                                        stroke-width="1.5"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                    />
-                                                </svg>
-                                            </div>
-                                        </a>
-                                        <ul
-                                            class="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]"
-                                        >
-                                            <li>
-                                                <a href="subscribe.html">Subscribe</a>
+                                                <a href="Car.html">Cars</a>
                                             </li>
                                             <li>
-                                                <a href="Web_subscribe.html">Web Subscribe</a>
+                                                <a href="ModelCar.html">Model Car</a>
+                                            </li>
+                                            <li>
+                                                <a href="BrandCar.html">Brand Car</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -974,7 +853,7 @@
                                                 fill="currentColor"
                                             />
                                         </svg>
-                                        Provider
+                                        Plan & Subscriptions
                                     </div>
                                     <div class="right_arrow">
                                         <svg
@@ -991,16 +870,13 @@
                                 </a>
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Product_provider.html">Product Provider</a>
+                                        <a href="Plan.html">Plan</a>
                                     </li>
                                     <li>
-                                        <a href="Service_provider.html">Service Provider</a>
+                                        <a href="subscribe.html">Subscribe</a>
                                     </li>
                                     <li>
-                                        <a href="Driver.html">Driver</a>
-                                    </li>
-                                    <li>
-                                        <a href="Food.html">Food</a>
+                                        <a href="driverprice.html">Driver Price</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1046,10 +922,56 @@
                                 </a>
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Rate.html">Rate</a>
+                                        <a href="User.html">User</a>
                                     </li>
                                     <li>
-                                        <a href="Product.html">Product</a>
+                                        <a href="Delegate.html">Delegate</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu nav-item relative">
+                                <a href="javascript:;" class="nav-link">
+                                    <div class="flex items-center">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="shrink-0">
+                                            <path
+                                                d="M4.97883 9.68508C2.99294 8.89073 2 8.49355 2 8C2 7.50645 2.99294 7.10927 4.97883 6.31492L7.7873 5.19153C9.77318 4.39718 10.7661 4 12 4C13.2339 4 14.2268 4.39718 16.2127 5.19153L19.0212 6.31492C21.0071 7.10927 22 7.50645 22 8C22 8.49355 21.0071 8.89073 19.0212 9.68508L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L4.97883 9.68508Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                fill-rule="evenodd"
+                                                clip-rule="evenodd"
+                                                d="M2 8C2 8.49355 2.99294 8.89073 4.97883 9.68508L7.7873 10.8085C9.77318 11.6028 10.7661 12 12 12C13.2339 12 14.2268 11.6028 16.2127 10.8085L19.0212 9.68508C21.0071 8.89073 22 8.49355 22 8C22 7.50645 21.0071 7.10927 19.0212 6.31492L16.2127 5.19153C14.2268 4.39718 13.2339 4 12 4C10.7661 4 9.77318 4.39718 7.7873 5.19153L4.97883 6.31492C2.99294 7.10927 2 7.50645 2 8Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                opacity="0.7"
+                                                d="M5.76613 10L4.97883 10.3149C2.99294 11.1093 2 11.5065 2 12C2 12.4935 2.99294 12.8907 4.97883 13.6851L7.7873 14.8085C9.77318 15.6028 10.7661 16 12 16C13.2339 16 14.2268 15.6028 16.2127 14.8085L19.0212 13.6851C21.0071 12.8907 22 12.4935 22 12C22 11.5065 21.0071 11.1093 19.0212 10.3149L18.2339 10L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L5.76613 10Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                opacity="0.4"
+                                                d="M5.76613 14L4.97883 14.3149C2.99294 15.1093 2 15.5065 2 16C2 16.4935 2.99294 16.8907 4.97883 17.6851L7.7873 18.8085C9.77318 19.6028 10.7661 20 12 20C13.2339 20 14.2268 19.6028 16.2127 18.8085L19.0212 17.6851C21.0071 16.8907 22 16.4935 22 16C22 15.5065 21.0071 15.1093 19.0212 14.3149L18.2339 14L16.2127 14.8085C14.2268 15.6028 13.2339 16 12 16C10.7661 16 9.77318 15.6028 7.7873 14.8085L5.76613 14Z"
+                                                fill="currentColor"
+                                            />
+                                        </svg>
+                                        Stations
+                                    </div>
+                                    <div class="right_arrow">
+                                        <svg
+                                            class="h-4 w-4 rotate-90"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li>
+                                        <a href="Stations.html">Station</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1235,6 +1157,55 @@
                                     <li>
                                         <a href="Users.html">Users</a>
                                     </li>
+                                    <li>
+                                        <a href="Delegate.html">Delegate</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu nav-item relative">
+                                <a href="javascript:;" class="nav-link">
+                                    <div class="flex items-center">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="shrink-0">
+                                            <path
+                                                d="M4.97883 9.68508C2.99294 8.89073 2 8.49355 2 8C2 7.50645 2.99294 7.10927 4.97883 6.31492L7.7873 5.19153C9.77318 4.39718 10.7661 4 12 4C13.2339 4 14.2268 4.39718 16.2127 5.19153L19.0212 6.31492C21.0071 7.10927 22 7.50645 22 8C22 8.49355 21.0071 8.89073 19.0212 9.68508L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L4.97883 9.68508Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                fill-rule="evenodd"
+                                                clip-rule="evenodd"
+                                                d="M2 8C2 8.49355 2.99294 8.89073 4.97883 9.68508L7.7873 10.8085C9.77318 11.6028 10.7661 12 12 12C13.2339 12 14.2268 11.6028 16.2127 10.8085L19.0212 9.68508C21.0071 8.89073 22 8.49355 22 8C22 7.50645 21.0071 7.10927 19.0212 6.31492L16.2127 5.19153C14.2268 4.39718 13.2339 4 12 4C10.7661 4 9.77318 4.39718 7.7873 5.19153L4.97883 6.31492C2.99294 7.10927 2 7.50645 2 8Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                opacity="0.7"
+                                                d="M5.76613 10L4.97883 10.3149C2.99294 11.1093 2 11.5065 2 12C2 12.4935 2.99294 12.8907 4.97883 13.6851L7.7873 14.8085C9.77318 15.6028 10.7661 16 12 16C13.2339 16 14.2268 15.6028 16.2127 14.8085L19.0212 13.6851C21.0071 12.8907 22 12.4935 22 12C22 11.5065 21.0071 11.1093 19.0212 10.3149L18.2339 10L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L5.76613 10Z"
+                                                fill="currentColor"
+                                            />
+                                            <path
+                                                opacity="0.4"
+                                                d="M5.76613 14L4.97883 14.3149C2.99294 15.1093 2 15.5065 2 16C2 16.4935 2.99294 16.8907 4.97883 17.6851L7.7873 18.8085C9.77318 19.6028 10.7661 20 12 20C13.2339 20 14.2268 19.6028 16.2127 18.8085L19.0212 17.6851C21.0071 16.8907 22 16.4935 22 16C22 15.5065 21.0071 15.1093 19.0212 14.3149L18.2339 14L16.2127 14.8085C14.2268 15.6028 13.2339 16 12 16C10.7661 16 9.77318 15.6028 7.7873 14.8085L5.76613 14Z"
+                                                fill="currentColor"
+                                            />
+                                        </svg>
+                                        Stations
+                                    </div>
+                                    <div class="right_arrow">
+                                        <svg
+                                            class="h-4 w-4 rotate-90"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li>
+                                        <a href="Stations.html">station</a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -1250,96 +1221,36 @@
                                 <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
                             </li>
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Reservation </span>
+                                <span>Cars Management </span>
                             </li>
+
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Reservation </span>
+                                <span>Brand Car</span>
                             </li>
                         </ul>
 
                         <div class="pt-5">
-                            <div x-data="multipleTable" x-init="init()">
-                                <!-- Filter Buttons -->
-                                <div class="mb-4 flex space-x-2 rtl:space-x-reverse">
-                                    <button
-                                        @click="currentFilter='all'; fetchOrders(1);"
-                                        class="filter-btn btn"
-                                        :class="currentFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'"
-                                    >
-                                        All Reservation
-                                    </button>
-                                    <button
-                                        @click="currentFilter='pending'; fetchOrders(1);"
-                                        class="filter-btn btn"
-                                        :class="currentFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'"
-                                    >
-                                        Pending
-                                    </button>
-                                    <button
-                                        @click="currentFilter='complete'; fetchOrders(1);"
-                                        class="filter-btn btn"
-                                        :class="currentFilter === 'complete' ? 'btn-primary' : 'btn-outline-primary'"
-                                    >
-                                        Complete
-                                    </button>
-                                    <button
-                                        @click="currentFilter='cancelled'; fetchOrders(1);"
-                                        class="filter-btn btn"
-                                        :class="currentFilter === 'cancelled' ? 'btn-primary' : 'btn-outline-primary'"
-                                    >
-                                        Cancelled
-                                    </button>
-                                </div>
-                                <div class="mb-4 rounded-lg bg-gray-50 p-4">
-                                    <h6 class="mb-2 font-semibold">Filter by Price Range:</h6>
-                                    <div class="flex flex-wrap items-center gap-4">
-                                        <div class="flex items-center">
-                                            <label class="mr-2">Min:</label>
-                                            <input type="number" x-model="minPrice" class="form-input w-32" placeholder="Min price" />
-                                        </div>
+                            <div class="mb-6 grid gap-6 xl:grid-cols-1">
+                                <div class="panel h-full">
+                                    <div class="mb-5 flex items-center">
+                                        <h5 class="text-lg font-semibold dark:text-white-light">Add Brand Car</h5>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <!-- form grid -->
+                                        <form x-data="Add_Category" @submit.prevent="Add_Category">
+                                            <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
+                                                <input type="text" placeholder="Enter Name" class="form-input" x-model="fullname" required />
+                                            </div>
 
-                                        <div class="flex items-center">
-                                            <label class="mr-2">Max:</label>
-                                            <input type="number" x-model="maxPrice" class="form-input w-32" placeholder="Max price" />
-                                        </div>
-
-                                        <button @click="applyPriceFilter()" class="btn btn-primary px-4 py-2">Apply Price Filter</button>
-
-                                        <button @click="resetPriceFilter()" class="btn btn-outline-primary px-4 py-2" x-show="priceFilterApplied">
-                                            Reset Price Filter
-                                        </button>
+                                            <button type="submit" class="btn btn-primary mt-6">Create</button>
+                                        </form>
                                     </div>
                                 </div>
-
-                                <!-- Orders Table -->
+                            </div>
+                            <div x-data="multipleTable" x-init="fetchManagers()">
                                 <div class="panel mt-6">
-                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light">Reservation Management</h5>
-                                    <div x-show="loading" class="py-4 text-center"><span class="mr-2 inline-block animate-spin">↻</span> Loading...</div>
-                                    <table id="ordersTable" class="whitespace-nowrap"></table>
-                                </div>
-
-                                <!-- Pagination -->
-                                <div class="mt-4 flex items-center justify-between">
-                                    <div class="text-sm text-gray-600">
-                                        Showing <span x-text="(currentPage - 1) * perPage + 1"></span> to
-                                        <span x-text="Math.min(currentPage * perPage, total)"></span> of <span x-text="total"></span> Reservation
-                                    </div>
-
-                                    <div class="flex space-x-2">
-                                        <button @click="prevPage()" :disabled="currentPage === 1" class="btn btn-outline-primary px-3 py-1">Previous</button>
-
-                                        <template x-for="page in Array.from({length: lastPage}, (_, i) => i + 1)">
-                                            <button
-                                                @click="goToPage(page)"
-                                                class="btn px-3 py-1"
-                                                :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'"
-                                            >
-                                                <span x-text="page"></span>
-                                            </button>
-                                        </template>
-
-                                        <button @click="nextPage()" :disabled="currentPage === lastPage" class="btn btn-outline-primary px-3 py-1">Next</button>
-                                    </div>
+                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0">Brand</h5>
+                                    <table id="myTable1" class="whitespace-nowrap"></table>
                                 </div>
                             </div>
                         </div>
@@ -1355,6 +1266,41 @@
             </div>
         </div>
         <!-- Modal for Delete Confirmation -->
+        <div
+            x-data
+            x-show="$store.updateModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold">Update Brand</h5>
+                        <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <div class="overflow-hidden">
+                                <!-- form grid -->
+                                <div class="grid grid-cols-1 gap-5">
+                                    <input type="text" placeholder="Enter Brand Name" class="form-input" x-model="$store.global.sharedData.name" />
+                                </div>
+
+                                <div class="mt-8 flex items-center justify-end">
+                                    <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
+                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Delete Confirmation Modal -->
         <div
             x-data
@@ -1370,7 +1316,7 @@
                     <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
                 </div>
                 <div class="p-4">
-                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Rate?"</p>
+                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Brand?"</p>
                 </div>
                 <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
                     <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">No</button>
@@ -1388,9 +1334,15 @@
         <script src=" /assets/js/config.js"></script>
         <script defer src=" /assets/js/sweetalert.min.js"></script>
         <script src=" /assets/js/simple-datatables.js"></script>
+        <script src="assets/js/file-upload-with-preview.iife.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
+                Alpine.store('global', {
+                    sharedData: {
+                        name: '',
+                    },
+                });
                 // main section
                 Alpine.data('scrollToTop', () => ({
                     showTopButton: false,
@@ -1460,7 +1412,29 @@
                         this.closeModal();
                     },
                 });
-                // header section
+                Alpine.store('updateModal', {
+                    apiBaseUrl: API_CONFIG.BASE_URL,
+                    brandId: null,
+                    callback: null,
+                    isOpen: false,
+
+                    openModal(id, callback) {
+                        this.brandId = id;
+                        this.callback = callback;
+                        this.isOpen = true;
+                    },
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    confirmUpdate() {
+                        if (this.callback && this.brandId) {
+                            this.callback(this.brandId);
+                        }
+                        this.closeModal();
+                    },
+                }); // header section
                 Alpine.data('header', () => ({
                     init() {
                         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -1478,105 +1452,69 @@
                             }
                         }
                     },
-
-                    notifications: [
-                        {
-                            id: 1,
-                            profile: 'user-profile.jpeg',
-                            message: '<strong class="text-sm mr-1">John Doe</strong>invite you to <strong>Prototyping</strong>',
-                            time: '45 min ago',
-                        },
-                        {
-                            id: 2,
-                            profile: 'profile-34.jpeg',
-                            message: '<strong class="text-sm mr-1">Adam Nolan</strong>mentioned you to <strong>UX Basics</strong>',
-                            time: '9h Ago',
-                        },
-                        {
-                            id: 3,
-                            profile: 'profile-16.jpeg',
-                            message: '<strong class="text-sm mr-1">Anna Morgan</strong>Upload a file',
-                            time: '9h Ago',
-                        },
-                    ],
-
-                    messages: [
-                        {
-                            id: 1,
-                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-success-light dark:bg-success text-success dark:text-success-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>',
-                            title: 'Congratulations!',
-                            message: 'Your OS has been updated.',
-                            time: '1hr',
-                        },
-                        {
-                            id: 2,
-                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>',
-                            title: 'Did you know?',
-                            message: 'You can switch between artboards.',
-                            time: '2hr',
-                        },
-                        {
-                            id: 3,
-                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
-                            title: 'Something went wrong!',
-                            message: 'Send Reposrt',
-                            time: '2days',
-                        },
-                        {
-                            id: 4,
-                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>',
-                            title: 'Warning',
-                            message: 'Your password strength is low.',
-                            time: '5days',
-                        },
-                    ],
-
-                    removeNotification(value) {
-                        this.notifications = this.notifications.filter((d) => d.id !== value);
-                    },
-
-                    removeMessage(value) {
-                        this.messages = this.messages.filter((d) => d.id !== value);
-                    },
                 }));
                 Alpine.data('multipleTable', () => ({
-                    orders: [],
-                    currentPage: 1,
-                    lastPage: 1,
-                    perPage: 10,
-                    total: 0,
-                    loading: false,
+                    tableData: [],
+                    datatable1: null,
                     apiBaseUrl: API_CONFIG.BASE_URL,
-                    currentFilter: 'all',
-                    minPrice: null,
-                    maxPrice: null,
-                    priceFilterApplied: false,
 
                     async init() {
-                        await this.fetchOrders();
-                        window.orderApp = this;
+                        await this.fetchManagers();
+
+                        // Event Delegation for Delete Buttons
+                        document.addEventListener('click', (e) => {
+                            if (e.target.closest('.delete-btn')) {
+                                const managerId = e.target.closest('.delete-btn').dataset.id;
+                                this.deleteManager(managerId);
+                            }
+                            if (e.target.closest('.update-btn')) {
+                                const managerId = e.target.closest('.update-btn').dataset.id;
+                                this.updateManager(managerId);
+                            }
+                        });
+
+                        // Event Delegation for Status Dropdown
+                        document.addEventListener('click', (e) => {
+                            const dropdownBtn = e.target.closest('.dropdown-toggle');
+                            const statusOption = e.target.closest('.status-option');
+
+                            // Handle dropdown toggle
+                            if (dropdownBtn) {
+                                const dropdown = dropdownBtn.closest('.dropdown');
+                                const menu = dropdown.querySelector('.dropdown-menu');
+                                menu.classList.toggle('hidden');
+                            }
+
+                            // Handle status selection
+                            if (statusOption) {
+                                const dropdown = statusOption.closest('.dropdown');
+                                const managerId = dropdown.dataset.id;
+                                const newStatus = statusOption.dataset.value;
+                                const toggleBtn = dropdown.querySelector('.dropdown-toggle');
+
+                                // Update button appearance
+                                toggleBtn.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                                toggleBtn.className = `dropdown-toggle btn btn-sm ${this.getStatusClass(newStatus)}`;
+
+                                // Close dropdown
+                                dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+
+                                // Update status via API
+                            }
+                        });
                     },
 
-                    async fetchOrders(page = 1) {
-                        this.loading = true;
+                    // جلب بيانات المديرين من API
+                    async fetchManagers() {
                         try {
                             const token = localStorage.getItem('authToken');
                             if (!token) {
-                                coloredToast('error', 'Authentication token is missing. Please log in.');
+                                this.showError('Authentication token is missing. Please log in.');
                                 window.location.href = '/auth-boxed-signin.html';
                                 return;
                             }
 
-                            let url = `${this.apiBaseUrl}/api/admin/reservation/get_all_by_status?status=${this.currentFilter}&page=${page}`;
-
-                            if (this.priceFilterApplied && (this.minPrice || this.maxPrice)) {
-                                url = `${this.apiBaseUrl}/api/admin/reservation/get_all_by_price?`;
-                                if (this.minPrice) url += `&min_price=${this.minPrice}`;
-                                if (this.maxPrice) url += `&max_price=${this.maxPrice}`;
-                                if (this.currentFilter !== 'all') url += `&status=${this.currentFilter}`;
-                            }
-
-                            const response = await fetch(url, {
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all`, {
                                 method: 'GET',
                                 headers: {
                                     Accept: 'application/json',
@@ -1584,132 +1522,223 @@
                                 },
                             });
 
-                            if (!response.ok) {
-                                const errorData = await response.json().catch(() => ({}));
-                                throw new Error(errorData.message || `Request failed with status ${response.status}`);
-                            }
-                            console.log(response);
                             const data = await response.json();
                             console.log(data);
-                            if (data.orders.original) {
-                                this.current_page = data.orders.original.orders.current_page;
-                                this.orders = data.orders.original.orders.data || [];
-                                this.lastPage = data.orders.original.orders.last_page;
-                                this.perPage = data.orders.original.orders.per_page;
-                                this.total = data.orders.original.orders.total;
-                            } else {
-                                this.current_page = data.orders.current_page;
-                                this.orders = data.orders.data || [];
-                                this.lastPage = data.orders.last_page;
-                                this.perPage = data.orders.per_page;
-                                this.total = data.orders.total;
-                            }
+                            this.tableData = data;
+
                             this.populateTable();
-                        } catch (error) {
-                            console.error('Error fetching orders:', error);
-                            coloredToast('error', error.message || 'Failed to fetch Reservatin data. Please try again later.');
-                        } finally {
-                            this.loading = false;
-                        }
-                    },
-                    applyPriceFilter() {
-                        if ((this.minPrice && isNaN(this.minPrice)) || (this.maxPrice && isNaN(this.maxPrice))) {
-                            coloredToast('error', 'Please enter valid numbers for price range');
-                            return;
-                        }
-                        this.priceFilterApplied = true;
-                        this.fetchOrders(1);
+                        } catch (error) {}
                     },
 
-                    resetPriceFilter() {
-                        this.minPrice = null;
-                        this.maxPrice = null;
-                        this.priceFilterApplied = false;
-                        this.fetchOrders(1);
-                    },
                     populateTable() {
-                        const tableElement = document.getElementById('ordersTable');
-                        if (!tableElement) return;
+                        if (this.datatable1) {
+                            this.datatable1.destroy();
+                        }
 
-                        tableElement.innerHTML = `
-                        <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Service/Product</th>
-                    <th>description</th>
-                    <th>User</th>
-                    <th>Email</th>
+                        const mappedData = this.tableData.map((manager, index) => [
+                            this.formatText(index + 1),
+                            this.formatText(manager.name),
 
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${
-                    this.orders.length > 0
-                        ? this.orders
-                              .map(
-                                  (reservation, index) => `
-                        <tr>
-                            <td>${(this.currentPage - 1) * this.perPage + index + 1}</td>
-                            <td>
-                                ${reservation.product?.name || reservation.service?.name || 'N/A'}
-                            </td>
-                            <td>
-                                ${reservation.product?.description || reservation.service?.description || 'N/A'}
-                            </td>
-                            <td>${reservation.user?.name || 'N/A'}</td>
-                            <td>${reservation.user?.email || 'N/A'}</td>
+                            this.getActionButtons(manager.id, manager.name, manager.imag),
+                        ]);
 
-                            <td>${reservation.total_price || 'N/A'}</td>
-                            <td>
-                                <span class="badge ${this.getStatusClass(reservation.status)}">
-                                    ${reservation.status}
-                                </span>
-                            </td>
-                            <td>${new Date(reservation.created_at).toLocaleDateString()}</td>
-                           
-                        </tr>
-                    `
-                              )
-                              .join('')
-                        : `
-                    <tr>
-                        <td colspan="7" class="text-center py-4">No reservations found</td>
-                    </tr>
-                `
-                }
-            </tbody>
-        `;
+                        this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
+                            data: {
+                                headings: ['ID', 'Name', '<div class="text-center">Action</div>'],
+                                data: mappedData,
+                            },
+                            searchable: true,
+                            perPage: 10,
+                            perPageSelect: [10, 20, 30, 50, 100],
+                            columns: [{ select: 0, sort: 'asc' }],
+                            firstLast: true,
+                            firstText: this.getPaginationIcon('first'),
+                            lastText: this.getPaginationIcon('last'),
+                            prevText: this.getPaginationIcon('prev'),
+                            nextText: this.getPaginationIcon('next'),
+                            labels: { perPage: '{select}' },
+                            layout: {
+                                top: '{search}',
+                                bottom: '{info}{select}{pager}',
+                            },
+                        });
                     },
 
+                    // تنسيق الاسم مع الصورة
+                    formatName(name, imageUrl, index) {
+                        const defaultImage = 'assets/images/default-avatar.png';
+                        const cleanUrl = imageUrl;
+
+                        return `
+                                    <div class="flex items-center w-max" x-data="{ imgError: false }">
+                                        <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
+                                             :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
+                                             alt="${name || 'User'}"
+                                             @error="imgError = true"
+                                             loading="lazy"
+                                             width="36"
+                                             height="36" />
+                                        ${name || 'Unknown'}
+                                    </div>`;
+                    },
+
+                    formatText(text) {
+                        return text || 'N/A';
+                    },
+                    formatType(text) {
+                        if (text == '1') text = 'service';
+                        else {
+                            text = 'Product';
+                        }
+                        return text;
+                    },
+
+                    // أزرار الإجراءات
+                    getActionButtons(managerId, name, imag) {
+                        return `
+                                                                        <!-- button -->
+
+
+
+                                                                    <div class="flex items-center justify-center">
+                                                                        <!-- Status Dropdown -->
+                                                                        <button class="btn update-btn btn-warning"data-id="${[managerId, name]}">UPDATE</button>
+
+
+                                                                        <!-- Delete Button -->
+                                                                        <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
+                                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                                <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>`;
+                    },
+
+                    // Helper function for status button classes
                     getStatusClass(status) {
                         const classes = {
-                            complete: 'bg-success',
-                            pending: 'bg-warning',
-                            cancelled: 'bg-danger',
-                            processing: 'bg-info',
+                            active: 'btn-success',
+                            pending: 'btn-warning',
+                            rejected: 'btn-danger',
                         };
-                        return classes[status] || 'bg-primary';
+                        return classes[status] || 'btn-primary';
                     },
 
-                    // Pagination functions
-                    goToPage(page) {
-                        if (page < 1 || page > this.lastPage) return;
-                        this.fetchOrders(page);
-                    },
+                    async updateManager(managerId) {
+                        // الحصول على بيانات العلامة التجارية الحالية
+                        const brand = this.tableData.find((b) => b.id == managerId[0]);
+                        if (!brand) return;
 
-                    nextPage() {
-                        if (this.currentPage < this.lastPage) {
-                            this.fetchOrders(this.currentPage + 1);
+                        // تعبئة النموذج بالبيانات الحالية
+                        Alpine.store('global').sharedData.name = brand.name;
+
+                        const updateConfirmed = await new Promise((resolve) => {
+                            Alpine.store('updateModal').openModal(managerId, () => {
+                                resolve(true);
+                            });
+                        });
+
+                        if (!updateConfirmed) return;
+
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update/${managerId[0]}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({
+                                    name: Alpine.store('global').sharedData.name,
+                                }),
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Failed to update brand');
+                            }
+
+                            // استخدام SweetAlert2 بشكل صحيح
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Brand updated successfully',
+                                timer: 3000,
+                                showConfirmButton: false,
+                            });
+
+                            await this.fetchManagers();
+                        } catch (error) {
+                            console.error('Update error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'Failed to update brand',
+                            });
+                        }
+                    }, // حذف المدير
+                    async deleteManager(managerId) {
+                        // استخدام المودال بدلاً من confirm
+                        const deleteConfirmed = await new Promise((resolve) => {
+                            Alpine.store('deleteModal').openModal(managerId, () => {
+                                resolve(true);
+                            });
+                        });
+
+                        if (!deleteConfirmed) return;
+
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${managerId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) throw new Error('Failed to delete Brand');
+                            coloredToast('success', 'Delete Brand Successful');
+
+                            await this.fetchManagers();
+                        } catch (error) {
+                            this.showError(error.message || 'Error in delete Brand');
                         }
                     },
+                    // بقية الدوال المساعدة...
+                    getStatusColor(status) {
+                        const statusColors = {
+                            active: 'success',
+                            inactive: 'danger',
+                            pending: 'warning',
+                            suspended: 'secondary',
+                            banned: 'dark',
+                        };
+                        return statusColors[status?.toLowerCase()] || 'primary';
+                    },
 
-                    prevPage() {
-                        if (this.currentPage > 1) {
-                            this.fetchOrders(this.currentPage - 1);
-                        }
+                    getPaginationIcon(type) {
+                        const icons = {
+                            first: '<svg...></svg>',
+                            last: '<svg...></svg>',
+                            prev: '<svg...></svg>',
+                            next: '<svg...></svg>',
+                        };
+                        return icons[type];
+                    },
+
+                    showSuccess(message) {
+                        alert(message);
+                    },
+
+                    showError(message) {
+                        alert(message);
                     },
                 }));
                 Alpine.data('logout', () => ({
@@ -1756,42 +1785,44 @@
                     });
                 };
 
-                Alpine.data('Add_Merchans', () => ({
+                Alpine.data('Add_Category', () => ({
                     apiBaseUrl: API_CONFIG.BASE_URL, // Ensure API_CONFIG is defined
-                    email: '',
                     fullname: '',
 
-                    async Add_Merchans() {
+                    async Add_Category() {
                         try {
-                            const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
+                            const token = localStorage.getItem('authToken');
+                            if (!token) throw new Error('لم يتم العثور على رمز المصادقة');
 
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/merchants/store`, {
+                            const formData = new FormData();
+                            formData.append('name', this.fullname);
+
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
                                 method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`, // Pass the token
+                                    Authorization: `Bearer ${token}`,
                                 },
-                                body: JSON.stringify({
-                                    email: this.email,
-                                    name: this.fullname,
-                                }),
+                                body: formData,
                             });
 
                             const result = await response.json();
 
                             if (!response.ok) {
-                                // Handle errors from server response
-                                throw new Error(result.message || 'Failed to create merchant account.');
+                                const errorMsg =
+                                    result.message ||
+                                    Object.values(result.errors || {})
+                                        .flat()
+                                        .join('\n') ||
+                                    'Error in Create Brand';
+                                throw new Error(errorMsg);
                             }
 
-                            // Success: Display the success message and the password
-                            this.email = '';
                             this.fullname = '';
-                            coloredToast('success', `Merchant account created successfully! Password: ${result.password}`);
+                            this.price = '';
+
+                            coloredToast('success', 'ADD Brand Successful');
                         } catch (error) {
-                            // Show error message in toast
-                            coloredToast('danger', error.message || 'Failed to create merchant account. Please try again.');
+                            coloredToast('danger', error.message);
                         }
                     },
                 }));
