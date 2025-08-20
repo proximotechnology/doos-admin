@@ -1035,42 +1035,379 @@
                                 <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
                             </li>
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span> Plan & Subscriptions </span>
+                                <span>Cars Management </span>
                             </li>
-
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Plan</span>
+                                <span>Subscribe </span>
+                            </li>
+                            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                                <span>Subscribe </span>
                             </li>
                         </ul>
 
                         <div class="pt-5">
-                            <div class="mb-6 grid gap-6 xl:grid-cols-1">
-                                <div class="panel h-full">
-                                    <div class="mb-5 flex items-center">
-                                        <h5 class="text-lg font-semibold dark:text-white-light">Add Plan</h5>
+                            <div x-data="subscriptionsTable" x-init="init()">
+                                <!-- فلترة الاشتراكات -->
+                                <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
+                                    <!-- فلترة الحالة -->
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                        <select x-model="filters.status" @change="fetchSubscriptions()" class="form-select w-full">
+                                            <option value="">All Statuses</option>
+                                            <option value="active">Active</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="finished">Finished</option>
+                                        </select>
                                     </div>
-                                    <div class="overflow-hidden">
-                                        <!-- form grid -->
-                                        <form x-data="Add_Plan" @submit.prevent="Add_Plan">
-                                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                                <input type="text" placeholder="Enter Plan Name" class="form-input" x-model="name" required />
-                                                <input type="number" placeholder="Enter Price" class="form-input" x-model="price" required step="0.01" />
-                                            </div>
-                                            <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                                <input type="number" placeholder="Car Limit" class="form-input" x-model="car_limite" required />
-                                                <input type="number" placeholder="Days Count" class="form-input" x-model="count_day" required />
-                                            </div>
 
-                                            <button type="submit" class="btn btn-primary mt-6">Create Plan</button>
-                                        </form>
+                                    <!-- فلترة المستخدم -->
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">User</label>
+                                        <select x-model="filters.user_id" @change="fetchSubscriptions()" class="form-select w-full">
+                                            <option value="">All Users</option>
+                                            <template x-for="user in users" :key="user.id">
+                                                <option :value="user.id" x-text="user.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+
+                                    <!-- فلترة الخطة -->
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Plan</label>
+                                        <select x-model="filters.plan_id" @change="fetchSubscriptions()" class="form-select w-full">
+                                            <option value="">All Plans</option>
+                                            <template x-for="plan in plans" :key="plan.id">
+                                                <option :value="plan.id" x-text="plan.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+
+                                    <!-- فلترة التاريخ -->
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Date Range</label>
+                                        <div class="flex space-x-2">
+                                            <input
+                                                type="date"
+                                                x-model="filters.start_date"
+                                                @change="fetchSubscriptions()"
+                                                class="form-input w-full"
+                                                placeholder="Start Date"
+                                            />
+                                            <input
+                                                type="date"
+                                                x-model="filters.end_date"
+                                                @change="fetchSubscriptions()"
+                                                class="form-input w-full"
+                                                placeholder="End Date"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- جدول الاشتراكات -->
+                                <div class="panel mt-2">
+                                    <div class="mb-5 flex items-center justify-between">
+                                        <h5 class="text-lg font-semibold dark:text-white-light">Subscriptions Management</h5>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                                <tr>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        #
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        User
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Plan
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Status
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Start Date
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        End Date
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Price
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Cars Limit
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Remaining Cars
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Payment
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+                                                    >
+                                                        Action
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+                                                <template x-for="(subscription, index) in subscriptions.data" :key="subscription.id">
+                                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="index + 1 + (subscriptions.current_page - 1) * subscriptions.per_page"
+                                                        ></td>
+                                                        <td class="whitespace-nowrap px-6 py-4">
+                                                            <div class="flex flex-col">
+                                                                <span
+                                                                    x-text="subscription.user.name"
+                                                                    class="text-sm font-medium text-gray-900 dark:text-white"
+                                                                ></span>
+                                                                <span x-text="subscription.user.email" class="text-xs text-gray-500 dark:text-gray-400"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="subscription.plan.name"
+                                                        ></td>
+                                                        <td class="whitespace-nowrap px-6 py-4">
+                                                            <span
+                                                                :class="{
+                                                                'bg-green-100 text-green-800': subscription.status === 'active',
+                                                                'bg-yellow-100 text-yellow-800': subscription.status === 'pending',
+                                                                'bg-red-100 text-red-800': subscription.status === 'finished'
+                                                            }"
+                                                                class="inline-flex rounded-full px-2 text-xs font-semibold capitalize leading-5"
+                                                                x-text="subscription.status"
+                                                            ></span>
+                                                        </td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="formatDate(subscription.date_from)"
+                                                        ></td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="formatDate(subscription.date_end)"
+                                                        ></td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="'$' + subscription.price"
+                                                        ></td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="subscription.car_limite"
+                                                        ></td>
+                                                        <td
+                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                                            x-text="subscription.remaining_cars"
+                                                        ></td>
+                                                        <td class="whitespace-nowrap px-6 py-4">
+                                                            <span
+                                                                :class="{
+                                                                'bg-green-100 text-green-800': subscription.is_paid === '1',
+                                                                'bg-red-100 text-red-800': subscription.is_paid === '0'
+                                                            }"
+                                                                class="inline-flex rounded-full px-2 text-xs font-semibold leading-5"
+                                                                x-text="subscription.is_paid === '1' ? 'Paid' : 'Unpaid'"
+                                                            ></span>
+                                                        </td>
+                                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
+                                                            <template x-if="subscription.status === 'pending' && subscription.is_paid === '0'">
+                                                                <button
+                                                                    @click="markAsPaid(subscription.id)"
+                                                                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                                >
+                                                                    Approve
+                                                                </button>
+                                                            </template>
+                                                            <template x-if="subscription.status !== 'pending' || subscription.is_paid === '1'">
+                                                                <span class="text-gray-400 dark:text-gray-500">-</span>
+                                                            </template>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                                <template x-if="subscriptions.data && subscriptions.data.length === 0">
+                                                    <tr>
+                                                        <td colspan="11" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                            No subscriptions found
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <div
+                                        class="mt-4 flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-700 dark:bg-gray-900"
+                                        x-show="subscriptions.data && subscriptions.data.length > 0"
+                                    >
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">
+                                            Showing <span x-text="subscriptions.from" class="font-medium"></span> to
+                                            <span x-text="subscriptions.to" class="font-medium"></span> of
+                                            <span x-text="subscriptions.total" class="font-medium"></span> results
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button
+                                                @click="prevPage()"
+                                                :disabled="subscriptions.current_page === 1"
+                                                class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                :class="{ 'opacity-50 cursor-not-allowed': subscriptions.current_page === 1 }"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                @click="nextPage()"
+                                                :disabled="subscriptions.current_page === subscriptions.last_page"
+                                                class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                :class="{ 'opacity-50 cursor-not-allowed': subscriptions.current_page === subscriptions.last_page }"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div x-data="multipleTable" x-init="fetchPlans()">
-                                <div class="panel mt-6">
-                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0">Plans</h5>
-                                    <table id="myTable1" class="whitespace-nowrap"></table>
+                        </div>
+
+                        <!-- Modal for Edit Subscription -->
+                        <div
+                            x-data="subscriptionFormModal"
+                            x-show="isOpen"
+                            x-transition
+                            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+                            style="display: none"
+                            x-cloak
+                        >
+                            <div class="w-full max-w-lg rounded-lg bg-white shadow-xl dark:bg-gray-800">
+                                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                                    <h3 class="text-xl font-bold">Edit Subscription</h3>
+                                    <button @click="closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
                                 </div>
+
+                                <form @submit.prevent="submitForm">
+                                    <div class="p-6">
+                                        <div class="grid grid-cols-1 gap-4">
+                                            <!-- User -->
+                                            <div>
+                                                <label class="mb-2 block">User</label>
+                                                <div class="flex flex-col rounded border p-2">
+                                                    <span x-text="formData.user.name" class="font-medium"></span>
+                                                    <span x-text="formData.user.email" class="text-sm text-gray-500"></span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Plan -->
+                                            <div>
+                                                <label class="mb-2 block">Plan</label>
+                                                <div class="rounded border p-2">
+                                                    <span x-text="formData.plan.name" class="font-medium"></span>
+                                                    <div class="mt-1 flex justify-between text-sm">
+                                                        <span x-text="'$' + formData.plan.price"></span>
+                                                        <span x-text="'Cars: ' + formData.plan.car_limite"></span>
+                                                        <span x-text="'Days: ' + formData.plan.count_day"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Status -->
+                                            <div>
+                                                <label for="status" class="mb-2 block">Status</label>
+                                                <select id="status" class="form-select w-full" x-model="formData.status" required>
+                                                    <option value="active">Active</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="finished">Finished</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Payment Status -->
+                                            <div>
+                                                <label for="is_paid" class="mb-2 block">Payment Status</label>
+                                                <select id="is_paid" class="form-select w-full" x-model="formData.is_paid" required>
+                                                    <option value="1">Paid</option>
+                                                    <option value="0">Unpaid</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Dates -->
+                                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                <div>
+                                                    <label for="date_from" class="mb-2 block">Start Date</label>
+                                                    <input type="date" id="date_from" class="form-input w-full" x-model="formData.date_from" required />
+                                                </div>
+                                                <div>
+                                                    <label for="date_end" class="mb-2 block">End Date</label>
+                                                    <input type="date" id="date_end" class="form-input w-full" x-model="formData.date_end" required />
+                                                </div>
+                                            </div>
+
+                                            <!-- Remaining Cars -->
+                                            <div>
+                                                <label for="remaining_cars" class="mb-2 block">Remaining Cars</label>
+                                                <input
+                                                    type="number"
+                                                    id="remaining_cars"
+                                                    class="form-input w-full"
+                                                    x-model="formData.remaining_cars"
+                                                    required
+                                                    min="0"
+                                                    :max="formData.car_limite"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-between border-t p-4 dark:border-gray-700">
+                                        <button type="button" @click="closeModal()" class="btn btn-outline-danger">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Update Subscription</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -1084,47 +1421,7 @@
                 <!-- end footer section -->
             </div>
         </div>
-        <!-- Modal for Update Confirmation -->
-        <div
-            x-data
-            x-show="$store.updateModal.isOpen"
-            x-transition
-            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
-            style="display: none"
-            x-cloak
-        >
-            <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
-                <div
-                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
-                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
-                >
-                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
-                        <h5 class="text-lg font-bold">Update Plan</h5>
-                        <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
-                    </div>
-                    <div class="p-5">
-                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
-                            <div class="overflow-hidden">
-                                <!-- form grid -->
-                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                    <input type="text" placeholder="Plan Name" class="form-input" x-model="$store.global.sharedData.name" required />
-                                    <input type="number" placeholder="Price" class="form-input" x-model="$store.global.sharedData.price" required step="0.01" />
-                                </div>
-                                <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                    <input type="number" placeholder="Car Limit" class="form-input" x-model="$store.global.sharedData.car_limite" required />
-                                    <input type="number" placeholder="Days Count" class="form-input" x-model="$store.global.sharedData.count_day" required />
-                                </div>
-
-                                <div class="mt-8 flex items-center justify-end">
-                                    <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
-                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">Update Plan</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Modal for Delete Confirmation -->
         <!-- Delete Confirmation Modal -->
         <div
             x-data
@@ -1140,7 +1437,7 @@
                     <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
                 </div>
                 <div class="p-4">
-                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Plan?"</p>
+                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Merchans?"</p>
                 </div>
                 <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
                     <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">No</button>
@@ -1158,18 +1455,246 @@
         <script src=" /assets/js/config.js"></script>
         <script defer src=" /assets/js/sweetalert.min.js"></script>
         <script src=" /assets/js/simple-datatables.js"></script>
-        <script src="assets/js/file-upload-with-preview.iife.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.store('global', {
-                    sharedData: {
-                        name: '',
-                        price: '',
-                        car_limite: '',
-                        count_day: '',
+                Alpine.data('subscriptionsTable', () => ({
+                    subscriptions: {},
+                    currentFilter: 'pending',
+                    apiBaseUrl: API_CONFIG.BASE_URL_Uber,
+                    currentPage: 1,
+                    users: [],
+                    plans: [],
+                    filters: {
+                        status: 'pending',
+                        user_id: '',
+                        plan_id: '',
+                        start_date: '',
+                        end_date: '',
                     },
-                });
+
+                    async init() {
+                        await this.fetchUsers();
+                        await this.fetchPlans();
+                        await this.fetchSubscriptions();
+                    },
+                    async fetchUsers() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) throw new Error('Failed to fetch users');
+                            const data = await response.json();
+                            this.users = data.user.filter((u) => u.type === '0');
+                        } catch (error) {
+                            coloredToast('error', error.message);
+                        }
+                    },
+                    async fetchPlans() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) throw new Error('Failed to fetch plans');
+                            const data = await response.json();
+                            this.plans = data.data;
+                        } catch (error) {
+                            coloredToast('error', error.message);
+                        }
+                    },
+                    async fetchSubscriptions() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            if (!token) {
+                                coloredToast('error', 'Authentication token is missing');
+                                window.location.href = '/auth-boxed-signin.html';
+                                return;
+                            }
+
+                            // بناء query parameters
+                            let url = `${this.apiBaseUrl}/api/admin/subscribe/index?page=${this.currentPage}`;
+
+                            // إضافة الفلاتر إذا كانت موجودة
+                            if (this.filters.status) url += `&status=${this.filters.status}`;
+                            if (this.filters.user_id) url += `&user_id=${this.filters.user_id}`;
+                            if (this.filters.plan_id) url += `&plan_id=${this.filters.plan_id}`;
+                            if (this.filters.start_date) url += `&start_date=${this.filters.start_date}`;
+                            if (this.filters.end_date) url += `&end_date=${this.filters.end_date}`;
+
+                            const response = await fetch(url, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                            const data = await response.json();
+                            this.subscriptions = data.data;
+                        } catch (error) {
+                            coloredToast('error', error.message || 'Failed to fetch subscriptions');
+                        }
+                    },
+                    changeFilter(filter) {
+                        this.currentFilter = filter;
+                        this.currentPage = 1;
+                        this.fetchSubscriptions();
+                    },
+
+                    nextPage() {
+                        if (this.currentPage < this.subscriptions.last_page) {
+                            this.currentPage++;
+                            this.fetchSubscriptions();
+                        }
+                    },
+
+                    prevPage() {
+                        if (this.currentPage > 1) {
+                            this.currentPage--;
+                            this.fetchSubscriptions();
+                        }
+                    },
+
+                    formatDate(dateString) {
+                        if (!dateString) return 'N/A';
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString();
+                    },
+
+                    async markAsPaid(subscriptionId) {
+                        try {
+                            const isConfirmed = await Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'Do you want to approve this subscription?',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, approve it!',
+                            });
+
+                            if (!isConfirmed.isConfirmed) return;
+
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribe/mark_as_paid/${subscriptionId}`, {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to approve subscription');
+                            }
+
+                            await this.fetchSubscriptions();
+                            Swal.fire('Approved!', 'The subscription has been approved.', 'success');
+                        } catch (error) {
+                            Swal.fire('Error', error.message || 'Failed to approve subscription', 'error');
+                        }
+                    },
+                }));
+                // Subscription Form Modal Component
+                Alpine.data('subscriptionFormModal', () => ({
+                    isOpen: false,
+                    formData: {
+                        id: '',
+                        user: {},
+                        plan: {},
+                        status: '',
+                        remaining_cars: '',
+                        car_limite: '',
+                        date_from: '',
+                        date_end: '',
+                        price: '',
+                        is_paid: '0',
+                    },
+
+                    openModal(subscription) {
+                        this.formData = {
+                            id: subscription.id,
+                            user: subscription.user,
+                            plan: subscription.plan,
+                            status: subscription.status,
+                            remaining_cars: subscription.remaining_cars,
+                            car_limite: subscription.car_limite,
+                            date_from: subscription.date_from ? subscription.date_from.split('T')[0] : '',
+                            date_end: subscription.date_end ? subscription.date_end.split('T')[0] : '',
+                            price: subscription.price,
+                            is_paid: subscription.is_paid,
+                        };
+                        this.isOpen = true;
+                    },
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    async submitForm() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            if (!token) throw new Error('Authentication token not found');
+
+                            // Prepare the data for submission
+                            const data = {
+                                status: this.formData.status,
+                                is_paid: this.formData.is_paid,
+                                date_from: this.formData.date_from,
+                                date_end: this.formData.date_end,
+                                remaining_cars: this.formData.remaining_cars,
+                            };
+
+                            // Send request
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Uber}/api/admin/subscribe/update/${this.formData.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify(data),
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                const errorMsg =
+                                    result.message ||
+                                    Object.values(result.errors || {})
+                                        .flat()
+                                        .join('\n') ||
+                                    'Failed to update subscription';
+                                throw new Error(errorMsg);
+                            }
+
+                            // Show success message
+                            coloredToast('success', 'Subscription updated successfully!');
+
+                            // Close modal
+                            this.closeModal();
+
+                            // Refresh subscriptions list
+                            Alpine.store('subscriptionsTable').fetchSubscriptions();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            coloredToast('danger', error.message);
+                        }
+                    },
+                }));
                 // main section
                 Alpine.data('scrollToTop', () => ({
                     showTopButton: false,
@@ -1217,347 +1742,6 @@
                         }
                     },
                 }));
-
-                Alpine.data('header', () => ({
-                    init() {
-                        const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
-                        if (selector) {
-                            selector.classList.add('active');
-                            const ul = selector.closest('ul.sub-menu');
-                            if (ul) {
-                                let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
-                                if (ele) {
-                                    ele = ele[0];
-                                    setTimeout(() => {
-                                        ele.classList.add('active');
-                                    });
-                                }
-                            }
-                        }
-                    },
-                }));
-                Alpine.data('logout', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL,
-
-                    async handleLogout() {
-                        const token = localStorage.getItem('authToken');
-                        try {
-                            const response = await fetch(`${this.apiBaseUrl}/api/logout`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
-
-                            if (!response.ok) {
-                                const errorData = await response.json().catch(() => ({}));
-                                throw new Error(errorData.message || 'فشل تسجيل الخروج');
-                            }
-
-                            // إزالة التوكن وإعادة التوجيه
-                            localStorage.removeItem('authToken');
-                            window.location.href = 'auth-boxed-signin.html'; // صفحة تسجيل الدخول
-                        } catch (error) {
-                            alert('حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة لاحقًا.', error);
-                        }
-                    },
-                }));
-                coloredToast = (color, message) => {
-                    const toast = window.Swal.mixin({
-                        toast: true,
-                        position: 'bottom-start',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        showCloseButton: true,
-                        animation: false,
-                        customClass: {
-                            popup: `color-${color}`,
-                        },
-                    });
-                    toast.fire({
-                        title: message, // Show the custom message
-                    });
-                };
-
-                Alpine.data('multipleTable', () => ({
-                    tableData: [],
-                    datatable1: null,
-                    apiBaseUrl: API_CONFIG.BASE_URL,
-
-                    async init() {
-                        await this.fetchPlans();
-
-                        // Event Delegation for Delete Buttons
-                        document.addEventListener('click', (e) => {
-                            if (e.target.closest('.delete-btn')) {
-                                const planId = e.target.closest('.delete-btn').dataset.id;
-                                this.deletePlan(planId);
-                            }
-                            if (e.target.closest('.update-btn')) {
-                                const planId = e.target.closest('.update-btn').dataset.id;
-                                this.updatePlan(planId);
-                            }
-                        });
-                    },
-
-                    // جلب بيانات الخطط من API
-                    async fetchPlans() {
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            if (!token) {
-                                this.showError('Authentication token is missing. Please log in.');
-                                window.location.href = '/auth-boxed-signin.html';
-                                return;
-                            }
-
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index`, {
-                                method: 'GET',
-                                headers: {
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
-
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-
-                            const data = await response.json();
-                            this.tableData = data.data;
-                            console.log(data);
-
-                            this.populateTable();
-                        } catch (error) {
-                            console.error('Error fetching plans:', error);
-                        }
-                    },
-
-                    // تعبئة الجدول بالبيانات
-                    populateTable() {
-                        if (this.datatable1) {
-                            this.datatable1.destroy();
-                        }
-
-                        const mappedData = this.tableData.map((plan, index) => [
-                            this.formatText(index + 1),
-                            this.formatText(plan.name),
-                            this.formatText(plan.price),
-                            this.formatText(plan.car_limite),
-                            this.formatText(plan.count_day),
-                            this.getActionButtons(plan.id, plan.name, plan.price, plan.car_limite, plan.count_day),
-                        ]);
-
-                        this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
-                            data: {
-                                headings: ['#', 'Name', 'Price', 'Car Limit', 'Days Count', '<div class="text-center">Action</div>'],
-                                data: mappedData,
-                            },
-                            searchable: true,
-                            perPage: 10,
-                            perPageSelect: [10, 20, 30, 50, 100],
-                            columns: [{ select: 0, sort: 'asc' }],
-                            firstLast: true,
-                            firstText: this.getPaginationIcon('first'),
-                            lastText: this.getPaginationIcon('last'),
-                            prevText: this.getPaginationIcon('prev'),
-                            nextText: this.getPaginationIcon('next'),
-                            labels: { perPage: '{select}' },
-                            layout: {
-                                top: '{search}',
-                                bottom: '{info}{select}{pager}',
-                            },
-                        });
-                    },
-
-                    formatText(text) {
-                        return text || 'N/A';
-                    },
-
-                    // أزرار الإجراءات
-                    getActionButtons(planId, name, price, car_limite, count_day) {
-                        return `
-                <div class="flex items-center justify-center">
-                    <button class="btn update-btn btn-warning" 
-                            data-id="${planId}"
-                            data-name="${name}"
-                            data-price="${price}"
-                            data-car_limite="${car_limite}"
-                            data-count_day="${count_day}">
-                        UPDATE
-                    </button>
-
-            
-                </div>`;
-                    },
-
-                    async updatePlan(planId) {
-                        const btn = document.querySelector(`.update-btn[data-id="${planId}"]`);
-                        Alpine.store('global').sharedData.name = btn.dataset.name;
-                        Alpine.store('global').sharedData.price = btn.dataset.price;
-                        Alpine.store('global').sharedData.car_limite = btn.dataset.car_limite;
-                        Alpine.store('global').sharedData.count_day = btn.dataset.count_day;
-
-                        const updateConfirmed = await new Promise((resolve) => {
-                            Alpine.store('updateModal').openModal(planId, () => {
-                                resolve(true);
-                            });
-                        });
-
-                        if (!updateConfirmed) return;
-
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            if (!token) {
-                                coloredToast('danger', 'Authentication token missing');
-                                return;
-                            }
-
-                            // تحويل البيانات إلى JSON بدلاً من FormData
-                            const updateData = {
-                                name: Alpine.store('global').sharedData.name,
-                                price: parseFloat(Alpine.store('global').sharedData.price),
-                                car_limite: parseInt(Alpine.store('global').sharedData.car_limite),
-                                count_day: parseInt(Alpine.store('global').sharedData.count_day),
-                            };
-
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/update/${planId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: JSON.stringify(updateData),
-                            });
-
-                            // تحقق من الاستجابة بشكل أدق
-                            if (!response.ok) {
-                                const errorData = await response.json().catch(() => ({}));
-                                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                            }
-
-                            const result = await response.json();
-                            console.log('Update result:', result);
-
-                            if (result) {
-                                coloredToast('success', 'Plan Updated Successfully');
-                                await this.fetchPlans(); // إعادة تحميل البيانات
-                            } else {
-                                coloredToast('warning', result.message || 'Update completed but server returned failure');
-                            }
-                        } catch (error) {
-                            console.error('Update error:', error);
-                            coloredToast('danger', error.message || 'Failed to update plan');
-                        }
-                    },
-                    // حذف الخطة
-                    async deletePlan(planId) {
-                        const deleteConfirmed = await new Promise((resolve) => {
-                            Alpine.store('deleteModal').openModal(planId, () => {
-                                resolve(true);
-                            });
-                        });
-
-                        if (!deleteConfirmed) return;
-
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/delete/${planId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
-
-                            if (!response.ok) throw new Error('Failed to delete plan');
-                            coloredToast('success', 'Plan Deleted Successfully');
-
-                            await this.fetchPlans();
-                        } catch (error) {
-                            coloredToast('danger', error.message || 'Failed to delete plan');
-                        }
-                    },
-
-                    // بقية الدوال المساعدة...
-                    getPaginationIcon(type) {
-                        const icons = {
-                            first: '<svg...></svg>',
-                            last: '<svg...></svg>',
-                            prev: '<svg...></svg>',
-                            next: '<svg...></svg>',
-                        };
-                        return icons[type];
-                    },
-
-                    showSuccess(message) {
-                        alert(message);
-                    },
-
-                    showError(message) {
-                        alert(message);
-                    },
-                }));
-
-                Alpine.data('Add_Plan', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL,
-                    name: '',
-                    price: '',
-                    car_limite: '',
-                    count_day: '',
-
-                    async Add_Plan() {
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            if (!token) throw new Error('Authentication token not found');
-
-                            if (!this.name || this.name.trim() === '') {
-                                throw new Error('Plan name cannot be empty');
-                            }
-
-                            const formData = new FormData();
-                            formData.append('name', this.name.trim());
-                            formData.append('price', this.price);
-                            formData.append('car_limite', this.car_limite);
-                            formData.append('count_day', this.count_day);
-
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/store`, {
-                                method: 'POST',
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                    Accept: 'application/json',
-                                },
-                                body: formData,
-                            });
-
-                            if (!response.ok) {
-                                const errorData = await response.json();
-                                throw new Error(errorData.message || 'Failed to add plan');
-                            }
-
-                            const result = await response.json();
-                            console.log('Success:', result);
-
-                            // Reset form
-                            this.name = '';
-                            this.price = '';
-                            this.car_limite = '';
-                            this.count_day = '';
-
-                            coloredToast('success', 'Plan Added Successfully');
-
-                            // Refresh plans list
-                            const tableComponent = Alpine.store('multipleTable');
-                            if (tableComponent && tableComponent.fetchPlans) {
-                                await tableComponent.fetchPlans();
-                            }
-                        } catch (error) {
-                            console.error('Error adding plan:', error);
-                            coloredToast('danger', error.message || 'Error adding plan');
-                        }
-                    },
-                }));
                 Alpine.store('deleteModal', {
                     isOpen: false,
                     managerId: null,
@@ -1580,29 +1764,129 @@
                         this.closeModal();
                     },
                 });
-                Alpine.store('updateModal', {
-                    apiBaseUrl: API_CONFIG.BASE_URL, // Ensure API_CONFIG is defined
-                    managerId: null,
-                    callback: null,
-
-                    openModal(id, callback) {
-                        this.managerId = id;
-                        this.callback = callback;
-                        this.isOpen = true;
-                    },
-
-                    closeModal() {
-                        this.isOpen = false;
-                    },
-
-                    confirmUpdate() {
-                        if (this.callback && this.managerId) {
-                            this.callback(this.managerId);
-                        }
-                        this.closeModal();
-                    },
-                });
                 // header section
+                Alpine.data('header', () => ({
+                    init() {
+                        const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
+                        if (selector) {
+                            selector.classList.add('active');
+                            const ul = selector.closest('ul.sub-menu');
+                            if (ul) {
+                                let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
+                                if (ele) {
+                                    ele = ele[0];
+                                    setTimeout(() => {
+                                        ele.classList.add('active');
+                                    });
+                                }
+                            }
+                        }
+                    },
+
+                    notifications: [
+                        {
+                            id: 1,
+                            profile: 'user-profile.jpeg',
+                            message: '<strong class="text-sm mr-1">John Doe</strong>invite you to <strong>Prototyping</strong>',
+                            time: '45 min ago',
+                        },
+                        {
+                            id: 2,
+                            profile: 'profile-34.jpeg',
+                            message: '<strong class="text-sm mr-1">Adam Nolan</strong>mentioned you to <strong>UX Basics</strong>',
+                            time: '9h Ago',
+                        },
+                        {
+                            id: 3,
+                            profile: 'profile-16.jpeg',
+                            message: '<strong class="text-sm mr-1">Anna Morgan</strong>Upload a file',
+                            time: '9h Ago',
+                        },
+                    ],
+
+                    messages: [
+                        {
+                            id: 1,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-success-light dark:bg-success text-success dark:text-success-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>',
+                            title: 'Congratulations!',
+                            message: 'Your OS has been updated.',
+                            time: '1hr',
+                        },
+                        {
+                            id: 2,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>',
+                            title: 'Did you know?',
+                            message: 'You can switch between artboards.',
+                            time: '2hr',
+                        },
+                        {
+                            id: 3,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
+                            title: 'Something went wrong!',
+                            message: 'Send Reposrt',
+                            time: '2days',
+                        },
+                        {
+                            id: 4,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>',
+                            title: 'Warning',
+                            message: 'Your password strength is low.',
+                            time: '5days',
+                        },
+                    ],
+
+                    removeNotification(value) {
+                        this.notifications = this.notifications.filter((d) => d.id !== value);
+                    },
+
+                    removeMessage(value) {
+                        this.messages = this.messages.filter((d) => d.id !== value);
+                    },
+                }));
+                Alpine.data('logout', () => ({
+                    apiBaseUrl: API_CONFIG.BASE_URL_Uber,
+
+                    async handleLogout() {
+                        const token = localStorage.getItem('Token');
+                        try {
+                            const response = await fetch(`${this.apiBaseUrl}/web/admins/logout`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    lang: 'en',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) {
+                                const errorData = await response.json().catch(() => ({}));
+                                throw new Error(errorData.message || 'فشل تسجيل الخروج');
+                            }
+
+                            // إزالة التوكن وإعادة التوجيه
+                            localStorage.removeItem('Token');
+                            window.location.href = 'auth-boxed-signin.html'; // صفحة تسجيل الدخول
+                        } catch (error) {
+                            alert('حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة لاحقًا.', error);
+                        }
+                    },
+                }));
+                coloredToast = (color, message) => {
+                    const toast = window.Swal.mixin({
+                        toast: true,
+                        position: 'bottom-start',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        showCloseButton: true,
+                        animation: false,
+                        customClass: {
+                            popup: `color-${color}`,
+                        },
+                    });
+                    toast.fire({
+                        title: message, // Show the custom message
+                    });
+                };
             });
         </script>
     </body>

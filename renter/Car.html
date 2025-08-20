@@ -1035,87 +1035,600 @@
                                 <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
                             </li>
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span> Plan & Subscriptions </span>
+                                <span>Cars Management </span>
                             </li>
 
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Driver Price</span>
+                                <span>Cars</span>
                             </li>
                         </ul>
 
                         <div class="pt-5">
-                            <div class="panel h-full" x-data="driverPrice">
-                                <div class="mb-5 flex items-center justify-between">
-                                    <h5 class="text-lg font-semibold dark:text-white-light">Driver Additional Price</h5>
-                                </div>
+                            <!-- زر إضافة سيارة جديد -->
+                            <div class="mb-6 flex justify-end" x-data="multipleTable">
+                                <button @click="openAddCarModal()" class="btn btn-primary flex items-center gap-2">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add New Car
+                                </button>
+                            </div>
 
-                                <!-- عرض السعر الحالي -->
-                                <div class="mb-6 rounded-lg bg-gray-50 p-6 dark:bg-gray-800" x-show="currentPrice !== null">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Current Driver Price</h3>
-                                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                                This is the additional price that will be charged for driver service.
-                                            </p>
+                            <!-- جدول السيارات -->
+                            <div x-data="multipleTable">
+                                <div class="panel mt-6">
+                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0">Cars</h5>
+                                    <table id="myTable1" class="whitespace-nowrap"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- نهاية المحتوى الرئيسي -->
+
+                <!-- مودال إضافة سيارة متعدد المراحل -->
+                <div
+                    x-data="addCarModal"
+                    x-show="  Alpine.store('global').isOpen"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+                    style="display: none"
+                    x-cloak
+                >
+                    <div class="w-full max-w-2xl rounded-lg bg-white shadow-xl dark:bg-gray-800">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                            <h3 class="text-xl font-bold">Add New Car</h3>
+                            <button @click="closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Progress Steps -->
+                        <div class="border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex p-4">
+                                <template x-for="(step, index) in  Alpine.store('global').steps" :key="index">
+                                    <div class="flex-1">
+                                        <div class="flex flex-col items-center">
+                                            <div
+                                                class="flex h-10 w-10 items-center justify-center rounded-full"
+                                                :class="{
+                                                    'bg-primary text-white':  Alpine.store('global').currentStep > index || ( Alpine.store('global').currentStep === index && ! Alpine.store('global').isLastStep),
+                                                    'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300':  Alpine.store('global').currentStep < index,
+                                                    'border-2 border-primary bg-white text-primary dark:bg-gray-800':  Alpine.store('global').currentStep === index &&  Alpine.store('global').isLastStep
+                                                }"
+                                            >
+                                                <span x-text="index + 1"></span>
+                                            </div>
+                                            <span
+                                                class="mt-2 text-sm"
+                                                :class="{
+                                                    'font-medium text-primary':  Alpine.store('global').currentStep >= index,
+                                                    'text-gray-500 dark:text-gray-400':  Alpine.store('global').currentStep < index
+                                                }"
+                                                x-text="Alpine.store('global').steps.title"
+                                            ></span>
                                         </div>
-                                        <div class="text-3xl font-bold text-primary dark:text-primary-light" x-text="'$' + currentPrice"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Form Content -->
+                        <div class="p-6">
+                            <!-- Step 1: Basic Information -->
+                            <div x-show=" Alpine.store('global').currentStep === 0" x-transition>
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Basic Information</h4>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <!-- Model -->
+                                    <div>
+                                        <label for="model_id" class="mb-2 block">Model</label>
+                                        <select id="model_id" class="form-select w-full" x-model="Alpine.store('global').formData.model_id" required>
+                                            <option value="">Select Model</option>
+                                            <option value="1">Model 1</option>
+                                            <option value="2">Model 2</option>
+                                            <option value="3">Model 3</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Year -->
+                                    <div>
+                                        <label for="year" class="mb-2 block">Year</label>
+                                        <input
+                                            type="number"
+                                            id="year"
+                                            class="form-input w-full"
+                                            placeholder="Enter Year"
+                                            x-model=" Alpine.store('global').formData.year"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Price -->
+                                    <div>
+                                        <label for="price" class="mb-2 block">Price</label>
+                                        <input
+                                            type="number"
+                                            id="price"
+                                            class="form-input w-full"
+                                            placeholder="Enter Price"
+                                            x-model=" Alpine.store('global').formData.price"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Plan -->
+                                    <div>
+                                        <label for="plan_id" class="mb-2 block">Plan</label>
+                                        <select id="plan_id" class="form-select w-full" x-model=" Alpine.store('global').formData.plan_id" required>
+                                            <option value="">Select Plan</option>
+                                            <option value="1">Plan 1</option>
+                                            <option value="2">Plan 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Location Details -->
+                            <div x-show=" Alpine.store('global').currentStep === 1" x-transition>
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Location Details</h4>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <!-- Latitude -->
+                                    <div>
+                                        <label for="lat" class="mb-2 block">Latitude</label>
+                                        <input
+                                            type="text"
+                                            id="lat"
+                                            class="form-input w-full"
+                                            placeholder="Enter Latitude"
+                                            x-model=" Alpine.store('global').formData.lat"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Longitude -->
+                                    <div>
+                                        <label for="lang" class="mb-2 block">Longitude</label>
+                                        <input
+                                            type="text"
+                                            id="lang"
+                                            class="form-input w-full"
+                                            placeholder="Enter Longitude"
+                                            x-model=" Alpine.store('global').formData.lang"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="md:col-span-2">
+                                        <label for="address" class="mb-2 block">Address</label>
+                                        <input
+                                            type="text"
+                                            id="address"
+                                            class="form-input w-full"
+                                            placeholder="Enter Address"
+                                            x-model=" Alpine.store('global').formData.address"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- State -->
+                                    <div class="md:col-span-2">
+                                        <label for="state" class="mb-2 block">State</label>
+                                        <input
+                                            type="text"
+                                            id="state"
+                                            class="form-input w-full"
+                                            placeholder="Enter State"
+                                            x-model=" Alpine.store('global').formData.state"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Car Details -->
+                            <div x-show=" Alpine.store('global').currentStep === 2" x-transition>
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Car Details</h4>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <!-- License Number -->
+                                    <div>
+                                        <label for="number_license" class="mb-2 block">License Number</label>
+                                        <input
+                                            type="text"
+                                            id="number_license"
+                                            class="form-input w-full"
+                                            placeholder="Enter License Number"
+                                            x-model=" Alpine.store('global').formData.number_license"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- VIN -->
+                                    <div>
+                                        <label for="vin" class="mb-2 block">VIN</label>
+                                        <input
+                                            type="text"
+                                            id="vin"
+                                            class="form-input w-full"
+                                            placeholder="Enter VIN"
+                                            x-model=" Alpine.store('global').formData.vin"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Number -->
+                                    <div>
+                                        <label for="number" class="mb-2 block">Number</label>
+                                        <input
+                                            type="text"
+                                            id="number"
+                                            class="form-input w-full"
+                                            placeholder="Enter Number"
+                                            x-model=" Alpine.store('global').formData.number"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label for="make" class="mb-2 block">MAKE</label>
+                                        <input
+                                            type="text"
+                                            id="make"
+                                            class="form-input w-full"
+                                            placeholder="Enter MAKE"
+                                            x-model=" Alpine.store('global').formData.make"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="md:col-span-2">
+                                        <label for="description" class="mb-2 block">Description</label>
+                                        <textarea
+                                            id="description"
+                                            class="form-textarea w-full"
+                                            rows="3"
+                                            placeholder="Enter Description"
+                                            x-model=" Alpine.store('global').formData.description"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Features -->
+                            <div x-show=" Alpine.store('global').currentStep === 3" x-transition>
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Car Features</h4>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <!-- Transmission -->
+                                    <div>
+                                        <label for="transmission" class="mb-2 block">Transmission</label>
+                                        <select
+                                            id="transmission"
+                                            class="form-select w-full"
+                                            x-model=" Alpine.store('global').formData.features.transmission"
+                                            required
+                                        >
+                                            <option value="">Select Transmission</option>
+                                            <option value="automatic">Automatic</option>
+                                            <option value="manual">Manual</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Mileage Range -->
+                                    <div>
+                                        <label for="mileage_range" class="mb-2 block">Mileage Range</label>
+                                        <input
+                                            type="text"
+                                            id="mileage_range"
+                                            class="form-input w-full"
+                                            placeholder="e.g. 10000-20000"
+                                            x-model=" Alpine.store('global').formData.features.mileage_range"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Number of Doors -->
+                                    <div>
+                                        <label for="num_of_door" class="mb-2 block">Number of Doors</label>
+                                        <input
+                                            type="number"
+                                            id="num_of_door"
+                                            class="form-input w-full"
+                                            placeholder="Enter Number of Doors"
+                                            x-model=" Alpine.store('global').formData.features.num_of_door"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Number of Seats -->
+                                    <div>
+                                        <label for="num_of_seat" class="mb-2 block">Number of Seats</label>
+                                        <input
+                                            type="number"
+                                            id="num_of_seat"
+                                            class="form-input w-full"
+                                            placeholder="Enter Number of Seats"
+                                            x-model=" Alpine.store('global').formData.features.num_of_seat"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- All Have Seatbelts -->
+                                    <div class="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id="all_have_seatbelts"
+                                            class="form-checkbox"
+                                            x-model=" Alpine.store('global').formData.features.all_have_seatbelts"
+                                        />
+                                        <label for="all_have_seatbelts" class="ml-2">All Have Seatbelts</label>
+                                    </div>
+
+                                    <!-- Mechanical Condition -->
+                                    <div>
+                                        <label for="mechanical_condition" class="mb-2 block">Mechanical Condition</label>
+                                        <input
+                                            type="text"
+                                            id="mechanical_condition"
+                                            class="form-input w-full"
+                                            placeholder="Enter Mechanical Condition"
+                                            x-model=" Alpine.store('global').formData.features.mechanical_condition"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Rental Settings -->
+                            <!-- Step 5: Company Information -->
+                            <div x-show="Alpine.store('global').currentStep === 4" x-transition>
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Company Information</h4>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <!-- Legal Name -->
+                                    <div>
+                                        <label for="legal_name" class="mb-2 block">Legal Name</label>
+                                        <input
+                                            type="text"
+                                            id="legal_name"
+                                            class="form-input w-full"
+                                            placeholder="Enter Legal Name"
+                                            x-model="Alpine.store('global').formData.company.legal_name"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Number of Employees -->
+                                    <div>
+                                        <label for="num_of_employees" class="mb-2 block">Number of Employees</label>
+                                        <input
+                                            type="number"
+                                            id="num_of_employees"
+                                            class="form-input w-full"
+                                            placeholder="Enter Number of Employees"
+                                            x-model="Alpine.store('global').formData.company.num_of_employees"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- VAT -->
+                                    <div class="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id="is_under_vat"
+                                            class="form-checkbox"
+                                            x-model="Alpine.store('global').formData.company.is_under_vat"
+                                        />
+                                        <label for="is_under_vat" class="ml-2">Under VAT</label>
+                                    </div>
+
+                                    <!-- VAT Number -->
+                                    <div x-show="Alpine.store('global').formData.company.is_under_vat">
+                                        <label for="vat_num" class="mb-2 block">VAT Number</label>
+                                        <input
+                                            type="text"
+                                            id="vat_num"
+                                            class="form-input w-full"
+                                            placeholder="Enter VAT Number"
+                                            x-model="Alpine.store('global').formData.company.vat_num"
+                                        />
+                                    </div>
+
+                                    <!-- Zip Code -->
+                                    <div>
+                                        <label for="zip_code" class="mb-2 block">Zip Code</label>
+                                        <input
+                                            type="text"
+                                            id="zip_code"
+                                            class="form-input w-full"
+                                            placeholder="Enter Zip Code"
+                                            x-model="Alpine.store('global').formData.company.zip_code"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Country -->
+                                    <div>
+                                        <label for="country" class="mb-2 block">Country</label>
+                                        <input
+                                            type="text"
+                                            id="country"
+                                            class="form-input w-full"
+                                            placeholder="Enter Country"
+                                            x-model="Alpine.store('global').formData.company.country"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Address 1 -->
+                                    <div class="md:col-span-2">
+                                        <label for="address_1" class="mb-2 block">Address Line 1</label>
+                                        <input
+                                            type="text"
+                                            id="address_1"
+                                            class="form-input w-full"
+                                            placeholder="Enter Address Line 1"
+                                            x-model="Alpine.store('global').formData.company.address_1"
+                                            required
+                                        />
+                                    </div>
+
+                                    <!-- Address 2 -->
+                                    <div class="md:col-span-2">
+                                        <label for="address_2" class="mb-2 block">Address Line 2</label>
+                                        <input
+                                            type="text"
+                                            id="address_2"
+                                            class="form-input w-full"
+                                            placeholder="Enter Address Line 2"
+                                            x-model="Alpine.store('global').formData.company.address_2"
+                                        />
+                                    </div>
+
+                                    <!-- City -->
+                                    <div>
+                                        <label for="city" class="mb-2 block">City</label>
+                                        <input
+                                            type="text"
+                                            id="city"
+                                            class="form-input w-full"
+                                            placeholder="Enter City"
+                                            x-model="Alpine.store('global').formData.company.city"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 6: Images & Final Step -->
+                            <!-- Step 6: Driving License -->
+
+                            <div
+                                x-show="Alpine.store('global').currentStep === 5"
+                                x-transition
+                                class="flex flex-col overflow-y-auto"
+                                style="height: calc(100vh - 300px); max-height: 600px"
+                            >
+                                <div x-show="Alpine.store('global').currentStep === 5" x-transition>
+                                    <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Driving License</h4>
+
+                                    <div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+                                        <label class="mb-2 block">Upload Driving License Image</label>
+                                        <div class="custom-file-container" data-upload-id="drivingLicenseUpload"></div>
+                                        <p class="mt-2 text-xs text-gray-500">Please upload a clear photo of your valid driving license</p>
+                                    </div>
+                                </div>
+                                <!-- Header -->
+                                <h4 class="mb-4 text-lg font-semibold dark:text-white-light">Upload Images</h4>
+
+                                <!-- Content Area with Scroll -->
+                                <div class="mb-4 flex-1 space-y-4">
+                                    <!-- Image Upload Section -->
+                                    <div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+                                        <div class="custom-file-container" data-upload-id="carImagesUpload"></div>
+                                    </div>
+
+                                    <!-- Information Review Section -->
+                                    <div class="overflow-hidden rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+                                        <h5 class="mb-3 text-lg font-semibold dark:text-white-light">Review Your Information</h5>
+
+                                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <!-- Basic Info Column -->
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Model:</p>
+                                                    <p class="font-medium" x-text="Alpine.store('global').formData.model_id || 'Not specified'"></p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Year:</p>
+                                                    <p class="font-medium" x-text="Alpine.store('global').formData.year || 'Not specified'"></p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Price:</p>
+                                                    <p
+                                                        class="font-medium"
+                                                        x-text="Alpine.store('global').formData.price ? '$' + Alpine.store('global').formData.price : 'Not specified'"
+                                                    ></p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Location Column -->
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Location:</p>
+                                                    <p class="font-medium" x-text="Alpine.store('global').formData.address || 'Not specified'"></p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Transmission:</p>
+                                                    <p
+                                                        class="font-medium capitalize"
+                                                        x-text="Alpine.store('global').formData.features.transmission || 'Not specified'"
+                                                    ></p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Seats:</p>
+                                                    <p class="font-medium" x-text="Alpine.store('global').formData.features.num_of_seat || 'Not specified'"></p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Full Width Description -->
+                                            <div class="md:col-span-2">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">Description:</p>
+                                                <p
+                                                    class="whitespace-pre-line font-medium"
+                                                    x-text="Alpine.store('global').formData.description || 'Not specified'"
+                                                ></p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- نموذج تحديث السعر -->
-                                <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-700">
-                                    <h3
-                                        class="mb-4 text-lg font-medium dark:text-white"
-                                        x-text="currentPrice === null ? 'Set Driver Price' : 'Update Driver Price'"
-                                    ></h3>
-
-                                    <form @submit.prevent="updatePrice" class="space-y-4">
-                                        <div>
-                                            <label for="price" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Additional Price</label>
-                                            <div class="relative rounded-md shadow-sm">
-                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                    <span class="text-gray-500 sm:text-sm">$</span>
-                                                </div>
-                                                <input
-                                                    type="number"
-                                                    id="price"
-                                                    x-model="price"
-                                                    class="form-input block w-full pl-7 pr-12"
-                                                    placeholder="0.00"
-                                                    required
-                                                    step="0.01"
-                                                    min="0"
-                                                />
-                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                    <span class="text-gray-500 sm:text-sm">USD</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex justify-end">
-                                            <button type="submit" class="btn btn-primary" :disabled="isLoading">
-                                                <span x-show="!isLoading" x-text="currentPrice === null ? 'Set Price' : 'Update Price'"></span>
-                                                <span x-show="isLoading" class="flex items-center">
-                                                    <svg
-                                                        class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path
-                                                            class="opacity-75"
-                                                            fill="currentColor"
-                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                        ></path>
-                                                    </svg>
-                                                    Processing...
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                                <!-- Fixed Navigation Buttons -->
                             </div>
+                        </div>
+
+                        <!-- Footer Buttons -->
+                        <div class="flex justify-between border-t p-4 dark:border-gray-700">
+                            <button type="button" @click="prevStep()" class="btn btn-outline-primary" x-show=" Alpine.store('global').currentStep > 0">
+                                Previous
+                            </button>
+
+                            <div class="flex-1"></div>
+
+                            <button type="button" @click="nextStep()" class="btn btn-primary" x-text="isLastStep ? 'Submit' : 'Next'"></button>
                         </div>
                     </div>
                 </div>
@@ -1126,6 +1639,66 @@
                     © <span id="footer-year">2022</span>. Developed By High Level Technology.
                 </div>
                 <!-- end footer section -->
+            </div>
+        </div>
+        <!-- Modal for Delete Confirmation -->
+        <div
+            x-data
+            x-show="$store.updateModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold">Update Confirmation</h5>
+                        <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <div class="overflow-hidden">
+                                <!-- form grid -->
+                                <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
+                                    <input type="text" placeholder="Enter Name" class="form-input" x-model="$store.global.sharedData.fullname2" />
+                                    <input type="text" placeholder="Enter Price" class="form-input" x-model="$store.global.sharedData.price" />
+                                </div>
+
+                                <div class="mt-8 flex items-center justify-end">
+                                    <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
+                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Delete Confirmation Modal -->
+        <div
+            x-data
+            x-show="$store.deleteModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="w-full max-w-sm rounded-lg bg-white shadow-lg dark:bg-gray-800">
+                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                    <h3 class="text-lg font-bold">Delete Confirmation</h3>
+                    <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Car?"</p>
+                </div>
+                <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
+                    <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">No</button>
+                    <button @click="$store.deleteModal.confirmDelete()" class="btn btn-primary">Yes</button>
+                </div>
             </div>
         </div>
 
@@ -1142,11 +1715,281 @@
 
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.store('global', {});
+                Alpine.store('global', {
+                    upload: new FileUploadWithPreview.FileUploadWithPreview('carImagesUpload', {
+                        images: {
+                            baseImage: 'assets/images/file-preview.svg',
+                            backgroundImage: '',
+                        },
+                        multiple: true,
+                        maxFileCount: 5,
+                    }),
+                    sharedData: {
+                        fullname2: '',
+                        price: '',
+                    },
+                    isOpen: false,
+                    currentStep: 0,
+                    steps: [
+                        { title: 'Basic Info' },
+                        { title: 'Location' },
+                        { title: 'Details' },
+                        { title: 'Features' },
+                        { title: 'Company' },
+                        { title: 'Images' },
+                    ],
+                    formData: {
+                        id: null, // سيتم تعبئته في وضع التعديل
+
+                        driving_license_image: null, // سيتم تخزين الصورة هنا
+                        image_license: null,
+
+                        make: '',
+                        model_id: '',
+                        year: '',
+                        price: '',
+                        plan_id: '',
+                        lat: '',
+                        lang: '',
+                        address: '',
+                        state: '',
+                        number_license: '',
+                        vin: '',
+                        number: '',
+                        description: '',
+                        min_day_trip: '',
+                        max_day_trip: '',
+                        advanced_notice: '',
+                        description_condition: '',
+                        day: '3',
+                        company: {
+                            legal_name: '',
+                            num_of_employees: '',
+                            is_under_vat: 0,
+                            vat_num: '',
+                            zip_code: '',
+                            country: '',
+                            address_1: '',
+                            address_2: '',
+                            city: '',
+                        },
+                        features: {
+                            transmission: '',
+                            mileage_range: '',
+                            num_of_door: '',
+                            num_of_seat: '',
+                            all_have_seatbelts: false,
+                            mechanical_condition: '',
+                            additional_features: [],
+                        },
+                    },
+                    models: [],
+                    plans: [],
+                    users: [],
+                    openModal() {
+                        this.isOpen = true;
+                        this.currentStep = 0;
+                        this.fetchModels();
+                        this.fetchPlans();
+                        this.fetchUsers();
+                        this.formData = {
+                            make: '',
+                            model_id: '',
+                            year: '',
+                            price: '',
+                            plan_id: '',
+                            lat: '',
+                            lang: '',
+                            address: '',
+                            state: '',
+                            number_license: '',
+                            vin: '',
+                            number: '',
+                            description: '',
+                            min_day_trip: '',
+                            max_day_trip: '',
+                            advanced_notice: '',
+                            description_condition: '',
+                            day: '3',
+                            company: {
+                                legal_name: '',
+                                num_of_employees: '',
+                                is_under_vat: 0,
+                                vat_num: '',
+                                zip_code: '',
+                                country: '',
+                                address_1: '',
+                                address_2: '',
+                                city: '',
+                            },
+                            features: {
+                                transmission: '',
+                                mileage_range: '',
+                                num_of_door: '',
+                                num_of_seat: '',
+                                all_have_seatbelts: false,
+                                mechanical_condition: '',
+                                additional_features: [],
+                            },
+                        };
+                    },
+                    initLicenseUpload() {
+                        this.formData.image_license = new FileUploadWithPreview.FileUploadWithPreview('drivingLicenseUpload', {
+                            images: {
+                                baseImage: 'assets/images/file-preview.svg',
+                                backgroundImage: '',
+                            },
+                            multiple: false, // صورة واحدة فقط
+                            maxFileCount: 1,
+                        });
+                    },
+                    async fetchModels() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/admin/model_car/get_all`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await response.json();
+                            this.models = data;
+                            console.log(data);
+                        } catch (error) {
+                            console.error('Error fetching models:', error);
+                        }
+                    },
+                    async fetchPlans() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/plans`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await response.json();
+                            this.plans = data.data;
+                        } catch (error) {
+                            console.error('Error fetching plans:', error);
+                        }
+                    },
+                    async fetchUsers() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/users`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                            const data = await response.json();
+                            this.users = data.data;
+                        } catch (error) {
+                            console.error('Error fetching users:', error);
+                        }
+                    },
+                    get isLastStep() {
+                        return this.currentStep === this.steps.length - 1;
+                    },
+                });
+                Alpine.data('addCarModal', () => ({
+                    init() {
+                        // Initialize file upload
+                        Alpine.store('global').upload = new FileUploadWithPreview.FileUploadWithPreview('carImagesUpload', {
+                            images: {
+                                baseImage: 'assets/images/file-preview.svg',
+                                backgroundImage: '',
+                            },
+                            multiple: true,
+                            maxFileCount: 5,
+                        });
+                    },
+
+                    get isLastStep() {
+                        return Alpine.store('global').currentStep === Alpine.store('global').steps.length - 1;
+                    },
+                    closeModal() {
+                        Alpine.store('global').isOpen = false;
+                    },
+
+                    nextStep() {
+                        if (Alpine.store('global').isLastStep) {
+                            this.submitForm();
+                        } else {
+                            Alpine.store('global').currentStep++;
+                        }
+                    },
+
+                    prevStep() {
+                        if (Alpine.store('global').currentStep > 0) {
+                            Alpine.store('global').currentStep--;
+                        }
+                    },
+
+                    async submitForm() {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            if (!token) throw new Error('Authentication token not found');
+
+                            const formData = new FormData();
+                            const isEditMode = !!Alpine.store('global').formData.id;
+
+                            // إضافة البيانات الأساسية
+                            for (const key in Alpine.store('global').formData) {
+                                if (key === 'features') {
+                                    formData.append('features', JSON.stringify(Alpine.store('global').formData.features));
+                                } else if (key !== 'id') {
+                                    formData.append(key, Alpine.store('global').formData[key]);
+                                }
+                            }
+
+                            // إضافة الصور إذا وجدت
+                            if (Alpine.store('global').upload?.cachedFileArray?.length) {
+                                Alpine.store('global').upload.cachedFileArray.forEach((file, index) => {
+                                    formData.append(`images[${index}]`, file);
+                                });
+                            }
+
+                            // تحديد رابط API
+                            const apiUrl = isEditMode
+                                ? `${API_CONFIG.BASE_URL_Renter}/api/updateCar/${Alpine.store('global').formData.id}`
+                                : `${API_CONFIG.BASE_URL_Renter}/api/cars/storeCar`;
+
+                            // إرسال الطلب
+                            const response = await fetch(apiUrl, {
+                                method: isEditMode ? 'PUT' : 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: formData,
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Operation failed');
+                            }
+
+                            coloredToast('success', `Car ${isEditMode ? 'updated' : 'added'} successfully`);
+                            Alpine.store('global').closeModal();
+                            await this.fetchCars();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            coloredToast('danger', error.message);
+                        }
+                    },
+                }));
                 // main section
                 Alpine.data('scrollToTop', () => ({
                     showTopButton: false,
                     init() {
+                        Alpine.store('global').initLicenseUpload();
+
                         window.onscroll = () => {
                             this.scrollFunction();
                         };
@@ -1190,7 +2033,51 @@
                         }
                     },
                 }));
-                // header section
+                Alpine.store('deleteModal', {
+                    isOpen: false,
+                    managerId: null,
+                    callback: null,
+
+                    openModal(id, callback) {
+                        this.managerId = id;
+                        this.callback = callback;
+                        this.isOpen = true;
+                    },
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    confirmDelete() {
+                        if (this.callback && this.managerId) {
+                            this.callback(this.managerId);
+                        }
+                        this.closeModal();
+                    },
+                });
+                Alpine.store('updateModal', {
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+                    carId: null,
+                    callback: null,
+                    isOpen: false,
+
+                    openModal(id, callback) {
+                        this.carId = id;
+                        this.callback = callback;
+                        this.isOpen = true;
+                    },
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    confirmUpdate() {
+                        if (this.callback && this.carId) {
+                            this.callback(this.carId);
+                        }
+                        this.closeModal();
+                    },
+                }); // header section
                 Alpine.data('header', () => ({
                     init() {
                         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -1209,8 +2096,565 @@
                         }
                     },
                 }));
+                Alpine.data('multipleTable', () => ({
+                    tableData: [],
+                    datatable1: null,
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+                    currentPage: 1,
+                    totalPages: 1,
+                    perPage: 10,
+                    openAddCarModal() {
+                        Alpine.store('global').openModal();
+                    },
+
+                    async init() {
+                        await this.fetchCars();
+
+                        // معالج الأحداث للعناصر الديناميكية
+                        document.addEventListener('click', (e) => {
+                            // معالجة زر العين (التفاصيل)
+                            if (e.target.closest('.btn-info')) {
+                                const btn = e.target.closest('.btn-info');
+                                const carData = btn.getAttribute('@click').match(/showCarDetails\((.+)\)/)[1];
+                                this.showCarDetails(JSON.parse(carData.replace(/&quot;/g, '"')));
+                            }
+
+                            // معالجة زر التعديل
+                            if (e.target.closest('.btn-warning')) {
+                                const btn = e.target.closest('.btn-warning');
+                                const carId = btn.getAttribute('@click').match(/editCar\((\d+)\)/)[1];
+                                this.editCar(parseInt(carId));
+                            }
+
+                            // معالجة زر الحذف
+                            if (e.target.closest('.btn-danger')) {
+                                const btn = e.target.closest('.btn-danger');
+                                const carId = btn.getAttribute('@click').match(/deleteCar\((\d+)\)/)[1];
+                                this.deleteCar(parseInt(carId));
+                            }
+                        });
+                    },
+                    async fetchCars(page = 1) {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/get_all_mycars?page=${page}`, {
+                                method: 'GET',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            const data = await response.json();
+                            this.tableData = data.data.data;
+                            this.currentPage = data.data.current_page;
+                            this.totalPages = data.data.last_page;
+                            this.perPage = data.data.per_page;
+
+                            this.populateTable();
+                        } catch (error) {
+                            console.error('Error fetching cars:', error);
+                        }
+                    },
+
+                    populateTable() {
+                        if (this.datatable1) {
+                            this.datatable1.destroy();
+                        }
+
+                        const mappedData = this.tableData.map((car) => [
+                            this.formatText(car.make),
+                            this.formatText(car.model_car?.name || 'N/A'),
+                            this.formatText(car.year),
+                            this.formatPrice(car.price),
+                            this.formatStatus(car.status),
+                            this.getActionButtons(car), // نمرر كائن السيارة كاملاً
+                        ]);
+
+                        this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
+                            data: {
+                                headings: ['Make', 'Model', 'Year', 'Price', 'Status', 'Actions'],
+                                data: mappedData,
+                            },
+                            searchable: true,
+                            perPage: this.perPage,
+                            columns: [{ select: 0, sort: 'asc' }],
+                            firstLast: true,
+                            labels: { perPage: '{select}' },
+                            layout: {
+                                top: '{search}',
+                                bottom: '{info}{pager}',
+                            },
+                        });
+
+                        // Add custom pagination event listeners
+                        document.querySelector('.datatable-pagination-list')?.addEventListener('click', (e) => {
+                            if (e.target.classList.contains('pagination-link')) {
+                                e.preventDefault();
+                                const page = parseInt(e.target.dataset.page);
+                                if (page !== this.currentPage) {
+                                    this.fetchCars(page);
+                                }
+                            }
+                        });
+                    },
+
+                    getActionButtons(car) {
+                        return `
+        <div class="flex items-center justify-center space-x-2">
+            <button 
+                @click="showCarDetails(${JSON.stringify(car).replace(/"/g, '&quot;')})" 
+                class="btn btn-info btn-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </button>
+            <button 
+                @click="editCar(${car.id})" 
+                class="btn btn-warning btn-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+            <button 
+                @click="deleteCar(${car.id})" 
+                class="btn btn-danger btn-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+                    },
+                    showCarDetails(carData) {
+                        const car = typeof carData === 'string' ? JSON.parse(carData) : carData;
+
+                        // إنشاء HTML لعرض الصور
+                        let imagesHTML = '<p>No images available</p>';
+                        if (car.car_image && car.car_image.length > 0) {
+                            imagesHTML = `
+            <div class="grid grid-cols-3 gap-2 mt-2">
+                ${car.car_image
+                    .map(
+                        (img) => `
+                    <img src="${this.apiBaseUrl}/storage/${img.image}" 
+                         class="w-full h-24 object-cover rounded cursor-pointer"
+                         onclick="window.open('${this.apiBaseUrl}/storage/${img.image}', '_blank')">
+                `
+                    )
+                    .join('')}
+            </div>
+        `;
+                        }
+
+                        // إنشاء HTML لعرض رخصة القيادة إذا وجدت
+                        let licenseHTML = '';
+                        if (car.driving_license_image) {
+                            licenseHTML = `
+            <div class="mt-3">
+                <h4 class="font-bold">Driving License:</h4>
+                <img src="${this.apiBaseUrl}/storage/${car.driving_license_image}" 
+                     class="w-full max-w-xs border rounded cursor-pointer"
+                     onclick="window.open('${this.apiBaseUrl}/storage/${car.driving_license_image}', '_blank')">
+            </div>
+        `;
+                        }
+
+                        Swal.fire({
+                            title: `${car.make} ${car.model_car?.name || ''} (${car.year})`,
+                            html: `
+            <div class="text-left space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p><strong>Price:</strong> $${car.price || 'N/A'}</p>
+                        <p><strong>VIN:</strong> ${car.vin || 'N/A'}</p>
+                        <p><strong>License Number:</strong> ${car.number_license || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p><strong>Status:</strong> <span class="badge ${this.getStatusClass(car.status)}">${car.status || 'N/A'}</span></p>
+                        <p><strong>Location:</strong> ${car.address || 'N/A'}, ${car.state || 'N/A'}</p>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h4 class="font-bold">Features:</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <p><strong>Transmission:</strong> ${car.cars_features?.transmission || 'N/A'}</p>
+                        <p><strong>Seats:</strong> ${car.cars_features?.num_of_seat || 'N/A'}</p>
+                        <p><strong>Doors:</strong> ${car.cars_features?.num_of_door || 'N/A'}</p>
+                        <p><strong>Mileage:</strong> ${car.cars_features?.mileage_range || 'N/A'}</p>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h4 class="font-bold">Description:</h4>
+                    <p class="whitespace-pre-line">${car.description || 'No description available'}</p>
+                </div>
+
+                <div class="mt-3">
+                    <h4 class="font-bold">Car Images:</h4>
+                    ${imagesHTML}
+                </div>
+
+                ${licenseHTML}
+            </div>
+        `,
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            width: '900px',
+                            customClass: {
+                                container: 'zoom-in',
+                            },
+                        });
+                    },
+                    async editCar(carId) {
+                        try {
+                            const car = this.tableData.find((c) => c.id == carId);
+                            if (!car) throw new Error('Car not found in local data');
+
+                            // تعبئة نموذج التعديل
+                            Alpine.store('global').formData = {
+                                make: car.make,
+                                model_id: car.model_car_id,
+                                year: car.year,
+                                price: car.price,
+                                plan_id: car.plan_id,
+                                lat: car.lat,
+                                lang: car.lang,
+                                address: car.address,
+                                state: car.state,
+                                number_license: car.number_license,
+                                vin: car.vin,
+                                number: car.number,
+                                description: car.description,
+                                company: car.company || {
+                                    legal_name: '',
+                                    num_of_employees: '',
+                                    is_under_vat: false,
+                                    vat_num: '',
+                                    zip_code: '',
+                                    country: '',
+                                    address_1: '',
+                                    address_2: '',
+                                    city: '',
+                                },
+                                features: car.cars_features || {
+                                    transmission: '',
+                                    mileage_range: '',
+                                    num_of_door: '',
+                                    num_of_seat: '',
+                                    all_have_seatbelts: false,
+                                    mechanical_condition: '',
+                                },
+                            };
+
+                            // فتح مودال التعديل
+                            Alpine.store('global').openModal();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            coloredToast('danger', error.message || 'Failed to load car data');
+                        }
+                    },
+                    async deleteCar(carId) {
+                        const confirmDelete = await Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!',
+                        });
+
+                        if (!confirmDelete.isConfirmed) return;
+
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/cars/delete/${carId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Failed to delete car');
+                            }
+
+                            coloredToast('success', 'Car deleted successfully');
+                            await this.fetchCars();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            coloredToast('danger', error.message || 'Failed to delete car');
+                        }
+                    },
+                    showCarDetails(car) {
+                        // إنشاء محتوى HTML للتفاصيل
+                        const features = car.cars_features || {};
+                        const owner = car.owner || {};
+                        const model = car.model || {};
+                        const brand = car.brand || {};
+
+                        const detailsHTML = `
+        <div class="car-details-container">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- القسم الأول: المعلومات الأساسية -->
+                <div class="space-y-4">
+                    <div class="detail-item">
+                        <span class="detail-label">Brand:</span>
+                        <span class="detail-value">${brand.name || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Model:</span>
+                        <span class="detail-value">${model.name || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Year:</span>
+                        <span class="detail-value">${car.year || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Price:</span>
+                        <span class="detail-value">$${car.price || '0.00'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value badge ${this.getStatusClass(car.status)}">
+                            ${car.status || 'N/A'}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- القسم الثاني: معلومات المالك -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-lg border-b pb-2">Owner Information</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">${owner.name || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">${owner.email || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value">${owner.phone || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الميزات -->
+            <div class="mt-6">
+                <h3 class="font-bold text-lg border-b pb-2">Features</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                    <div class="feature-item">
+                        <span class="feature-label">Transmission:</span>
+                        <span class="feature-value">${features.transmission || 'N/A'}</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-label">Seats:</span>
+                        <span class="feature-value">${features.num_of_seat || 'N/A'}</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-label">Doors:</span>
+                        <span class="feature-value">${features.num_of_door || 'N/A'}</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-label">Mileage:</span>
+                        <span class="feature-value">${features.mileage_range || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الصور -->
+            <div class="mt-6">
+                <h3 class="font-bold text-lg border-b pb-2">License Image</h3>
+                <div class="mt-3">
+                    ${
+                        car.image_license
+                            ? `
+                        <img src="${this.apiBaseUrl}/storage/${car.image_license}" 
+                             class="max-w-full h-auto rounded-lg border cursor-pointer"
+                             onclick="window.open('${this.apiBaseUrl}/storage/${car.image_license}', '_blank')">
+                    `
+                            : '<p>No license image available</p>'
+                    }
+                </div>
+            </div>
+            
+            <!-- قسم الوصف -->
+            <div class="mt-6">
+                <h3 class="font-bold text-lg border-b pb-2">Description</h3>
+                <p class="mt-2 text-gray-700">${car.description || 'No description available'}</p>
+            </div>
+        </div>
+    `;
+
+                        Swal.fire({
+                            title: `${car.make} Details`,
+                            html: detailsHTML,
+                            width: '900px',
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            customClass: {
+                                closeButton: 'close-details-btn',
+                                container: 'car-details-modal',
+                            },
+                        });
+                    },
+                    async deleteCar(carId) {
+                        const deleteConfirmed = await Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!',
+                        });
+
+                        if (!deleteConfirmed.isConfirmed) return;
+
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            const response = await fetch(`${this.apiBaseUrl}/api/deleteCar/${carId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (!response.ok) throw new Error('Failed to delete car');
+
+                            coloredToast('success', 'Car deleted successfully');
+                            await this.fetchCars(this.currentPage);
+                        } catch (error) {
+                            coloredToast('danger', error.message || 'Failed to delete car');
+                        }
+                    },
+
+                    async editCar(carId) {
+                        try {
+                            const car = this.tableData.find((c) => c.id == carId);
+                            if (!car) throw new Error('Car not found');
+
+                            // تعبئة نموذج التعديل
+                            Alpine.store('global').formData = {
+                                id: car.id,
+                                make: car.make,
+                                model_id: car.model_car_id,
+                                brand_car_id: car.brand_car_id,
+                                year: car.year,
+                                price: car.price,
+                                description: car.description,
+                                address: car.address,
+                                state: car.state,
+                                vin: car.vin,
+                                number: car.number,
+                                number_license: car.number_license,
+                                lat: car.lat,
+                                lang: car.lang,
+                                min_day_trip: car.min_day_trip,
+                                max_day_trip: car.max_day_trip,
+                                advanced_notice: car.advanced_notice,
+                                description_condition: car.description_condition,
+                                day: car.day,
+                                features: {
+                                    transmission: car.cars_features?.transmission || '',
+                                    mileage_range: car.cars_features?.mileage_range || '',
+                                    num_of_door: car.cars_features?.num_of_door || '',
+                                    num_of_seat: car.cars_features?.num_of_seat || '',
+                                    all_have_seatbelts: car.cars_features?.all_have_seatbelts || false,
+                                    mechanical_condition: car.cars_features?.mechanical_condition || '',
+                                    additional_features: car.cars_features?.additional_features || [],
+                                },
+                            };
+
+                            // فتح مودال التعديل
+                            Alpine.store('global').openModal('edit');
+                        } catch (error) {
+                            console.error('Error loading car data:', error);
+                            coloredToast('danger', error.message || 'Failed to load car data');
+                        }
+                    },
+                    openEditModal(car) {
+                        Alpine.store('global').formData = {
+                            make: car.make,
+                            model_id: car.model_car_id,
+                            year: car.year,
+                            price: car.price,
+                            plan_id: car.plan_id,
+                            lat: car.lat,
+                            lang: car.lang,
+                            address: car.address,
+                            state: car.state,
+                            number_license: car.number_license,
+                            vin: car.vin,
+                            number: car.number,
+                            description: car.description,
+                            min_day_trip: car.min_day_trip,
+                            max_day_trip: car.max_day_trip,
+                            advanced_notice: car.advanced_notice,
+                            description_condition: car.description_condition,
+                            day: car.day,
+                            company: car.company || {
+                                legal_name: '',
+                                num_of_employees: '',
+                                is_under_vat: 0,
+                                vat_num: '',
+                                zip_code: '',
+                                country: '',
+                                address_1: '',
+                                address_2: '',
+                                city: '',
+                            },
+                            features: car.cars_features || {
+                                transmission: '',
+                                mileage_range: '',
+                                num_of_door: '',
+                                num_of_seat: '',
+                                all_have_seatbelts: false,
+                                mechanical_condition: '',
+                                additional_features: [],
+                            },
+                        };
+                        Alpine.store('global').isOpen = true;
+                    },
+
+                    // Helper functions
+                    formatText(text) {
+                        return text || 'N/A';
+                    },
+
+                    formatPrice(price) {
+                        return price ? `$${parseFloat(price).toFixed(2)}` : '$0.00';
+                    },
+
+                    formatStatus(status) {
+                        return `<span class="badge ${this.getStatusClass(status)}">${status}</span>`;
+                    },
+
+                    getStatusClass(status) {
+                        const classes = {
+                            active: 'bg-success',
+                            inactive: 'bg-danger',
+                            pending: 'bg-warning',
+                            maintenance: 'bg-secondary',
+                        };
+                        return classes[status?.toLowerCase()] || 'bg-primary';
+                    },
+                }));
                 Alpine.data('logout', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL,
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter,
 
                     async handleLogout() {
                         const token = localStorage.getItem('authToken');
@@ -1253,68 +2697,55 @@
                     });
                 };
 
-                Alpine.data('driverPrice', () => ({
-                    currentPrice: null,
+                Alpine.data('Add_Category', () => ({
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter, // Ensure API_CONFIG is defined
+                    email: '',
+                    fullname: '',
                     price: '',
-                    isLoading: false,
-                    apiBaseUrl: API_CONFIG.BASE_URL,
+                    type: '',
 
-                    async init() {
-                        await this.fetchCurrentPrice();
-                    },
-
-                    async fetchCurrentPrice() {
+                    async Add_Category() {
                         try {
                             const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/driver_price/show`, {
-                                method: 'GET',
-                                headers: {
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                            });
+                            if (!token) throw new Error('لم يتم العثور على رمز المصادقة');
 
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch current price');
+                            const formData = new FormData();
+                            formData.append('name', this.fullname);
+                            formData.append('price', this.price);
+                            formData.append('type', this.type);
+
+                            if (!upload?.cachedFileArray?.length) {
+                                throw new Error('الرجاء اختيار صورة');
                             }
 
-                            const data = await response.json();
-                            console.log(data);
-                            this.currentPrice = data.driver_price.price;
-                            this.price = data.driver_price.price || '';
-                        } catch (error) {
-                            coloredToast('error', error.message || 'Failed to load current price');
-                        }
-                    },
+                            formData.append('imag', upload.cachedFileArray[0]);
 
-                    async updatePrice() {
-                        this.isLoading = true;
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/driver_price/update`, {
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/categories/store`, {
                                 method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
                                     Authorization: `Bearer ${token}`,
                                 },
-                                body: JSON.stringify({
-                                    price: this.price,
-                                }),
+                                body: formData,
                             });
 
+                            const result = await response.json();
+
                             if (!response.ok) {
-                                const errorData = await response.json();
-                                throw new Error(errorData.message || 'Failed to update price');
+                                const errorMsg =
+                                    result.message ||
+                                    Object.values(result.errors || {})
+                                        .flat()
+                                        .join('\n') ||
+                                    'فشل في إنشاء التصنيف';
+                                throw new Error(errorMsg);
                             }
 
-                            const data = await response.json();
-                            this.currentPrice = data.price;
-                            coloredToast('success', 'Price updated successfully!');
+                            this.fullname = '';
+                            this.price = '';
+
+                            coloredToast('success', 'ADD Car Successful');
                         } catch (error) {
-                            coloredToast('danger', error.message || 'Failed to update price');
-                        } finally {
-                            this.isLoading = false;
+                            coloredToast('danger', error.message);
                         }
                     },
                 }));

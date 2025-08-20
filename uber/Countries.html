@@ -9,13 +9,13 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/perfect-scrollbar.min.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="assets/css/file-upload-with-preview.min.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/perfect-scrollbar.min.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/file-upload-with-preview.min.css" />
 
-        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
-        <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
-        <script src=" /assets/js/perfect-scrollbar.min.js"></script>
-        <script defer src=" /assets/js/popper.min.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/style.css" />
+        <link defer rel="stylesheet" type="text/css" media="screen" href="../assets/css/animate.css" />
+        <script src="../assets/js/perfect-scrollbar.min.js"></script>
+        <script defer src="../assets/js/popper.min.js"></script>
     </head>
 
     <body
@@ -452,18 +452,15 @@
                                 >
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                Cars Management
+                                Countries & Cities
                             </h2>
                             <li class="menu nav-item">
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Car.html">Cars</a>
+                                        <a href="Countries.html">Countries</a>
                                     </li>
                                     <li>
-                                        <a href="ModelCar.html">Model Car</a>
-                                    </li>
-                                    <li>
-                                        <a href="BrandCar.html">Brand Car</a>
+                                        <a href="Cities.html">Cities</a>
                                     </li>
                                 </ul>
                             </li>
@@ -480,14 +477,14 @@
                                 >
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                <span>Plan & Subscriptions</span>
+                                <span>Packages & Ride-Type</span>
                             </h2>
                             <ul class="sub-menu">
                                 <li>
-                                    <a href="Plan.html">Plan</a>
+                                    <a href="Packages.html">Packages</a>
                                 </li>
                                 <li>
-                                    <a href="subscribe.html">Subscribe</a>
+                                    <a href="Ride-type.html">Ride-type</a>
                                 </li>
                                 <li>
                                     <a href="driverprice.html">Driver Price</a>
@@ -508,6 +505,9 @@
                                 <span>Users </span>
                             </h2>
                             <ul class="sub-menu">
+                                <li>
+                                    <a href="admin.html">Admins</a>
+                                </li>
                                 <li>
                                     <a href="User.html">User</a>
                                 </li>
@@ -802,7 +802,7 @@
                                                 fill="currentColor"
                                             />
                                         </svg>
-                                        Car Management
+                                        Countries & Cities
                                     </div>
                                     <div class="right_arrow">
                                         <svg
@@ -819,13 +819,10 @@
                                 </a>
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Car.html">Cars</a>
+                                        <a href="Countries.html">Countries</a>
                                     </li>
                                     <li>
-                                        <a href="ModelCar.html">Model Car</a>
-                                    </li>
-                                    <li>
-                                        <a href="BrandCar.html">Brand Car</a>
+                                        <a href="Cities.html">Cities</a>
                                     </li>
                                 </ul>
                             </li>
@@ -854,7 +851,7 @@
                                                 fill="currentColor"
                                             />
                                         </svg>
-                                        Plan & Subscriptions
+                                        Packages & Ride-Type
                                     </div>
                                     <div class="right_arrow">
                                         <svg
@@ -871,10 +868,10 @@
                                 </a>
                                 <ul class="sub-menu">
                                     <li>
-                                        <a href="Plan.html">Plan</a>
+                                        <a href="Packages.html">Packages</a>
                                     </li>
                                     <li>
-                                        <a href="subscribe.html">Subscribe</a>
+                                        <a href="Ride-type.html">Ride-type</a>
                                     </li>
                                     <li>
                                         <a href="driverprice.html">Driver Price</a>
@@ -1035,126 +1032,141 @@
                                 <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
                             </li>
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Cars Management </span>
+                                <span>Countries & Cities </span>
                             </li>
 
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Brand Car</span>
+                                <span>Countries</span>
                             </li>
                         </ul>
 
                         <div class="pt-5">
                             <div class="mb-6 grid gap-6 xl:grid-cols-1">
                                 <div class="panel h-full">
-                                    <div class="mb-5 flex items-center">
-                                        <h5 class="text-lg font-semibold dark:text-white-light">Add Brand Car</h5>
+                                    <div class="mb-5 flex items-center justify-between">
+                                        <h5 class="text-lg font-semibold dark:text-white-light">Countries</h5>
+                                        <button @click="$store.addCountryModal.openModal()" class="btn btn-primary">Add Country</button>
                                     </div>
-                                    <div class="overflow-hidden">
-                                        <!-- form grid -->
-                                        <form x-data="Add_Category" @submit.prevent="Add_Category">
-                                            <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
-                                                <input type="text" placeholder="Enter Name" class="form-input" x-model="fullname" required />
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary mt-6">Create</button>
-                                        </form>
+                                    <div x-data="countriesTable" x-init="$store.countriesTable.fetchCountries()">
+                                        <div class="panel mt-6">
+                                            <table id="countriesTable" class="whitespace-nowrap"></table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div x-data="multipleTable" x-init="fetchManagers()">
-                                <div class="panel mt-6">
-                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0">Brand</h5>
-                                    <table id="myTable1" class="whitespace-nowrap"></table>
+                        </div>
+                        <!-- Delete Confirmation Modal -->
+                        <div id="modal-container"></div>
+
+                        <!-- Modal for Add Country -->
+                        <div
+                            x-data
+                            x-show="$store.addCountryModal.isOpen"
+                            x-transition
+                            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+                            style="display: none"
+                            x-cloak
+                        >
+                            <div class="w-full max-w-2xl rounded-lg bg-white shadow-lg dark:bg-gray-800">
+                                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                                    <h3 class="text-lg font-bold">Add New Country</h3>
+                                    <button @click="$store.addCountryModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                        ✕
+                                    </button>
                                 </div>
+                                <div class="p-4">
+                                    <form x-data="addCountryForm" @submit.prevent="submitForm">
+                                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <div>
+                                                <label for="name_ar">Arabic Name</label>
+                                                <input id="name_ar" type="text" class="form-input" x-model="formData.name_ar" required />
+                                            </div>
+                                            <div>
+                                                <label for="name_en">English Name</label>
+                                                <input id="name_en" type="text" class="form-input" x-model="formData.name_en" required />
+                                            </div>
+                                            <div>
+                                                <label for="currency">Currency</label>
+                                                <input id="currency" type="text" class="form-input" x-model="formData.currency" required />
+                                            </div>
+                                            <div>
+                                                <label for="phone_code">Phone Code</label>
+                                                <input id="phone_code" type="text" class="form-input" x-model="formData.phone_code" required />
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label for="image">Country Flag</label>
+                                                <input id="image" type="file" class="form-input p-1" @change="handleImageUpload" accept="image/*" />
+                                                <div x-show="imagePreview" class="mt-2">
+                                                    <img :src="imagePreview" class="h-20 w-20 rounded object-cover" alt="Preview" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4 flex justify-end gap-2">
+                                            <button type="button" @click="$store.addCountryModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
+                                            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                                                <span x-show="!isSubmitting">Add Country</span>
+                                                <span x-show="isSubmitting" class="flex items-center">
+                                                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path
+                                                            class="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                        ></path>
+                                                    </svg>
+                                                    <span class="ml-2">Processing...</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview Modal -->
+                        <div
+                            x-data="{ showImageModal: false, imageUrl: '' }"
+                            x-show="showImageModal"
+                            class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4"
+                            style="display: none"
+                            x-cloak
+                        >
+                            <div class="relative max-w-4xl">
+                                <button
+                                    @click="showImageModal = false"
+                                    class="absolute -right-4 -top-4 rounded-full bg-white p-2 text-gray-800 shadow-lg hover:bg-gray-200"
+                                >
+                                    ✕
+                                </button>
+                                <img :src="imageUrl" class="max-h-[90vh] max-w-full object-contain" alt="Enlarged Image" />
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- end main content section -->
 
-                <!-- start footer section -->
                 <div class="mt-auto p-6 text-center dark:text-white-dark ltr:sm:text-left rtl:sm:text-right">
-                    © <span id="footer-year">2022</span>. Developed By High Level Technology.
+                    © <span id="footer-year">2025</span>. Developed By High Level Technology.
                 </div>
                 <!-- end footer section -->
             </div>
         </div>
-        <!-- Modal for Delete Confirmation -->
-        <div
-            x-data
-            x-show="$store.updateModal.isOpen"
-            x-transition
-            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
-            style="display: none"
-            x-cloak
-        >
-            <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
-                <div
-                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
-                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
-                >
-                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
-                        <h5 class="text-lg font-bold">Update Brand</h5>
-                        <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
-                    </div>
-                    <div class="p-5">
-                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
-                            <div class="overflow-hidden">
-                                <!-- form grid -->
-                                <div class="grid grid-cols-1 gap-5">
-                                    <input type="text" placeholder="Enter Brand Name" class="form-input" x-model="$store.global.sharedData.name" />
-                                </div>
 
-                                <div class="mt-8 flex items-center justify-end">
-                                    <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
-                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">Update</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Delete Confirmation Modal -->
-        <div
-            x-data
-            x-show="$store.deleteModal.isOpen"
-            x-transition
-            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
-            style="display: none"
-            x-cloak
-        >
-            <div class="w-full max-w-sm rounded-lg bg-white shadow-lg dark:bg-gray-800">
-                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
-                    <h3 class="text-lg font-bold">Delete Confirmation</h3>
-                    <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
-                </div>
-                <div class="p-4">
-                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Brand?"</p>
-                </div>
-                <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
-                    <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">No</button>
-                    <button @click="$store.deleteModal.confirmDelete()" class="btn btn-primary">Yes</button>
-                </div>
-            </div>
-        </div>
-
-        <script src=" /assets/js/alpine-collaspe.min.js"></script>
-        <script src=" /assets/js/alpine-persist.min.js"></script>
-        <script defer src=" /assets/js/alpine-ui.min.js"></script>
-        <script defer src=" /assets/js/alpine-focus.min.js"></script>
-        <script defer src=" /assets/js/alpine.min.js"></script>
-        <script src=" /assets/js/custom.js"></script>
-        <script src=" /assets/js/config.js"></script>
-        <script defer src=" /assets/js/sweetalert.min.js"></script>
-        <script src=" /assets/js/simple-datatables.js"></script>
-        <script src="assets/js/file-upload-with-preview.iife.js"></script>
+        <script src="../assets/js/alpine-collaspe.min.js"></script>
+        <script src="../assets/js/alpine-persist.min.js"></script>
+        <script defer src="../assets/js/alpine-ui.min.js"></script>
+        <script defer src="../assets/js/alpine-focus.min.js"></script>
+        <script defer src="../assets/js/alpine.min.js"></script>
+        <script src="../assets/js/custom.js"></script>
+        <script src="../assets/js/config.js"></script>
+        <script defer src="../assets/js/sweetalert.min.js"></script>
+        <script src="../assets/js/simple-datatables.js"></script>
+        <script src="../assets/js/file-upload-with-preview.iife.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.store('global', {
                     sharedData: {
-                        name: '',
+                        fullname2: '',
                     },
                 });
                 // main section
@@ -1204,51 +1216,6 @@
                         }
                     },
                 }));
-                Alpine.store('deleteModal', {
-                    isOpen: false,
-                    managerId: null,
-                    callback: null,
-
-                    openModal(id, callback) {
-                        this.managerId = id;
-                        this.callback = callback;
-                        this.isOpen = true;
-                    },
-
-                    closeModal() {
-                        this.isOpen = false;
-                    },
-
-                    confirmDelete() {
-                        if (this.callback && this.managerId) {
-                            this.callback(this.managerId);
-                        }
-                        this.closeModal();
-                    },
-                });
-                Alpine.store('updateModal', {
-                    apiBaseUrl: API_CONFIG.BASE_URL,
-                    brandId: null,
-                    callback: null,
-                    isOpen: false,
-
-                    openModal(id, callback) {
-                        this.brandId = id;
-                        this.callback = callback;
-                        this.isOpen = true;
-                    },
-
-                    closeModal() {
-                        this.isOpen = false;
-                    },
-
-                    confirmUpdate() {
-                        if (this.callback && this.brandId) {
-                            this.callback(this.brandId);
-                        }
-                        this.closeModal();
-                    },
-                }); // header section
                 Alpine.data('header', () => ({
                     init() {
                         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -1267,304 +1234,463 @@
                         }
                     },
                 }));
-                Alpine.data('multipleTable', () => ({
-                    tableData: [],
-                    datatable1: null,
-                    apiBaseUrl: API_CONFIG.BASE_URL,
+                Alpine.store('addCountryModal', {
+                    isOpen: false,
+                    openModal() {
+                        this.isOpen = true;
+                    },
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+                });
 
-                    async init() {
-                        await this.fetchManagers();
+                // Add country form
+                Alpine.data('addCountryForm', () => ({
+                    formData: {
+                        name_ar: '',
+                        name_en: '',
+                        currency: '',
+                        phone_code: '',
+                        image: null,
+                    },
+                    imagePreview: null,
+                    isSubmitting: false,
 
-                        // Event Delegation for Delete Buttons
-                        document.addEventListener('click', (e) => {
-                            if (e.target.closest('.delete-btn')) {
-                                const managerId = e.target.closest('.delete-btn').dataset.id;
-                                this.deleteManager(managerId);
-                            }
-                            if (e.target.closest('.update-btn')) {
-                                const managerId = e.target.closest('.update-btn').dataset.id;
-                                this.updateManager(managerId);
-                            }
-                        });
-
-                        // Event Delegation for Status Dropdown
-                        document.addEventListener('click', (e) => {
-                            const dropdownBtn = e.target.closest('.dropdown-toggle');
-                            const statusOption = e.target.closest('.status-option');
-
-                            // Handle dropdown toggle
-                            if (dropdownBtn) {
-                                const dropdown = dropdownBtn.closest('.dropdown');
-                                const menu = dropdown.querySelector('.dropdown-menu');
-                                menu.classList.toggle('hidden');
-                            }
-
-                            // Handle status selection
-                            if (statusOption) {
-                                const dropdown = statusOption.closest('.dropdown');
-                                const managerId = dropdown.dataset.id;
-                                const newStatus = statusOption.dataset.value;
-                                const toggleBtn = dropdown.querySelector('.dropdown-toggle');
-
-                                // Update button appearance
-                                toggleBtn.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                                toggleBtn.className = `dropdown-toggle btn btn-sm ${this.getStatusClass(newStatus)}`;
-
-                                // Close dropdown
-                                dropdown.querySelector('.dropdown-menu').classList.add('hidden');
-
-                                // Update status via API
-                            }
-                        });
+                    handleImageUpload(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            this.formData.image = file;
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.imagePreview = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
                     },
 
-                    // جلب بيانات المديرين من API
-                    async fetchManagers() {
+                    async submitForm() {
+                        this.isSubmitting = true;
                         try {
-                            const token = localStorage.getItem('authToken');
-                            if (!token) {
-                                this.showError('Authentication token is missing. Please log in.');
-                                window.location.href = '/auth-boxed-signin.html';
-                                return;
-                            }
+                            const token = localStorage.getItem('Token');
+                            const formData = new FormData();
 
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all`, {
-                                method: 'GET',
-                                headers: {
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
+                            // Append all form data
+                            Object.entries(this.formData).forEach(([key, value]) => {
+                                if (value !== null && value !== undefined) {
+                                    formData.append(key, value);
+                                }
                             });
 
-                            const data = await response.json();
-                            console.log(data);
-                            this.tableData = data;
-
-                            this.populateTable();
-                        } catch (error) {}
-                    },
-
-                    populateTable() {
-                        if (this.datatable1) {
-                            this.datatable1.destroy();
-                        }
-
-                        const mappedData = this.tableData.map((manager, index) => [
-                            this.formatText(index + 1),
-                            this.formatText(manager.name),
-
-                            this.getActionButtons(manager.id, manager.name, manager.imag),
-                        ]);
-
-                        this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
-                            data: {
-                                headings: ['ID', 'Name', '<div class="text-center">Action</div>'],
-                                data: mappedData,
-                            },
-                            searchable: true,
-                            perPage: 10,
-                            perPageSelect: [10, 20, 30, 50, 100],
-                            columns: [{ select: 0, sort: 'asc' }],
-                            firstLast: true,
-                            firstText: this.getPaginationIcon('first'),
-                            lastText: this.getPaginationIcon('last'),
-                            prevText: this.getPaginationIcon('prev'),
-                            nextText: this.getPaginationIcon('next'),
-                            labels: { perPage: '{select}' },
-                            layout: {
-                                top: '{search}',
-                                bottom: '{info}{select}{pager}',
-                            },
-                        });
-                    },
-
-                    // تنسيق الاسم مع الصورة
-                    formatName(name, imageUrl, index) {
-                        const defaultImage = 'assets/images/default-avatar.png';
-                        const cleanUrl = imageUrl;
-
-                        return `
-                                    <div class="flex items-center w-max" x-data="{ imgError: false }">
-                                        <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                                             :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
-                                             alt="${name || 'User'}"
-                                             @error="imgError = true"
-                                             loading="lazy"
-                                             width="36"
-                                             height="36" />
-                                        ${name || 'Unknown'}
-                                    </div>`;
-                    },
-
-                    formatText(text) {
-                        return text || 'N/A';
-                    },
-                    formatType(text) {
-                        if (text == '1') text = 'service';
-                        else {
-                            text = 'Product';
-                        }
-                        return text;
-                    },
-
-                    // أزرار الإجراءات
-                    getActionButtons(managerId, name, imag) {
-                        return `
-                                                                        <!-- button -->
-
-
-
-                                                                    <div class="flex items-center justify-center">
-                                                                        <!-- Status Dropdown -->
-                                                                        <button class="btn update-btn btn-warning"data-id="${[managerId, name]}">UPDATE</button>
-
-
-                                                                        <!-- Delete Button -->
-                                                                        <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
-                                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                                <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                                            </svg>
-                                                                        </button>
-                                                                    </div>`;
-                    },
-
-                    // Helper function for status button classes
-                    getStatusClass(status) {
-                        const classes = {
-                            active: 'btn-success',
-                            pending: 'btn-warning',
-                            rejected: 'btn-danger',
-                        };
-                        return classes[status] || 'btn-primary';
-                    },
-
-                    async updateManager(managerId) {
-                        // الحصول على بيانات العلامة التجارية الحالية
-                        const brand = this.tableData.find((b) => b.id == managerId[0]);
-                        if (!brand) return;
-
-                        // تعبئة النموذج بالبيانات الحالية
-                        Alpine.store('global').sharedData.name = brand.name;
-
-                        const updateConfirmed = await new Promise((resolve) => {
-                            Alpine.store('updateModal').openModal(managerId, () => {
-                                resolve(true);
-                            });
-                        });
-
-                        if (!updateConfirmed) return;
-
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update/${managerId[0]}`, {
-                                method: 'PUT',
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Uber}/web/admins/countries`, {
+                                method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
                                     Authorization: `Bearer ${token}`,
+                                    lang: 'en',
                                 },
-                                body: JSON.stringify({
-                                    name: Alpine.store('global').sharedData.name,
-                                }),
+                                body: formData,
                             });
 
                             const result = await response.json();
 
                             if (!response.ok) {
-                                throw new Error(result.message || 'Failed to update brand');
+                                throw new Error(result.message || 'Failed to add country');
                             }
 
-                            // استخدام SweetAlert2 بشكل صحيح
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: 'Brand updated successfully',
-                                timer: 3000,
-                                showConfirmButton: false,
-                            });
-
-                            await this.fetchManagers();
+                            coloredToast('success', 'Country added successfully');
+                            Alpine.store('addCountryModal').closeModal();
+                            Alpine.store('countriesTable').fetchCountries();
+                            this.resetForm();
                         } catch (error) {
-                            console.error('Update error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: error.message || 'Failed to update brand',
-                            });
+                            coloredToast('danger', error.message);
+                        } finally {
+                            this.isSubmitting = false;
                         }
-                    }, // حذف المدير
-                    async deleteManager(managerId) {
-                        // استخدام المودال بدلاً من confirm
-                        const deleteConfirmed = await new Promise((resolve) => {
-                            Alpine.store('deleteModal').openModal(managerId, () => {
-                                resolve(true);
-                            });
+                    },
+
+                    resetForm() {
+                        this.formData = {
+                            name_ar: '',
+                            name_en: '',
+                            currency: '',
+                            phone_code: '',
+                            image: null,
+                        };
+                        this.imagePreview = null;
+                        document.getElementById('image').value = '';
+                    },
+                }));
+
+                // Countries table management
+                Alpine.store('countriesTable', {
+                    tableData: [],
+                    datatable: null,
+                    init() {
+                        this.fetchCountries();
+                        document.addEventListener('click', (e) => {
+                            if (e.target.closest('.delete-btn')) {
+                                const id = e.target.closest('.delete-btn').dataset.id;
+                                this.deleteCountry(id);
+                            }
+                            if (e.target.closest('.update-btn')) {
+                                const id = e.target.closest('.update-btn').dataset.id;
+                                const country = this.tableData.find((c) => c.id == id);
+                                Alpine.store('updateModal').openModal(id, country);
+                            }
                         });
-
-                        if (!deleteConfirmed) return;
-
+                    },
+                    async fetchCountries() {
                         try {
-                            const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${managerId}`, {
-                                method: 'DELETE',
+                            const token = localStorage.getItem('Token');
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Uber}/web/admins/countries`, {
+                                method: 'GET',
                                 headers: {
-                                    Accept: 'application/json',
+                                    lang: 'en',
                                     Authorization: `Bearer ${token}`,
+                                    Accept: 'application/json',
                                 },
                             });
 
-                            if (!response.ok) throw new Error('Failed to delete Brand');
-                            coloredToast('success', 'Delete Brand Successful');
+                            const result = await response.json();
 
-                            await this.fetchManagers();
+                            this.tableData = result.data || [];
+                            this.populateTable();
                         } catch (error) {
-                            this.showError(error.message || 'Error in delete Brand');
+                            coloredToast('danger', error.message);
                         }
                     },
-                    // بقية الدوال المساعدة...
-                    getStatusColor(status) {
-                        const statusColors = {
-                            active: 'success',
-                            inactive: 'danger',
-                            pending: 'warning',
-                            suspended: 'secondary',
-                            banned: 'dark',
-                        };
-                        return statusColors[status?.toLowerCase()] || 'primary';
+
+                    populateTable() {
+                        if (this.datatable) {
+                            this.datatable.destroy();
+                        }
+
+                        const mappedData = this.tableData.map((country, index) => [
+                            index + 1,
+                            this.formatCountryWithFlag(country),
+                            country.currency,
+                            country.phone_code,
+                            this.formatStatus(country.active),
+                            this.getActionButtons(country),
+                        ]);
+
+                        this.datatable = new simpleDatatables.DataTable('#countriesTable', {
+                            data: {
+                                headings: ['#', 'Name', 'Currency', 'Phone Code', 'Status', 'Actions'],
+                                data: mappedData,
+                            },
+                            searchable: true,
+                            perPage: 10,
+                            columns: [
+                                { select: 0, sort: 'asc' },
+                                { select: 5, sortable: false },
+                            ],
+                        });
+
+                        // إعادة تهيئة Alpine على الصفوف الجديدة
+                        this.datatable.on('datatable.update', () => {
+                            Alpine.initTree(this.datatable.wrapper);
+                        });
+                    },
+                    formatCountryWithFlag(country) {
+                        return `
+                                <div class="flex items-center"
+                                     @click="window.Alpine.store('imagePreviewModal').show('${country.image_url}')"
+                                     style="cursor: pointer">
+                                    <img src="${country.image_url}"
+                                         class="h-6 w-6 rounded-full object-cover mr-2"
+                                         alt="${country.name}">
+                                    <span>${country.name}</span>
+                                </div>
+                            `;
                     },
 
-                    getPaginationIcon(type) {
-                        const icons = {
-                            first: '<svg...></svg>',
-                            last: '<svg...></svg>',
-                            prev: '<svg...></svg>',
-                            next: '<svg...></svg>',
-                        };
-                        return icons[type];
+                    formatStatus(active) {
+                        return active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
                     },
+                    async showEditModal(country) {
+                        const store = Alpine.store('countriesTable'); // الحصول على المرجع الصحيح
 
-                    showSuccess(message) {
-                        alert(message);
+                        const { value: formValues } = await Swal.fire({
+                            title: '<span class="text-2xl font-bold text-gray-800">Edit Country</span>',
+                            html: `
+                        <div class="text-left">
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <!-- Arabic Name -->
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                            </svg>
+                                            Arabic Name
+                                        </span>
+                                    </label>
+                                    <input id="edit-name_ar" value="${country.name_ar || country.name}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+
+                                <!-- English Name -->
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                            </svg>
+                                            English Name
+                                        </span>
+                                    </label>
+                                    <input id="edit-name_en" value="${country.name_en || country.name}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+
+                                <!-- Currency -->
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            Currency
+                                        </span>
+                                    </label>
+                                    <input id="edit-currency" value="${country.currency}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+
+                                <!-- Phone Code -->
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                            </svg>
+                                            Phone Code
+                                        </span>
+                                    </label>
+                                    <input id="edit-phone_code" value="${country.phone_code}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+
+                                <!-- Status -->
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                            </svg>
+                                            Status
+                                        </span>
+                                    </label>
+                                    <select id="edit-is_active"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="1" ${country.active ? 'selected' : ''}>Active</option>
+                                        <option value="0" ${!country.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+
+                                <!-- Flag Image -->
+                                <div class="md:col-span-2">
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            Country Flag
+                                        </span>
+                                    </label>
+                                    <div class="flex items-center space-x-4">
+                                        ${
+                                            country.image_url
+                                                ? `
+                                        <div class="flex-shrink-0">
+                                            <img src="${country.image_url}" class="h-12 w-16 rounded-md border object-cover">
+                                            <p class="mt-1 text-xs text-gray-500">Current Flag</p>
+                                        </div>
+                                        `
+                                                : ''
+                                        }
+                                        <div class="flex-1">
+                                            <input type="file" id="edit-image" accept="image/*"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                            showCancelButton: true,
+                            confirmButtonText:
+                                '<span class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Update</span>',
+                            cancelButtonText:
+                                '<span class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Cancel</span>',
+                            focusConfirm: false,
+                            showClass: {
+                                popup: 'animate-fade-in',
+                            },
+                            customClass: {
+                                container: '!z-[9999]',
+                                popup: '!max-w-2xl !rounded-xl !shadow-xl !p-6',
+                                header: '!border-b-0 !pb-0',
+                                title: '!text-gray-800 !text-xl !font-bold',
+                                closeButton: '!text-gray-400 hover:!text-gray-600',
+                                confirmButton: '!bg-blue-600 hover:!bg-blue-700 !px-6 !py-2 !rounded-lg !text-white !font-medium',
+                                cancelButton: '!bg-gray-100 hover:!bg-gray-200 !px-6 !py-2 !rounded-lg !text-gray-700 !font-medium !mr-3',
+                                input: '!mt-1 !block !w-full !rounded-md !border-gray-300 !shadow-sm focus:!ring-blue-500 focus:!border-blue-500',
+                            },
+                            preConfirm: () => {
+                                return {
+                                    name_ar: document.getElementById('edit-name_ar').value,
+                                    name_en: document.getElementById('edit-name_en').value,
+                                    currency: document.getElementById('edit-currency').value,
+                                    phone_code: document.getElementById('edit-phone_code').value,
+                                    is_active: document.getElementById('edit-is_active').value,
+                                    image: document.getElementById('edit-image').files[0],
+                                };
+                            },
+                        });
+
+                        if (formValues) {
+                            await store.handleUpdateCountry(country.id, formValues);
+                        }
                     },
-
-                    showError(message) {
-                        alert(message);
-                    },
-                }));
-                Alpine.data('logout', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL,
-
-                    async handleLogout() {
-                        const token = localStorage.getItem('authToken');
+                    async handleUpdateCountry(countryId, formData) {
                         try {
-                            const response = await fetch(`${this.apiBaseUrl}/api/logout`, {
+                            const token = localStorage.getItem('Token');
+                            const form = new FormData();
+
+                            Object.entries(formData).forEach(([key, value]) => {
+                                if (value !== null && value !== undefined) {
+                                    form.append(key, value);
+                                }
+                            });
+                            form.append('_method', 'PUT');
+
+                            const response = await fetch(`${API_CONFIG.BASE_URL_Uber}/web/admins/countries/${countryId}`, {
                                 method: 'POST',
                                 headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    lang: 'en',
+                                },
+                                body: form,
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Update failed');
+                            }
+
+                            await Swal.fire({
+                                title: 'Success!',
+                                text: 'Country updated successfully',
+                                icon: 'success',
+                                customClass: {
+                                    popup: '!rounded-xl !shadow-xl',
+                                },
+                            });
+
+                            this.fetchCountries();
+                        } catch (error) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: error.message,
+                                icon: 'error',
+                                customClass: {
+                                    popup: '!rounded-xl !shadow-xl',
+                                },
+                            });
+                        }
+                    },
+                    getActionButtons(country) {
+                        return `
+                    <div class="flex items-center justify-center gap-2">
+                        <button class="btn btn-sm btn-warning flex items-center"
+                            @click="Alpine.store('countriesTable').showEditModal(${JSON.stringify(country).replace(/"/g, '&quot;')})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger flex items-center"
+                            @click="Alpine.store('countriesTable').deleteCountry('${country.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                `;
+                    },
+                    async deleteCountry(countryId) {
+                        const result = await Swal.fire({
+                            title: 'Delete Country?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!',
+                            customClass: {
+                                popup: '!rounded-xl !shadow-xl',
+                                confirmButton: '!bg-blue-600 !px-4 !py-2 !rounded-lg',
+                                cancelButton: '!bg-red-500 !px-4 !py-2 !rounded-lg',
+                            },
+                        });
+
+                        if (result.isConfirmed) {
+                            try {
+                                const token = localStorage.getItem('Token');
+                                const response = await fetch(`${API_CONFIG.BASE_URL_Uber}/web/admins/countries/${countryId}`, {
+                                    method: 'DELETE',
+                                    headers: { Authorization: `Bearer ${token}`, lang: 'en' },
+                                });
+
+                                if (!response.ok) throw new Error('Deletion failed');
+
+                                await Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Country has been deleted.',
+                                    icon: 'success',
+                                    customClass: {
+                                        popup: '!rounded-xl !shadow-xl',
+                                    },
+                                });
+                                this.fetchCountries();
+                            } catch (error) {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: error.message,
+                                    icon: 'error',
+                                    customClass: {
+                                        popup: '!rounded-xl !shadow-xl',
+                                    },
+                                });
+                            }
+                        }
+                    },
+                });
+
+                // Image preview modal store
+                Alpine.store('imagePreviewModal', {
+                    show(url) {
+                        const modal = document.querySelector('[x-data^="{ showImageModal: false"]');
+                        if (modal) {
+                            modal._x_dataStack[0].showImageModal = true;
+                            modal._x_dataStack[0].imageUrl = url;
+                        }
+                    },
+                });
+                Alpine.data('logout', () => ({
+                    apiBaseUrl: API_CONFIG.BASE_URL_Uber,
+
+                    async handleLogout() {
+                        const token = localStorage.getItem('Token');
+                        try {
+                            const response = await fetch(`${this.apiBaseUrl}/web/admins/logout`, {
+                                method: 'GET',
+                                headers: {
                                     'Content-Type': 'application/json',
+                                    lang: 'en',
                                     Authorization: `Bearer ${token}`,
                                 },
                             });
@@ -1575,7 +1701,7 @@
                             }
 
                             // إزالة التوكن وإعادة التوجيه
-                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('Token');
                             window.location.href = 'auth-boxed-signin.html'; // صفحة تسجيل الدخول
                         } catch (error) {
                             alert('حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة لاحقًا.', error);
@@ -1583,63 +1709,41 @@
                     },
                 }));
                 coloredToast = (color, message) => {
-                    const toast = window.Swal.mixin({
+                    const icon = color === 'success' ? 'success' : 'error';
+                    Swal.fire({
                         toast: true,
                         position: 'bottom-start',
+                        icon: icon,
+                        title: message,
                         showConfirmButton: false,
                         timer: 3000,
-                        showCloseButton: true,
-                        animation: false,
                         customClass: {
                             popup: `color-${color}`,
                         },
                     });
-                    toast.fire({
-                        title: message, // Show the custom message
-                    });
                 };
+                Alpine.store('deleteModal', {
+                    isOpen: false,
+                    countryId: null,
+                    callback: null,
 
-                Alpine.data('Add_Category', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL, // Ensure API_CONFIG is defined
-                    fullname: '',
-
-                    async Add_Category() {
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            if (!token) throw new Error('لم يتم العثور على رمز المصادقة');
-
-                            const formData = new FormData();
-                            formData.append('name', this.fullname);
-
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
-                                method: 'POST',
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: formData,
-                            });
-
-                            const result = await response.json();
-
-                            if (!response.ok) {
-                                const errorMsg =
-                                    result.message ||
-                                    Object.values(result.errors || {})
-                                        .flat()
-                                        .join('\n') ||
-                                    'Error in Create Brand';
-                                throw new Error(errorMsg);
-                            }
-
-                            this.fullname = '';
-                            this.price = '';
-
-                            coloredToast('success', 'ADD Brand Successful');
-                        } catch (error) {
-                            coloredToast('danger', error.message);
-                        }
+                    openModal(id, callback) {
+                        this.countryId = id;
+                        this.callback = callback;
+                        this.isOpen = true;
                     },
-                }));
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    confirmDelete() {
+                        if (this.callback && this.countryId) {
+                            this.callback(this.countryId);
+                        }
+                        this.closeModal();
+                    },
+                });
             });
         </script>
     </body>

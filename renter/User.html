@@ -1035,236 +1035,61 @@
                                 <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
                             </li>
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Stations </span>
+                                <span>Users </span>
                             </li>
-
                             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                                <span>Station</span>
+                                <span>User </span>
                             </li>
                         </ul>
-                        <div class="pt-5">
-                            <div x-data="stationsManagement">
-                                <!-- زر إضافة محطة جديدة -->
-                                <div class="mb-6 flex justify-end">
-                                    <button @click="openAddStationModal()" class="btn btn-primary flex items-center gap-2">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        >
-                                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        </svg>
-                                        Add New Station
-                                    </button>
-                                </div>
 
-                                <!-- جدول المحطات -->
+                        <div class="pt-5">
+                            <div x-data="usersTable" x-init="init()">
                                 <div class="panel mt-6">
-                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light">Stations Management</h5>
+                                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light">Users Management</h5>
                                     <div class="table-responsive">
-                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <table class="whitespace-nowrap">
+                                            <thead>
                                                 <tr>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
-                                                    >
-                                                        #
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
-                                                    >
-                                                        Name
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
-                                                    >
-                                                        Location
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
-                                                    >
-                                                        Coordinates
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
-                                                    >
-                                                        Actions
-                                                    </th>
+                                                    <th>#</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
+                                                    <th>Country</th>
+                                                    <th>Email Verified</th>
+                                                    <th>Has License</th>
+                                                    <th>Registration Date</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                                                <template x-for="(station, index) in stations" :key="station.id">
-                                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                                        <td
-                                                            class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
-                                                            x-text="index + 1"
-                                                        ></td>
-                                                        <td
-                                                            class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white"
-                                                            x-text="station.name"
-                                                        ></td>
-                                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                            <a
-                                                                :href="'https://maps.google.com/?q=' + station.lat + ',' + station.lang"
-                                                                target="_blank"
-                                                                class="flex items-center text-primary hover:underline"
-                                                            >
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    class="mr-1 h-4 w-4"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    stroke="currentColor"
-                                                                >
-                                                                    <path
-                                                                        stroke-linecap="round"
-                                                                        stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                                                    />
-                                                                    <path
-                                                                        stroke-linecap="round"
-                                                                        stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    />
-                                                                </svg>
-                                                                View on Map
-                                                            </a>
+                                            <tbody>
+                                                <template x-for="(user, index) in filteredUsers" :key="user.id">
+                                                    <tr>
+                                                        <td x-text="index + 1"></td>
+                                                        <td x-text="user.name"></td>
+                                                        <td x-text="user.email"></td>
+                                                        <td x-text="user.phone"></td>
+                                                        <td x-text="user.country"></td>
+                                                        <td>
+                                                            <span
+                                                                x-text="user.email_verified_at ? 'Yes' : 'No'"
+                                                                :class="user.email_verified_at ? 'text-success' : 'text-danger'"
+                                                            ></span>
                                                         </td>
-                                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                            <span x-text="'Lat: ' + station.lat"></span><br />
-                                                            <span x-text="'Lng: ' + station.lang"></span>
+                                                        <td>
+                                                            <span
+                                                                x-text="user.has_license === '1' ? 'Yes' : 'No'"
+                                                                :class="user.has_license === '1' ? 'text-success' : 'text-danger'"
+                                                            ></span>
                                                         </td>
-                                                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                                                            <div class="flex space-x-2">
-                                                                <button @click="openEditStationModal(station)" class="btn btn-sm btn-warning">Edit</button>
-                                                                <button @click="deleteStation(station.id)" class="btn btn-sm btn-danger">Delete</button>
-                                                            </div>
-                                                        </td>
+                                                        <td x-text="formatDate(user.created_at)"></td>
                                                     </tr>
                                                 </template>
-                                                <template x-if="stations.length === 0">
+                                                <template x-if="filteredUsers.length === 0">
                                                     <tr>
-                                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                                            No stations found
-                                                        </td>
+                                                        <td colspan="9" class="py-4 text-center">No users found</td>
                                                     </tr>
                                                 </template>
                                             </tbody>
                                         </table>
-                                    </div>
-                                </div>
-
-                                <!-- المودال -->
-                                <div
-                                    x-show="isModalOpen"
-                                    x-transition
-                                    class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
-                                    style="display: none"
-                                    x-cloak
-                                >
-                                    <div class="w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800">
-                                        <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
-                                            <h3 class="text-xl font-bold" x-text="isEditMode ? 'Edit Station' : 'Add New Station'"></h3>
-                                            <button @click="closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="24"
-                                                    height="24"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                >
-                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                </svg>
-                                            </button>
-                                        </div>
-
-                                        <form @submit.prevent="submitForm">
-                                            <div class="p-6">
-                                                <div class="space-y-4">
-                                                    <!-- اسم المحطة -->
-                                                    <div>
-                                                        <label for="name" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                                            >Station Name</label
-                                                        >
-                                                        <input
-                                                            type="text"
-                                                            id="name"
-                                                            x-model="formData.name"
-                                                            class="form-input w-full"
-                                                            placeholder="Enter station name"
-                                                            required
-                                                        />
-                                                    </div>
-
-                                                    <!-- الإحداثيات -->
-                                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                        <div>
-                                                            <label for="lat" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                                                >Latitude</label
-                                                            >
-                                                            <input
-                                                                type="text"
-                                                                id="lat"
-                                                                x-model="formData.lat"
-                                                                class="form-input w-full"
-                                                                placeholder="Enter latitude"
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label for="lang" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                                                >Longitude</label
-                                                            >
-                                                            <input
-                                                                type="text"
-                                                                id="lang"
-                                                                x-model="formData.lang"
-                                                                class="form-input w-full"
-                                                                placeholder="Enter longitude"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="flex justify-between border-t p-4 dark:border-gray-700">
-                                                <button type="button" @click="closeModal()" class="btn btn-outline-danger">Cancel</button>
-                                                <button type="submit" class="btn btn-primary" :disabled="isLoading">
-                                                    <span x-show="!isLoading" x-text="isEditMode ? 'Update Station' : 'Add Station'"></span>
-                                                    <span x-show="isLoading" class="flex items-center">
-                                                        <svg
-                                                            class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                            <path
-                                                                class="opacity-75"
-                                                                fill="currentColor"
-                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                            ></path>
-                                                        </svg>
-                                                        Processing...
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -1280,6 +1105,30 @@
                 <!-- end footer section -->
             </div>
         </div>
+        <!-- Modal for Delete Confirmation -->
+        <!-- Delete Confirmation Modal -->
+        <div
+            x-data
+            x-show="$store.deleteModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="w-full max-w-sm rounded-lg bg-white shadow-lg dark:bg-gray-800">
+                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                    <h3 class="text-lg font-bold">Delete Confirmation</h3>
+                    <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+                </div>
+                <div class="p-4">
+                    <p class="text-gray-700 dark:text-gray-300">"Are you sure you want to delete this Merchans?"</p>
+                </div>
+                <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
+                    <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">No</button>
+                    <button @click="$store.deleteModal.confirmDelete()" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
 
         <script src=" /assets/js/alpine-collaspe.min.js"></script>
         <script src=" /assets/js/alpine-persist.min.js"></script>
@@ -1290,7 +1139,6 @@
         <script src=" /assets/js/config.js"></script>
         <script defer src=" /assets/js/sweetalert.min.js"></script>
         <script src=" /assets/js/simple-datatables.js"></script>
-        <script src="assets/js/file-upload-with-preview.iife.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
@@ -1341,6 +1189,28 @@
                         }
                     },
                 }));
+                Alpine.store('deleteModal', {
+                    isOpen: false,
+                    managerId: null,
+                    callback: null,
+
+                    openModal(id, callback) {
+                        this.managerId = id;
+                        this.callback = callback;
+                        this.isOpen = true;
+                    },
+
+                    closeModal() {
+                        this.isOpen = false;
+                    },
+
+                    confirmDelete() {
+                        if (this.callback && this.managerId) {
+                            this.callback(this.managerId);
+                        }
+                        this.closeModal();
+                    },
+                });
                 // header section
                 Alpine.data('header', () => ({
                     init() {
@@ -1359,9 +1229,69 @@
                             }
                         }
                     },
+
+                    notifications: [
+                        {
+                            id: 1,
+                            profile: 'user-profile.jpeg',
+                            message: '<strong class="text-sm mr-1">John Doe</strong>invite you to <strong>Prototyping</strong>',
+                            time: '45 min ago',
+                        },
+                        {
+                            id: 2,
+                            profile: 'profile-34.jpeg',
+                            message: '<strong class="text-sm mr-1">Adam Nolan</strong>mentioned you to <strong>UX Basics</strong>',
+                            time: '9h Ago',
+                        },
+                        {
+                            id: 3,
+                            profile: 'profile-16.jpeg',
+                            message: '<strong class="text-sm mr-1">Anna Morgan</strong>Upload a file',
+                            time: '9h Ago',
+                        },
+                    ],
+
+                    messages: [
+                        {
+                            id: 1,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-success-light dark:bg-success text-success dark:text-success-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>',
+                            title: 'Congratulations!',
+                            message: 'Your OS has been updated.',
+                            time: '1hr',
+                        },
+                        {
+                            id: 2,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>',
+                            title: 'Did you know?',
+                            message: 'You can switch between artboards.',
+                            time: '2hr',
+                        },
+                        {
+                            id: 3,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
+                            title: 'Something went wrong!',
+                            message: 'Send Reposrt',
+                            time: '2days',
+                        },
+                        {
+                            id: 4,
+                            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>',
+                            title: 'Warning',
+                            message: 'Your password strength is low.',
+                            time: '5days',
+                        },
+                    ],
+
+                    removeNotification(value) {
+                        this.notifications = this.notifications.filter((d) => d.id !== value);
+                    },
+
+                    removeMessage(value) {
+                        this.messages = this.messages.filter((d) => d.id !== value);
+                    },
                 }));
                 Alpine.data('logout', () => ({
-                    apiBaseUrl: API_CONFIG.BASE_URL,
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter,
 
                     async handleLogout() {
                         const token = localStorage.getItem('authToken');
@@ -1403,27 +1333,29 @@
                         title: message, // Show the custom message
                     });
                 };
-                Alpine.data('stationsManagement', () => ({
-                    stations: [],
-                    isModalOpen: false,
-                    isEditMode: false,
-                    isLoading: false,
-                    formData: {
-                        id: '',
-                        name: '',
-                        lat: '',
-                        lang: '',
+
+                Alpine.data('usersTable', () => ({
+                    users: [],
+                    apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+
+                    get filteredUsers() {
+                        return this.users.filter((user) => user.type === '0');
                     },
-                    apiBaseUrl: API_CONFIG.BASE_URL,
 
                     async init() {
-                        await this.fetchStations();
+                        await this.fetchUsers();
                     },
 
-                    async fetchStations() {
+                    async fetchUsers() {
                         try {
                             const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/stations/get_all`, {
+                            if (!token) {
+                                coloredToast('error', 'Authentication token is missing. Please log in.');
+                                window.location.href = '/auth-boxed-signin.html';
+                                return;
+                            }
+
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all`, {
                                 method: 'GET',
                                 headers: {
                                     Accept: 'application/json',
@@ -1432,74 +1364,24 @@
                             });
 
                             if (!response.ok) {
-                                throw new Error('Failed to fetch stations');
+                                throw new Error('Failed to fetch users');
                             }
 
                             const data = await response.json();
-                            this.stations = data.data;
+                            this.users = data.user || [];
+                            console.log('Fetched users:', this.users);
                         } catch (error) {
-                            console.error('Error fetching stations:', error);
-                            coloredToast('error', error.message || 'Failed to load stations');
+                            coloredToast('error', error.message || 'Failed to fetch users. Please try again later.');
                         }
                     },
 
-                    openAddStationModal() {
-                        this.formData = { id: '', name: '', lat: '', lang: '' };
-                        this.isEditMode = false;
-                        this.isModalOpen = true;
+                    formatDate(dateString) {
+                        if (!dateString) return '';
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString();
                     },
 
-                    openEditStationModal(station) {
-                        this.formData = { ...station };
-                        this.isEditMode = true;
-                        this.isModalOpen = true;
-                    },
-
-                    closeModal() {
-                        this.isModalOpen = false;
-                    },
-
-                    async submitForm() {
-                        this.isLoading = true;
-                        try {
-                            const token = localStorage.getItem('authToken');
-                            const url = this.isEditMode
-                                ? `${this.apiBaseUrl}/api/admin/stations/update/${this.formData.id}`
-                                : `${this.apiBaseUrl}/api/admin/stations/store`;
-
-                            const method = this.isEditMode ? 'PUT' : 'POST';
-
-                            const response = await fetch(url, {
-                                method,
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: JSON.stringify({
-                                    name: this.formData.name,
-                                    lat: this.formData.lat,
-                                    lang: this.formData.lang,
-                                }),
-                            });
-
-                            if (!response.ok) {
-                                const errorData = await response.json().catch(() => ({}));
-                                throw new Error(errorData.message || `Failed to ${this.isEditMode ? 'update' : 'add'} station`);
-                            }
-
-                            coloredToast('success', `Station ${this.isEditMode ? 'updated' : 'added'} successfully!`);
-                            this.closeModal();
-                            await this.fetchStations();
-                        } catch (error) {
-                            console.error('Error submitting form:', error);
-                            coloredToast('danger', error.message);
-                        } finally {
-                            this.isLoading = false;
-                        }
-                    },
-
-                    async deleteStation(stationId) {
+                    async deleteUser(userId) {
                         try {
                             const isConfirmed = await Swal.fire({
                                 title: 'Are you sure?',
@@ -1514,7 +1396,7 @@
                             if (!isConfirmed.isConfirmed) return;
 
                             const token = localStorage.getItem('authToken');
-                            const response = await fetch(`${this.apiBaseUrl}/api/admin/stations/delete/${stationId}`, {
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/user/delete/${userId}`, {
                                 method: 'DELETE',
                                 headers: {
                                     Accept: 'application/json',
@@ -1523,14 +1405,13 @@
                             });
 
                             if (!response.ok) {
-                                throw new Error('Failed to delete station');
+                                throw new Error('Failed to delete user');
                             }
 
-                            await this.fetchStations();
-                            Swal.fire('Deleted!', 'The station has been deleted.', 'success');
+                            await this.fetchUsers();
+                            Swal.fire('Deleted!', 'The user has been deleted.', 'success');
                         } catch (error) {
-                            console.error('Error deleting station:', error);
-                            Swal.fire('Error', error.message || 'Failed to delete station', 'error');
+                            Swal.fire('Error', error.message || 'Failed to delete user', 'error');
                         }
                     },
                 }));

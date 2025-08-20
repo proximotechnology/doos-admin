@@ -9,7 +9,16 @@
 .ltr .ql-snow .ql-editor img {
     margin-left: 0px;
 }
-
+.swal2-input, .swal2-select, .swal2-file {
+    border: 1px solid #d1d5db !important;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+    padding: 0.5rem !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+.swal2-popup {
+    padding: 1.5rem !important;
+}
 .rtl .ql-snow .ql-editor img {
     margin-right: 0px;
 }
