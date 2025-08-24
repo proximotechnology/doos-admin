@@ -13126,6 +13126,39 @@ pre {
         text-align: right;
     }
 }
+        .table-container {
+            overflow-x: auto;
+        }
+        .id-with-flag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .flag-img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .actions-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-btn {
+            white-space: nowrap;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .datatable-table thead th {
+            vertical-align: middle;
+            text-align: center;
+        }
+        .datatable-table tbody td {
+            vertical-align: middle;
+        }
 
 @media (min-width: 1024px) {
     .rtl\:lg\:ml-6:where([dir='rtl'], [dir='rtl'] *) {

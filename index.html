@@ -8,6 +8,178 @@
         <link rel="icon" type="image/x-icon" href="favicon.png" />
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
+        <style>
+            /* أنيميشن للموديل */
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-50px) scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            @keyframes overlayFadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .modal-overlay {
+                animation: overlayFadeIn 0.3s ease-out forwards;
+            }
+
+            .modal-content {
+                animation: modalFadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            }
+
+            /* تصميم الموديل */
+            .password-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 999;
+                backdrop-filter: blur(4px);
+            }
+
+            .modal-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100%;
+                padding: 20px;
+            }
+
+            .modal-box {
+                background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+                border-radius: 16px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                width: 100%;
+                max-width: 400px;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                position: relative;
+            }
+
+            .modal-header {
+                background: linear-gradient(45deg, #4361ee, #3a0ca3);
+                padding: 20px;
+                text-align: center;
+                color: white;
+                position: relative;
+            }
+
+            .close-button {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background-color 0.3s;
+            }
+
+            .close-button:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .modal-body {
+                padding: 25px;
+            }
+
+            .password-input {
+                width: 100%;
+                padding: 12px 16px;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                font-size: 16px;
+                transition: all 0.3s;
+                margin-bottom: 20px;
+            }
+
+            .password-input:focus {
+                outline: none;
+                border-color: #4361ee;
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            }
+
+            .submit-btn {
+                width: 100%;
+                padding: 12px;
+                background: linear-gradient(45deg, #4361ee, #3a0ca3);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .submit-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+            }
+
+            .error-message {
+                color: #ef4444;
+                font-size: 14px;
+                margin-top: 5px;
+                display: none;
+            }
+
+            .dark .modal-box {
+                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .dark .password-input {
+                background-color: #374151;
+                border-color: #4b5563;
+                color: white;
+            }
+
+            /* أنيميشن الاهتزاز */
+            @keyframes shake {
+                0%,
+                100% {
+                    transform: translateX(0);
+                }
+                10%,
+                30%,
+                50%,
+                70%,
+                90% {
+                    transform: translateX(-5px);
+                }
+                20%,
+                40%,
+                60%,
+                80% {
+                    transform: translateX(5px);
+                }
+            }
+            .shake {
+                animation: shake 0.5s;
+                border-color: #ef4444 !important;
+            }
+        </style>
     </head>
 
     <body
@@ -52,6 +224,24 @@
             </template>
         </div>
 
+        <!-- نموذج إدخال كلمة المرور -->
+        <div id="passwordModal" class="password-modal modal-overlay">
+            <div class="modal-container">
+                <div class="modal-box modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle" class="text-xl font-bold">Enter Password</h2>
+                        <button class="close-button" onclick="hidePasswordModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modalDescription" class="mb-4 text-gray-600 dark:text-gray-300">Please enter the password to continue</p>
+                        <input type="password" id="passwordInput" class="password-input" placeholder="Password" autocomplete="off" />
+                        <p id="errorMessage" class="error-message">Incorrect password</p>
+                        <button id="submitPassword" class="submit-btn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="main-container min-h-screen text-black dark:text-white-dark">
             <div class="absolute inset-0">
                 <img src="/assets/images/auth/bg-gradient.png" alt="image" class="h-full w-full object-cover" />
@@ -73,43 +263,141 @@
                                 <h1 class="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Welcome</h1>
                                 <p class="text-base font-bold leading-normal text-white-dark">Please select your account type</p>
                             </div>
-                            
+
                             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                 <!-- Renter Card -->
-                                <div 
+                                <div
                                     class="cursor-pointer rounded-md bg-white/80 p-5 text-center shadow-[0_0_3px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] dark:bg-black/50"
-                                    onclick="window.location.href='renter/auth-boxed-signin.html'"
+                                    onclick="showPasswordModal('renter')"
                                 >
                                     <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 p-3 text-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819" />
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"
+                                            />
                                         </svg>
                                     </div>
                                     <h3 class="mb-2 text-lg font-semibold text-dark dark:text-white">Renter</h3>
                                     <p class="text-white-dark">I want to rent properties</p>
                                 </div>
-                                
+
                                 <!-- Uber Card -->
-                                <div 
+                                <div
                                     class="cursor-pointer rounded-md bg-white/80 p-5 text-center shadow-[0_0_3px_rgba(0,0,0,0.1)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] dark:bg-black/50"
-                                    onclick="window.location.href='uber/auth-boxed-signin.html'"
+                                    onclick="showPasswordModal('uber')"
                                 >
                                     <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 p-3 text-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                                            />
                                         </svg>
                                     </div>
                                     <h3 class="mb-2 text-lg font-semibold text-dark dark:text-white">Uber</h3>
                                     <p class="text-white-dark">I'm a property owner</p>
                                 </div>
                             </div>
-                            
-                      
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            // متغيرات لتخزين نوع الحساب المحدد
+            let selectedAccountType = '';
+            const passwords = {
+                renter: '1234567',
+                uber: '12345678',
+            };
+
+            // دالة لعرض نموذج إدخال كلمة المرور
+            function showPasswordModal(accountType) {
+                selectedAccountType = accountType;
+                const modal = document.getElementById('passwordModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalDescription = document.getElementById('modalDescription');
+
+                // تحديث النصوص بناءً على نوع الحساب
+                if (accountType === 'renter') {
+                    modalTitle.textContent = 'Renter - Enter Password';
+                    modalDescription.textContent = 'Please enter the renter password to continue';
+                } else {
+                    modalTitle.textContent = 'Uber - Enter Password';
+                    modalDescription.textContent = 'Please enter the property owner password to continue';
+                }
+
+                // إظهار الموديل
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // منع التمرير عند ظهور الموديل
+
+                // التركيز على حقل إدخال كلمة المرور
+                setTimeout(() => {
+                    document.getElementById('passwordInput').focus();
+                }, 100);
+            }
+
+            // دالة لإخفاء نموذج إدخال كلمة المرور
+            function hidePasswordModal() {
+                const modal = document.getElementById('passwordModal');
+                modal.style.display = 'none';
+                document.body.style.overflow = ''; // إعادة التمرير
+
+                // مسح حقل الإدخال وإخفاء رسالة الخطأ
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            // دالة للتحقق من كلمة المرور
+            function checkPassword() {
+                const inputPassword = document.getElementById('passwordInput').value;
+                const errorMessage = document.getElementById('errorMessage');
+
+                if (inputPassword === passwords[selectedAccountType]) {
+                    // كلمة المرور صحيحة - التوجيه إلى الصفحة المناسبة
+                    if (selectedAccountType === 'renter') {
+                        window.location.href = 'renter/auth-boxed-signin.html';
+                    } else {
+                        window.location.href = 'uber/auth-boxed-signin.html';
+                    }
+                } else {
+                    // كلمة المرور خاطئة - عرض رسالة الخطأ
+                    errorMessage.style.display = 'block';
+
+                    // تأثير اهتزاز للحقل
+                    const inputField = document.getElementById('passwordInput');
+                    inputField.classList.add('shake');
+                    setTimeout(() => {
+                        inputField.classList.remove('shake');
+                    }, 500);
+                }
+            }
+
+            // إعداد معالجي الأحداث عند تحميل الصفحة
+            document.addEventListener('DOMContentLoaded', function () {
+                // زر التأكيد
+                document.getElementById('submitPassword').addEventListener('click', checkPassword);
+
+                // عند الضغط على Enter في حقل كلمة المرور
+                document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+
+                // إغلاق الموديل عند النقر خارج المحتوى
+                document.getElementById('passwordModal').addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        hidePasswordModal();
+                    }
+                });
+            });
+        </script>
+
         <script defer src=" /assets/js/sweetalert.min.js"></script>
         <script src=" /assets/js/alpine-collaspe.min.js"></script>
         <script src=" /assets/js/alpine-persist.min.js"></script>
@@ -117,9 +405,6 @@
         <script defer src=" /assets/js/alpine-focus.min.js"></script>
         <script defer src=" /assets/js/alpine.min.js"></script>
         <script src=" /assets/js/config.js"></script>
-
         <script src=" /assets/js/custom.js"></script>
-
-  
     </body>
 </html>
