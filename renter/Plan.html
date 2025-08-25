@@ -1149,16 +1149,16 @@
             </div>
         </div>
 
-        <script src=" /assets/js/alpine-collaspe.min.js"></script>
-        <script src=" /assets/js/alpine-persist.min.js"></script>
-        <script defer src=" /assets/js/alpine-ui.min.js"></script>
-        <script defer src=" /assets/js/alpine-focus.min.js"></script>
-        <script defer src=" /assets/js/alpine.min.js"></script>
-        <script src=" /assets/js/custom.js"></script>
-        <script src=" /assets/js/config.js"></script>
-        <script defer src=" /assets/js/sweetalert.min.js"></script>
-        <script src=" /assets/js/simple-datatables.js"></script>
-        <script src="assets/js/file-upload-with-preview.iife.js"></script>
+        <script src="../assets/js/alpine-collaspe.min.js"></script>
+        <script src="../assets/js/alpine-persist.min.js"></script>
+        <script defer src="../assets/js/alpine-ui.min.js"></script>
+        <script defer src="../assets/js/alpine-focus.min.js"></script>
+        <script defer src="../assets/js/alpine.min.js"></script>
+        <script src="../assets/js/custom.js"></script>
+        <script src="../assets/js/config.js"></script>
+        <script defer src="../assets/js/sweetalert.min.js"></script>
+        <script src="../assets/js/simple-datatables.js"></script>
+        <script src="../assets/js/file-upload-with-preview.iife.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
@@ -1298,6 +1298,11 @@
                                 const planId = e.target.closest('.update-btn').dataset.id;
                                 this.updatePlan(planId);
                             }
+                            if (e.target.closest('.toggle-active-btn')) {
+                                const planId = e.target.closest('.toggle-active-btn').dataset.id;
+                                const isActive = e.target.closest('.toggle-active-btn').dataset.active === '1';
+                                this.toggleActive(planId, isActive);
+                            }
                         });
                     },
 
@@ -1345,12 +1350,13 @@
                             this.formatText(plan.price),
                             this.formatText(plan.car_limite),
                             this.formatText(plan.count_day),
-                            this.getActionButtons(plan.id, plan.name, plan.price, plan.car_limite, plan.count_day),
+                            this.formatActiveStatus(plan.is_active),
+                            this.getActionButtons(plan.id, plan.name, plan.price, plan.car_limite, plan.count_day, plan.is_active),
                         ]);
 
                         this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
                             data: {
-                                headings: ['#', 'Name', 'Price', 'Car Limit', 'Days Count', '<div class="text-center">Action</div>'],
+                                headings: ['#', 'Name', 'Price', 'Car Limit', 'Days Count', 'Is Active', '<div class="text-center">Action</div>'],
                                 data: mappedData,
                             },
                             searchable: true,
@@ -1373,22 +1379,76 @@
                     formatText(text) {
                         return text || 'N/A';
                     },
+                    formatActiveStatus(isActive) {
+                        return isActive == 1 ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
+                    },
 
                     // أزرار الإجراءات
-                    getActionButtons(planId, name, price, car_limite, count_day) {
+                    getActionButtons(planId, name, price, car_limite, count_day, isActive) {
                         return `
-                <div class="flex items-center justify-center">
-                    <button class="btn update-btn btn-warning" 
-                            data-id="${planId}"
-                            data-name="${name}"
-                            data-price="${price}"
-                            data-car_limite="${car_limite}"
-                            data-count_day="${count_day}">
-                        UPDATE
-                    </button>
+            <div class="flex items-center justify-center space-x-2">
+                <button class="btn update-btn btn-warning" 
+                        data-id="${planId}"
+                        data-name="${name}"
+                        data-price="${price}"
+                        data-car_limite="${car_limite}"
+                        data-count_day="${count_day}">
+                    UPDATE
+                </button>
+                
+             
 
-            
-                </div>`;
+                <button class="btn delete-btn btn-danger" data-id="${planId}">
+                    DELETE
+                </button> 
+                <button class="btn toggle-active-btn ${isActive == 1 ? 'btn-outline-warning' : 'btn-outline-success'} rounded-pill px-3" 
+                        data-id="${planId}"
+                        data-active="${isActive}"
+                        title="${isActive == 1 ? 'Deactivate Plan' : 'Activate Plan'}">
+                    <i class="bi ${isActive == 1 ? 'bi-x-circle' : 'bi-check-circle'} me-1"></i> 
+                    ${isActive == 1 ? 'Deactivate' : 'Activate'}
+                </button>
+            </div>`;
+                    },
+
+                    // تبديل حالة النشاط باستخدام نفس رابط التحديث
+                    async toggleActive(planId, isActive) {
+                        try {
+                            const token = localStorage.getItem('authToken');
+                            if (!token) {
+                                coloredToast('danger', 'Authentication token missing');
+                                return;
+                            }
+
+                            // إرسال is_active فقط كجزء من البيانات
+                            const updateData = {
+                                is_active: isActive ? 0 : 1,
+                            };
+
+                            const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/update/${planId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify(updateData),
+                            });
+
+                            if (!response.ok) {
+                                const errorData = await response.json().catch(() => ({}));
+                                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                            }
+
+                            const result = await response.json();
+                            console.log('Toggle active result:', result);
+
+                            coloredToast('success', `Plan ${isActive ? 'activated' : 'deactivated'} successfully`);
+                            await this.fetchPlans(); // إعادة تحميل البيانات
+                        } catch (error) {
+                            console.error('Toggle active error:', error);
+                            coloredToast('danger', error.message || 'Failed to toggle plan status');
+                        }
                     },
 
                     async updatePlan(planId) {
