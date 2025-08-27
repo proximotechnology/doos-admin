@@ -1,0 +1,232 @@
+<div>
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span x-text="$store.i18n.t('cars_management')"></span>
+        </li>
+
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span x-text="$store.i18n.t('subscribe')"></span>
+        </li>
+    </ul>
+
+    <div class="pt-5">
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+        <div x-data="subscriptionsTable" x-init="init()">
+            <!-- فلترة الاشتراكات -->
+            <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
+                <!-- فلترة الحالة -->
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('status')"></label>
+                    <select x-model="filters.status" @change="fetchSubscriptions()" class="form-select w-full">
+                        <option value="" x-text="$store.i18n.t('all_statuses')"></option>
+                        <option value="active" x-text="$store.i18n.t('active')"></option>
+                        <option value="pending" x-text="$store.i18n.t('pending')"></option>
+                        <option value="finished" x-text="$store.i18n.t('finished')"></option>
+                    </select>
+                </div>
+
+                <!-- فلترة المستخدم -->
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('user')"></label>
+                    <select x-model="filters.user_id" @change="fetchSubscriptions()" class="form-select w-full">
+                        <option value="" x-text="$store.i18n.t('all_users')"></option>
+                        <template x-for="user in users" :key="user.id">
+                            <option :value="user.id" x-text="user.name"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- فلترة الخطة -->
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('plan')"></label>
+                    <select x-model="filters.plan_id" @change="fetchSubscriptions()" class="form-select w-full">
+                        <option value="" x-text="$store.i18n.t('all_plans')"></option>
+                        <template x-for="plan in plans" :key="plan.id">
+                            <option :value="plan.id" x-text="plan.name"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- فلترة التاريخ -->
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('date_range')"></label>
+                    <div class="flex space-x-2">
+                        <input
+                            type="date"
+                            x-model="filters.start_date"
+                            @change="fetchSubscriptions()"
+                            class="form-input w-full"
+                            :placeholder="$store.i18n.t('start_date')"
+                        />
+                        <input
+                            type="date"
+                            x-model="filters.end_date"
+                            @change="fetchSubscriptions()"
+                            class="form-input w-full"
+                            :placeholder="$store.i18n.t('end_date')"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- جدول الاشتراكات -->
+            <div class="panel mt-2">
+               
+                <div class="mb-5 flex items-center justify-between">
+                    <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('subscriptions_management')"></h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">#</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('user')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('plan')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('status')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('start_date')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('end_date')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('price')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('cars_limit')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('remaining_cars')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('payment')"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('action')"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+                            
+                            <template x-for="(subscription, index) in subscriptions.data" :key="subscription.id">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                    <td
+                                        class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                        x-text="index + 1 + (subscriptions.current_page - 1) * subscriptions.per_page"
+                                    ></td>
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span x-text="subscription.user.name" class="text-sm font-medium text-gray-900 dark:text-white"></span>
+                                            <span x-text="subscription.user.email" class="text-xs text-gray-500 dark:text-gray-400"></span>
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100" x-text="subscription.plan.name"></td>
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <span
+                                            :class="{
+                                                'bg-green-100 text-green-800': subscription.status === 'active',
+                                                'bg-yellow-100 text-yellow-800': subscription.status === 'pending',
+                                                'bg-red-100 text-red-800': subscription.status === 'finished'
+                                            }"
+                                            class="inline-flex rounded-full px-2 text-xs font-semibold capitalize leading-5"
+                                            x-text="subscription.status === 'active' ? $store.i18n.t('active') : subscription.status === 'pending' ? $store.i18n.t('pending') : $store.i18n.t('finished')"
+                                        ></span>
+                                    </td>
+                                    <td
+                                        class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                        x-text="formatDate(subscription.date_from)"
+                                    ></td>
+                                    <td
+                                        class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                                        x-text="formatDate(subscription.date_end)"
+                                    ></td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100" x-text="'$' + subscription.price"></td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100" x-text="subscription.car_limite"></td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100" x-text="subscription.remaining_cars"></td>
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <span
+                                            :class="{
+                                                'bg-green-100 text-green-800': subscription.is_paid === '1',
+                                                'bg-red-100 text-red-800': subscription.is_paid === '0'
+                                            }"
+                                            class="inline-flex rounded-full px-2 text-xs font-semibold leading-5"
+                                            x-text="subscription.is_paid === '1' ? $store.i18n.t('paid') : $store.i18n.t('unpaid')"
+                                        ></span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
+                                        <template x-if="subscription.status === 'pending' && subscription.is_paid === '0'">
+                                            <button
+                                                @click="markAsPaid(subscription.id)"
+                                                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                x-text="$store.i18n.t('approve')"
+                                            ></button>
+                                        </template>
+                                        <template x-if="subscription.status !== 'pending' || subscription.is_paid === '1'">
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="subscriptions.data && subscriptions.data.length === 0">
+                                
+                                <tr>
+                                    <td
+                                        colspan="11"
+                                        class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                                        x-text="$store.i18n.t('no_subscriptions_found')"
+                                    ></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                    <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                    <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                </div>
+                <!-- Pagination -->
+                <div
+                    class="mt-4 flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-700 dark:bg-gray-900"
+                    x-show="subscriptions.data && subscriptions.data.length > 0"
+                >
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        <span x-text="$store.i18n.t('showing')"></span> <span x-text="subscriptions.from" class="font-medium"></span>
+                        <span x-text="$store.i18n.t('to')"></span> <span x-text="subscriptions.to" class="font-medium"></span>
+                        <span x-text="$store.i18n.t('of')"></span> <span x-text="subscriptions.total" class="font-medium"></span>
+                        <span x-text="$store.i18n.t('results')"></span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button
+                            @click="prevPage()"
+                            :disabled="subscriptions.current_page === 1"
+                            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            :class="{ 'opacity-50 cursor-not-allowed': subscriptions.current_page === 1 }"
+                            x-text="$store.i18n.t('previous')"
+                        ></button>
+                        <button
+                            @click="nextPage()"
+                            :disabled="subscriptions.current_page === subscriptions.last_page"
+                            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            :class="{ 'opacity-50 cursor-not-allowed': subscriptions.current_page === subscriptions.last_page }"
+                            x-text="$store.i18n.t('next')"
+                        ></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

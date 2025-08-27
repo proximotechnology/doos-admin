@@ -1,0 +1,40 @@
+<div
+    x-data
+    x-show="$store.updateModal.isOpen"
+    x-transition
+    class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+    style="display: none"
+    x-cloak
+>
+    <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
+        <div
+            class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+            :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+        >
+            <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                <h5 class="text-lg font-bold">Update Plan</h5>
+                <button @click="$store.updateModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+            </div>
+            <div class="p-5">
+                <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                    <div class="overflow-hidden">
+                        <!-- form grid -->
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <input type="text" placeholder="Plan Name" class="form-input" x-model="$store.global.sharedData.name" required />
+                            <input type="number" placeholder="Price" class="form-input" x-model="$store.global.sharedData.price" required step="0.01" />
+                        </div>
+                        <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <input type="number" placeholder="Car Limit" class="form-input" x-model="$store.global.sharedData.car_limite" required />
+                            <input type="number" placeholder="Days Count" class="form-input" x-model="$store.global.sharedData.count_day" required />
+                        </div>
+
+                        <div class="mt-8 flex items-center justify-end">
+                            <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">Cancel</button>
+                            <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">Update Plan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

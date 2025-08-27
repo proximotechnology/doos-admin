@@ -13117,6 +13117,34 @@ pre {
     .rtl\:md\:border-r-0:where([dir='rtl'], [dir='rtl'] *) {
         border-right-width: 0px;
     }
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.color-success {
+    background-color: #10B981 !important;
+    color: white !important;
+}
+
+.color-danger {
+    background-color: #EF4444 !important;
+    color: white !important;
+}
+
+.color-warning {
+    background-color: #F59E0B !important;
+    color: white !important;
+}
+
 
     .rtl\:md\:text-left:where([dir='rtl'], [dir='rtl'] *) {
         text-align: left;
