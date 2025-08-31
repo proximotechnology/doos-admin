@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline">
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('reviews')"></span>
+                </li>
+
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('reviews')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <!-- Table Loader -->
+                <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                    <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                    <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                </div>
+
+                <!-- Table Content -->
+                <div id="tableContent" class="hidden">
+                    <div x-data="reviewsTable" x-init="fetchReviews(); fetchCars()">
+                        <div class="panel mt-6">
+                            <!-- Filter by Car -->
+                            <div class="mb-5 flex items-center gap-3">
+                                <label class="whitespace-nowrap" x-text="$store.i18n.t('filter_by_car')"></label>
+                                <select x-model="selectedCar" @change="filterReviews()" class="form-select">
+                                    <option value="" x-text="$store.i18n.t('all_cars')"></option>
+                                    <template x-for="car in cars" :key="car.id">
+                                        <option :value="car.id" x-text="car.make"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <table id="reviewsTable" class="whitespace-nowrap"></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_reviews')"></h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_reviews_description')"></p>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div
+                    x-data
+                    x-show="$store.deleteModal.isOpen"
+                    x-transition
+                    class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+                    style="display: none"
+                    x-cloak
+                >
+                    <div class="w-full max-w-sm rounded-lg bg-white shadow-lg dark:bg-gray-800">
+                        <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                            <h3 class="text-lg font-bold" x-text="$store.i18n.t('delete_confirmation')"></h3>
+                            <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('confirm_delete_review')"></p>
+                        </div>
+                        <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
+                            <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">
+                                <span x-text="$store.i18n.t('no')"></span>
+                            </button>
+                            <button @click="$store.deleteModal.confirmDelete()" class="btn btn-primary">
+                                <span x-text="$store.i18n.t('yes')"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

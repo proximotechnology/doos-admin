@@ -26,7 +26,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
                 this.currentPrice = data.driver_price.price;
                 this.price = data.driver_price.price || '';
             } catch (error) {

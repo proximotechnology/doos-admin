@@ -1,4 +1,3 @@
-
 document.addEventListener('alpine:init', () => {
     // دالة مساعدة لعرض وإخفاء مؤشر التحميل
     const loadingIndicator = {
@@ -23,21 +22,25 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('tableLoading').classList.add('hidden');
         }
     };
+
     Alpine.store('planTable', {
-        refreshTable: async function () {
+        refreshTable: async function (page = 1) {
             const tableComponent = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
             if (tableComponent && tableComponent.fetchPlans) {
-                await tableComponent.fetchPlans();
+                await tableComponent.fetchPlans(page);
             }
         }
     });
+
     Alpine.data('multipleTable', () => ({
         tableData: [],
+        paginationMeta: {},
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        currentPage: 1,
 
         async init() {
-            await this.fetchPlans();
+            await this.fetchPlans(1);
 
             // Event Delegation for Delete Buttons
             document.addEventListener('click', (e) => {
@@ -54,22 +57,28 @@ document.addEventListener('alpine:init', () => {
                     const isActive = e.target.closest('.toggle-active-btn').dataset.active === '1';
                     this.toggleActive(planId, isActive);
                 }
+                // Pagination event handling
+                if (e.target.closest('.pagination-btn')) {
+                    const page = e.target.closest('.pagination-btn').dataset.page;
+                    this.fetchPlans(page);
+                }
             });
         },
 
-        // جلب بيانات الخطط من API
-        async fetchPlans() {
+        // جلب بيانات الخطط من API مع دعم التقسيم الصفحي
+        async fetchPlans(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
+                this.currentPage = page;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     this.showError('Authentication token is missing. Please log in.');
-                    window.location.href = '/auth-boxed-signin.html';
+                    window.location.href = 'renter/auth-boxed-signin.html';
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index?page=${page}`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -83,7 +92,7 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
                 this.tableData = data.data;
-                console.log(data);
+                this.paginationMeta = data.meta;
 
                 if (this.tableData.length === 0) {
                     loadingIndicator.showEmptyState();
@@ -99,14 +108,14 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // تعبئة الجدول بالبيانات
+        // تعبئة الجدول بالبيانات مع إضافة التقسيم الصفحي
         populateTable() {
             if (this.datatable1) {
                 this.datatable1.destroy();
             }
 
             const mappedData = this.tableData.map((plan, index) => [
-                this.formatText(index + 1),
+                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatText(plan.name),
                 this.formatText(plan.price),
                 this.formatText(plan.car_limite),
@@ -125,10 +134,11 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('days_count'),
                         Alpine.store('i18n').t('status'),
                         '<div class="text-center">' + Alpine.store('i18n').t('actions') + '</div>'
-                    ], data: mappedData,
+                    ],
+                    data: mappedData,
                 },
                 searchable: true,
-                perPage: 10,
+                perPage: this.paginationMeta.per_page,
                 perPageSelect: [10, 20, 30, 50, 100],
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
@@ -139,9 +149,44 @@ document.addEventListener('alpine:init', () => {
                 labels: { perPage: '{select}' },
                 layout: {
                     top: '{search}',
-                    bottom: '{info}{select}{pager}',
+                    bottom: this.generatePaginationHTML() + '{info}{pager}',
                 },
             });
+        },
+
+        // توليد واجهة التقسيم الصفحي
+        generatePaginationHTML() {
+            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+
+            let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
+            paginationHTML += '<nav class="flex items-center space-x-2">';
+
+            // زر الصفحة السابقة
+            if (this.paginationMeta.current_page > 1) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
+                    ${Alpine.store('i18n').t('previous')}
+                </button>`;
+            }
+
+            // أرقام الصفحات
+            const startPage = Math.max(1, this.paginationMeta.current_page - 2);
+            const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary' : 'btn-outline-primary'}" data-page="${i}">
+                    ${i}
+                </button>`;
+            }
+
+            // زر الصفحة التالية
+            if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
+                    ${Alpine.store('i18n').t('next')}
+                </button>`;
+            }
+
+            paginationHTML += '</nav></div>';
+            return paginationHTML;
         },
 
         formatText(text) {
@@ -156,7 +201,7 @@ document.addEventListener('alpine:init', () => {
         // أزرار الإجراءات
         getActionButtons(planId, name, price, car_limite, count_day, isActive) {
             return `
-    <div class="flex items-center justify-center  gap-1">
+    <div class="flex items-center  gap-1">
         <button class="btn update-btn btn-warning rounded-pill" 
                 data-id="${planId}"
                 data-name="${name}"
@@ -176,6 +221,7 @@ document.addEventListener('alpine:init', () => {
         </button>
     </div>`;
         },
+
 
         // تبديل حالة النشاط باستخدام نفس رابط التحديث
         async toggleActive(planId, isActive) {
@@ -210,7 +256,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const result = await response.json();
-                console.log('Toggle active result:', result);
 
                 coloredToast('success', Alpine.store('i18n').t('plan_status_changed'));
                 await this.fetchPlans(); // إعادة تحميل البيانات
@@ -272,7 +317,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const result = await response.json();
-                console.log('Update result:', result);
 
                 if (result) {
                     coloredToast('success', Alpine.store('i18n').t('plan_updated_success'));
@@ -317,7 +361,6 @@ document.addEventListener('alpine:init', () => {
                 await this.fetchPlans();
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_delete'));
-                console.log(error);
             } finally {
                 loadingIndicator.hide();
             }
@@ -384,7 +427,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const result = await response.json();
-                console.log('Success:', result);
 
                 // Reset form
                 this.name = '';

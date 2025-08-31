@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title><span x-text="$store.i18n.t('user_profile')"></span></title>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <style>
+            .hidden {
+                display: none;
+            }
+            .form-input {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.375rem;
+                margin-top: 0.25rem;
+            }
+            .btn {
+                padding: 0.5rem 1rem;
+                background-color: #3b82f6;
+                color: white;
+                border-radius: 0.375rem;
+                border: none;
+                cursor: pointer;
+            }
+            .btn:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+            .panel {
+                background-color: white;
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                margin-bottom: 1rem;
+            }
+            .dark-mode {
+                background-color: #1f2937;
+                color: white;
+            }
+            .dark-mode .panel {
+                background-color: #111827;
+            }
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100 dark:bg-gray-900">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div x-data="profileData()" x-init="init()">
+            <div class="container mx-auto p-4">
+                <ul class="mb-4 flex space-x-2">
+                    <li>
+                        <a href="javascript:;" class="text-blue-500 hover:underline" x-text="$store.i18n.t('users')"></a>
+                    </li>
+                    <li class="before:mr-1 before:content-['/']">
+                        <span x-text="$store.i18n.t('profile')"></span>
+                    </li>
+                </ul>
+
+                <div class="pt-5">
+                    <div class="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3 xl:grid-cols-4">
+                        <div class="panel dark:bg-gray-800">
+                            <div class="mb-5 flex items-center justify-between">
+                                <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('profile')"></h5>
+                            </div>
+                            <div class="mb-5">
+                                <div class="flex flex-col items-center justify-center">
+                                    <img
+                                        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSI0IiBzdHJva2U9IiM5Y2E3ZjYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNNSAxNmE3IDcgMCAwIDEgMTQgMHYxYTIgMiAwIDAgMS0yIDJINyEyIDIgMCAwIDEtMi0ydi0xeiIgc3Ryb2tlPSIjOWNhN2Y2IiBzdHJva2Utd2lkdGg0PSIyIi8+Cjwvc3ZnPg=="
+                                        alt="image"
+                                        class="mb-5 h-24 w-24 rounded-full bg-gray-200 object-cover"
+                                    />
+                                    <p class="text-xl font-semibold text-blue-500" x-text="user.name"></p>
+                                </div>
+                                <ul class="m-auto mt-5 flex max-w-[160px] flex-col space-y-4 font-semibold text-gray-600 dark:text-gray-300">
+                                    <li class="flex items-center gap-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0">
+                                            <path
+                                                d="M2.3153 12.6978C2.26536 12.2706 2.2404 12.057 2.2509 11.8809C2.30599 10.9577 2.98677 10.1928 3.89725 10.0309C4.07094 10 4.286 10 4.71612 10H15.2838C15.7139 10 15.929 10 16.1027 10.0309C17.0132 10.1928 17.694 10.9577 17.749 11.8809C17.7595 12.057 17.7346 12.2706 17.6846 12.6978L17.284 16.1258C17.1031 17.6729 16.2764 19.0714 15.0081 19.9757C14.0736 20.6419 12.9546 21 11.8069 21H8.19303C7.04537 21 5.9263 20.6419 4.99182 19.9757C3.72352 19.0714 2.89681 17.6729 2.71598 16.1258L2.3153 12.6978Z"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <path
+                                                opacity="0.5"
+                                                d="M17 17H19C20.6569 17 22 15.6569 22 14C22 12.3431 20.6569 11 19 11H17.5"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <path
+                                                opacity="0.5"
+                                                d="M10.0002 2C9.44787 2.55228 9.44787 3.44772 10.0002 4C10.5524 4.55228 10.5524 5.44772 10.0002 6"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            />
+                                            <path
+                                                d="M4.99994 7.5L5.11605 7.38388C5.62322 6.87671 5.68028 6.0738 5.24994 5.5C4.81959 4.9262 4.87665 4.12329 5.38382 3.61612L5.49994 3.5"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            />
+                                            <path
+                                                d="M14.4999 7.5L14.6161 7.38388C15.1232 6.87671 15.1803 6.0738 14.7499 5.5C14.3196 4.9262 14.3767 4.12329 14.8838 3.61612L14.9999 3.5"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            />
+                                        </svg>
+                                        <span x-text="user.type === '1' ? $store.i18n.t('admin') : $store.i18n.t('user')"></span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0">
+                                            <path
+                                                opacity="0.5"
+                                                d="M4 10.1433C4 5.64588 7.58172 2 12 2C16.4183 2 20 5.64588 20 10.1433C20 14.6055 17.4467 19.8124 13.4629 21.6744C12.5343 22.1085 11.4657 22.1085 10.5371 21.6744C6.55332 19.8124 4 14.6055 4 10.1433Z"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5" />
+                                        </svg>
+                                        <span x-text="user.country || $store.i18n.t('not_set')"></span>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;" class="flex items-center gap-2">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5 shrink-0"
+                                            >
+                                                <path
+                                                    opacity="0.5"
+                                                    d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                />
+                                                <path
+                                                    d="M6 8L8.1589 9.79908C9.99553 11.3296 10.9139 12.0949 12 12.0949C13.0861 12.0949 14.0045 11.3296 15.8411 9.79908L18 8"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linecap="round"
+                                                />
+                                            </svg>
+                                            <span class="truncate text-blue-500" x-text="user.email"></span>
+                                        </a>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                            <path
+                                                d="M16.1007 13.359L16.5562 12.9062C17.1858 12.2801 18.1672 12.1515 18.9728 12.5894L20.8833 13.628C22.1102 14.2949 22.3806 15.9295 21.4217 16.883L20.0011 18.2954C19.6399 18.6546 19.1917 18.9171 18.6763 18.9651M4.00289 5.74561C3.96765 5.12559 4.25823 4.56668 4.69185 4.13552L6.26145 2.57483C7.13596 1.70529 8.61028 1.83992 9.37326 2.85908L10.6342 4.54348C11.2507 5.36691 11.1841 6.49484 10.4775 7.19738L10.1907 7.48257"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <path
+                                                opacity="0.5"
+                                                d="M18.6763 18.9651C17.0469 19.117 13.0622 18.9492 8.8154 14.7266C4.81076 10.7447 4.09308 7.33182 4.00293 5.74561"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <path
+                                                opacity="0.5"
+                                                d="M16.1007 13.3589C16.1007 13.3589 15.0181 14.4353 12.0631 11.4971C9.10807 8.55886 10.1907 7.48242 10.1907 7.48242"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                                stroke-linecap="round"
+                                            />
+                                        </svg>
+                                        <span class="whitespace-nowrap" dir="ltr" x-text="user.phone || $store.i18n.t('no_phone')"></span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0">
+                                            <path
+                                                d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12V14C22 17.7712 22 19.6569 20.8284 20.8284C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 17.7712 2 14V12Z"
+                                                stroke="currentColor"
+                                                stroke-width="1.5"
+                                            />
+                                            <path opacity="0.5" d="M7 4V2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                            <path opacity="0.5" d="M17 4V2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                            <path opacity="0.5" d="M2 9H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        </svg>
+                                        <span x-text="formatDate(user.created_at)"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="panel dark:bg-gray-800 lg:col-span-2 xl:col-span-3">
+                            <form class="mb-5 rounded-md border border-gray-200 p-4 dark:border-gray-700" @submit.prevent="updateProfile">
+                                <h6 class="mb-5 text-lg font-bold dark:text-white" x-text="$store.i18n.t('general_information')"></h6>
+                                <div class="flex flex-col sm:flex-row">
+                                    <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
+                                        <div>
+                                            <label for="name" class="dark:text-white" x-text="$store.i18n.t('full_name')"></label>
+                                            <input id="name" type="text" x-model="formData.name" class="form-input dark:bg-gray-700 dark:text-white" required />
+                                        </div>
+                                        <div>
+                                            <label for="email" class="dark:text-white" x-text="$store.i18n.t('email')"></label>
+                                            <input
+                                                id="email"
+                                                type="email"
+                                                x-model="formData.email"
+                                                class="form-input dark:bg-gray-700 dark:text-white"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label for="phone" class="dark:text-white" x-text="$store.i18n.t('phone')"></label>
+                                            <input id="phone" type="text" x-model="formData.phone" class="form-input dark:bg-gray-700 dark:text-white" />
+                                        </div>
+                                        <div>
+                                            <label for="country" class="dark:text-white" x-text="$store.i18n.t('country')"></label>
+                                            <input id="country" type="text" x-model="formData.country" class="form-input dark:bg-gray-700 dark:text-white" />
+                                        </div>
+                                        <div>
+                                            <label for="password" class="dark:text-white" x-text="$store.i18n.t('new_password')"></label>
+                                            <input
+                                                id="password"
+                                                type="password"
+                                                x-model="formData.password"
+                                                class="form-input dark:bg-gray-700 dark:text-white"
+                                                :placeholder="$store.i18n.t('leave_empty_password')"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label for="password_confirmation" class="dark:text-white" x-text="$store.i18n.t('confirm_password')"></label>
+                                            <input
+                                                id="password_confirmation"
+                                                type="password"
+                                                x-model="formData.password_confirmation"
+                                                class="form-input dark:bg-gray-700 dark:text-white"
+                                            />
+                                        </div>
+                                        <div class="mt-3 sm:col-span-2">
+                                            <button type="submit" class="btn" :disabled="updating">
+                                                <span x-show="!updating" x-text="$store.i18n.t('save_changes')"></span>
+                                                <span x-show="updating" class="flex items-center">
+                                                    <svg
+                                                        class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path
+                                                            class="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                        ></path>
+                                                    </svg>
+                                                    <span x-text="$store.i18n.t('updating')"></span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

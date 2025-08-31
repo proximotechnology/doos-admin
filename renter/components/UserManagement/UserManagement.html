@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline">
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('users')"></span>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('user')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <div x-data="usersTable" x-init="init()">
+                    <div class="panel mt-6">
+                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light">
+                            <span x-text="$store.i18n.t('users_management')"></span>
+                        </h5>
+
+                        <!-- Loader -->
+                        <div id="tableLoading" class="flex items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+
+                        <!-- Table Content (initially hidden) -->
+                        <div id="tableContent" class="hidden">
+                            <div class="table-responsive">
+                                <table class="whitespace-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th x-text="$store.i18n.t('name')"></th>
+                                            <th x-text="$store.i18n.t('email')"></th>
+                                            <th x-text="$store.i18n.t('phone')"></th>
+                                            <th x-text="$store.i18n.t('country')"></th>
+                                            <th x-text="$store.i18n.t('email_verified')"></th>
+                                            <th x-text="$store.i18n.t('has_license')"></th>
+                                            <th x-text="$store.i18n.t('registration_date')"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(user, index) in filteredUsers" :key="user.id">
+                                            <tr>
+                                                <td x-text="index + 1"></td>
+                                                <td x-text="user.name"></td>
+                                                <td x-text="user.email"></td>
+                                                <td x-text="user.phone"></td>
+                                                <td x-text="user.country"></td>
+                                                <td>
+                                                    <span
+                                                        x-text="user.email_verified_at ? $store.i18n.t('yes') : $store.i18n.t('no')"
+                                                        :class="user.email_verified_at ? 'text-success' : 'text-danger'"
+                                                    ></span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        x-text="user.has_license === '1' ? $store.i18n.t('yes') : $store.i18n.t('no')"
+                                                        :class="user.has_license === '1' ? 'text-success' : 'text-danger'"
+                                                    ></span>
+                                                </td>
+                                                <td x-text="formatDate(user.created_at)"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="filteredUsers.length === 0">
+                                            <tr>
+                                                <td colspan="9" class="py-4 text-center">
+                                                    <span x-text="$store.i18n.t('no_users_found')"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Empty State (initially hidden) -->
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_users')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_users_description')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

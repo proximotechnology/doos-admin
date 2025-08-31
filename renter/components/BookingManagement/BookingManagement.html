@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Booking Management</title>
+        <!-- CSS Libraries -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- JS Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <div>
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('cars_management')"></span>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('booking_management')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <div x-data="bookingTable" x-init="initComponent()">
+                    <!-- Filters Section -->
+                    <div class="panel filter-section mb-5">
+                        <h5 class="mb-3 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('filters')"></h5>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
+                                <select class="form-select w-full" x-model="filters.status">
+                                    <option value="">All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="picked_up">Picked Up</option>
+                                    <option value="returned">Returned</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="canceled">Canceled</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_from')"></label>
+                                <input type="date" class="form-input w-full" x-model="filters.date_from" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_to')"></label>
+                                <input type="date" class="form-input w-full" x-model="filters.date_to" />
+                            </div>
+                            <div class="flex items-end">
+                                <button class="btn btn-primary w-full" @click="applyFilters()" x-text="$store.i18n.t('apply_filters')"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel mt-6">
+                        <div class="mb-5 flex items-center justify-between">
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('booking_management')"></h5>
+                            <div class="flex space-x-2">
+                                <span class="badge bg-primary" x-text="'Total: ' + meta.total"></span>
+                                <span class="badge bg-warning" x-text="'Pending: ' + meta.pending"></span>
+                                <span class="badge bg-info" x-text="'Picked Up: ' + meta.picked_up"></span>
+                                <span class="badge bg-secondary" x-text="'Returned: ' + meta.returned"></span>
+                                <span class="badge bg-success" x-text="'Completed: ' + meta.completed"></span>
+                                <span class="badge bg-danger" x-text="'Canceled: ' + meta.canceled"></span>
+                            </div>
+                        </div>
+
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                        <table id="myTable1" class="whitespace-nowrap"></table>
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_bookings')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_bookings_found')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- النافذة المنبثقة مع التصميم المحسّن -->
+
+        <div id="carDetailsModal" class="fixed inset-0 z-50  hidden items-center justify-center bg-gray-900 bg-opacity-70">
+            <div class="mx-4 my-4 w-full max-w-4xl rounded-xl bg-white shadow-xl dark:bg-gray-800 flex flex-col max-h-[90vh]">
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b-2 bg-white p-6 pb-4 dark:bg-gray-800 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
+                    <button
+                        type="button"
+                        class="rounded-full p-3 text-lg font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
+                        onclick="document.getElementById('carDetailsModal').classList.add('hidden')"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <div id="carDetailsContent" class="overflow-y-auto p-6 pt-0 text-base">
+                    <!-- Car details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <style>
+            /* إضافة هذه الأنماط إلى قسم الـ style */
+            .status-badge {
+                padding: 4px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                display: inline-block;
+                text-align: center;
+                min-width: 80px;
+            }
+
+            .color-success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .color-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .color-warning {
+                background-color: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeaa7;
+            }
+
+            .color-primary {
+                background-color: #cce5ff;
+                color: #004085;
+                border: 1px solid #b8daff;
+            }
+
+            .btn {
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+            .btn-sm {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
+            .btn-primary {
+                background-color: #3b82f6;
+                color: white;
+                border: 1px solid #3b82f6;
+            }
+
+            .btn-primary:hover {
+                background-color: #2563eb;
+                border-color: #2563eb;
+            }
+
+            .btn-warning {
+                background-color: #f59e0b;
+                color: white;
+                border: 1px solid #f59e0b;
+            }
+
+            .btn-warning:hover {
+                background-color: #d97706;
+                border-color: #d97706;
+            }
+
+            .btn-success {
+                background-color: #10b981;
+                color: white;
+                border: 1px solid #10b981;
+            }
+
+            .btn-success:hover {
+                background-color: #059669;
+                border-color: #059669;
+            }
+
+            .btn-danger {
+                background-color: #ef4444;
+                color: white;
+                border: 1px solid #ef4444;
+            }
+
+            .btn-danger:hover {
+                background-color: #dc2626;
+                border-color: #dc2626;
+            }
+            .color-success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .color-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            .color-warning {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+            .color-primary {
+                background-color: #cce5ff;
+                color: #004085;
+            }
+            .dropdown-menu {
+                position: absolute;
+                z-index: 1000;
+                background: white;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 5px 0;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .dropdown-menu a {
+                display: block;
+                padding: 5px 15px;
+                text-decoration: none;
+                color: #333;
+            }
+            .dropdown-menu a:hover {
+                background: #f5f5f5;
+            }
+            .hidden {
+                display: none;
+            }
+            .filter-section {
+                background: #f9fafb;
+                border-radius: 6px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .status-badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            .status-pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            .status-confirmed {
+                background: #d1fae5;
+                color: #065f46;
+            }
+            .status-picked_up {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+            .status-returned {
+                background: #e0e7ff;
+                color: #3730a3;
+            }
+            .status-completed {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .status-canceled {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+        </style>
+    </body>
+</html>
