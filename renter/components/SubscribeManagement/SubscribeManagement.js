@@ -79,7 +79,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     coloredToast('error', Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
@@ -92,6 +92,7 @@ document.addEventListener('alpine:init', () => {
                 if (this.filters.plan_id) url += `&plan_id=${this.filters.plan_id}`;
                 if (this.filters.start_date) url += `&start_date=${this.filters.start_date}`;
                 if (this.filters.end_date) url += `&end_date=${this.filters.end_date}`;
+                
 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -104,6 +105,8 @@ document.addEventListener('alpine:init', () => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 this.subscriptions = data.data;
+                                console.log(data.data);
+
                 loadingIndicator.hideTableLoader();
             } catch (error) {
                 coloredToast('error', error.message || Alpine.store('i18n').t('failed_to_fetch_subscriptions'));

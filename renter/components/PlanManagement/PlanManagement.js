@@ -74,7 +74,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     this.showError('Authentication token is missing. Please log in.');
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 

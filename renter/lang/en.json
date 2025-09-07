@@ -162,6 +162,8 @@
     "yes": "Yes",
     "update_brand": "Update Brand",
     "enter_brand_name": "Enter Brand Name",
+    "enter_brand_country": "Enter Brand Country",
+
     "id": "ID",
     "unknown": "Unknown",
     "na": "N/A",
@@ -266,7 +268,6 @@
     "update_failed": "Update failed",
     "failed_update_profile": "Failed to update profile",
     "booking": "Booking",
-
     "booking_management": "Booking Management",
     "car": "Car",
     "date_from": "From Date",
@@ -284,7 +285,6 @@
     "returned": "Returned",
     "completed": "Completed",
     "canceled": "Canceled",
-
     "view_details": "View Details",
     "change_status": "Change Status",
     "change_payment": "Change Payment",
@@ -314,15 +314,75 @@
     "max_day_trip": "Max Day Trip",
     "day": "Day",
     "images": "Images",
-
     "booking_info": "Booking Information",
-
     "not_paid": "Not Paid",
-
     "basic_info": "Basic Information",
     "pricing_info": "Pricing Information",
     "additional_info": "Additional Information",
-
     "completed_at": "Completed At",
-    "location_info": "Location Information"
+    "location_info": "Location Information",
+    "mail_in": "Mail In",
+    "commercial": "Commercial",
+    "personal": "Personal",
+    "all": "All",
+    "min_price": "Min Price",
+    "max_price": "Max Price",
+    "no_cars": "No cars",
+    "no_cars_found": "No cars found matching your criteria",
+
+    "edit_features": "Edit Features",
+    "delete_car": "Delete Car",
+
+    "owner_info": "Owner Information",
+
+    "is_company": "Is Company",
+    "features_info": "Features Information",
+    "mileage_range": "Mileage Range",
+    "transmission": "Transmission",
+    "mechanical_condition": "Mechanical Condition",
+    "all_have_seatbelts": "All Have Seatbelts",
+    "num_of_door": "Number of Doors",
+    "num_of_seat": "Number of Seats",
+    "additional_features": "Additional Features",
+
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "good": "Good",
+    "not_working": "Not Working",
+    "license_image": "License Image",
+    "car_updated_successfully": "Car Updated Successfully",
+    "failed_update_car": "Failed Update Car",
+    "car_deleted_successfully": "Car Deleted Successfully",
+    "failed_delete_car": "Failed Delete Car   ",
+    "select_brand": "Select Brand",
+    "select_status": "Select Status",
+    "rejected": "Rejected",
+    "rejection_reasons": "Rejection Reasons",
+    "write_reason_here": "Write reason here",
+    "add_new_reason": "Add New Reason",
+    "please_enter_rejection_reasons": "Please enter at least one rejection reason",
+    "status_updated_successfully": "Car status updated successfully",
+    "failed_update_status": "Failed to update status",
+    "user_info": "User Information",
+    "has_car": " Has Car",
+    "contracts_management": "Contracts Management",
+
+    "total": "Total",
+
+    "no_contracts": "No Contracts",
+    "no_contracts_found": "No contracts found",
+    "contract_details": "Contract Details",
+    "owner": "Owner",
+    "renter": "Renter",
+
+    "contract_id": "Contract ID",
+    "contract_terms": "Contract Terms",
+    "no_contract_terms": "No contract terms available",
+    "renter_info": "Renter Information",
+
+    "booking_details": "Booking Details",
+
+    "failed_to_load_details": "Failed to load details",
+    "contract_info": "Contract Information ",
+    "contract": " Contract"
 }

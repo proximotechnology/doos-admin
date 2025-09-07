@@ -62,7 +62,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     coloredToast('error', Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 

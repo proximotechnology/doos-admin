@@ -38,7 +38,13 @@
                             <!-- form grid -->
                             <form x-data="Add_Category" @submit.prevent="Add_Category">
                                 <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
-                                    <input type="text" :placeholder="$store.i18n.t('enter_name')" class="form-input" x-model="fullname" required />
+                                    <input type="text" :placeholder="$store.i18n.t('enter_name')" class="form-input" x-model="name" required />
+                                    <select class="form-select" x-model="brand_id" required>
+                                        <option value="" selected disabled x-text="$store.i18n.t('select_brand')"></option>
+                                        <template x-for="brand in brands" :key="brand.id">
+                                            <option :value="brand.id" x-text="brand.name"></option>
+                                        </template>
+                                    </select>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary mt-6">
@@ -66,7 +72,7 @@
                                 />
                             </svg>
                             <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_plans')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_plan')"></p>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500" x-text="$store.i18n.t('start_adding_plan')"></p>
                         </div>
                     </div>
                 </div>

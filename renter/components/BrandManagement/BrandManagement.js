@@ -87,7 +87,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     this.showError('Authentication token is missing. Please log in.');
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
@@ -100,7 +100,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                this.tableData = data;
+                this.tableData = data.data;
 
                 if (this.tableData.length === 0) {
                     loadingIndicator.showEmptyState();
@@ -124,6 +124,8 @@ document.addEventListener('alpine:init', () => {
             const mappedData = this.tableData.map((manager, index) => [
                 this.formatText(index + 1),
                 this.formatText(manager.name),
+                this.formatText(manager.country),
+
 
                 this.getActionButtons(manager.id, manager.name, manager.imag),
             ]);
@@ -133,6 +135,7 @@ document.addEventListener('alpine:init', () => {
                     headings: [
                         Alpine.store('i18n').t('id'),
                         Alpine.store('i18n').t('name'),
+                        Alpine.store('i18n').t('country'),
                         `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
                     data: mappedData,
@@ -222,6 +225,8 @@ document.addEventListener('alpine:init', () => {
 
             // تعبئة النموذج بالبيانات الحالية
             Alpine.store('global').sharedData.name = brand.name;
+            Alpine.store('global').sharedData.country = brand.country;
+
 
             const updateConfirmed = await new Promise((resolve) => {
                 Alpine.store('updateModal').openModal(managerId, () => {
@@ -248,6 +253,8 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: JSON.stringify({
                         name: Alpine.store('global').sharedData.name,
+                        country: Alpine.store('global').sharedData.country,
+
                     }),
                 });
 
@@ -370,6 +377,7 @@ document.addEventListener('alpine:init', () => {
                 const formData = new FormData();
                 formData.append('name', this.fullname);
 
+                formData.append('make_id', this.fullname.toUpperCase());
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
                     method: 'POST',
                     headers: {

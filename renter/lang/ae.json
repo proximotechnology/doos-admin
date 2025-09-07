@@ -164,6 +164,8 @@
     "yes": "نعم",
     "update_brand": "تحديث الماركة",
     "enter_brand_name": "أدخل اسم الماركة",
+    "enter_brand_country": "أدخل مدينة الماركة",
+
     "id": "المعرف",
     "unknown": "غير معروف",
     "na": "غير متاح",
@@ -314,15 +316,73 @@
     "max_day_trip": "أقصى مدة للإيجار",
     "day": "اليوم",
     "images": "الصور",
-
     "booking_info": "معلومات الحجز",
-
     "not_paid": "غير مدفوع",
-
     "basic_info": "المعلومات الأساسية",
     "pricing_info": "معلومات التسعير",
     "additional_info": "معلومات إضافية",
-
     "completed_at": "تم الانتهاء في",
-    "location_info": "معلومات الموقع"
+    "location_info": "معلومات الموقع",
+    "mail_in": "بريد داخلي",
+    "commercial": "تجاري",
+    "personal": "شخصي",
+    "all": "الكل",
+    "total": "المجموع",
+
+    "min_price": "أقل سعر",
+    "max_price": "أعلى سعر",
+    "no_cars": "لا توجد سيارات",
+    "no_cars_found": "لم يتم العثور على سيارات تطابق معاييرك",
+
+    "edit_features": "تعديل الميزات",
+    "delete_car": "حذف السيارة",
+    "owner_info": "معلومات المالك",
+    "is_company": "شركة",
+    "features_info": "معلومات الميزات",
+    "mileage_range": "نطاق الأميال",
+    "transmission": "ناقل الحركة",
+    "mechanical_condition": "الحالة الميكانيكية",
+    "all_have_seatbelts": "جميع المقاعد تحتوي على أحزمة أمان",
+    "num_of_door": "عدد الأبواب",
+    "num_of_seat": "عدد المقاعد",
+    "additional_features": "ميزات إضافية",
+    "automatic": "أوتوماتيك",
+    "manual": "يدوي",
+    "good": "جيدة",
+    "not_working": "لا تعمل",
+    "license_image": "صورة الرخصة",
+    "car_updated_successfully": "تم تحديث السيارة بنجاح",
+    "failed_update_car": "فشل في تحديث السيارة",
+    "car_deleted_successfully": "تم حذف السيارة بنجاح",
+    "failed_delete_car": "فشل في حذف السيارة",
+    "select_brand": "أختر ماركة",
+    "select_status": "اختر الحالة",
+    "rejected": "مرفوض",
+    "rejection_reasons": "أسباب الرفض",
+    "write_reason_here": "اكتب السبب هنا",
+    "add_new_reason": "إضافة سبب جديد",
+    "please_enter_rejection_reasons": "يرجى إدخال سبب واحد على الأقل للرفض",
+    "status_updated_successfully": "تم تحديث حالة السيارة بنجاح",
+    "failed_update_status": "فشل في تحديث الحالة",
+    "user_info": "معلومات المستخدم",
+    "has_car": "يمتلك سيارة",
+
+    "contracts_management": "إدارة العقود",
+
+    "no_contracts": "لا توجد عقود",
+    "no_contracts_found": "لم يتم العثور على عقود",
+    "contract_details": "تفاصيل العقد",
+
+    "owner": "المالك",
+    "renter": "المستأجر",
+    "contract_id": "معرف العقد",
+    "contract_terms": "شروط العقد",
+    "no_contract_terms": "لا توجد شروط للعقد",
+    "renter_info": "معلومات المستأجر",
+
+    "booking_details": "تفاصيل الحجز",
+
+    "failed_to_load_details": "فشل في تحميل التفاصيل",
+    "contract_info": "معلومات العقد",
+    "contract": " العقود"
 }

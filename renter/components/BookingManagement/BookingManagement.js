@@ -40,9 +40,9 @@ document.addEventListener('alpine:init', () => {
             total: 0,
             pending: 0,
             picked_up: 0,
-            returned: 0,
-            completed: 0,
-            canceled: 0
+            Returned: 0,
+            Completed: 0,
+            Canceled: 0
         },
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
@@ -79,7 +79,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     this.showError('Authentication token is missing. Please log in.');
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
@@ -102,7 +102,10 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.status && data.data) {
                     this.tableData = data.data;
+                    console.log(data.data);
+
                     this.meta = data.meta;
+                    console.log(data);
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -131,7 +134,7 @@ document.addEventListener('alpine:init', () => {
 
             const mappedData = this.tableData.map((booking, index) => [
                 this.formatText(booking.id),
-                this.formatCarInfo(booking.car_details),
+                this.formatCarInfo(booking.car),
                 this.formatDate(booking.date_from),
                 this.formatDate(booking.date_end),
                 this.formatPrice(booking.total_price),
@@ -189,7 +192,7 @@ document.addEventListener('alpine:init', () => {
                                     loading="lazy"
                                     width="36"
                                     height="36" />
-                                ${carDetails.make || 'Car'} (${carDetails.year || 'N/A'})
+                                ${carDetails.make || 'Car'} (${carDetails.years.year || 'N/A'})
                             </div>`;
         },
 
@@ -236,192 +239,275 @@ document.addEventListener('alpine:init', () => {
         async showCarDetails(bookingId) {
             try {
                 loadingIndicator.show();
-        
+
                 const booking = this.tableData.find(b => b.id == bookingId);
-                if (!booking || !booking.car_details) {
+                if (!booking || !booking.car) {
                     throw new Error('Car details not found');
                 }
-        
-                const car = booking.car_details;
-                
+
+                const car = booking.car;
+
                 // إعداد الصور
                 let imagesHtml = '';
                 if (car.car_image && car.car_image.length > 0) {
                     imagesHtml = `
-                        <div class="mt-6">
-                            <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('images')}</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                ${car.car_image.map(img => `
-                                    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                                        <img src="${img.image}" alt="Car Image" 
-                                             class="h-48 w-full object-cover transition-transform hover:scale-105"
-                                             loading="lazy">
-                                    </div>
-                                `).join('')}
+                <div class="mt-6">
+                    <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('images')}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        ${car.car_image.map(img => `
+                            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                <img src="${img.image}" alt="Car Image" 
+                                     class="h-48 w-full object-cover transition-transform hover:scale-105"
+                                     loading="lazy">
                             </div>
-                        </div>
-                    `;
+                        `).join('')}
+                    </div>
+                </div>
+            `;
                 }
-        
+
+                // معلومات المستخدم (الحاجز)
+                const userInfoHtml = booking.user ? `
+            <div class="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('user_info')}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('name')}:</span>
+                            <span class="font-medium text-blue-900 dark:text-white text-base">${booking.user.name || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('email')}:</span>
+                            <span class="font-medium text-blue-900 dark:text-white text-base">${booking.user.email || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('phone')}:</span>
+                            <span class="font-medium text-blue-900 dark:text-white text-base">${booking.user.phone || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('country')}:</span>
+                            <span class="font-medium text-blue-900 dark:text-white text-base">${booking.user.country || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('has_license')}:</span>
+                            <span class="font-medium ${booking.user.has_license === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${booking.user.has_license === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('has_car')}:</span>
+                            <span class="font-medium ${booking.user.has_car === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${booking.user.has_car === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ` : '';
+
+                // معلومات المالك
+                const ownerInfoHtml = car.owner ? `
+            <div class="mt-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
+                <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('owner_info')}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('name')}:</span>
+                            <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.name || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('email')}:</span>
+                            <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.email || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('phone')}:</span>
+                            <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.phone || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('country')}:</span>
+                            <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.country || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('has_license')}:</span>
+                            <span class="font-medium ${car.owner.has_license === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${car.owner.has_license === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('is_company')}:</span>
+                            <span class="font-medium ${car.owner.is_company === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${car.owner.is_company === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ` : '';
+
                 // تنسيق الثوابت الإضافية
                 const additionalInfoHtml = `
-                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
-                            <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('booking_info')}</h4>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('completed_at')}:</span>
-                                    <span class="font-medium text-gray-800 dark:text-white text-base">${booking.completed_at ? this.formatDate(booking.completed_at) : 'N/A'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('payment_status')}:</span>
-                                    <span class="font-medium ${booking.is_paid === '1' ? 'text-green-600' : 'text-red-600'} text-base">
-                                        ${booking.is_paid === '1' ? Alpine.store('i18n').t('paid') : Alpine.store('i18n').t('not_paid')}
-                                    </span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('with_driver')}:</span>
-                                    <span class="font-medium ${booking.with_driver === '1' ? 'text-green-600' : 'text-red-600'} text-base">
-                                        ${booking.with_driver === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
-                                    </span>
-                                </div>
-                                ${booking.with_driver === '1' ? `
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('driver_type')}:</span>
-                                        <span class="font-medium text-gray-800 dark:text-white text-base">${this.formatDriverType(booking.driver_type)}</span>
-                                    </div>
-                                ` : ''}
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('has_representative')}:</span>
-                                    <span class="font-medium ${booking.has_representative === '1' ? 'text-green-600' : 'text-red-600'} text-base">
-                                        ${booking.has_representative === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
-                                    </span>
-                                </div>
-                            </div>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
+                    <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('booking_info')}</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('completed_at')}:</span>
+                            <span class="font-medium text-gray-800 dark:text-white text-base">${booking.completed_at ? this.formatDate(booking.completed_at) : 'N/A'}</span>
                         </div>
-                        
-                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
-                            <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('location_info')}</h4>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('zip_code')}:</span>
-                                    <span class="font-medium text-gray-800 dark:text-white text-base">${car.zip_code || 'N/A'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('state')}:</span>
-                                    <span class="font-medium text-gray-800 dark:text-white text-base">${car.state || 'N/A'}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('address')}:</span>
-                                    <span class="font-medium text-gray-800 dark:text-white text-base">${car.address || 'N/A'}</span>
-                                </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('payment_status')}:</span>
+                            <span class="font-medium ${booking.is_paid === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${booking.is_paid === '1' ? Alpine.store('i18n').t('paid') : Alpine.store('i18n').t('not_paid')}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('with_driver')}:</span>
+                            <span class="font-medium ${booking.with_driver === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${booking.with_driver === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
+                        </div>
+                        ${booking.with_driver === '1' ? `
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('driver_type')}:</span>
+                                <span class="font-medium text-gray-800 dark:text-white text-base">${this.formatDriverType(booking.driver_type)}</span>
                             </div>
+                        ` : ''}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('has_representative')}:</span>
+                            <span class="font-medium ${booking.has_representative === '1' ? 'text-green-600' : 'text-red-600'} text-base">
+                                ${booking.has_representative === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+                            </span>
                         </div>
                     </div>
-                `;
-        
+                </div>
+                
+                <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
+                    <h4 class="mb-3 text-lg font-semibold text-gray-800 dark:text-white">${Alpine.store('i18n').t('location_info')}</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('zip_code')}:</span>
+                            <span class="font-medium text-gray-800 dark:text-white text-base">${car.zip_code || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('state')}:</span>
+                            <span class="font-medium text-gray-800 dark:text-white text-base">${car.state || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('address')}:</span>
+                            <span class="font-medium text-gray-800 dark:text-white text-base">${car.address || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
                 // بناء محتوى تفاصيل السيارة
                 const detailsHtml = `
-                    <div class="space-y-6 text-base">
-                        <!-- معلومات أساسية -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                                <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('basic_info')}</h4>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('make')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.make || 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('year')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.year || 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('vin')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.vin || 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('number')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.number || 'N/A'}</span>
-                                    </div>
-                                </div>
+            <div class="space-y-6 text-base">
+                <!-- معلومات أساسية -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                        <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('basic_info')}</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('make')}:</span>
+                                <span class="font-medium text-blue-900 dark:text-white text-base">${car.make || 'N/A'}</span>
                             </div>
-                            
-                            <div class="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-                                <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('pricing_info')}</h4>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('price')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">$${car.price || '0.00'}/day</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('min_day_trip')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.min_day_trip || 'N/A'} days</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('max_day_trip')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.max_day_trip || 'N/A'} days</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('advanced_notice')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.advanced_notice || 'N/A'}</span>
-                                    </div>
-                                </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('year')}:</span>
+                                <span class="font-medium text-blue-900 dark:text-white text-base">${car.year || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('vin')}:</span>
+                                <span class="font-medium text-blue-900 dark:text-white text-base">${car.vin || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('number')}:</span>
+                                <span class="font-medium text-blue-900 dark:text-white text-base">${car.number || 'N/A'}</span>
                             </div>
                         </div>
-                        
-                        <!-- معلومات إضافية -->
-                        <div class="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
-                            <h4 class="mb-3 text-lg font-semibold text-purple-800 dark:text-purple-300">${Alpine.store('i18n').t('additional_info')}</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('number_license')}:</span>
-                                        <span class="font-medium text-purple-900 dark:text-white text-base">${car.number_license || 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('day')}:</span>
-                                        <span class="font-medium text-purple-900 dark:text-white text-base">${car.day || 'N/A'}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('description_condition')}:</span>
-                                        <span class="font-medium text-purple-900 dark:text-white text-base">${car.description_condition || 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <p class="text-sm text-purple-700 dark:text-purple-200 mb-1">${Alpine.store('i18n').t('description')}:</p>
-                                <p class="text-purple-900 dark:text-white bg-white dark:bg-gray-800 p-3 rounded-md border border-purple-200 dark:border-purple-700 text-base">${car.description || 'N/A'}</p>
-                            </div>
-                        </div>
-                        
-                        ${additionalInfoHtml}
-                        ${imagesHtml}
                     </div>
-                `;
-        
+                    
+                    <div class="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
+                        <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('pricing_info')}</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('price')}:</span>
+                                <span class="font-medium text-green-900 dark:text-white text-base">$${car.price || '0.00'}/day</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('min_day_trip')}:</span>
+                                <span class="font-medium text-green-900 dark:text-white text-base">${car.min_day_trip || 'N/A'} days</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('max_day_trip')}:</span>
+                                <span class="font-medium text-green-900 dark:text-white text-base">${car.max_day_trip || 'N/A'} days</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('advanced_notice')}:</span>
+                                <span class="font-medium text-green-900 dark:text-white text-base">${car.advanced_notice || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- معلومات إضافية -->
+                <div class="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
+                    <h4 class="mb-3 text-lg font-semibold text-purple-800 dark:text-purple-300">${Alpine.store('i18n').t('additional_info')}</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('number_license')}:</span>
+                                <span class="font-medium text-purple-900 dark:text-white text-base">${car.number_license || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('day')}:</span>
+                                <span class="font-medium text-purple-900 dark:text-white text-base">${car.day || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('description_condition')}:</span>
+                                <span class="font-medium text-purple-900 dark:text-white text-base">${car.description_condition || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-sm text-purple-700 dark:text-purple-200 mb-1">${Alpine.store('i18n').t('description')}:</p>
+                        <p class="text-purple-900 dark:text-white bg-white dark:bg-gray-800 p-3 rounded-md border border-purple-200 dark:border-purple-700 text-base">${car.description || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                ${userInfoHtml}
+                ${ownerInfoHtml}
+                ${additionalInfoHtml}
+                ${imagesHtml}
+            </div>
+        `;
+
                 document.getElementById('carDetailsContent').innerHTML = detailsHtml;
                 document.getElementById('carDetailsModal').classList.remove('hidden');
-        
+
             } catch (error) {
                 coloredToast('danger', 'Failed to load car details: ' + error.message);
             } finally {
                 loadingIndicator.hide();
             }
         },
-        
-        // دالة مساعدة لتنسيق نوع السائق
+
         formatDriverType(driverType) {
             if (!driverType) return 'N/A';
-            
+
             const driverTypes = {
                 'mail_in': 'Mail In',
                 'commercial': 'Commercial',
                 'personal': 'Personal'
             };
-            
+
             return driverTypes[driverType] || driverType;
         },
         async changeStatus(bookingId) {
@@ -430,7 +516,7 @@ document.addEventListener('alpine:init', () => {
                     title: 'Change Status',
                     input: 'select',
                     inputOptions: {
-                        'confirmed': 'Confirmed',
+                        'pending': 'pending',
                         'picked_up': 'Picked Up',
                         'returned': 'Returned',
                         'completed': 'Completed',

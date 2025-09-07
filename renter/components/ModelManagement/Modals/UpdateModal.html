@@ -14,7 +14,7 @@
             style="display: none"
             x-cloak
         >
-            <div class="flex min-h-screen items-start justify-center px-4" @click.self="open = false">
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.updateModal.closeModal()">
                 <div
                     class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
                     :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
@@ -34,15 +34,15 @@
                                         type="text"
                                         :placeholder="$store.i18n.t('enter_model_name')"
                                         class="form-input"
-                                        x-model="$store.global.sharedData.name"
-                                    />
+                                        x-model="$store.global.sharedData.fullname2"
+                                        />
                                 </div>
 
                                 <div class="mt-8 flex items-center justify-end">
                                     <button @click="$store.updateModal.closeModal()" class="btn btn-outline-danger">
                                         <span x-text="$store.i18n.t('cancel')"></span>
                                     </button>
-                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary">
+                                    <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary ltr:ml-4 rtl:mr-4">
                                         <span x-text="$store.i18n.t('update')"></span>
                                     </button>
                                 </div>

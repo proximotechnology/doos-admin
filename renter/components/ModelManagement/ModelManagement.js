@@ -1,3 +1,4 @@
+
 document.addEventListener('alpine:init', () => {
     const loadingIndicator = {
         show: function () {
@@ -20,7 +21,9 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('myTable1').classList.add('hidden');
             document.getElementById('tableLoading').classList.add('hidden');
         }
-    }; Alpine.store('modelTable', {
+    };
+
+    Alpine.store('modelTable', {
         refreshTable: async function () {
             const tableComponent = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
             if (tableComponent && tableComponent.fetchManagers) {
@@ -28,6 +31,7 @@ document.addEventListener('alpine:init', () => {
             }
         }
     });
+
     Alpine.data('multipleTable', () => ({
         tableData: [],
         datatable1: null,
@@ -87,11 +91,11 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     this.showError(Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'renter/auth-boxed-signin.html';
+                    window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -100,7 +104,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                this.tableData = data;
+                this.tableData = data.data;
 
                 if (this.tableData.length === 0) {
                     loadingIndicator.showEmptyState();
@@ -123,7 +127,7 @@ document.addEventListener('alpine:init', () => {
             const mappedData = this.tableData.map((manager, index) => [
                 this.formatText(index + 1),
                 this.formatText(manager.name),
-
+                this.formatText(manager.brand.name),
                 this.getActionButtons(manager.id, manager.name, manager.imag),
             ]);
 
@@ -132,6 +136,7 @@ document.addEventListener('alpine:init', () => {
                     headings: [
                         Alpine.store('i18n').t('id'),
                         Alpine.store('i18n').t('name'),
+                        Alpine.store('i18n').t('brand'),
                         `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
                     data: mappedData,
@@ -159,16 +164,16 @@ document.addEventListener('alpine:init', () => {
             const cleanUrl = imageUrl;
 
             return `
-            <div class="flex items-center w-max" x-data="{ imgError: false }">
-                <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                     :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
-                     alt="${name || Alpine.store('i18n').t('user')}"
-                     @error="imgError = true"
-                     loading="lazy"
-                     width="36"
-                     height="36" />
-                ${name || Alpine.store('i18n').t('unknown')}
-            </div>`;
+                    <div class="flex items-center w-max" x-data="{ imgError: false }">
+                        <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
+                             :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
+                             alt="${name || Alpine.store('i18n').t('user')}"
+                             @error="imgError = true"
+                             loading="lazy"
+                             width="36"
+                             height="36" />
+                        ${name || Alpine.store('i18n').t('unknown')}
+                    </div>`;
         },
 
         formatText(text) {
@@ -185,23 +190,23 @@ document.addEventListener('alpine:init', () => {
         // أزرار الإجراءات
         getActionButtons(managerId, name, imag) {
             return `
-                <div class="flex items-center  gap-1">
-                    <!-- Status Dropdown -->
-                    <button class="btn update-btn btn-warning" data-id="${[managerId, name]}">
-                        ${Alpine.store('i18n').t('update')}
-                    </button>
+                        <div class="flex items-center  gap-1">
+                            <!-- Status Dropdown -->
+                            <button class="btn update-btn btn-warning" data-id="${managerId}">
+                                ${Alpine.store('i18n').t('update')}
+                            </button>
 
-                    <!-- Delete Button -->
-                    <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                    </button>
-                </div>`;
+                            <!-- Delete Button -->
+                            <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>`;
         },
 
         // Helper function for status button classes
@@ -216,16 +221,20 @@ document.addEventListener('alpine:init', () => {
 
         async updateManager(managerId) {
             // الحصول على بيانات الموديل الحالية
-            const model = this.tableData.find((m) => m.id == managerId[0]);
+            const model = this.tableData.find((m) => m.id == managerId);
             if (!model) return;
+            console.log(model, "qwe");
+            Alpine.store('global').sharedData.fullname2 = model.name;
 
-            // تعبئة النموذج بالبيانات الحالية
-            Alpine.store('global').sharedData.name = model.name;
-
+            // استخدام المودال للتعديل
             const updateConfirmed = await new Promise((resolve) => {
-                Alpine.store('updateModal').openModal(managerId, () => {
-                    resolve(true);
-                });
+                Alpine.store('updateModal').openModal(
+                    managerId,
+                    model.name,
+                    () => {
+                        resolve(true);
+                    }
+                );
             });
 
             if (!updateConfirmed) return;
@@ -238,7 +247,9 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
                     loadingIndicator.hide();
                     return;
-                } const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/update/${managerId[0]}`, {
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/update/${managerId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -246,11 +257,12 @@ document.addEventListener('alpine:init', () => {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        name: Alpine.store('global').sharedData.name,
+                        name: Alpine.store('global').sharedData.fullname2,
                     }),
                 });
-
                 const result = await response.json();
+                console.log(result, Alpine.store('global').sharedData.fullname2);
+
 
                 if (!response.ok) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_update_model'));
@@ -289,6 +301,7 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.hide();
             }
         },
+
         // حذف المدير
         async deleteManager(managerId) {
             // استخدام المودال بدلاً من confirm
@@ -320,6 +333,7 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.hide();
             }
         },
+
         // بقية الدوال المساعدة...
         getStatusColor(status) {
             const statusColors = {
@@ -350,6 +364,7 @@ document.addEventListener('alpine:init', () => {
             alert(message);
         },
     }));
+
     coloredToast = (color, message) => {
         const icon = color === 'success' ? 'success' : 'error';
         Swal.fire({
@@ -364,9 +379,42 @@ document.addEventListener('alpine:init', () => {
             },
         });
     };
+
     Alpine.data('Add_Category', () => ({
-        apiBaseUrl: API_CONFIG.BASE_URL_Renter, // Ensure API_CONFIG is defined
-        fullname: '',
+        apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        name: '',
+        brand_id: '',
+        brands: [],
+
+        async init() {
+            await this.fetchBrands();
+        },
+
+        async fetchBrands() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
+
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all`, {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_brands'));
+                }
+
+                this.brands = result.data;
+            } catch (error) {
+                console.error('Error fetching brands:', error);
+                coloredToast('danger', error.message);
+            }
+        },
 
         async Add_Category() {
             try {
@@ -376,7 +424,8 @@ document.addEventListener('alpine:init', () => {
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
                 const formData = new FormData();
-                formData.append('name', this.fullname);
+                formData.append('name', this.name);
+                formData.append('brand_id', this.brand_id);
 
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/store`, {
                     method: 'POST',
@@ -398,8 +447,8 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(errorMsg);
                 }
 
-                this.fullname = '';
-                this.price = '';
+                this.name = '';
+                this.brand_id = '';
 
                 coloredToast('success', Alpine.store('i18n').t('add_model_successful'));
                 await Alpine.store('modelTable').refreshTable();
@@ -411,3 +460,4 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
