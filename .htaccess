@@ -42,7 +42,7 @@ ErrorDocument 404 /index.html
 
 # ==============================
 
-<FilesMatch "\.(env|json|config|md|lock|gitignore|htaccess)$">
+<FilesMatch "\.(env|config|md|lock|gitignore|htaccess)$">
 Order allow,deny
 Deny from all
 </FilesMatch>
@@ -68,3 +68,4 @@ Deny from all
     ExpiresByType application/javascript "access plus 1 month"
     ExpiresByType text/javascript "access plus 1 month"
 </IfModule>
+
