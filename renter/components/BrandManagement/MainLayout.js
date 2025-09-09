@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    loadComponent('components/Header/Header.html', 'header-container');
+    // loadComponent('components/Header/Header.html', 'header-container');
     loadComponent('components/Sidebar/Sidebar.html', 'sidebar-container');
     loadComponent('components/ThemeCustomizer/ThemeCustomizer.html', 'theme-customizer-container');
     loadComponent('components/BrandManagement/BrandManagement.html', 'brand-management-container');
