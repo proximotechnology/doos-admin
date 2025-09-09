@@ -9,7 +9,9 @@
 .ltr .ql-snow .ql-editor img {
     margin-left: 0px;
 }
-.swal2-input, .swal2-select, .swal2-file {
+.swal2-input,
+.swal2-select,
+.swal2-file {
     border: 1px solid #d1d5db !important;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
     padding: 0.5rem !important;
@@ -13117,34 +13119,33 @@ pre {
     .rtl\:md\:border-r-0:where([dir='rtl'], [dir='rtl'] *) {
         border-right-width: 0px;
     }
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
+    .animate-spin {
+        animation: spin 1s linear infinite;
     }
-    to {
-        transform: rotate(360deg);
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
     }
-}
 
-.color-success {
-    background-color: #10B981 !important;
-    color: white !important;
-}
+    .color-success {
+        background-color: #10b981 !important;
+        color: white !important;
+    }
 
-.color-danger {
-    background-color: #EF4444 !important;
-    color: white !important;
-}
+    .color-danger {
+        background-color: #ef4444 !important;
+        color: white !important;
+    }
 
-.color-warning {
-    background-color: #F59E0B !important;
-    color: white !important;
-}
-
+    .color-warning {
+        background-color: #f59e0b !important;
+        color: white !important;
+    }
 
     .rtl\:md\:text-left:where([dir='rtl'], [dir='rtl'] *) {
         text-align: left;
@@ -13154,39 +13155,39 @@ pre {
         text-align: right;
     }
 }
-        .table-container {
-            overflow-x: auto;
-        }
-        .id-with-flag {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .flag-img {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-        .actions-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        .action-btn {
-            white-space: nowrap;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-        .datatable-table thead th {
-            vertical-align: middle;
-            text-align: center;
-        }
-        .datatable-table tbody td {
-            vertical-align: middle;
-        }
+.table-container {
+    overflow-x: auto;
+}
+.id-with-flag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.flag-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+.actions-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.action-btn {
+    white-space: nowrap;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+.datatable-table thead th {
+    vertical-align: middle;
+    text-align: center;
+}
+.datatable-table tbody td {
+    vertical-align: middle;
+}
 
 @media (min-width: 1024px) {
     .rtl\:lg\:ml-6:where([dir='rtl'], [dir='rtl'] *) {

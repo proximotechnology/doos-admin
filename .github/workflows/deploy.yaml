@@ -26,7 +26,7 @@ jobs:
 
             # 4. Build Tailwind CSS
             - name: Build Tailwind CSS
-              run: npm run build
+            #   run: npm run build
 
             # 5. Debug - List Files
             - name: Debug Project Structure
