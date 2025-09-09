@@ -68,7 +68,7 @@ document.addEventListener('alpine:init', () => {
 
         async loadTranslations(locale) {
             try {
-                const response = await fetch(`/lang/${locale}.json`);
+                const response = await fetch(`lang/${locale}.json`);
                 if (!response.ok) throw new Error('Failed to load translations');
                 this.translations = await response.json();
                 this.locale = locale;
