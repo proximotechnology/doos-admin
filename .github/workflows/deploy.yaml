@@ -10,17 +10,17 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            # 1. Checkout repository
-            - name: Checkout Code
+            # 1. Checkout Code
+            - name: Checkout Repository
               uses: actions/checkout@v3
 
             # 2. Setup Node.js
-            - name: Setup Node
+            - name: Setup Node.js
               uses: actions/setup-node@v3
               with:
                   node-version: 20
 
-            # 3. Install dependencies using NPM (NOT yarn)
+            # 3. Install dependencies
             - name: Install Dependencies
               run: npm install
 
@@ -28,12 +28,17 @@ jobs:
             - name: Build Tailwind CSS
               run: npm run build
 
-            # 5. Debug files before uploading
-            - name: Debug - List Files
+            # 5. Debug - List Files
+            - name: Debug Project Structure
               run: ls -lah && ls -R
 
-            # 6. Upload files to VPS
-            - name: Deploy to VPS
+            # 6. Create deployment ZIP
+            - name: Create Deployment ZIP
+              run: |
+                  zip -r deploy.zip assets renter uber index.html favicon.png .htaccess
+
+            # 7. Upload ZIP to VPS
+            - name: Upload ZIP to VPS
               uses: appleboy/scp-action@v0.1.7
               with:
                   host: 67.223.117.9
@@ -46,17 +51,11 @@ jobs:
                       AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
                       uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
                       -----END OPENSSH PRIVATE KEY-----
-                  source: |
-                      assets/**
-                      renter/**
-                      uber/**
-                      index.html
-                      .htaccess
-                      favicon.png
-                  target: /var/www/html/doosdoostest/admin
+                  source: deploy.zip
+                  target: /var/www/html/doosdoostest
 
-            # 7. Reload Apache after deploy
-            - name: Reload Apache
+            # 8. SSH into VPS and extract ZIP
+            - name: Deploy on VPS
               uses: appleboy/ssh-action@v1.2.0
               with:
                   host: 67.223.117.9
@@ -70,5 +69,7 @@ jobs:
                       uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
                       -----END OPENSSH PRIVATE KEY-----
                   script: |
-                      cd /var/www/html/doosdoostest/admin
+                      cd /var/www/html/doosdoostest
+                      unzip -o deploy.zip -d admin
+                      rm -f deploy.zip
                       systemctl reload apache2
