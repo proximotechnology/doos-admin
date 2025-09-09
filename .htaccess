@@ -1,0 +1,70 @@
+# ==============================
+
+# 1. Disable Directory Listing
+
+# ==============================
+
+Options -Indexes
+
+# ==============================
+
+# 2. Set Default Index File
+
+# ==============================
+
+DirectoryIndex index.html
+
+# ==============================
+
+# 3. Handle Missing Files (404)
+
+# ==============================
+
+ErrorDocument 404 /index.html
+
+# ==============================
+
+# 4. Security Headers
+
+# ==============================
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ==============================
+
+# 5. Block Access to Sensitive Files
+
+# ==============================
+
+<FilesMatch "\.(env|json|config|md|lock|gitignore|htaccess)$">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# ==============================
+
+# 6. Enable Caching for Static Files
+
+# ==============================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Images
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    # Fonts
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    # CSS & JS
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+</IfModule>
