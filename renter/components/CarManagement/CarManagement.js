@@ -132,7 +132,7 @@ document.addEventListener('alpine:init', () => {
             const mappedData = this.tableData.map((car, index) => [
                 this.formatText(car.id),
                 this.formatCarInfo(car),
-                this.formatText(car.year),
+                this.formatText(car.years.year),
                 this.formatPrice(car.price),
                 this.formatStatus(car.status),
                 this.formatDate(car.created_at),
@@ -561,7 +561,7 @@ async changeStatus(carId) {
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('year')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.yerars.year || 'N/A'}</span>
+                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.years.year || 'N/A'}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('vin')}:</span>

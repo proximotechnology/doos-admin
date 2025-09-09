@@ -165,7 +165,6 @@
     "update_brand": "تحديث الماركة",
     "enter_brand_name": "أدخل اسم الماركة",
     "enter_brand_country": "أدخل مدينة الماركة",
-
     "id": "المعرف",
     "unknown": "غير معروف",
     "na": "غير متاح",
@@ -328,12 +327,10 @@
     "personal": "شخصي",
     "all": "الكل",
     "total": "المجموع",
-
     "min_price": "أقل سعر",
     "max_price": "أعلى سعر",
     "no_cars": "لا توجد سيارات",
     "no_cars_found": "لم يتم العثور على سيارات تطابق معاييرك",
-
     "edit_features": "تعديل الميزات",
     "delete_car": "حذف السيارة",
     "owner_info": "معلومات المالك",
@@ -366,23 +363,35 @@
     "failed_update_status": "فشل في تحديث الحالة",
     "user_info": "معلومات المستخدم",
     "has_car": "يمتلك سيارة",
-
     "contracts_management": "إدارة العقود",
-
     "no_contracts": "لا توجد عقود",
     "no_contracts_found": "لم يتم العثور على عقود",
     "contract_details": "تفاصيل العقد",
-
     "owner": "المالك",
     "renter": "المستأجر",
     "contract_id": "معرف العقد",
     "contract_terms": "شروط العقد",
     "no_contract_terms": "لا توجد شروط للعقد",
     "renter_info": "معلومات المستأجر",
-
     "booking_details": "تفاصيل الحجز",
-
     "failed_to_load_details": "فشل في تحميل التفاصيل",
     "contract_info": "معلومات العقد",
-    "contract": " العقود"
+    "contract": " العقود",
+    "contract_policies_management": "إدارة سياسات العقد",
+    "add_new_policy": "إضافة سياسة جديدة",
+    "policy_item": "بند السياسة",
+    "enter_policy_text": "أدخل نص السياسة",
+    "policies": "السياسات",
+    "no_policies_found": "لم يتم العثور على سياسات",
+    "start_adding_policy": "ابدأ بإضافة سياسة",
+    "updated_at": "تاريخ التحديث",
+    "save": "حفظ",
+    "policy_item_required": "بند السياسة مطلوب",
+    "policy_added_successfully": "تم إضافة السياسة بنجاح",
+    "policy_updated_successfully": "تم تحديث السياسة بنجاح",
+    "policy_deleted_successfully": "تم حذف السياسة بنجاح",
+    "failed_to_add_policy": "فشل في إضافة السياسة",
+    "failed_to_update_policy": "فشل في تحديث السياسة",
+    "failed_to_delete_policy": "فشل في حذف السياسة",
+    "ContractPolicies": "سياسة العقود"
 }

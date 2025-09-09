@@ -163,7 +163,6 @@
     "update_brand": "Update Brand",
     "enter_brand_name": "Enter Brand Name",
     "enter_brand_country": "Enter Brand Country",
-
     "id": "ID",
     "unknown": "Unknown",
     "na": "N/A",
@@ -329,12 +328,9 @@
     "max_price": "Max Price",
     "no_cars": "No cars",
     "no_cars_found": "No cars found matching your criteria",
-
     "edit_features": "Edit Features",
     "delete_car": "Delete Car",
-
     "owner_info": "Owner Information",
-
     "is_company": "Is Company",
     "features_info": "Features Information",
     "mileage_range": "Mileage Range",
@@ -344,7 +340,6 @@
     "num_of_door": "Number of Doors",
     "num_of_seat": "Number of Seats",
     "additional_features": "Additional Features",
-
     "automatic": "Automatic",
     "manual": "Manual",
     "good": "Good",
@@ -366,23 +361,35 @@
     "user_info": "User Information",
     "has_car": " Has Car",
     "contracts_management": "Contracts Management",
-
     "total": "Total",
-
     "no_contracts": "No Contracts",
     "no_contracts_found": "No contracts found",
     "contract_details": "Contract Details",
     "owner": "Owner",
     "renter": "Renter",
-
     "contract_id": "Contract ID",
     "contract_terms": "Contract Terms",
     "no_contract_terms": "No contract terms available",
     "renter_info": "Renter Information",
-
     "booking_details": "Booking Details",
-
     "failed_to_load_details": "Failed to load details",
     "contract_info": "Contract Information ",
-    "contract": " Contract"
+    "contract": " Contract",
+    "contract_policies_management": "Contract Policies Management",
+    "add_new_policy": "Add New Policy",
+    "policy_item": "Policy Item",
+    "enter_policy_text": "Enter policy text",
+    "policies": "Policies",
+    "no_policies_found": "No policies found",
+    "start_adding_policy": "Start adding a policy",
+    "updated_at": "Updated At",
+    "save": "Save",
+    "policy_item_required": "Policy item is required",
+    "policy_added_successfully": "Policy added successfully",
+    "policy_updated_successfully": "Policy updated successfully",
+    "policy_deleted_successfully": "Policy deleted successfully",
+    "failed_to_add_policy": "Failed to add policy",
+    "failed_to_update_policy": "Failed to update policy",
+    "failed_to_delete_policy": "Failed to delete policy",
+    "ContractPolicies":"Contract Policies"
 }
