@@ -1,4 +1,4 @@
-name: Deploy Doos (Test) Admin Dashboard to VPS
+name: Deploy Doos Admin Dashboard
 
 on:
     push:
@@ -20,20 +20,20 @@ jobs:
               with:
                   node-version: 20
 
-            # 3. Install dependencies (no lockfile)
+            # 3. Install dependencies using NPM (NOT yarn)
             - name: Install Dependencies
-              run: yarn install --no-lockfile
+              run: npm install
 
             # 4. Build Tailwind CSS
-            - name: Build CSS
-              run: yarn build
+            - name: Build Tailwind CSS
+              run: npm run build
 
-            # 5. Debug files before deploying
+            # 5. Debug files before uploading
             - name: Debug - List Files
               run: ls -lah && ls -R
 
-            # 6. Copy Admin Dashboard files to VPS
-            - name: Copy Admin Dashboard to VPS
+            # 6. Upload files to VPS
+            - name: Deploy to VPS
               uses: appleboy/scp-action@v0.1.7
               with:
                   host: 67.223.117.9
@@ -50,14 +50,12 @@ jobs:
                       assets/**
                       renter/**
                       uber/**
-                      *.html
-                      *.js
-                      *.css
-                      *.png
+                      index.html
                       .htaccess
+                      favicon.png
                   target: /var/www/html/doosdoostest/admin
 
-            # 7. Reload Apache to apply changes
+            # 7. Reload Apache after deploy
             - name: Reload Apache
               uses: appleboy/ssh-action@v1.2.0
               with:
