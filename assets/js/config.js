@@ -12,5 +12,5 @@ window.API_CONFIG = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    // GOOGLE_MAPS_API_KEY: 'AIzaSyC5eqWELYeuHhL0gLu4BVHjbksnLlKA2uI'
+    GOOGLE_MAPS_API_KEY: 'AIzaSyC5eqWELYeuHhL0gLu4BVHjbksnLlKA2uI'
 };
