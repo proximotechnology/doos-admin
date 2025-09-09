@@ -85,7 +85,7 @@ document.addEventListener('alpine:init', () => {
             setTimeout(() => {
                 window.location.reload();
             }, 0);
-                    if (window.multipleTable) {
+            if (window.multipleTable) {
                 window.multipleTable.fetchManagers();
             }
         },
@@ -107,4 +107,3 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('i18n').init();
 
 });
-
