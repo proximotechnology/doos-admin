@@ -1,0 +1,69 @@
+name: Deploy Doos (Test) Admin Dashboard to VPS
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Checkout repository
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            # 2. Setup Node.js + Yarn (for TailwindCSS build)
+            - name: Setup Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  cache: 'yarn'
+
+            # 3. Install dependencies
+            - name: Install Dependencies
+              run: yarn install --frozen-lockfile
+
+            # 4. Build Tailwind CSS
+            - name: Build CSS
+              run: yarn build
+
+            # 5. Copy files to VPS
+            - name: Copy Admin Dashboard to VPS
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: 67.223.117.9
+                  username: root
+                  key: |
+                      -----BEGIN OPENSSH PRIVATE KEY-----
+                      b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                      QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
+                      ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
+                      AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
+                      uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+                      -----END OPENSSH PRIVATE KEY-----
+                  source: |
+                      assets/*
+                      *.html
+                      *.js
+                      .htaccess
+                  target: '/var/www/html/doosdoostest/admin'
+
+            # 6. Reload Apache to apply changes
+            - name: Reload Apache
+              uses: appleboy/ssh-action@v1.2.0
+              with:
+                  host: 67.223.117.9
+                  username: root
+                  key: |
+                      -----BEGIN OPENSSH PRIVATE KEY-----
+                      b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                      QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
+                      ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
+                      AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
+                      uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+                      -----END OPENSSH PRIVATE KEY-----
+                  script: |
+                      cd /var/www/html/doosdoostest/admin
+                      systemctl reload apache2

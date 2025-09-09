@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title x-text="$store.i18n.t('feature_plans_management')"></title>
+        <!-- CSS Libraries -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- JS Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="/assets/js/config.js"></script>
+        <script src="/assets/js/i18n.js"></script>
+    </head>
+    <body class="bg-gray-100 font-sans dark:bg-gray-900">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div class="container mx-auto p-4" x-data="featurePlans" x-init="initComponent()">
+            <!-- Breadcrumb -->
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('feature_plans_management')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <!-- Add Feature Form -->
+                <div class="mb-6 grid gap-6 xl:grid-cols-1">
+                    <div class="panel h-full rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <div class="mb-5 flex items-center">
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('add_feature')"></h5>
+                        </div>
+                        <div class="overflow-hidden">
+                            <form @submit.prevent="addFeature">
+                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                    <div>
+                                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('plan')"></label>
+                                        <select
+                                            x-model="form.plan_id"
+                                            class="form-input w-full rounded border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                            required
+                                        >
+                                            <option value="" disabled x-text="$store.i18n.t('select_plan')"></option>
+                                            <template x-for="plan in plans" :key="plan.id">
+                                                <option :value="plan.id" x-text="plan.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            x-text="$store.i18n.t('feature')"
+                                        ></label>
+                                        <input
+                                            type="text"
+                                            x-model="form.feature"
+                                            class="form-input w-full rounded border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                            rows="4"
+                                            :placeholder="$store.i18n.t('enter_feature_text')"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-6 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                                    <span x-text="$store.i18n.t('create')"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="panel mt-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0" x-text="$store.i18n.t('features')"></h5>
+                    <!-- Table Loading Indicator -->
+                    <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                    </div>
+                    <!-- Empty State -->
+                    <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_features_found')"></h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_feature')"></p>
+                    </div>
+                    <!-- Features Table -->
+                    <table id="featuresTable" class="whitespace-nowrap"></table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
