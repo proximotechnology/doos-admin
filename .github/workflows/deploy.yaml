@@ -35,7 +35,7 @@ jobs:
             # 6. Create deployment ZIP
             - name: Create Deployment ZIP
               run: |
-                  zip -r deploy.zip assets renter uber index.html favicon.png .htaccess
+                  zip -r deploy.zip assets renter uber lang index.html favicon.png .htaccess
 
             # 7. Upload ZIP to VPS
             - name: Upload ZIP to VPS
