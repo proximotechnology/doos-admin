@@ -14,21 +14,25 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v3
 
-            # 2. Setup Node.js + Yarn
+            # 2. Setup Node.js
             - name: Setup Node
               uses: actions/setup-node@v3
               with:
                   node-version: 20
 
-            # 3. Install dependencies (no frozen lockfile)
+            # 3. Install dependencies (no lockfile)
             - name: Install Dependencies
-              run: yarn install
+              run: yarn install --no-lockfile
 
             # 4. Build Tailwind CSS
             - name: Build CSS
               run: yarn build
 
-            # 5. Copy files to VPS
+            # 5. Debug files before deploying
+            - name: Debug - List Files
+              run: ls -lah && ls -R
+
+            # 6. Copy Admin Dashboard files to VPS
             - name: Copy Admin Dashboard to VPS
               uses: appleboy/scp-action@v0.1.7
               with:
@@ -43,13 +47,17 @@ jobs:
                       uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
                       -----END OPENSSH PRIVATE KEY-----
                   source: |
-                      assets/*
-                      renter/*
-                      uber/*
+                      assets/**
+                      renter/**
+                      uber/**
+                      *.html
+                      *.js
+                      *.css
+                      *.png
                       .htaccess
-                  target: '/var/www/html/doosdoostest/admin'
+                  target: /var/www/html/doosdoostest/admin
 
-            # 6. Reload Apache to apply changes
+            # 7. Reload Apache to apply changes
             - name: Reload Apache
               uses: appleboy/ssh-action@v1.2.0
               with:
