@@ -245,7 +245,7 @@ document.addEventListener('alpine:init', () => {
                     loadingIndicator.show();
                     const token = localStorage.getItem('authToken');
                     const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/update/${featureId}`, {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             Accept: 'application/json',

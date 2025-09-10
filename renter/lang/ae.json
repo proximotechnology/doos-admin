@@ -393,5 +393,27 @@
     "failed_to_add_policy": "فشل في إضافة السياسة",
     "failed_to_update_policy": "فشل في تحديث السياسة",
     "failed_to_delete_policy": "فشل في حذف السياسة",
-    "ContractPolicies": "سياسة العقود"
+    "ContractPolicies": "سياسة العقود",
+    "feature_plans_management": "إدارة خطط الميزات",
+    "add_feature": "إضافة ميزة",
+    "select_plan": "اختر خطة",
+    "feature": "الميزة",
+    "enter_feature_text": "أدخل نص الميزة",
+    "features": "الميزات",
+    "no_features_found": "لم يتم العثور على ميزات",
+    "start_adding_feature": "ابدأ بإضافة ميزة",
+
+    "failed_to_load_plans": "فشل في تحميل الخطط",
+    "failed_to_load_features": "فشل في تحميل الميزات",
+    "feature_added_successfully": "تمت إضافة الميزة بنجاح",
+    "failed_to_add_feature": "فشل في إضافة الميزة",
+    "edit_feature": "تعديل الميزة",
+
+    "feature_and_plan_required": "الميزة والخطة مطلوبان",
+    "feature_updated_successfully": "تم تحديث الميزة بنجاح",
+    "failed_to_update_feature": "فشل في تحديث الميزة",
+
+    "feature_deleted_successfully": "تم حذف الميزة بنجاح",
+    "failed_to_delete_feature": "فشل في حذف الميزة",
+    "feature_plan": "ميزات الخطط"
 }

@@ -391,5 +391,26 @@
     "failed_to_add_policy": "Failed to add policy",
     "failed_to_update_policy": "Failed to update policy",
     "failed_to_delete_policy": "Failed to delete policy",
-    "ContractPolicies":"Contract Policies"
+    "ContractPolicies": "Contract Policies",
+    "feature_plans_management": "Feature Plans Management",
+    "add_feature": "Add Feature",
+    "select_plan": "Select a Plan",
+    "feature": "Feature",
+    "enter_feature_text": "Enter feature text",
+    "features": "Features",
+    "no_features_found": "No Features Found",
+    "start_adding_feature": "Start by adding a feature.",
+
+    "failed_to_load_plans": "Failed to load plans",
+    "failed_to_load_features": "Failed to load features",
+    "feature_added_successfully": "Feature added successfully",
+    "failed_to_add_feature": "Failed to add feature",
+    "edit_feature": "Edit Feature",
+
+    "feature_and_plan_required": "Both feature and plan are required",
+    "feature_updated_successfully": "Feature updated successfully",
+    "failed_to_update_feature": "Failed to update feature",
+    "feature_deleted_successfully": "Feature deleted successfully",
+    "failed_to_delete_feature": "Failed to delete feature",
+    "feature_plan": "Feature Plans"
 }
