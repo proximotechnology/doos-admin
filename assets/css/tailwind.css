@@ -64,7 +64,7 @@
     .sidebar ul.sub-menu li button,
     .sidebar ul.sub-menu li a {
         @apply flex w-full items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 hover:bg-gray-100
-hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary ltr:before:mr-2 rtl:before:ml-2;
+hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary;
     }
     .sidebar ul.sub-menu li button.active,
     .sidebar ul.sub-menu li a.active {
@@ -94,7 +94,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
         @apply ltr:-left-[260px] rtl:-right-[260px];
     }
     .horizontal.toggle-sidebar .sidebar {
-        @apply ltr:left-0 lg:ltr:-left-[260px] rtl:right-0 lg:rtl:-right-[260px];
+        @apply ltr:left-0 rtl:right-0 lg:ltr:-left-[260px] lg:rtl:-right-[260px];
     }
 
     .horizontal .nav-item a div:first-child svg {
@@ -107,7 +107,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
     }
 
     .horizontal-menu .nav-link {
-        @apply flex items-center rounded-lg px-2 py-2.5 hover:bg-[#000]/[0.08] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark xl:px-4;
+        @apply flex items-center rounded-lg py-2.5 px-2 hover:bg-[#000]/[0.08] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark xl:px-4;
     }
 
     .horizontal-menu .nav-link.active {
@@ -140,15 +140,15 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
         @apply ltr:ml-0 rtl:mr-0;
     }
     .vertical .sidebar {
-        @apply ltr:-left-[260px] lg:ltr:left-0 rtl:-right-[260px] lg:rtl:right-0;
+        @apply ltr:-left-[260px] rtl:-right-[260px] lg:ltr:left-0 lg:rtl:right-0;
     }
     .vertical.toggle-sidebar .sidebar {
-        @apply ltr:left-0 lg:ltr:-left-[260px] rtl:right-0 lg:rtl:-right-[260px];
+        @apply ltr:left-0 rtl:right-0 lg:ltr:-left-[260px] lg:rtl:-right-[260px];
     }
 
     /* Collapsible vertical layouts */
     .collapsible-vertical .sidebar {
-        @apply hover:w-[260px] lg:w-[70px] ltr:-left-[260px] lg:ltr:left-0 rtl:-right-[260px] lg:rtl:right-0;
+        @apply hover:w-[260px] ltr:-left-[260px] rtl:-right-[260px] lg:w-[70px] lg:ltr:left-0 lg:rtl:right-0;
     }
     .collapsible-vertical.toggle-sidebar .sidebar {
         @apply ltr:left-0 rtl:right-0;
@@ -380,8 +380,8 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
     /* checkbox & radio */
     .form-radio,
     .form-checkbox {
-        @apply h-5 w-5 cursor-pointer rounded border-2 border-[#e0e6ed] bg-transparent text-primary !shadow-none !outline-none !ring-0 !ring-offset-0 checked:bg-[length:90%_90%] disabled:cursor-not-allowed disabled:bg-[#eee] dark:border-[#253b5c] dark:checked:border-transparent
-      dark:disabled:bg-[#1b2e4b] ltr:mr-1.5 rtl:ml-1.5;
+        @apply h-5 w-5 cursor-pointer rounded border-2 border-[#e0e6ed] bg-transparent text-primary !shadow-none !outline-none !ring-0 !ring-offset-0 checked:bg-[length:90%_90%] disabled:cursor-not-allowed disabled:bg-[#eee] ltr:mr-1.5 rtl:ml-1.5
+      dark:border-[#253b5c] dark:checked:border-transparent dark:disabled:bg-[#1b2e4b];
     }
 
     .form-checkbox.outline-primary:checked {
@@ -473,7 +473,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
     table thead tr th,
     table tfoot tr th,
     table tbody tr td {
-        @apply px-4 py-3 ltr:text-left rtl:text-right;
+        @apply py-3 px-4 ltr:text-left rtl:text-right;
     }
     table thead tr th,
     table tfoot tr th {
@@ -491,7 +491,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
 
     table.dataTable-table tbody tr th,
     table.dataTable-table tbody tr td {
-        @apply border-b border-white-light/40 px-4 py-3 dark:border-[#191e3a] ltr:text-left rtl:text-right;
+        @apply border-b border-white-light/40 py-3 px-4 ltr:text-left rtl:text-right dark:border-[#191e3a];
     }
     table.dataTable-table tbody tr:last-child td {
         @apply border-b-0;
@@ -531,7 +531,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
 }
 
 .swal2-container .swal2-popup.swal2-toast {
-    @apply bg-dark px-5 py-2.5;
+    @apply bg-dark py-2.5 px-5;
 }
 
 .swal2-popup.swal2-toast .swal2-title,
@@ -620,9 +620,9 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
 }
 
 .apexcharts-canvas .apexcharts-legend-marker {
-    @apply ltr:!mr-1.5 rtl:!mr-0 rtl:ml-1.5;
+    @apply ltr:!mr-1.5 rtl:ml-1.5 rtl:!mr-0;
 }
 
 [dir='rtl'] .apexcharts-tooltip-marker {
-    @apply ml-2.5 mr-0;
+    @apply mr-0 ml-2.5;
 }
