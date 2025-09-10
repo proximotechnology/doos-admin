@@ -1,5 +1,71 @@
-
 document.addEventListener('alpine:init', () => {
+    Alpine.store('addYearModal', {
+        isOpen: false,
+        managerId: null,
+        openModal(managerId) {
+            this.managerId = managerId;
+            this.isOpen = true;
+            Alpine.store('global').sharedData.year = ''; // Reset year input
+        },
+        closeModal() {
+            this.isOpen = false;
+            this.managerId = null;
+            Alpine.store('global').sharedData.year = '';
+        },
+        async confirmAdd() {
+            const year = Alpine.store('global').sharedData.year;
+            const imageInput = document.querySelector('[x-ref="yearImage"]');
+            const file = imageInput ? imageInput.files[0] : null;
+
+            if (!year || isNaN(year)) {
+                coloredToast('danger', Alpine.store('i18n').t('invalid_year'));
+                return;
+            }
+            if (!file) {
+                coloredToast('danger', Alpine.store('i18n').t('no_image_selected'));
+                return;
+            }
+
+            try {
+                loadingIndicator.show();
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
+                    this.closeModal();
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('car_model_id', this.managerId);
+                formData.append('year', year);
+                formData.append('image', file);
+
+                const response = await fetch(`${Alpine.$data(document.querySelector('[x-data="multipleTable"]')).apiBaseUrl}/api/admin/year_model/store`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_add_year'));
+                }
+
+                coloredToast('success', Alpine.store('i18n').t('year_added_successfully'));
+                await Alpine.$data(document.querySelector('[x-data="multipleTable"]')).fetchManagers();
+                this.closeModal(); // Ensure modal closes after successful addition
+            } catch (error) {
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_add_year'));
+            } finally {
+                loadingIndicator.hide();
+            }
+        }
+    });
+
     const loadingIndicator = {
         show: function () {
             document.getElementById('loadingIndicator').classList.remove('hidden');
@@ -31,6 +97,70 @@ document.addEventListener('alpine:init', () => {
             }
         }
     });
+    Alpine.store('updateYearModal', {
+        isOpen: false,
+        yearId: null,
+        currentYear: '',
+        openModal(yearId, currentYear) {
+            this.yearId = yearId;
+            this.currentYear = currentYear;
+            Alpine.store('global').sharedData.year = currentYear; // Sync with input
+            this.isOpen = true;
+        },
+        closeModal() {
+            this.isOpen = false;
+            this.yearId = null;
+            this.currentYear = '';
+            Alpine.store('global').sharedData.year = '';
+        },
+        async confirmUpdate() {
+            const year = Alpine.store('global').sharedData.year;
+            const imageInput = document.querySelector('[x-ref="updateYearImage"]');
+            const file = imageInput ? imageInput.files[0] : null;
+
+            if (!year || isNaN(year)) {
+                coloredToast('danger', Alpine.store('i18n').t('invalid_year'));
+                return;
+            }
+
+            try {
+                loadingIndicator.show();
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
+                    this.closeModal();
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('year', year);
+                if (file) formData.append('image', file); // Image is optional for update
+
+                const response = await fetch(`${Alpine.$data(document.querySelector('[x-data="multipleTable"]')).apiBaseUrl}/api/admin/year_model/update/${this.yearId}`, {
+                    method: 'POST', // Assuming POST as per common API conventions; change to PUT if required
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_update_year'));
+                }
+
+                coloredToast('success', Alpine.store('i18n').t('year_updated_successfully'));
+                await Alpine.$data(document.querySelector('[x-data="multipleTable"]')).fetchManagers();
+                this.closeModal();
+            } catch (error) {
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_year'));
+            } finally {
+                loadingIndicator.hide();
+            }
+        }
+    });
 
     Alpine.data('multipleTable', () => ({
         tableData: [],
@@ -40,7 +170,6 @@ document.addEventListener('alpine:init', () => {
         async init() {
             await this.fetchManagers();
 
-            // Event Delegation for Delete Buttons
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
                     const managerId = e.target.closest('.delete-btn').dataset.id;
@@ -50,40 +179,40 @@ document.addEventListener('alpine:init', () => {
                     const managerId = e.target.closest('.update-btn').dataset.id;
                     this.updateManager(managerId);
                 }
+                if (e.target.closest('.add-year-btn')) {
+                    const managerId = e.target.closest('.add-year-btn').dataset.id;
+                    this.addYear(managerId);
+                }
+                if (e.target.closest('.edit-year-btn')) {
+                    const yearId = e.target.closest('.edit-year-btn').dataset.id;
+                    const yearValue = e.target.closest('.edit-year-btn').dataset.year;
+                    this.updateYear(yearId, yearValue);
+                }
             });
 
-            // Event Delegation for Status Dropdown
             document.addEventListener('click', (e) => {
                 const dropdownBtn = e.target.closest('.dropdown-toggle');
                 const statusOption = e.target.closest('.status-option');
 
-                // Handle dropdown toggle
                 if (dropdownBtn) {
                     const dropdown = dropdownBtn.closest('.dropdown');
                     const menu = dropdown.querySelector('.dropdown-menu');
                     menu.classList.toggle('hidden');
                 }
 
-                // Handle status selection
                 if (statusOption) {
                     const dropdown = statusOption.closest('.dropdown');
                     const managerId = dropdown.dataset.id;
                     const newStatus = statusOption.dataset.value;
                     const toggleBtn = dropdown.querySelector('.dropdown-toggle');
 
-                    // Update button appearance
                     toggleBtn.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
                     toggleBtn.className = `dropdown-toggle btn btn-sm ${this.getStatusClass(newStatus)}`;
-
-                    // Close dropdown
                     dropdown.querySelector('.dropdown-menu').classList.add('hidden');
-
-                    // Update status via API
                 }
             });
         },
 
-        // جلب بيانات المديرين من API
         async fetchManagers() {
             try {
                 loadingIndicator.showTableLoader();
@@ -105,6 +234,7 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
                 this.tableData = data.data;
+                console.log(data);
 
                 if (this.tableData.length === 0) {
                     loadingIndicator.showEmptyState();
@@ -128,6 +258,7 @@ document.addEventListener('alpine:init', () => {
                 this.formatText(index + 1),
                 this.formatText(manager.name),
                 this.formatText(manager.brand.name),
+                this.formatYears(manager.years),
                 this.getActionButtons(manager.id, manager.name, manager.imag),
             ]);
 
@@ -137,6 +268,7 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('id'),
                         Alpine.store('i18n').t('name'),
                         Alpine.store('i18n').t('brand'),
+                        `<div class="text-center">${Alpine.store('i18n').t('years')}</div>`,
                         `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
                     data: mappedData,
@@ -158,7 +290,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // تنسيق الاسم مع الصورة
         formatName(name, imageUrl, index) {
             const defaultImage = 'assets/images/default-avatar.png';
             const cleanUrl = imageUrl;
@@ -179,6 +310,7 @@ document.addEventListener('alpine:init', () => {
         formatText(text) {
             return text || Alpine.store('i18n').t('na');
         },
+
         formatType(text) {
             if (text == '1') text = Alpine.store('i18n').t('service');
             else {
@@ -187,16 +319,39 @@ document.addEventListener('alpine:init', () => {
             return text;
         },
 
-        // أزرار الإجراءات
+        formatYears(years) {
+            if (!years || years.length === 0) {
+                return Alpine.store('i18n').t('na');
+            }
+
+            return years.map(year => {
+                return `
+                    <div class="flex items-center mb-2" x-data="{ imgError: false }">
+                        <span class="mr-2">${year.year}</span>
+                        <img class="w-12 h-8 rounded object-cover"
+                             src="${year.image}"
+                             alt="Image for year ${year.year}"
+                             @error="imgError = true"
+                             loading="lazy" />
+                        <button class="btn btn-sm btn-warning edit-year-btn ml-2"
+                                data-id="${year.id}"
+                                data-year="${year.year}">
+                            ${Alpine.store('i18n').t('edit')}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        },
+
         getActionButtons(managerId, name, imag) {
             return `
-                        <div class="flex items-center  gap-1">
-                            <!-- Status Dropdown -->
+                        <div class="flex items-center gap-1">
                             <button class="btn update-btn btn-warning" data-id="${managerId}">
                                 ${Alpine.store('i18n').t('update')}
                             </button>
-
-                            <!-- Delete Button -->
+                            <button class="btn add-year-btn btn-primary" data-id="${managerId}">
+                                ${Alpine.store('i18n').t('add_year')}
+                            </button>
                             <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -209,7 +364,6 @@ document.addEventListener('alpine:init', () => {
                         </div>`;
         },
 
-        // Helper function for status button classes
         getStatusClass(status) {
             const classes = {
                 active: 'btn-success',
@@ -219,19 +373,25 @@ document.addEventListener('alpine:init', () => {
             return classes[status] || 'btn-primary';
         },
 
+        async addYear(managerId) {
+            Alpine.store('addYearModal').openModal(managerId);
+        },
+
+        async updateYear(yearId, currentYear) {
+            Alpine.store('updateYearModal').openModal(yearId, currentYear);
+        },
+
         async updateManager(managerId) {
-            // الحصول على بيانات الموديل الحالية
             const model = this.tableData.find((m) => m.id == managerId);
             if (!model) return;
             console.log(model, "qwe");
             Alpine.store('global').sharedData.fullname2 = model.name;
 
-            // استخدام المودال للتعديل
             const updateConfirmed = await new Promise((resolve) => {
                 Alpine.store('updateModal').openModal(
                     managerId,
                     model.name,
-                    () => {
+                    (id, name) => {
                         resolve(true);
                     }
                 );
@@ -263,12 +423,10 @@ document.addEventListener('alpine:init', () => {
                 const result = await response.json();
                 console.log(result, Alpine.store('global').sharedData.fullname2);
 
-
                 if (!response.ok) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_update_model'));
                 }
 
-                // استخدام SweetAlert2 بشكل صحيح
                 Swal.fire({
                     toast: true,
                     position: 'bottom-start',
@@ -302,9 +460,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // حذف المدير
         async deleteManager(managerId) {
-            // استخدام المودال بدلاً من confirm
             const deleteConfirmed = await new Promise((resolve) => {
                 Alpine.store('deleteModal').openModal(managerId, () => {
                     resolve(true);
@@ -334,7 +490,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // بقية الدوال المساعدة...
         getStatusColor(status) {
             const statusColors = {
                 active: 'success',

@@ -412,5 +412,19 @@
     "failed_to_update_feature": "Failed to update feature",
     "feature_deleted_successfully": "Feature deleted successfully",
     "failed_to_delete_feature": "Failed to delete feature",
-    "feature_plan": "Feature Plans"
+    "feature_plan": "Feature Plans",
+    "years": "Years",
+    "add_year": "Add Year",
+    "add": "Add",
+    "enter_year": "Enter year",
+    "invalid_year": "Please enter a valid year",
+    "no_image_selected": "Please select an image",
+    "failed_add_year": "Failed to add year",
+    "year_added_successfully": "Year added successfully",
+    "failed_update_year": "Failed to update year",
+    "year_updated_successfully": "Year updated successfully",
+
+    "failed_to_load_brands": "Failed to load brands",
+
+    "update_year": "Update Year"
 }

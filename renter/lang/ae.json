@@ -415,5 +415,21 @@
 
     "feature_deleted_successfully": "تم حذف الميزة بنجاح",
     "failed_to_delete_feature": "فشل في حذف الميزة",
-    "feature_plan": "ميزات الخطط"
+    "feature_plan": "ميزات الخطط",
+
+    "years": "السنوات",
+    "add_year": "إضافة سنة",
+    "add": "إضافة",
+
+    "enter_year": "أدخل السنة",
+    "invalid_year": "يرجى إدخال سنة صحيحة",
+    "no_image_selected": "يرجى اختيار صورة",
+    "failed_add_year": "فشل إضافة السنة",
+    "year_added_successfully": "تمت إضافة السنة بنجاح",
+    "failed_update_year": "فشل تحديث السنة",
+    "year_updated_successfully": "تم تحديث السنة بنجاح",
+
+    "failed_to_load_brands": "فشل تحميل العلامات التجارية",
+
+    "update_year": "تحديث السنة"
 }

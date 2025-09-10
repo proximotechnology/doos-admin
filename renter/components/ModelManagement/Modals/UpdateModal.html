@@ -35,7 +35,7 @@
                                         :placeholder="$store.i18n.t('enter_model_name')"
                                         class="form-input"
                                         x-model="$store.global.sharedData.fullname2"
-                                        />
+                                    />
                                 </div>
 
                                 <div class="mt-8 flex items-center justify-end">
@@ -43,6 +43,90 @@
                                         <span x-text="$store.i18n.t('cancel')"></span>
                                     </button>
                                     <button type="submit" @click="$store.updateModal.confirmUpdate()" class="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <span x-text="$store.i18n.t('update')"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            x-data
+            x-show="$store.addYearModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.addYearModal.closeModal()">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold">
+                            <span x-text="$store.i18n.t('add_year')"></span>
+                        </h5>
+                        <button @click="$store.addYearModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <div class="overflow-hidden">
+                                <!-- form grid -->
+                                <div class="grid grid-cols-1 gap-5">
+                                    <input type="text" :placeholder="$store.i18n.t('enter_year')" class="form-input" x-model="$store.global.sharedData.year" />
+                                    <input type="file" accept="image/*" class="form-input" x-ref="yearImage" />
+                                </div>
+
+                                <div class="mt-8 flex items-center justify-end">
+                                    <button @click="$store.addYearModal.closeModal()" class="btn btn-outline-danger">
+                                        <span x-text="$store.i18n.t('cancel')"></span>
+                                    </button>
+                                    <button type="submit" @click="$store.addYearModal.confirmAdd()" class="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <span x-text="$store.i18n.t('add')"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            x-data
+            x-show="$store.updateYearModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.updateYearModal.closeModal()">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold">
+                            <span x-text="$store.i18n.t('update_year')"></span>
+                        </h5>
+                        <button @click="$store.updateYearModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <div class="overflow-hidden">
+                                <!-- form grid -->
+                                <div class="grid grid-cols-1 gap-5">
+                                    <input type="text" :placeholder="$store.i18n.t('enter_year')" class="form-input" x-model="$store.global.sharedData.year" />
+                                    <input type="file" accept="image/*" class="form-input" x-ref="updateYearImage" />
+                                </div>
+
+                                <div class="mt-8 flex items-center justify-end">
+                                    <button @click="$store.updateYearModal.closeModal()" class="btn btn-outline-danger">
+                                        <span x-text="$store.i18n.t('cancel')"></span>
+                                    </button>
+                                    <button type="submit" @click="$store.updateYearModal.confirmUpdate()" class="btn btn-primary ltr:ml-4 rtl:mr-4">
                                         <span x-text="$store.i18n.t('update')"></span>
                                     </button>
                                 </div>

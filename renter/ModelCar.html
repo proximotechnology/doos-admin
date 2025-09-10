@@ -117,10 +117,10 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.store('global', {
                     sharedData: {
+                        year: '',
                         fullname2: '',
                     },
-                });
-                // main section
+                }); // main section
                 Alpine.data('scrollToTop', () => ({
                     showTopButton: false,
                     init() {
