@@ -102,10 +102,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.status && data.data) {
                     this.tableData = data.data;
-                    console.log(data.data);
 
                     this.meta = data.meta;
-                    console.log(data);
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();

@@ -78,7 +78,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data);
 
                 if (data.status && data.data) {
                     this.tableData = data.data;

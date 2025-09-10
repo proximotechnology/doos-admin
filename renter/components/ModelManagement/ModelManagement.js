@@ -234,7 +234,6 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
                 this.tableData = data.data;
-                console.log(data);
 
                 if (this.tableData.length === 0) {
                     loadingIndicator.showEmptyState();
@@ -384,7 +383,6 @@ document.addEventListener('alpine:init', () => {
         async updateManager(managerId) {
             const model = this.tableData.find((m) => m.id == managerId);
             if (!model) return;
-            console.log(model, "qwe");
             Alpine.store('global').sharedData.fullname2 = model.name;
 
             const updateConfirmed = await new Promise((resolve) => {
@@ -421,7 +419,6 @@ document.addEventListener('alpine:init', () => {
                     }),
                 });
                 const result = await response.json();
-                console.log(result, Alpine.store('global').sharedData.fullname2);
 
                 if (!response.ok) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_update_model'));

@@ -41,7 +41,6 @@ document.addEventListener('alpine:init', () => {
         async initComponent() {
             // Load Google Maps API when the component initializes
             loadGoogleMapsAPI(() => {
-                console.log('Google Maps API loaded');
             });
 
             await this.fetchCars();
@@ -94,7 +93,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data); // Debug: Log full API response
 
                 if (data.status && data.data) {
                     this.tableData = data.data.data;
@@ -398,7 +396,6 @@ async changeStatus(carId) {
                     throw new Error('Car details not found');
                 }
 
-                console.log('Car Data:', car); // Debug: Log full car object
 
                 let imagesHtml = '';
                 if (car.car_image && car.car_image.length > 0) {
@@ -647,7 +644,6 @@ async changeStatus(carId) {
                 document.getElementById('carDetailsModal').classList.remove('hidden');
 
                 if (car.lat && car.lang) {
-                    console.log('Valid Coordinates:', { lng, lng }); // Debug: Log valid coordinates
                     loadGoogleMapsAPI(() => {
                         this.initMap(car.id, lat, lng);
                     });
@@ -666,7 +662,6 @@ async changeStatus(carId) {
 
         initMap(carId, lat, lng) {
             const mapElement = document.getElementById(`map-${carId}`);
-            console.log(mapElement);
             if (!mapElement) {
                 console.warn('Map element not found for ID:', `map-${carId}`);
                 return;
@@ -675,9 +670,7 @@ async changeStatus(carId) {
             // Hide map loading indicator
             const mapLoading = document.getElementById(`map-loading-${carId}`);
             if (mapLoading) mapLoading.style.display = 'none';
-            console.log(mapLoading);
 
-            console.log('Initializing map for car ID:', carId, 'with coordinates:', { lat, lng }); // Debug
 
             const map = new google.maps.Map(mapElement, {
                 zoom: 15,

@@ -1660,7 +1660,6 @@
                                 };
 
                                 // You can now access these grouped stats for your charts
-                                console.log(this.statsGroups);
 
                                 // Example usage for a chart:
                                 // this.prepareUserChart(this.statsGroups.users);
@@ -1764,7 +1763,6 @@
                                 total: parseInt(data.stats.total_orders) || 0,
                                 totalSales: parseInt(data.stats.total_sales) || 0,
                             };
-                            console.log(this.orders);
                         } catch (error) {
                             console.error('Error fetching orders data:', error);
                         }

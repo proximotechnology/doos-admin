@@ -105,7 +105,6 @@ document.addEventListener('alpine:init', () => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 this.subscriptions = data.data;
-                                console.log(data.data);
 
                 loadingIndicator.hideTableLoader();
             } catch (error) {
