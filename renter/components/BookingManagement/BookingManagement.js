@@ -245,7 +245,6 @@ document.addEventListener('alpine:init', () => {
 
                 const car = booking.car;
 
-                // إعداد الصور
                 let imagesHtml = '';
                 if (car.car_image && car.car_image.length > 0) {
                     imagesHtml = `
@@ -264,7 +263,6 @@ document.addEventListener('alpine:init', () => {
             `;
                 }
 
-                // معلومات المستخدم (الحاجز)
                 const userInfoHtml = booking.user ? `
             <div class="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
                 <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('user_info')}</h4>
@@ -305,7 +303,6 @@ document.addEventListener('alpine:init', () => {
             </div>
         ` : '';
 
-                // معلومات المالك
                 const ownerInfoHtml = car.owner ? `
             <div class="mt-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
                 <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('owner_info')}</h4>
@@ -346,7 +343,6 @@ document.addEventListener('alpine:init', () => {
             </div>
         ` : '';
 
-                // تنسيق الثوابت الإضافية
                 const additionalInfoHtml = `
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
@@ -403,10 +399,8 @@ document.addEventListener('alpine:init', () => {
             </div>
         `;
 
-                // بناء محتوى تفاصيل السيارة
                 const detailsHtml = `
             <div class="space-y-6 text-base">
-                <!-- معلومات أساسية -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
                         <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('basic_info')}</h4>
@@ -453,7 +447,6 @@ document.addEventListener('alpine:init', () => {
                     </div>
                 </div>
                 
-                <!-- معلومات إضافية -->
                 <div class="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
                     <h4 class="mb-3 text-lg font-semibold text-purple-800 dark:text-purple-300">${Alpine.store('i18n').t('additional_info')}</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

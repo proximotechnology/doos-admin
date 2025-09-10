@@ -79,7 +79,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // جلب بيانات المديرين من API
         async fetchManagers() {
             try {
                 loadingIndicator.showTableLoader();
@@ -157,7 +156,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // تنسيق الاسم مع الصورة
         formatName(name, imageUrl, index) {
             const defaultImage = 'assets/images/default-avatar.png';
             const cleanUrl = imageUrl;
@@ -186,7 +184,6 @@ document.addEventListener('alpine:init', () => {
             return text;
         },
 
-        // أزرار الإجراءات
         getActionButtons(managerId, name, imag) {
             return `
                 <div class="flex items-center gap-1">
@@ -219,11 +216,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         async updateManager(managerId) {
-            // الحصول على بيانات العلامة التجارية الحالية
             const brand = this.tableData.find((b) => b.id == managerId[0]);
             if (!brand) return;
 
-            // تعبئة النموذج بالبيانات الحالية
             Alpine.store('global').sharedData.name = brand.name;
             Alpine.store('global').sharedData.country = brand.country;
 
@@ -264,7 +259,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_update_brand'));
                 }
 
-                // استخدام SweetAlert2 بشكل صحيح
                 Swal.fire({
                     icon: 'success',
                     title: Alpine.store('i18n').t('success'),
@@ -284,9 +278,8 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 loadingIndicator.hide();
             }
-        }, // حذف المدير
+        },
         async deleteManager(managerId) {
-            // استخدام المودال بدلاً من confirm
             const deleteConfirmed = await new Promise((resolve) => {
                 Alpine.store('deleteModal').openModal(managerId, () => {
                     resolve(true);
@@ -317,7 +310,6 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.hide();
             }
         },
-        // بقية الدوال المساعدة...
         getStatusColor(status) {
             const statusColors = {
                 active: 'success',

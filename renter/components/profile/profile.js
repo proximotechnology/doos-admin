@@ -1,5 +1,4 @@
 document.addEventListener('alpine:init', () => {
-    // تعريف دالة coloredToast
     const coloredToast = (color, message) => {
         const icon = color === 'success' ? 'success' : 'error';
         Swal.fire({
@@ -24,7 +23,6 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
-    // تسجيل المكون بشكل صحيح في Alpine
     Alpine.data('profileData', () => ({
         loading: true,
         updating: false,

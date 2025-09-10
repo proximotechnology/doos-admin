@@ -31,5 +31,4 @@ class AuthService {
     }
 }
 
-// جعل AuthService متاحًا عالميًا
 window.authService = new AuthService();

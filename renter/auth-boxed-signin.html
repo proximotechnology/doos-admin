@@ -330,18 +330,15 @@
                     },
 
                     async handleLogin() {
-                        // إظهار مؤشر التحميل
                         this.isLoading = true;
                         this.errorMessage = '';
 
-                        // التحقق من صحة المدخلات
                         if (!this.validateInputs()) {
-                            this.isLoading = false; // إخفاء مؤشر التحميل إذا حدث خطأ
+                            this.isLoading = false; 
                             return;
                         }
 
                         try {
-                            // إرسال الطلب إلى API
                             const response = await fetch(`${this.apiBaseUrl}/api/login`, {
                                 method: 'POST',
                                 headers: {
@@ -354,11 +351,9 @@
                                 }),
                             });
 
-                            // معالجة استجابة API
                             const result = await response.json();
 
                             if (!response.ok) {
-                                // في حالة الخطأ من API
                                 throw new Error(result.message || 'Login failed. Please try again.');
                             }
 
@@ -367,38 +362,31 @@
                                 const token = result.access_token;
                                 // const userType = result.access_token.original.user_type;
 
-                                // تخزين البيانات في localStorage
                                 localStorage.setItem('authToken', token);
                                 // localStorage.setItem('userType', userType);
 
-                                // إعادة توجيه حسب نوع المستخدم
                                 if (result.access_token.original === 'User') {
                                     window.location.href = 'indexmerchan.html';
                                 } else {
                                     window.location.href = 'index.html';
                                 }
                             } else {
-                                // إذا لم يتم العثور على التوكن
                                 throw new Error('Invalid server response');
                             }
                         } catch (error) {
-                            // معالجة الخطأ وعرض رسالة للمستخدم
                             coloredToast('danger', error.message || 'Login failed. Please try again.');
                             this.errorMessage = error.message || 'Login failed. Please try again.';
                         } finally {
-                            // إخفاء مؤشر التحميل
                             this.isLoading = false;
                         }
                     },
 
-                    // عرض رسائل النجاح
                     showSuccess(message) {
-                        coloredToast('success', message); // يمكن استبدال هذه الوظيفة بنظام إشعارات أفضل
+                        coloredToast('success', message); 
                     },
 
-                    // عرض رسائل الخطأ
                     showError(message) {
-                        coloredToast('danger', message); // يمكن استبدال هذه الوظيفة بنظام إشعارات أفضل
+                        coloredToast('danger', message); 
                     },
                 }));
             });

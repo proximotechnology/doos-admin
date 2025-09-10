@@ -28,9 +28,7 @@
                     </div>
                 </div>
                 <div x-data="subscriptionsTable" x-init="init()">
-                    <!-- فلترة الاشتراكات -->
                     <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-                        <!-- فلترة الحالة -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('status')"></label>
                             <select x-model="filters.status" @change="fetchSubscriptions()" class="form-select w-full">
@@ -41,7 +39,6 @@
                             </select>
                         </div>
 
-                        <!-- فلترة المستخدم -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('user')"></label>
                             <select x-model="filters.user_id" @change="fetchSubscriptions()" class="form-select w-full">
@@ -52,7 +49,6 @@
                             </select>
                         </div>
 
-                        <!-- فلترة الخطة -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('plan')"></label>
                             <select x-model="filters.plan_id" @change="fetchSubscriptions()" class="form-select w-full">
@@ -63,7 +59,6 @@
                             </select>
                         </div>
 
-                        <!-- فلترة التاريخ -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('date_range')"></label>
                             <div class="flex space-x-2">
@@ -85,7 +80,6 @@
                         </div>
                     </div>
 
-                    <!-- جدول الاشتراكات -->
                     <div class="panel mt-2">
                         <div class="mb-5 flex items-center justify-between">
                             <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('subscriptions_management')"></h5>
@@ -180,7 +174,6 @@
                                                 <div class="flex flex-col">
                                                     <span x-text="subscription.user.name" class="text-sm font-medium text-gray-900 dark:text-white"></span>
                                                     <span x-text="subscription.user.email" class="text-xs text-gray-500 dark:text-gray-400"></span>
-                                                    <!-- إضافة بيانات الهاتف والبلد -->
                                                     <div class="mt-1 items-center text-xs text-gray-500 dark:text-gray-400">
                                                         <template x-if="subscription.user.phone">
                                                             <div class="flex items-center">
@@ -236,26 +229,11 @@
                                                     x-text="subscription.status === 'active' ? $store.i18n.t('active') : subscription.status === 'pending' ? $store.i18n.t('pending') : $store.i18n.t('finished')"
                                                 ></span>
                                             </td>
-                                            <td
-                                                class="whitespace-nowrap px-6 py-4"
-                                                x-text="formatDate(subscription.date_from)"
-                                            ></td>
-                                            <td
-                                                class="whitespace-nowrap px-6 py-4"
-                                                x-text="formatDate(subscription.date_end)"
-                                            ></td>
-                                            <td
-                                                class="whitespace-nowrap px-6 py-4"
-                                                x-text="'$' + subscription.price"
-                                            ></td>
-                                            <td
-                                                class="whitespace-nowrap px-6 py-4"
-                                                x-text="subscription.car_limite"
-                                            ></td>
-                                            <td
-                                                class="whitespace-nowrap px-6 py-4"
-                                                x-text="subscription.remaining_cars"
-                                            ></td>
+                                            <td class="whitespace-nowrap px-6 py-4" x-text="formatDate(subscription.date_from)"></td>
+                                            <td class="whitespace-nowrap px-6 py-4" x-text="formatDate(subscription.date_end)"></td>
+                                            <td class="whitespace-nowrap px-6 py-4" x-text="'$' + subscription.price"></td>
+                                            <td class="whitespace-nowrap px-6 py-4" x-text="subscription.car_limite"></td>
+                                            <td class="whitespace-nowrap px-6 py-4" x-text="subscription.remaining_cars"></td>
                                             <td class="whitespace-nowrap px-6 py-4">
                                                 <span
                                                     :class="{

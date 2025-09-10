@@ -104,7 +104,6 @@ document.addEventListener('alpine:init', () => {
 
                 this.populateTable();
 
-                // إخفاء اللودر وإظهار المحتوى المناسب
                 if (this.reviews.length > 0) {
                     loadingIndicator.showContent();
                 } else {

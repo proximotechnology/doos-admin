@@ -81,7 +81,6 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
                 this.users = data.user || [];
 
-                // إخفاء اللودر وإظهار المحتوى المناسب
                 loadingIndicator.hideTableLoader();
                 if (this.filteredUsers.length > 0) {
                     loadingIndicator.showContent();

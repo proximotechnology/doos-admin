@@ -1,5 +1,4 @@
 document.addEventListener('alpine:init', () => {
-    // دالة مساعدة لعرض وإخفاء مؤشر التحميل
     const loadingIndicator = {
         show: function () {
             document.getElementById('loadingIndicator').classList.remove('hidden');
@@ -65,7 +64,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // جلب بيانات الخطط من API مع دعم التقسيم الصفحي
         async fetchPlans(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
@@ -108,7 +106,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // تعبئة الجدول بالبيانات مع إضافة التقسيم الصفحي
         populateTable() {
             if (this.datatable1) {
                 this.datatable1.destroy();
@@ -154,21 +151,18 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // توليد واجهة التقسيم الصفحي
         generatePaginationHTML() {
             if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
 
             let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
             paginationHTML += '<nav class="flex items-center space-x-2">';
 
-            // زر الصفحة السابقة
             if (this.paginationMeta.current_page > 1) {
                 paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
                     ${Alpine.store('i18n').t('previous')}
                 </button>`;
             }
 
-            // أرقام الصفحات
             const startPage = Math.max(1, this.paginationMeta.current_page - 2);
             const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
 
@@ -178,7 +172,6 @@ document.addEventListener('alpine:init', () => {
                 </button>`;
             }
 
-            // زر الصفحة التالية
             if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
                 paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
                     ${Alpine.store('i18n').t('next')}
@@ -198,7 +191,6 @@ document.addEventListener('alpine:init', () => {
                 : '<span class="badge bg-danger">' + Alpine.store('i18n').t('inactive') + '</span>';
         },
 
-        // أزرار الإجراءات
         getActionButtons(planId, name, price, car_limite, count_day, isActive) {
             return `
     <div class="flex items-center  gap-1">
@@ -223,7 +215,6 @@ document.addEventListener('alpine:init', () => {
         },
 
 
-        // تبديل حالة النشاط باستخدام نفس رابط التحديث
         async toggleActive(planId, isActive) {
             try {
                 loadingIndicator.show();
@@ -235,7 +226,6 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                // إرسال is_active فقط كجزء من البيانات
                 const updateData = {
                     is_active: isActive ? 0 : 1,
                 };
@@ -258,7 +248,7 @@ document.addEventListener('alpine:init', () => {
                 const result = await response.json();
 
                 coloredToast('success', Alpine.store('i18n').t('plan_status_changed'));
-                await this.fetchPlans(); // إعادة تحميل البيانات
+                await this.fetchPlans();
             } catch (error) {
                 console.error('Toggle active error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_toggle'));
@@ -292,7 +282,6 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                // تحويل البيانات إلى JSON بدلاً من FormData
                 const updateData = {
                     name: Alpine.store('global').sharedData.name,
                     price: parseFloat(Alpine.store('global').sharedData.price),
@@ -310,7 +299,6 @@ document.addEventListener('alpine:init', () => {
                     body: JSON.stringify(updateData),
                 });
 
-                // تحقق من الاستجابة بشكل أدق
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -320,7 +308,7 @@ document.addEventListener('alpine:init', () => {
 
                 if (result) {
                     coloredToast('success', Alpine.store('i18n').t('plan_updated_success'));
-                    await this.fetchPlans(); // إعادة تحميل البيانات
+                    await this.fetchPlans();
                 } else {
                     coloredToast('warning', result.message || 'Update completed but server returned failure');
                 }
@@ -333,7 +321,6 @@ document.addEventListener('alpine:init', () => {
         },
 
 
-        // حذف الخطة
         async deletePlan(planId) {
             const deleteConfirmed = await new Promise((resolve) => {
                 Alpine.store('deleteModal').openModal(planId, () => {
@@ -366,7 +353,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // بقية الدوال المساعدة...
         getPaginationIcon(type) {
             const icons = {
                 first: '<svg...></svg>',

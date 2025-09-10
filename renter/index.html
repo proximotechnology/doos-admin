@@ -1227,9 +1227,7 @@
                                         </div>
                                     </div>
                                     <div class="overflow-hidden">
-                                        <div x-ref="ordersChart" class="rounded-lg bg-white dark:bg-black">
-                                            <!-- المخطط سيتم إنشاؤه بواسطة ApexCharts -->
-                                        </div>
+                                        <div x-ref="ordersChart" class="rounded-lg bg-white dark:bg-black"></div>
                                     </div>
                                     <div class="mt-4 grid grid-cols-3 gap-2 text-center">
                                         <div class="rounded border border-success/20 p-2 text-success">
@@ -1388,10 +1386,8 @@
                                     class="panel relative grid h-full grid-cols-1 content-between overflow-hidden before:absolute before:-right-44 before:bottom-0 before:top-0 before:m-auto before:h-96 before:w-96 before:rounded-full before:bg-[#1937cc]"
                                     style="background: linear-gradient(0deg, #00c6fb -227%, #005bea)"
                                 >
-                                    <!-- الخلفية الدائرية -->
                                     <div class="absolute -right-20 bottom-0 top-0 m-auto h-80 w-80 rounded-full bg-[#1947ee] opacity-30"></div>
 
-                                    <!-- المحتوى الرئيسي -->
                                     <div class="z-[7] mb-8 flex items-start justify-between text-white-light">
                                         <div>
                                             <h5 class="text-lg font-semibold">Commissions Summary</h5>
@@ -1403,7 +1399,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- شريط التقدم -->
                                     <div class="z-10 mt-6">
                                         <div class="mb-2 flex items-center justify-between text-white-light">
                                             <span>Collection Progress</span>
@@ -1416,7 +1411,6 @@
                                             ></div>
                                         </div>
 
-                                        <!-- إحصائيات إضافية -->
                                         <div class="mt-6 flex justify-between text-white-light">
                                             <div class="text-center">
                                                 <div class="text-xl font-bold" x-text="commissions.total"></div>
@@ -1446,8 +1440,6 @@
                                         </svg>
                                     </div>
                                 </div>
-
-                                <!-- قسم المنتجات الجديد -->
                             </div>
                             <div class="panel mt-6" x-data="productsStats">
                                 <div class="mb-5 flex items-center justify-between">
@@ -1465,7 +1457,6 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-                                    <!-- إجمالي المنتجات -->
                                     <div class="rounded-lg bg-[#f9f9f9] p-5 dark:bg-[#1b2e4b]">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -1489,7 +1480,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- المنتجات النشطة -->
                                     <div class="rounded-lg bg-[#f9f9f9] p-5 dark:bg-[#1b2e4b]">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -1517,7 +1507,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- المنتجات غير النشطة -->
                                     <div class="rounded-lg bg-[#f9f9f9] p-5 dark:bg-[#1b2e4b]">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -1545,7 +1534,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- مزودي الخدمة حسب النوع -->
                                     <div class="rounded-lg bg-[#f9f9f9] p-5 dark:bg-[#1b2e4b]">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -1814,7 +1802,6 @@
 
                             const data = await response.json();
 
-                            // تحديث بيانات الطلبات
                             this.orders = {
                                 cancelled: parseInt(data.stats.cancelled_orders) || 0,
                                 completed: parseInt(data.stats.completed_orders) || 0,
@@ -1932,7 +1919,6 @@
 
                             const data = await response.json();
 
-                            // تحديث بيانات المستخدمين
                             this.users = {
                                 active: data.stats.active_users === 'not yet' ? 0 : parseInt(data.stats.active_users),
                                 inactive: data.stats.inactive_users === 'not yet' ? 0 : parseInt(data.stats.inactive_users),
@@ -1940,11 +1926,9 @@
                             };
                         } catch (error) {
                             console.error('Error fetching users data:', error);
-                            // يمكنك عرض رسالة خطأ للمستخدم هنا
                         }
                     },
 
-                    // دالة مساعدة لحساب النسبة المئوية
                     calculatePercentage(partial, total) {
                         return total > 0 ? Math.round((partial / total) * 100) : 0;
                     },
@@ -2059,8 +2043,7 @@
                             // You can now access these grouped stats for your charts
 
                             // Example usage for a chart:
-                        } catch (error) {
-                        }
+                        } catch (error) {}
                     },
 
                     getVendorsChartOptions(vendorsData) {
@@ -2133,7 +2116,6 @@
                     },
                     updateChartsData(dashboardData) {
                         try {
-                            // 1. تدمير المخططات القديمة إذا كانت موجودة
                             const destroyChart = (chartInstance, refName) => {
                                 if (chartInstance) {
                                     chartInstance.destroy();
@@ -2148,23 +2130,20 @@
                             destroyChart(this.dailySales, 'dailySales');
                             destroyChart(this.vendorsChart, 'vendorsChart');
 
-                            // 2. إنشاء المخططات الجديدة مع التحقق من وجود العناصر
                             setTimeout(() => {
-                                // تأكد من أن this.$refs موجود وأن العنصر موجود
                                 const createChart = (refName, chartOptions) => {
                                     if (!this.$refs || !this.$refs[refName]) {
                                         return null;
                                     }
 
                                     const element = this.$refs[refName];
-                                    element.innerHTML = ''; // تنظيف العنصر
+                                    element.innerHTML = '';
 
                                     const chart = new ApexCharts(element, chartOptions);
                                     chart.render();
                                     return chart;
                                 };
 
-                                // إنشاء المخططات مع التحقق
                                 this.salesByCategory = createChart('salesByCategory', this.getSalesByCategoryOptions(dashboardData.orders));
 
                                 this.dailySales = createChart('dailySales', this.getDailySalesOptions(dashboardData.users));
@@ -2173,7 +2152,6 @@
                             }, 300);
                         } catch (error) {
                             console.error('Error updating charts:', error);
-                            // يمكنك إضافة عرض رسالة خطأ للمستخدم هنا
                         }
                     },
                     getSalesByCategoryOptions(ordersByType) {
@@ -2371,7 +2349,6 @@
 
                             const data = await response.json();
 
-                            // تحديث بيانات مزودي الخدمة
                             this.serviceProviders = {
                                 active: parseInt(data.stats.active_service_provider) || 0,
                                 banned: parseInt(data.stats.banned_service_provider) || 0,
@@ -2419,7 +2396,6 @@
 
                             const data = await response.json();
 
-                            // تحديث بيانات العمولات
                             this.commissions = {
                                 pending: parseInt(data.stats.pending_commissions) || 0,
                                 total: parseInt(data.stats.total_commissions) || 0,
@@ -2470,7 +2446,6 @@
 
                             const data = await response.json();
 
-                            // تحديث بيانات المنتجات
                             this.products = {
                                 active: data.stats.active_products || 'not yet',
                                 inactive: data.stats.inactive_products || 'not yet',
@@ -2583,9 +2558,8 @@
                                 throw new Error(errorData.message || 'فشل تسجيل الخروج');
                             }
 
-                            // إزالة التوكن وإعادة التوجيه
                             localStorage.removeItem('authToken');
-                            window.location.href = 'auth-boxed-signin.html'; // صفحة تسجيل الدخول
+                            window.location.href = 'auth-boxed-signin.html';
                         } catch (error) {
                             alert('حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة لاحقًا.', error);
                         }

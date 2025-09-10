@@ -231,15 +231,14 @@ document.addEventListener('alpine:init', () => {
                     </button>
                 </div>`;
         },
-async changeStatus(carId) {
-    try {
-        const car = this.tableData.find(c => c.id == carId);
-        if (!car) {
-            throw new Error('Car not found');
-        }
+        async changeStatus(carId) {
+            try {
+                const car = this.tableData.find(c => c.id == carId);
+                if (!car) {
+                    throw new Error('Car not found');
+                }
 
-        // إنشاء واجهة تغيير الحالة
-        let statusHtml = `
+                let statusHtml = `
             <div class="text-left max-h-96 overflow-y-auto">
                 <div class="mb-4">
                     <label class="block mb-2 font-medium">${Alpine.store('i18n').t('select_status')}</label>
@@ -265,127 +264,119 @@ async changeStatus(carId) {
             </div>
         `;
 
-        const result = await Swal.fire({
-            title: Alpine.store('i18n').t('change_status'),
-            html: statusHtml,
-            width: '600px',
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: Alpine.store('i18n').t('save'),
-            cancelButtonText: Alpine.store('i18n').t('cancel'),
-            didOpen: () => {
-                const statusSelect = document.getElementById('statusSelect');
-                const rejectionSection = document.getElementById('rejectionReasonsSection');
-                const reasonsContainer = document.getElementById('rejectionReasonsContainer');
-                const addReasonBtn = document.getElementById('addReasonBtn');
-                
-                // إظهار/إخفاء قسم أسباب الرفض بناءً على الحالة المختارة
-                const toggleRejectionSection = () => {
-                    if (statusSelect.value === 'rejected') {
-                        rejectionSection.classList.remove('hidden');
-                    } else {
-                        rejectionSection.classList.add('hidden');
-                    }
-                };
-                
-                // إضافة سبب جديد
-                addReasonBtn.addEventListener('click', () => {
-                    const newReasonItem = document.createElement('div');
-                    newReasonItem.className = 'flex items-center gap-2 reason-item';
-                    newReasonItem.innerHTML = `
+                const result = await Swal.fire({
+                    title: Alpine.store('i18n').t('change_status'),
+                    html: statusHtml,
+                    width: '600px',
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: Alpine.store('i18n').t('save'),
+                    cancelButtonText: Alpine.store('i18n').t('cancel'),
+                    didOpen: () => {
+                        const statusSelect = document.getElementById('statusSelect');
+                        const rejectionSection = document.getElementById('rejectionReasonsSection');
+                        const reasonsContainer = document.getElementById('rejectionReasonsContainer');
+                        const addReasonBtn = document.getElementById('addReasonBtn');
+
+                        const toggleRejectionSection = () => {
+                            if (statusSelect.value === 'rejected') {
+                                rejectionSection.classList.remove('hidden');
+                            } else {
+                                rejectionSection.classList.add('hidden');
+                            }
+                        };
+
+                        addReasonBtn.addEventListener('click', () => {
+                            const newReasonItem = document.createElement('div');
+                            newReasonItem.className = 'flex items-center gap-2 reason-item';
+                            newReasonItem.innerHTML = `
                         <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
                         <button type="button" class="btn btn-danger btn-sm remove-reason-btn">×</button>
                     `;
-                    reasonsContainer.appendChild(newReasonItem);
-                    
-                    // إضافة حدث لإزالة السبب
-                    newReasonItem.querySelector('.remove-reason-btn').addEventListener('click', function() {
-                        newReasonItem.remove();
-                    });
-                });
-                
-                toggleRejectionSection();
-                statusSelect.addEventListener('change', toggleRejectionSection);
-            },
-            preConfirm: () => {
-                const statusSelect = document.getElementById('statusSelect');
-                const selectedStatus = statusSelect.value;
-                
-                let rejectionReasons = [];
-                
-                if (selectedStatus === 'rejected') {
-                    // جمع أسباب الرفض المدخلة
-                    const reasonInputs = document.querySelectorAll('.rejection-reason-input');
-                    reasonInputs.forEach(input => {
-                        if (input.value.trim()) {
-                            rejectionReasons.push(input.value.trim());
+                            reasonsContainer.appendChild(newReasonItem);
+
+                            newReasonItem.querySelector('.remove-reason-btn').addEventListener('click', function () {
+                                newReasonItem.remove();
+                            });
+                        });
+
+                        toggleRejectionSection();
+                        statusSelect.addEventListener('change', toggleRejectionSection);
+                    },
+                    preConfirm: () => {
+                        const statusSelect = document.getElementById('statusSelect');
+                        const selectedStatus = statusSelect.value;
+
+                        let rejectionReasons = [];
+
+                        if (selectedStatus === 'rejected') {
+                            const reasonInputs = document.querySelectorAll('.rejection-reason-input');
+                            reasonInputs.forEach(input => {
+                                if (input.value.trim()) {
+                                    rejectionReasons.push(input.value.trim());
+                                }
+                            });
+
+                            if (rejectionReasons.length === 0) {
+                                Swal.showValidationMessage(Alpine.store('i18n').t('please_enter_rejection_reasons'));
+                                return false;
+                            }
                         }
-                    });
-                    
-                    // التأكد من وجود أسباب رفض
-                    if (rejectionReasons.length === 0) {
-                        Swal.showValidationMessage(Alpine.store('i18n').t('please_enter_rejection_reasons'));
-                        return false;
+
+                        return {
+                            status: selectedStatus,
+                            rejection_reasons: rejectionReasons
+                        };
+                    }
+                });
+
+                if (result.isConfirmed && result.value) {
+                    loadingIndicator.show();
+                    const token = localStorage.getItem('authToken');
+
+                    if (!token) {
+                        throw new Error('Authentication token not found');
+                    }
+
+                    const apiUrl = `${this.apiBaseUrl}/api/admin/cars/update_car_status/${carId}`;
+
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'Authorization': `Bearer ${token}`,
+                            },
+                            body: JSON.stringify(result.value)
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                        }
+
+                        const responseData = await response.json();
+
+                        if (responseData.status) {
+                            coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
+                            await this.fetchCars();
+                        } else {
+                            throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
+                        }
+
+                    } catch (fetchError) {
+                        console.error('Fetch error details:', fetchError);
+                        throw new Error(`Failed to update status: ${fetchError.message}`);
                     }
                 }
-                
-                return {
-                    status: selectedStatus,
-                    rejection_reasons: rejectionReasons
-                };
+            } catch (error) {
+                console.error('Error changing status:', error);
+                coloredToast('danger', error.message);
+            } finally {
+                loadingIndicator.hide();
             }
-        });
-
-        // التحقق من النتيجة قبل المتابعة
-        if (result.isConfirmed && result.value) {
-            loadingIndicator.show();
-            const token = localStorage.getItem('authToken');
-            
-            if (!token) {
-                throw new Error('Authentication token not found');
-            }
-
-            // التحقق من صحة URL
-            const apiUrl = `${this.apiBaseUrl}/api/admin/cars/update_car_status/${carId}`;
-            
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(result.value)
-                });
-
-                // التحقق من حالة الاستجابة
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                }
-
-                const responseData = await response.json();
-                
-                if (responseData.status) {
-                    coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
-                    await this.fetchCars();
-                } else {
-                    throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
-                }
-                
-            } catch (fetchError) {
-                console.error('Fetch error details:', fetchError);
-                throw new Error(`Failed to update status: ${fetchError.message}`);
-            }
-        }
-    } catch (error) {
-        console.error('Error changing status:', error);
-        coloredToast('danger', error.message);
-    } finally {
-        loadingIndicator.hide();
-    }
-},
+        },
 
         async showCarDetails(carId) {
             try {

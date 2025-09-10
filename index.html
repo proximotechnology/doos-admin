@@ -37,7 +37,6 @@
                 animation: modalFadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             }
 
-            /* تصميم الموديل */
             .password-modal {
                 display: none;
                 position: fixed;
@@ -154,7 +153,6 @@
                 color: white;
             }
 
-            /* أنيميشن الاهتزاز */
             @keyframes shake {
                 0%,
                 100% {
@@ -223,7 +221,6 @@
             </template>
         </div>
 
-        <!-- نموذج إدخال كلمة المرور -->
         <div id="passwordModal" class="password-modal modal-overlay">
             <div class="modal-container">
                 <div class="modal-box modal-content">
@@ -307,21 +304,18 @@
         </div>
 
         <script>
-            // متغيرات لتخزين نوع الحساب المحدد
             let selectedAccountType = '';
             const passwords = {
                 renter: '1234567',
                 uber: '12345678',
             };
 
-            // دالة لعرض نموذج إدخال كلمة المرور
             function showPasswordModal(accountType) {
                 selectedAccountType = accountType;
                 const modal = document.getElementById('passwordModal');
                 const modalTitle = document.getElementById('modalTitle');
                 const modalDescription = document.getElementById('modalDescription');
 
-                // تحديث النصوص بناءً على نوع الحساب
                 if (accountType === 'renter') {
                     modalTitle.textContent = 'Renter - Enter Password';
                     modalDescription.textContent = 'Please enter the renter password to continue';
@@ -330,44 +324,36 @@
                     modalDescription.textContent = 'Please enter the property owner password to continue';
                 }
 
-                // إظهار الموديل
                 modal.style.display = 'block';
-                document.body.style.overflow = 'hidden'; // منع التمرير عند ظهور الموديل
+                document.body.style.overflow = 'hidden';
 
-                // التركيز على حقل إدخال كلمة المرور
                 setTimeout(() => {
                     document.getElementById('passwordInput').focus();
                 }, 100);
             }
 
-            // دالة لإخفاء نموذج إدخال كلمة المرور
             function hidePasswordModal() {
                 const modal = document.getElementById('passwordModal');
                 modal.style.display = 'none';
-                document.body.style.overflow = ''; // إعادة التمرير
+                document.body.style.overflow = '';
 
-                // مسح حقل الإدخال وإخفاء رسالة الخطأ
                 document.getElementById('passwordInput').value = '';
                 document.getElementById('errorMessage').style.display = 'none';
             }
 
-            // دالة للتحقق من كلمة المرور
             function checkPassword() {
                 const inputPassword = document.getElementById('passwordInput').value;
                 const errorMessage = document.getElementById('errorMessage');
 
                 if (inputPassword === passwords[selectedAccountType]) {
-                    // كلمة المرور صحيحة - التوجيه إلى الصفحة المناسبة
                     if (selectedAccountType === 'renter') {
                         window.location.href = 'renter/auth-boxed-signin.html';
                     } else {
                         window.location.href = 'uber/auth-boxed-signin.html';
                     }
                 } else {
-                    // كلمة المرور خاطئة - عرض رسالة الخطأ
                     errorMessage.style.display = 'block';
 
-                    // تأثير اهتزاز للحقل
                     const inputField = document.getElementById('passwordInput');
                     inputField.classList.add('shake');
                     setTimeout(() => {
@@ -376,19 +362,15 @@
                 }
             }
 
-            // إعداد معالجي الأحداث عند تحميل الصفحة
             document.addEventListener('DOMContentLoaded', function () {
-                // زر التأكيد
                 document.getElementById('submitPassword').addEventListener('click', checkPassword);
 
-                // عند الضغط على Enter في حقل كلمة المرور
                 document.getElementById('passwordInput').addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
                         checkPassword();
                     }
                 });
 
-                // إغلاق الموديل عند النقر خارج المحتوى
                 document.getElementById('passwordModal').addEventListener('click', function (e) {
                     if (e.target === this) {
                         hidePasswordModal();

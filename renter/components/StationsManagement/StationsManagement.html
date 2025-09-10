@@ -173,7 +173,6 @@
                 <form @submit.prevent="$store.stationsTable.updateStation(stationData.id)">
                     <div class="p-6">
                         <div class="space-y-4">
-                            <!-- اسم المحطة -->
                             <div>
                                 <label for="editName" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     <span x-text="$store.i18n.t('station_name')"></span>
@@ -188,7 +187,6 @@
                                 />
                             </div>
 
-                            <!-- الإحداثيات -->
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     <span x-text="$store.i18n.t('select_location')"></span>
@@ -218,5 +216,3 @@
         </div>
     </body>
 </html>
-
-

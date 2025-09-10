@@ -83,16 +83,14 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                // بناء query parameters
                 let url = `${this.apiBaseUrl}/api/admin/subscribe/index?page=${this.currentPage}`;
 
-                // إضافة الفلاتر إذا كانت موجودة
                 if (this.filters.status) url += `&status=${this.filters.status}`;
                 if (this.filters.user_id) url += `&user_id=${this.filters.user_id}`;
                 if (this.filters.plan_id) url += `&plan_id=${this.filters.plan_id}`;
                 if (this.filters.start_date) url += `&start_date=${this.filters.start_date}`;
                 if (this.filters.end_date) url += `&end_date=${this.filters.end_date}`;
-                
+
 
                 const response = await fetch(url, {
                     method: 'GET',

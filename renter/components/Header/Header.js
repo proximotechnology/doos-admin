@@ -50,7 +50,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(errorData.message || 'فشل تسجيل الخروج');
                 }
 
-                // إزالة التوكن وإعادة التوجيه
                 localStorage.removeItem('authToken');
                 window.location.href = 'auth-boxed-signin.html';
             } catch (error) {
@@ -103,7 +102,6 @@ document.addEventListener('alpine:init', () => {
         },
     });
 
-    // استدعاء init عند التحميل
     Alpine.store('i18n').init();
 
 });
