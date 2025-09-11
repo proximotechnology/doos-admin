@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <div x-data="modelDetails">
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" @click="window.location.href = 'dashboard.html'">
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <a href="javascript:;" class="text-primary hover:underline" @click="window.location.href = 'model-management.html'">
+                        <span x-text="$store.i18n.t('model_car')"></span>
+                    </a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="model ? model.name : $store.i18n.t('loading')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <template x-if="model">
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div class="panel">
+                            <h5 class="mb-5 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('model_details')"></h5>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="font-semibold" x-text="$store.i18n.t('name') + ':'"></label>
+                                    <p x-text="model.name" class="mt-1"></p>
+                                </div>
+                                <div>
+                                    <label class="font-semibold" x-text="$store.i18n.t('brand') + ':'"></label>
+                                    <p x-text="model.brand.name" class="mt-1"></p>
+                                </div>
+                                <div>
+                                    <label class="font-semibold" x-text="$store.i18n.t('country') + ':'"></label>
+                                    <p x-text="model.brand.country" class="mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="mb-5 flex items-center justify-between">
+                                <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('years')"></h5>
+                                <button @click="addYear()" class="btn btn-primary">
+                                    <span x-text="$store.i18n.t('add_year')"></span>
+                                </button>
+                            </div>
+                            <div x-html="formatYears(model.years)"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </body>
+</html>
