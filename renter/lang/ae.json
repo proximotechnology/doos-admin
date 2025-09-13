@@ -431,5 +431,11 @@
 
     "failed_to_load_brands": "فشل تحميل العلامات التجارية",
 
-    "update_year": "تحديث السنة"
+    "update_year": "تحديث السنة",
+
+    "filter": "تصفية",
+    "reset_filters": "إعادة تعيين الفلاتر",
+    "search_by_name": "البحث حسب الاسم",
+    "no_models": "لم يتم العثور على موديلات",
+    "no_data_available": "لا توجد بيانات متاحة للعرض"
 }

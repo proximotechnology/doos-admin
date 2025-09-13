@@ -1,6 +1,4 @@
 document.addEventListener('alpine:init', () => {
-  
-
     const loadingIndicator = {
         show: function () {
             document.getElementById('loadingIndicator').classList.remove('hidden');
@@ -24,15 +22,18 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
-
-
     Alpine.data('multipleTable', () => ({
         tableData: [],
+        paginationMeta: {},
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        currentPage: 1,
+        filters: {
+            name: ''
+        },
 
         async init() {
-            await this.fetchManagers();
+            await this.fetchManagers(1);
 
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
@@ -46,6 +47,10 @@ document.addEventListener('alpine:init', () => {
                 if (e.target.closest('.view-details-btn')) {
                     const managerId = e.target.closest('.view-details-btn').dataset.id;
                     this.viewDetails(managerId);
+                }
+                if (e.target.closest('.pagination-btn')) {
+                    const page = e.target.closest('.pagination-btn').dataset.page;
+                    this.fetchManagers(page);
                 }
             });
 
@@ -72,9 +77,10 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        async fetchManagers() {
+        async fetchManagers(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
+                this.currentPage = page;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -83,7 +89,10 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models`, {
+                const queryParams = new URLSearchParams({ page, per_page: 10 });
+                if (this.filters.name) queryParams.append('name', this.filters.name);
+
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models?${queryParams.toString()}`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -92,19 +101,44 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                this.tableData = data.data.data;
+                console.log('API Response:', data);
 
-                if (this.tableData.length === 0) {
-                    loadingIndicator.showEmptyState();
+                if (data.success && data.data) {
+                    this.tableData = data.data.data || [];
+                    this.paginationMeta = {
+                        current_page: data.data.current_page,
+                        last_page: data.data.last_page,
+                        per_page: data.data.per_page,
+                        total: data.data.total,
+                        from: data.data.from,
+                        to: data.data.to,
+                        links: data.data.links
+                    };
+
+                    if (this.tableData.length === 0) {
+                        loadingIndicator.showEmptyState();
+                    } else {
+                        this.populateTable();
+                        loadingIndicator.hideTableLoader();
+                    }
                 } else {
-                    this.populateTable();
-                    loadingIndicator.hideTableLoader();
+                    throw new Error(data.message || 'Invalid response format');
                 }
             } catch (error) {
+                console.error('Error fetching models:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
             }
+        },
+
+        applyFilters() {
+            this.fetchManagers(1); // إعادة تعيين الصفحة إلى 1 عند تطبيق الفلتر
+        },
+
+        resetFilters() {
+            this.filters.name = '';
+            this.fetchManagers(1);
         },
 
         populateTable() {
@@ -113,10 +147,10 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((manager, index) => [
-                this.formatText(index + 1),
+                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatText(manager.name),
-                this.formatText(manager.brand.name),
-                this.getActionButtons(manager.id, manager.name, manager.imag),
+                this.formatText(manager.brand?.name || 'N/A'),
+                this.getActionButtons(manager.id, manager.name, manager.image),
             ]);
 
             this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
@@ -129,9 +163,9 @@ document.addEventListener('alpine:init', () => {
                     ],
                     data: mappedData,
                 },
-                searchable: true,
-                perPage: 15,
-                perPageSelect: [10, 20, 30, 50, 100],
+                searchable: false,
+                perPage: 10,
+                perPageSelect: false,
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
                 firstText: this.getPaginationIcon('first'),
@@ -141,85 +175,68 @@ document.addEventListener('alpine:init', () => {
                 labels: { perPage: '{select}' },
                 layout: {
                     top: '{search}',
-                    bottom: '{info}{select}{pager}',
+                    bottom: this.generatePaginationHTML() + '{info}{pager}',
                 },
             });
         },
 
-        formatName(name, imageUrl, index) {
-            const defaultImage = 'assets/images/default-avatar.png';
-            const cleanUrl = imageUrl;
+        generatePaginationHTML() {
+            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
 
-            return `
-                    <div class="flex items-center w-max" x-data="{ imgError: false }">
-                        <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                             :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
-                             alt="${name || Alpine.store('i18n').t('user')}"
-                             @error="imgError = true"
-                             loading="lazy"
-                             width="36"
-                             height="36" />
-                        ${name || Alpine.store('i18n').t('unknown')}
-                    </div>`;
+            let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
+            paginationHTML += '<nav class="flex items-center space-x-2">';
+
+            if (this.paginationMeta.current_page > 1) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
+                    ${Alpine.store('i18n').t('previous')}
+                </button>`;
+            }
+
+            const startPage = Math.max(1, this.paginationMeta.current_page - 2);
+            const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary' : 'btn-outline-primary'}" data-page="${i}">
+                    ${i}
+                </button>`;
+            }
+
+            if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
+                    ${Alpine.store('i18n').t('next')}
+                </button>`;
+            }
+
+            paginationHTML += '</nav></div>';
+            return paginationHTML;
         },
 
         formatText(text) {
             return text || Alpine.store('i18n').t('na');
         },
 
-        formatType(text) {
-            if (text == '1') text = Alpine.store('i18n').t('service');
-            else {
-                text = Alpine.store('i18n').t('product');
-            }
-            return text;
-        },
-
-        formatYears(years) {
-            if (!years || years.length === 0) {
-                return Alpine.store('i18n').t('na');
-            }
-
-            return years.map(year => {
-                return `
-                    <div class="flex items-center mb-2" x-data="{ imgError: false }">
-                        <span class="mr-2">${year.year}</span>
-                        <img class="w-12 h-8 rounded object-cover"
-                             src="${year.image}"
-                             alt="Image for year ${year.year}"
-                             @error="imgError = true"
-                             loading="lazy" />
-                        <button class="btn btn-sm btn-warning edit-year-btn ml-2"
-                                data-id="${year.id}"
-                                data-year="${year.year}">
-                            ${Alpine.store('i18n').t('edit')}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        },
-
-        getActionButtons(managerId, name, imag) {
+        getActionButtons(managerId, name, image) {
             return `
-                        <div class="flex items-center gap-1">
-                            <button class="btn update-btn btn-warning" data-id="${managerId}">
-                                ${Alpine.store('i18n').t('update')}
-                            </button>
-                            <button class="btn view-details-btn btn-info" data-id="${managerId}">
-                                ${Alpine.store('i18n').t('view_details')}
-                            </button>
-                            <button class="btn btn-sm btn-danger delete-btn ml-2" data-id="${managerId}">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                </svg>
-                            </button>
-                        </div>`;
-        }, viewDetails(managerId) {
-            // الانتقال إلى صفحة تفاصيل الموديل
+                <div class="flex items-center gap-1 justify-center">
+                    <button class="btn update-btn btn-warning btn-sm" data-id="${managerId}">
+                        ${Alpine.store('i18n').t('update')}
+                    </button>
+                    <button class="btn view-details-btn btn-info btn-sm" data-id="${managerId}">
+                        ${Alpine.store('i18n').t('view_details')}
+                    </button>
+                    <button class="btn btn-sm btn-danger delete-btn" data-id="${managerId}">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>`;
+        },
+
+        viewDetails(managerId) {
             window.location.href = `model-details.html?id=${managerId}`;
         },
 
@@ -231,7 +248,6 @@ document.addEventListener('alpine:init', () => {
             };
             return classes[status] || 'btn-primary';
         },
-
 
         async updateManager(managerId) {
             const model = this.tableData.find((m) => m.id == managerId);
@@ -277,34 +293,11 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_update_model'));
                 }
 
-                Swal.fire({
-                    toast: true,
-                    position: 'bottom-start',
-                    icon: 'success',
-                    title: Alpine.store('i18n').t('success'),
-                    text: Alpine.store('i18n').t('model_updated_successfully'),
-                    showConfirmButton: false,
-                    timer: 3000,
-                    customClass: {
-                        popup: 'color-success',
-                    },
-                });
-
-                await this.fetchManagers();
+                coloredToast('success', Alpine.store('i18n').t('model_updated_successfully'));
+                await this.fetchManagers(this.currentPage);
             } catch (error) {
                 console.error('Update error:', error);
-                Swal.fire({
-                    toast: true,
-                    position: 'bottom-start',
-                    icon: 'error',
-                    title: Alpine.store('i18n').t('error'),
-                    text: error.message || Alpine.store('i18n').t('failed_update_model'),
-                    showConfirmButton: false,
-                    timer: 3000,
-                    customClass: {
-                        popup: 'color-danger',
-                    },
-                });
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_model'));
             } finally {
                 loadingIndicator.hide();
             }
@@ -331,10 +324,9 @@ document.addEventListener('alpine:init', () => {
 
                 if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_model'));
                 coloredToast('success', Alpine.store('i18n').t('delete_model_successful'));
-
-                await this.fetchManagers();
+                await this.fetchManagers(this.currentPage);
             } catch (error) {
-                this.showError(error.message || Alpine.store('i18n').t('error_delete_model'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('error_delete_model'));
             } finally {
                 loadingIndicator.hide();
             }
@@ -353,37 +345,32 @@ document.addEventListener('alpine:init', () => {
 
         getPaginationIcon(type) {
             const icons = {
-                first: '<svg...></svg>',
-                last: '<svg...></svg>',
-                prev: '<svg...></svg>',
-                next: '<svg...></svg>',
+                first: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
+                last: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
+                prev: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
+                next: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
             };
             return icons[type];
         },
 
         showSuccess(message) {
-            alert(message);
+            Swal.fire({
+                icon: 'success',
+                title: Alpine.store('i18n').t('success'),
+                text: message,
+                timer: 3000,
+                showConfirmButton: false
+            });
         },
 
         showError(message) {
-            alert(message);
+            Swal.fire({
+                icon: 'error',
+                title: Alpine.store('i18n').t('error'),
+                text: message
+            });
         },
     }));
-
-    coloredToast = (color, message) => {
-        const icon = color === 'success' ? 'success' : 'error';
-        Swal.fire({
-            toast: true,
-            position: 'bottom-start',
-            icon: icon,
-            title: message,
-            showConfirmButton: false,
-            timer: 3000,
-            customClass: {
-                popup: `color-${color}`,
-            },
-        });
-    };
 
     Alpine.data('Add_Category', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
@@ -400,7 +387,7 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?per_page=1000`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -415,8 +402,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 this.brands = result.data.data;
-                console.log(result.data);
-                
+                console.log('Brands:', result.data);
             } catch (error) {
                 console.error('Error fetching brands:', error);
                 coloredToast('danger', error.message);
@@ -458,7 +444,10 @@ document.addEventListener('alpine:init', () => {
                 this.brand_id = '';
 
                 coloredToast('success', Alpine.store('i18n').t('add_model_successful'));
-                await Alpine.store('modelTable').refreshTable();
+                const multipleTable = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
+                if (multipleTable && multipleTable.fetchManagers) {
+                    await multipleTable.fetchManagers(1); // إعادة تعيين الصفحة إلى 1 بعد الإضافة
+                }
             } catch (error) {
                 coloredToast('danger', error.message);
             } finally {
@@ -466,5 +455,19 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-});
 
+    coloredToast = (color, message) => {
+        const icon = color === 'success' ? 'success' : 'error';
+        Swal.fire({
+            toast: true,
+            position: 'bottom-start',
+            icon: icon,
+            title: message,
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: {
+                popup: `color-${color}`,
+            },
+        });
+    };
+});

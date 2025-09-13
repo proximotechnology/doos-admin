@@ -426,5 +426,11 @@
 
     "failed_to_load_brands": "Failed to load brands",
 
-    "update_year": "Update Year"
+    "update_year": "Update Year",
+
+    "filter": "Filter",
+    "reset_filters": "Reset Filters",
+    "search_by_name": "Search by Name",
+    "no_models": "No Models Found",
+    "no_data_available": "No data available to display."
 }

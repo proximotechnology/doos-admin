@@ -23,10 +23,10 @@ document.addEventListener('alpine:init', () => {
     };
 
     Alpine.store('featureTable', {
-        refreshTable: async function () {
+        refreshTable: async function (page = 1) {
             const tableComponent = Alpine.$data(document.querySelector('[x-data="featurePlans"]'));
             if (tableComponent && tableComponent.fetchFeatures) {
-                await tableComponent.fetchFeatures();
+                await tableComponent.fetchFeatures(page);
             }
         }
     });
@@ -34,15 +34,17 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('featurePlans', () => ({
         plans: [],
         tableData: [],
+        paginationMeta: {}, // إضافة متغير لتخزين بيانات التصفح
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        currentPage: 1, // إضافة متغير لتتبع الصفحة الحالية
         form: {
             plan_id: '',
             feature: ''
         },
 
         async initComponent() {
-            await Promise.all([this.fetchPlans(), this.fetchFeatures()]);
+            await Promise.all([this.fetchPlans(), this.fetchFeatures(1)]);
 
             // Event Delegation for Buttons
             document.addEventListener('click', (e) => {
@@ -53,6 +55,10 @@ document.addEventListener('alpine:init', () => {
                 if (e.target.closest('.delete-btn')) {
                     const featureId = e.target.closest('.delete-btn').dataset.id;
                     this.deleteFeature(featureId);
+                }
+                if (e.target.closest('.pagination-btn')) {
+                    const page = e.target.closest('.pagination-btn').dataset.page;
+                    this.fetchFeatures(page);
                 }
             });
         },
@@ -85,9 +91,10 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async fetchFeatures() {
+        async fetchFeatures(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
+                this.currentPage = page;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -96,7 +103,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/index`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/index?page=${page}&per_page=10`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -105,8 +112,19 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
+                console.log('API Response:', data);
+
                 if (data.status && data.data) {
-                    this.tableData = data.data;
+                    this.tableData = data.data.data || [];
+                    this.paginationMeta = {
+                        current_page: data.data.current_page,
+                        last_page: data.data.last_page,
+                        per_page: data.data.per_page,
+                        total: data.data.total,
+                        from: data.data.from,
+                        to: data.data.to,
+                        links: data.data.links
+                    };
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -118,6 +136,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('failed_to_load_features'));
                 }
             } catch (error) {
+                console.error('Error fetching features:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load_features') + ': ' + error.message);
@@ -130,7 +149,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((feature, index) => [
-                this.formatText(index + 1),
+                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatText(feature.feature),
                 this.formatText(feature.plan?.name),
                 this.formatDate(feature.created_at),
@@ -151,7 +170,7 @@ document.addEventListener('alpine:init', () => {
                     data: mappedData,
                 },
                 searchable: true,
-                perPage: 10,
+                perPage: this.paginationMeta.per_page || 10, // استخدام per_page من الـ API
                 perPageSelect: [10, 20, 30, 50, 100],
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
@@ -162,9 +181,43 @@ document.addEventListener('alpine:init', () => {
                 labels: { perPage: '{select}' },
                 layout: {
                     top: '{search}',
-                    bottom: '{info}{select}{pager}',
+                    bottom: this.generatePaginationHTML() + '{info}{pager}',
                 },
             });
+        },
+
+        generatePaginationHTML() {
+            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+
+            let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
+            paginationHTML += '<nav class="flex items-center space-x-2">';
+
+            // زر "السابق"
+            if (this.paginationMeta.current_page > 1) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
+                    ${Alpine.store('i18n').t('previous')}
+                </button>`;
+            }
+
+            // أرقام الصفحات
+            const startPage = Math.max(1, this.paginationMeta.current_page - 2);
+            const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary' : 'btn-outline-primary'}" data-page="${i}">
+                    ${i}
+                </button>`;
+            }
+
+            // زر "التالي"
+            if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
+                    ${Alpine.store('i18n').t('next')}
+                </button>`;
+            }
+
+            paginationHTML += '</nav></div>';
+            return paginationHTML;
         },
 
         async addFeature() {
@@ -193,7 +246,7 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', Alpine.store('i18n').t('feature_added_successfully'));
                     this.form.plan_id = '';
                     this.form.feature = '';
-                    await this.fetchFeatures();
+                    await this.fetchFeatures(this.currentPage);
                 } else {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_feature'));
                 }
@@ -255,9 +308,10 @@ document.addEventListener('alpine:init', () => {
                     });
 
                     const result = await response.json();
+
                     if (response.ok && result.status) {
                         coloredToast('success', Alpine.store('i18n').t('feature_updated_successfully'));
-                        await this.fetchFeatures();
+                        await this.fetchFeatures(this.currentPage);
                     } else {
                         throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_feature'));
                     }
@@ -293,7 +347,7 @@ document.addEventListener('alpine:init', () => {
                     const data = await response.json();
                     if (response.ok && data.status) {
                         coloredToast('success', Alpine.store('i18n').t('feature_deleted_successfully'));
-                        await this.fetchFeatures();
+                        await this.fetchFeatures(this.currentPage);
                     } else {
                         throw new Error(data.message || Alpine.store('i18n').t('failed_to_delete_feature'));
                     }

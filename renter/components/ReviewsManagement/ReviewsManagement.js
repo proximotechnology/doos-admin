@@ -100,7 +100,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                this.reviews = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : data.data;
+                console.log(data);
+                
+                this.reviews = Array.isArray(data.data.data) ? data.data.data : Array.isArray(data.data) ? data.data : data.data.data;
 
                 this.populateTable();
 
