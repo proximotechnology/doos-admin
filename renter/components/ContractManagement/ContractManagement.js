@@ -22,8 +22,33 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
+    function coloredToast(color, message) {
+        const toast = window.Swal.mixin({
+            toast: true,
+            position: 'bottom-start',
+            showConfirmButton: false,
+            timer: 3000,
+            showCloseButton: true,
+            customClass: {
+                popup: `color-${color}`,
+            },
+        });
+        toast.fire({
+            title: message,
+        });
+    }
+
     Alpine.data('contractsTable', () => ({
         tableData: [],
+        paginationMeta: {
+            current_page: 1,
+            last_page: 1,
+            per_page: 10,
+            total: 0,
+            from: 0,
+            to: 0,
+            links: []
+        },
         meta: {
             total: 0,
             pending: 0,
@@ -31,7 +56,8 @@ document.addEventListener('alpine:init', () => {
             completed: 0
         },
         datatable: null,
-        apiBaseUrl: 'http://localhost:8000',
+        apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        currentPage: 1,
         filters: {
             status: '',
             start_date: '',
@@ -40,7 +66,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initComponent() {
-            await this.fetchContracts();
+            await this.fetchContracts(1);
 
             // Event Delegation for buttons
             document.addEventListener('click', (e) => {
@@ -48,21 +74,26 @@ document.addEventListener('alpine:init', () => {
                     const contractId = e.target.closest('.view-contract-btn').dataset.id;
                     this.showContractDetails(contractId);
                 }
+                if (e.target.closest('.pagination-btn')) {
+                    const page = e.target.closest('.pagination-btn').dataset.page;
+                    this.fetchContracts(page);
+                }
             });
         },
 
-        async fetchContracts() {
+        async fetchContracts(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
+                this.currentPage = page;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
-                    this.showError('Authentication token is missing. Please log in.');
+                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
                     window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
-                const queryParams = new URLSearchParams();
+                const queryParams = new URLSearchParams({ page, per_page: 10 });
                 if (this.filters.status) queryParams.append('status', this.filters.status);
                 if (this.filters.start_date) queryParams.append('start_date', this.filters.start_date);
                 if (this.filters.end_date) queryParams.append('end_date', this.filters.end_date);
@@ -77,12 +108,25 @@ document.addEventListener('alpine:init', () => {
                     },
                 });
 
+                if (!response.ok) {
+                    throw new Error(Alpine.store('i18n').t('failed_fetch_contracts'));
+                }
+
                 const data = await response.json();
 
-                if (data.status && data.data) {
-                    this.tableData = data.data;
+                if (data.status && Array.isArray(data.data.data)) {
+                    this.tableData = data.data.data;
+                    this.paginationMeta = {
+                        current_page: data.data.current_page || 1,
+                        last_page: data.data.last_page || 1,
+                        per_page: data.data.per_page || 10,
+                        total: data.data.total || this.tableData.length,
+                        from: data.data.data.from || 1,
+                        to: data.to || this.tableData.length,
+                        links: data.data.links || []
+                    };
                     this.meta = {
-                        total: data.data.length,
+                        total: this.paginationMeta.total,
                         pending: this.tableData.filter(contract => contract.status === 'pending').length,
                         active: this.tableData.filter(contract => contract.status === 'active').length,
                         completed: this.tableData.filter(contract => contract.status === 'completed').length
@@ -95,9 +139,10 @@ document.addEventListener('alpine:init', () => {
                         loadingIndicator.hideTableLoader();
                     }
                 } else {
-                    throw new Error('Invalid response format');
+                    throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
+                console.error('Error fetching contracts:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -105,7 +150,39 @@ document.addEventListener('alpine:init', () => {
         },
 
         applyFilters() {
-            this.fetchContracts();
+            this.currentPage = 1;
+            this.fetchContracts(1);
+        },
+
+        generatePaginationHTML() {
+            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+
+            let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
+            paginationHTML += '<nav class="flex items-center space-x-2 rtl:space-x-reverse">';
+
+            if (this.paginationMeta.current_page > 1) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page - 1}">
+                    ${Alpine.store('i18n').t('previous')}
+                </button>`;
+            }
+
+            const startPage = Math.max(1, this.paginationMeta.current_page - 2);
+            const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary bg-blue-600 text-white' : 'btn-outline-primary border border-blue-600 text-blue-600'} rounded-md px-3 py-1 hover:bg-blue-100" data-page="${i}">
+                    ${i}
+                </button>`;
+            }
+
+            if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page + 1}">
+                    ${Alpine.store('i18n').t('next')}
+                </button>`;
+            }
+
+            paginationHTML += '</nav></div>';
+            return paginationHTML;
         },
 
         populateTable() {
@@ -114,7 +191,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((contract, index) => [
-                this.formatText(contract.id),
+                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatCarInfo(contract.booking?.car),
                 this.formatText(contract.booking?.car?.owner?.name),
                 this.formatText(contract.booking?.user?.name),
@@ -141,11 +218,10 @@ document.addEventListener('alpine:init', () => {
                 perPageSelect: [10, 20, 30, 50, 100],
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
-                firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
-                lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
-                prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
-                nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
-                labels: { perPage: '{select}' },
+                firstText: this.generatePaginationHTML('first'),
+                lastText: this.generatePaginationHTML('last'),
+                prevText: this.generatePaginationHTML('prev'),
+                nextText: this.generatePaginationHTML('next'),
                 layout: {
                     top: '{search}',
                     bottom: '{info}{select}{pager}',
