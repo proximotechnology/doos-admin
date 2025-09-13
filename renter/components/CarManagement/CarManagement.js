@@ -22,15 +22,59 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
+    function coloredToast(color, message) {
+        const toast = window.Swal.mixin({
+            toast: true,
+            position: 'bottom-start',
+            showConfirmButton: false,
+            timer: 3000,
+            showCloseButton: true,
+            customClass: {
+                popup: `color-${color}`,
+            },
+        });
+        toast.fire({
+            title: message,
+        });
+    }
+
+    function loadGoogleMapsAPI(callback) {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            callback();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        script.onload = callback;
+        script.onerror = function () {
+            console.error('Failed to load Google Maps API');
+            coloredToast('danger', Alpine.store('i18n').t('failed_to_load_map'));
+        };
+        document.head.appendChild(script);
+    }
+
     Alpine.data('carsTable', () => ({
         tableData: [],
         meta: {
             total: 0,
             active: 0,
-            inactive: 0
+            inactive: 0,
+            rejected: 0
+        },
+        paginationMeta: {
+            current_page: 1,
+            last_page: 1,
+            per_page: 10,
+            total: 0,
+            from: 0,
+            to: 0,
+            links: []
         },
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        currentPage: 1,
         filters: {
             status: '',
             year: '',
@@ -39,13 +83,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initComponent() {
-            // Load Google Maps API when the component initializes
-            loadGoogleMapsAPI(() => {
-            });
+            loadGoogleMapsAPI(() => { });
 
-            await this.fetchCars();
-
-            // Event Delegation for buttons
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.view-car-btn')) {
                     const carId = e.target.closest('.view-car-btn').dataset.id;
@@ -63,21 +102,28 @@ document.addEventListener('alpine:init', () => {
                     const carId = e.target.closest('.change-status-btn').dataset.id;
                     this.changeStatus(carId);
                 }
+                if (e.target.closest('.pagination-btn')) {
+                    const page = e.target.closest('.pagination-btn').dataset.page;
+                    this.fetchCars(page);
+                }
             });
+
+            await this.fetchCars(1);
         },
 
-        async fetchCars() {
+        async fetchCars(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
+                this.currentPage = parseInt(page);
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
-                    this.showError('Authentication token is missing. Please log in.');
+                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
                     window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
-                const queryParams = new URLSearchParams();
+                const queryParams = new URLSearchParams({ page, per_page: 10 });
                 if (this.filters.status) queryParams.append('status', this.filters.status);
                 if (this.filters.year) queryParams.append('year', this.filters.year);
                 if (this.filters.min_price) queryParams.append('min_price', this.filters.min_price);
@@ -92,14 +138,29 @@ document.addEventListener('alpine:init', () => {
                     },
                 });
 
-                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(Alpine.store('i18n').t('failed_to_load'));
+                }
 
-                if (data.status && data.data) {
+                const data = await response.json();
+                console.log(data.data);
+
+                if (Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
+                    this.paginationMeta = {
+                        current_page: data.data.current_page || 1,
+                        last_page: data.data.last_page || 1,
+                        per_page: data.data.per_page || 10,
+                        total: data.data.total || 0,
+                        from: data.data.from || 0,
+                        to: data.data.to || 0,
+                        links: data.data.links || []
+                    };
                     this.meta = {
-                        total: data.data.total,
+                        total: data.data.total || this.tableData.length,
                         active: this.tableData.filter(car => car.status === 'active').length,
-                        inactive: this.tableData.filter(car => car.status === 'inactive').length
+                        inactive: this.tableData.filter(car => car.status === 'inactive').length,
+                        rejected: this.tableData.filter(car => car.status === 'rejected').length
                     };
 
                     if (this.tableData.length === 0) {
@@ -109,9 +170,10 @@ document.addEventListener('alpine:init', () => {
                         loadingIndicator.hideTableLoader();
                     }
                 } else {
-                    throw new Error('Invalid response format');
+                    throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
+                console.error('Error fetching cars:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -119,7 +181,39 @@ document.addEventListener('alpine:init', () => {
         },
 
         applyFilters() {
-            this.fetchCars();
+            this.currentPage = 1;
+            this.fetchCars(1);
+        },
+
+        generatePaginationHTML() {
+            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+
+            let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
+            paginationHTML += '<nav class="flex items-center space-x-2 rtl:space-x-reverse">';
+
+            if (this.paginationMeta.current_page > 1) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page - 1}">
+                    ${Alpine.store('i18n').t('previous')}
+                </button>`;
+            }
+
+            const startPage = Math.max(1, this.paginationMeta.current_page - 2);
+            const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary bg-blue-600 text-white' : 'btn-outline-primary border border-blue-600 text-blue-600'} rounded-md px-3 py-1 hover:bg-blue-100" data-page="${i}">
+                    ${i}
+                </button>`;
+            }
+
+            if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page + 1}">
+                    ${Alpine.store('i18n').t('next')}
+                </button>`;
+            }
+
+            paginationHTML += '</nav></div>';
+            return paginationHTML;
         },
 
         populateTable() {
@@ -128,9 +222,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((car, index) => [
-                this.formatText(car.id),
+                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatCarInfo(car),
-                this.formatText(car.years.year),
+                this.formatText(car.years?.year || 'N/A'),
                 this.formatPrice(car.price),
                 this.formatStatus(car.status),
                 this.formatDate(car.created_at),
@@ -152,7 +246,7 @@ document.addEventListener('alpine:init', () => {
                 },
                 searchable: true,
                 perPage: 10,
-                perPageSelect: [10, 20, 30, 50, 100],
+                perPageSelect: false,
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
                 firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
@@ -162,7 +256,7 @@ document.addEventListener('alpine:init', () => {
                 labels: { perPage: '{select}' },
                 layout: {
                     top: '{search}',
-                    bottom: '{info}{select}{pager}',
+                    bottom: this.generatePaginationHTML() + '{info}{pager}',
                 },
             });
         },
@@ -189,12 +283,12 @@ document.addEventListener('alpine:init', () => {
 
         formatDate(dateString) {
             if (!dateString) return Alpine.store('i18n').t('na');
-            return new Date(dateString).toLocaleDateString();
+            return new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' });
         },
 
         formatPrice(price) {
             if (!price) return Alpine.store('i18n').t('na');
-            return `$${parseFloat(price).toFixed(2)}`;
+            return `${parseFloat(price).toFixed(2)} ${Alpine.store('i18n').t('currency')}`;
         },
 
         formatStatus(status) {
@@ -210,59 +304,52 @@ document.addEventListener('alpine:init', () => {
         getActionButtons(carId) {
             return `
                 <div class="flex items-center gap-1 justify-center">
-                    <!-- View Car Details Button -->
-                    <button class="btn view-car-btn btn-primary btn-sm" data-id="${carId}">
+                    <button class="btn view-car-btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('view_details')}
                     </button>
-
-                    <!-- Edit Features Button -->
-                    <button class="btn edit-features-btn btn-warning btn-sm" data-id="${carId}">
+                    <button class="btn edit-features-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('edit_features')}
                     </button>
-
-                    <!-- Change Status Button -->
-                    <button class="btn change-status-btn btn-info btn-sm" data-id="${carId}">
+                    <button class="btn change-status-btn btn-info btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('change_status')}
                     </button>
-
-                    <!-- Delete Car Button -->
-                    <button class="btn delete-car-btn btn-danger btn-sm" data-id="${carId}">
+                    <button class="btn delete-car-btn btn-danger btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('delete_car')}
                     </button>
                 </div>`;
         },
+
         async changeStatus(carId) {
             try {
                 const car = this.tableData.find(c => c.id == carId);
                 if (!car) {
-                    throw new Error('Car not found');
+                    throw new Error(Alpine.store('i18n').t('car_not_found'));
                 }
 
                 let statusHtml = `
-            <div class="text-left max-h-96 overflow-y-auto">
-                <div class="mb-4">
-                    <label class="block mb-2 font-medium">${Alpine.store('i18n').t('select_status')}</label>
-                    <select id="statusSelect" class="swal2-input w-full">
-                        <option value="active" ${car.status === 'active' ? 'selected' : ''}>${Alpine.store('i18n').t('active')}</option>
-                        <option value="inactive" ${car.status === 'inactive' ? 'selected' : ''}>${Alpine.store('i18n').t('inactive')}</option>
-                        <option value="rejected" ${car.status === 'rejected' ? 'selected' : ''}>${Alpine.store('i18n').t('rejected')}</option>
-                    </select>
-                </div>
-                
-                <div id="rejectionReasonsSection" class="hidden">
-                    <label class="block mb-2 font-medium">${Alpine.store('i18n').t('rejection_reasons')}</label>
-                    <div id="rejectionReasonsContainer" class="space-y-2 mb-3">
-                        <div class="flex items-center gap-2 reason-item">
-                            <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
-                            <button type="button" class="btn btn-danger btn-sm remove-reason-btn hidden">×</button>
+                    <div class="text-right max-h-96 overflow-y-auto">
+                        <div class="mb-4">
+                            <label class="block mb-2 font-medium">${Alpine.store('i18n').t('select_status')}</label>
+                            <select id="statusSelect" class="swal2-input w-full">
+                                <option value="active" ${car.status === 'active' ? 'selected' : ''}>${Alpine.store('i18n').t('active')}</option>
+                                <option value="inactive" ${car.status === 'inactive' ? 'selected' : ''}>${Alpine.store('i18n').t('inactive')}</option>
+                                <option value="rejected" ${car.status === 'rejected' ? 'selected' : ''}>${Alpine.store('i18n').t('rejected')}</option>
+                            </select>
+                        </div>
+                        <div id="rejectionReasonsSection" class="hidden">
+                            <label class="block mb-2 font-medium">${Alpine.store('i18n').t('rejection_reasons')}</label>
+                            <div id="rejectionReasonsContainer" class="space-y-2 mb-3">
+                                <div class="flex items-center gap-2 reason-item">
+                                    <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
+                                    <button type="button" class="btn btn-danger btn-sm remove-reason-btn hidden">×</button>
+                                </div>
+                            </div>
+                            <button type="button" id="addReasonBtn" class="btn btn-secondary btn-sm w-full">
+                                + ${Alpine.store('i18n').t('add_new_reason')}
+                            </button>
                         </div>
                     </div>
-                    <button type="button" id="addReasonBtn" class="btn btn-secondary btn-sm w-full">
-                        + ${Alpine.store('i18n').t('add_new_reason')}
-                    </button>
-                </div>
-            </div>
-        `;
+                `;
 
                 const result = await Swal.fire({
                     title: Alpine.store('i18n').t('change_status'),
@@ -290,9 +377,9 @@ document.addEventListener('alpine:init', () => {
                             const newReasonItem = document.createElement('div');
                             newReasonItem.className = 'flex items-center gap-2 reason-item';
                             newReasonItem.innerHTML = `
-                        <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
-                        <button type="button" class="btn btn-danger btn-sm remove-reason-btn">×</button>
-                    `;
+                                <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
+                                <button type="button" class="btn btn-danger btn-sm remove-reason-btn">×</button>
+                            `;
                             reasonsContainer.appendChild(newReasonItem);
 
                             newReasonItem.querySelector('.remove-reason-btn').addEventListener('click', function () {
@@ -335,39 +422,33 @@ document.addEventListener('alpine:init', () => {
                     const token = localStorage.getItem('authToken');
 
                     if (!token) {
-                        throw new Error('Authentication token not found');
+                        throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                     }
 
                     const apiUrl = `${this.apiBaseUrl}/api/admin/cars/update_car_status/${carId}`;
 
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'Authorization': `Bearer ${token}`,
-                            },
-                            body: JSON.stringify(result.value)
-                        });
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(result.value)
+                    });
 
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                        }
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`${Alpine.store('i18n').t('failed_update_status')}: ${errorText}`);
+                    }
 
-                        const responseData = await response.json();
+                    const responseData = await response.json();
 
-                        if (responseData.status) {
-                            coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
-                            await this.fetchCars();
-                        } else {
-                            throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
-                        }
-
-                    } catch (fetchError) {
-                        console.error('Fetch error details:', fetchError);
-                        throw new Error(`Failed to update status: ${fetchError.message}`);
+                    if (responseData.status) {
+                        coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
+                        await this.fetchCars(this.currentPage);
+                    } else {
+                        throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
                     }
                 }
             } catch (error) {
@@ -384,9 +465,8 @@ document.addEventListener('alpine:init', () => {
 
                 const car = this.tableData.find(c => c.id == carId);
                 if (!car) {
-                    throw new Error('Car details not found');
+                    throw new Error(Alpine.store('i18n').t('car_not_found'));
                 }
-
 
                 let imagesHtml = '';
                 if (car.car_image && car.car_image.length > 0) {
@@ -420,7 +500,7 @@ document.addEventListener('alpine:init', () => {
                                     <span class="font-medium text-gray-800 dark:text-white text-base">${car.owner.email || 'N/A'}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('phone')}:</span>
+                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('phone')}:</label>
                                     <span class="font-medium text-gray-800 dark:text-white text-base">${car.owner.phone || 'N/A'}</span>
                                 </div>
                             </div>
@@ -504,20 +584,19 @@ document.addEventListener('alpine:init', () => {
                     </div>
                 ` : '';
 
-                // Map HTML with validation
                 let mapHtml = '';
                 const lat = parseFloat(car.lat);
                 const lng = parseFloat(car.lang);
-                if (car.lat && car.lang) {
+                if (!isNaN(lat) && !isNaN(lng)) {
                     mapHtml = `
                         <div class="mt-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
                             <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('location')}</h4>
                             <div class="mb-2 text-green-700 dark:text-green-200">
-                                Latitude: ${lat.toFixed(6)}, Longitude: ${lng.toFixed(6)}
+                                ${Alpine.store('i18n').t('latitude')}: ${lat.toFixed(6)}, ${Alpine.store('i18n').t('longitude')}: ${lng.toFixed(6)}
                             </div>
                             <div id="map-${car.id}" class="h-64 w-full rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div id="map-loading-${car.id}" class="flex items-center justify-center h-full">
-                                    Loading map...
+                                    ${Alpine.store('i18n').t('loading_map')}
                                 </div>
                             </div>
                         </div>
@@ -527,7 +606,7 @@ document.addEventListener('alpine:init', () => {
                         <div class="mt-6 rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
                             <h4 class="mb-3 text-lg font-semibold text-red-800 dark:text-red-300">${Alpine.store('i18n').t('location')}</h4>
                             <div class="text-red-700 dark:text-red-200">
-                                ${Alpine.store('i18n').t('invalid_coordinates')}: Latitude: ${car.lat || 'N/A'}, Longitude: ${car.lang || 'N/A'}
+                                ${Alpine.store('i18n').t('invalid_coordinates')}: ${Alpine.store('i18n').t('latitude')}: ${car.lat || 'N/A'}, ${Alpine.store('i18n').t('longitude')}: ${car.lang || 'N/A'}
                             </div>
                         </div>
                     `;
@@ -549,7 +628,7 @@ document.addEventListener('alpine:init', () => {
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('year')}:</span>
-                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.years.year || 'N/A'}</span>
+                                        <span class="font-medium text-blue-900 dark:text-white text-base">${car.years?.year || 'N/A'}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('vin')}:</span>
@@ -561,21 +640,20 @@ document.addEventListener('alpine:init', () => {
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
                                 <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('pricing_info')}</h4>
                                 <div class="space-y-3">
                                     <div class="flex justify-between">
                                         <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('price')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">$${car.price || '0.00'}/day</span>
+                                        <span class="font-medium text-green-900 dark:text-white text-base">${this.formatPrice(car.price)}/${Alpine.store('i18n').t('day')}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('min_day_trip')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.min_day_trip || 'N/A'} days</span>
+                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.min_day_trip || 'N/A'} ${Alpine.store('i18n').t('days')}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('max_day_trip')}:</span>
-                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.max_day_trip || 'N/A'} days</span>
+                                        <span class="font-medium text-green-900 dark:text-white text-base">${car.max_day_trip || 'N/A'} ${Alpine.store('i18n').t('days')}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('advanced_notice')}:</span>
@@ -584,7 +662,6 @@ document.addEventListener('alpine:init', () => {
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
                             <h4 class="mb-3 text-lg font-semibold text-purple-800 dark:text-purple-300">${Alpine.store('i18n').t('additional_info')}</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -613,7 +690,7 @@ document.addEventListener('alpine:init', () => {
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <span class="text-purple-700 dark:text-purple-200 text-base">${Alpine.store('i18n').t('status')}:</span>
-                                        <span class="font-medium ${car.status === 'active' ? 'text-green-600' : 'text-red-600'} text-base">${Alpine.store('i18n').t(car.status)}</span>
+                                        <span class="font-medium ${car.status === 'active' ? 'text-green-600' : car.status === 'rejected' ? 'text-red-600' : 'text-yellow-600'} text-base">${Alpine.store('i18n').t(car.status)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -622,7 +699,6 @@ document.addEventListener('alpine:init', () => {
                                 <p class="text-purple-900 dark:text-white bg-white dark:bg-gray-800 p-3 rounded-md border border-purple-200 dark:border-purple-700 text-base">${car.description || 'N/A'}</p>
                             </div>
                         </div>
-                        
                         ${dynamicFeaturesHtml}
                         ${licenseImageHtml}
                         ${mapHtml}
@@ -634,7 +710,7 @@ document.addEventListener('alpine:init', () => {
                 document.getElementById('carDetailsContent').innerHTML = detailsHtml;
                 document.getElementById('carDetailsModal').classList.remove('hidden');
 
-                if (car.lat && car.lang) {
+                if (!isNaN(lat) && !isNaN(lng)) {
                     loadGoogleMapsAPI(() => {
                         this.initMap(car.id, lat, lng);
                     });
@@ -642,10 +718,9 @@ document.addEventListener('alpine:init', () => {
                     console.warn('Invalid coordinates for car ID:', car.id, { lat: car.lat, lng: car.lang });
                     coloredToast('warning', Alpine.store('i18n').t('invalid_coordinates'));
                 }
-
             } catch (error) {
                 console.error('Error in showCarDetails:', error);
-                coloredToast('danger', 'Failed to load car details: ' + error.message);
+                coloredToast('danger', Alpine.store('i18n').t('failed_to_load_car_details') + ': ' + error.message);
             } finally {
                 loadingIndicator.hide();
             }
@@ -658,50 +733,44 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            // Hide map loading indicator
             const mapLoading = document.getElementById(`map-loading-${carId}`);
             if (mapLoading) mapLoading.style.display = 'none';
-
 
             const map = new google.maps.Map(mapElement, {
                 zoom: 15,
                 center: { lat, lng },
-                mapTypeControl: false, streetViewControl: false
-
+                mapTypeControl: false,
+                streetViewControl: false
             });
 
             new google.maps.Marker({
                 position: { lat, lng },
-                draggable: true,
-                animation: google.maps.Animation.DROP,
-
                 map: map,
-                title: 'Car Location',
+                title: Alpine.store('i18n').t('car_location'),
                 icon: {
                     url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
                     scaledSize: new google.maps.Size(40, 40)
                 }
             });
 
-            // Force map resize to ensure proper rendering
             setTimeout(() => {
                 google.maps.event.trigger(map, 'resize');
                 map.setCenter({ lat, lng });
-            }, 500); // Increase to 500ms
+            }, 500);
         },
 
         async editFeatures(carId) {
             try {
                 const car = this.tableData.find(c => c.id == carId);
                 if (!car) {
-                    throw new Error('Car not found');
+                    throw new Error(Alpine.store('i18n').t('car_not_found'));
                 }
 
                 const features = car.cars_features || {};
                 const excludedKeys = ['id', 'cars_id', 'created_at', 'updated_at', 'additional_features'];
 
                 const featureFields = Object.entries(features)
-                    .filter(([key, value]) => !excludedKeys.includes(key))
+                    .filter(([key]) => !excludedKeys.includes(key))
                     .map(([key, value]) => {
                         const translatedLabel = Alpine.store('i18n').t(key) || key.replace(/_/g, ' ');
                         return `
@@ -718,7 +787,7 @@ document.addEventListener('alpine:init', () => {
                 const { value: formValues } = await Swal.fire({
                     title: Alpine.store('i18n').t('edit_features'),
                     html: `
-                        <div class="text-left max-h-96 overflow-y-auto">
+                        <div class="text-right max-h-96 overflow-y-auto">
                             ${featureFields}
                         </div>
                     `,
@@ -736,14 +805,9 @@ document.addEventListener('alpine:init', () => {
                                 if (inputElement) {
                                     let inputValue = inputElement.value;
                                     if (key === 'all_have_seatbelts') {
-                                        inputValue = parseInt(inputValue);
+                                        inputValue = parseInt(inputValue) || 0;
                                     } else if (key === 'num_of_door' || key === 'num_of_seat') {
                                         inputValue = inputValue ? parseInt(inputValue) : null;
-                                    } else if (key === 'additional_features') {
-                                        inputValue = inputValue
-                                            .split(',')
-                                            .map(item => item.trim())
-                                            .filter(item => item);
                                     }
                                     formData[key] = inputValue;
                                 }
@@ -770,12 +834,13 @@ document.addEventListener('alpine:init', () => {
                     const result = await response.json();
                     if (response.ok) {
                         coloredToast('success', Alpine.store('i18n').t('car_updated_successfully'));
-                        await this.fetchCars();
+                        await this.fetchCars(this.currentPage);
                     } else {
                         throw new Error(result.message || Alpine.store('i18n').t('failed_update_car'));
                     }
                 }
             } catch (error) {
+                console.error('Error in editFeatures:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -806,12 +871,13 @@ document.addEventListener('alpine:init', () => {
                     const data = await response.json();
                     if (response.ok) {
                         coloredToast('success', Alpine.store('i18n').t('car_deleted_successfully'));
-                        await this.fetchCars();
+                        await this.fetchCars(this.currentPage);
                     } else {
                         throw new Error(data.message || Alpine.store('i18n').t('failed_delete_car'));
                     }
                 }
             } catch (error) {
+                console.error('Error in deleteCar:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -821,7 +887,7 @@ document.addEventListener('alpine:init', () => {
         showSuccess(message) {
             Swal.fire({
                 icon: 'success',
-                title: 'Success',
+                title: Alpine.store('i18n').t('success'),
                 text: message,
                 timer: 3000,
                 showConfirmButton: false
@@ -831,43 +897,9 @@ document.addEventListener('alpine:init', () => {
         showError(message) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
+                title: Alpine.store('i18n').t('error'),
                 text: message
             });
         }
     }));
 });
-
-coloredToast = (color, message) => {
-    const toast = Swal.mixin({
-        toast: true,
-        position: 'bottom-start',
-        showConfirmButton: false,
-        timer: 3000,
-        showCloseButton: true,
-        animation: false,
-        customClass: {
-            popup: `color-${color}`,
-        },
-    });
-    toast.fire({
-        title: message,
-    });
-};
-
-function loadGoogleMapsAPI(callback) {
-    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
-        callback();
-        return;
-    }
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = callback;
-    script.onerror = function () {
-        console.error('Failed to load Google Maps API');
-        coloredToast('danger', Alpine.store('i18n').t('failed_to_load_map'));
-    };
-    document.head.appendChild(script);
-}
