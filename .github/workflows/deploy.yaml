@@ -49,15 +49,22 @@ jobs:
                   ls -lah deploy.zip
 
             # 5. Upload ZIP to VPS
+            # 7. Upload ZIP to VPS
             - name: Upload ZIP to VPS
               uses: appleboy/scp-action@v0.1.7
               with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  host: 67.223.117.9
+                  username: root
+                  key: |
+                      -----BEGIN OPENSSH PRIVATE KEY-----
+                      b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                      QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
+                      ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
+                      AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
+                      uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+                      -----END OPENSSH PRIVATE KEY-----
                   source: deploy.zip
                   target: /var/www/html/doosdoostest
-                  strip_components: 1
 
             # 6. SSH into VPS and deploy
             - name: Deploy on VPS
