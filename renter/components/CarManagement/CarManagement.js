@@ -310,7 +310,7 @@ document.addEventListener('alpine:init', () => {
                     <button class="btn edit-features-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('edit_features')}
                     </button>
-                    <button class="btn change-status-btn btn-info btn-sm rounded-md px-3 py-1" data-id="${carId}">
+                    <button class="btn change-status-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('change_status')}
                     </button>
                     <button class="btn delete-car-btn btn-danger btn-sm rounded-md px-3 py-1" data-id="${carId}">
