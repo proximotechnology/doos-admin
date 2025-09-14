@@ -3,7 +3,7 @@ name: Deploy Doos Admin Dashboard
 on:
     push:
         branches:
-            - main
+            - main 
 
 jobs:
     deploy:
