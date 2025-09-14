@@ -136,7 +136,7 @@ document.addEventListener('alpine:init', () => {
 
         formatDate(dateString) {
             if (!dateString) return Alpine.store('i18n').t('na');
-            return new Date(dateString).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+            return new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' });
         },
 
         formatText(text) {
