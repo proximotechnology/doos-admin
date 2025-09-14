@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title x-text="$store.i18n.t('roles_management')"></title>
+    </head>
+    <body>
+        <ul class="flex space-x-2 rtl:space-x-reverse">
+            <li>
+                <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+            </li>
+            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <span x-text="$store.i18n.t('permissions_management')"></span>
+            </li>
+        </ul>
+
+        <div class="pt-5">
+            <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                    <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                    <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                </div>
+            </div>
+            <div x-data="permissionTable" x-init="fetchPermissions()">
+                <div class="panel mt-6">
+                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0" x-text="$store.i18n.t('permissions')"></h5>
+                    <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                    </div>
+                    <table id="permissionsTable" class="whitespace-nowrap"></table>
+                    <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_permissions')"></h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_permissions_found')"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

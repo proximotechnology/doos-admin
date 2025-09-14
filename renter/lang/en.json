@@ -460,5 +460,13 @@
     "name_required": "Name is required",
     "enter_role_name": "Enter role name",
 
-    "ok": "OK"
+    "ok": "OK",
+    "permissions_management": "Permissions Management",
+    "permissions": "Permissions",
+    "permission_name": "Permission Name",
+    "guard_name": "Guard Name",
+
+    "no_permissions": "No Permissions",
+    "no_permissions_found": "No permissions found",
+    "failed_fetch_permissions": "Failed to fetch permissions"
 }

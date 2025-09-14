@@ -461,5 +461,13 @@
     "no_roles": "لا توجد أدوار",
     "no_roles_found": "لم يتم العثور على أدوار",
     "name_required": "الاسم مطلوب",
-    "enter_role_name": "أدخل اسم الدور"
+    "enter_role_name": "أدخل اسم الدور",
+    "permissions_management": "إدارة الصلاحيات",
+    "permissions": "الصلاحيات",
+    "permission_name": "اسم الصلاحية",
+    "guard_name": "اسم الحارس",
+    "no_permissions": "لا توجد صلاحيات",
+    "no_permissions_found": "لم يتم العثور على صلاحيات",
+    "failed_fetch_permissions": "فشل جلب الصلاحيات",
+    "ok": "موافق"
 }
