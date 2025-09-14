@@ -458,5 +458,15 @@
     "guard_name": "Guard Name",
     "no_permissions": "No Permissions",
     "no_permissions_found": "No permissions found",
-    "failed_fetch_permissions": "Failed to fetch permissions"
+    "failed_fetch_permissions": "Failed to fetch permissions",
+    "role_permissions_management": "Role Permissions Management",
+
+    "manage_permissions": "Manage Permissions",
+    "manage_permissions_for": "Manage Permissions for",
+    "close": "Close",
+
+    "permission_updated_successfully": "Permission updated successfully",
+    "failed_to_update_permission": "Failed to update permission",
+
+    "role_not_found": "Role not found"
 }

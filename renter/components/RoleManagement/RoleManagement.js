@@ -145,7 +145,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(roleId, name) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${roleId}" data-name="${name}">
                         ${Alpine.store('i18n').t('update')}
                     </button>
@@ -163,7 +163,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons1(roleId, permissionsCount) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn permissions-btn btn-primary bg-blue-500 text-white rounded-md px-3 py-1 hover:bg-blue-600" data-id="${roleId}" data-name="${this.tableData.find(r => r.id == roleId)?.name}">
                         ${permissionsCount}
                     </button>

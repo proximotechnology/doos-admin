@@ -459,5 +459,12 @@
     "no_permissions": "لا توجد صلاحيات",
     "no_permissions_found": "لم يتم العثور على صلاحيات",
     "failed_fetch_permissions": "فشل جلب الصلاحيات",
-    "ok": "موافق"
+    "ok": "موافق",
+    "role_permissions_management": "إدارة صلاحيات الأدوار",
+
+    "manage_permissions": "إدارة الصلاحيات",
+    "manage_permissions_for": "إدارة الصلاحيات لـ",
+    "close": "إغلاق",
+
+    "failed_to_update_permission": "فشل تحديث الصلاحية"
 }
