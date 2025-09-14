@@ -400,13 +400,11 @@
     "features": "Features",
     "no_features_found": "No Features Found",
     "start_adding_feature": "Start by adding a feature.",
-
     "failed_to_load_plans": "Failed to load plans",
     "failed_to_load_features": "Failed to load features",
     "feature_added_successfully": "Feature added successfully",
     "failed_to_add_feature": "Failed to add feature",
     "edit_feature": "Edit Feature",
-
     "feature_and_plan_required": "Both feature and plan are required",
     "feature_updated_successfully": "Feature updated successfully",
     "failed_to_update_feature": "Failed to update feature",
@@ -423,11 +421,8 @@
     "year_added_successfully": "Year added successfully",
     "failed_update_year": "Failed to update year",
     "year_updated_successfully": "Year updated successfully",
-
     "failed_to_load_brands": "Failed to load brands",
-
     "update_year": "Update Year",
-
     "filter": "Filter",
     "reset_filters": "Reset Filters",
     "search_by_name": "Search by Name",
@@ -437,17 +432,14 @@
     "role": "Role",
     "permission": "Permission",
     "role-permission": "Roles & Permissions",
-
     "roles_management": "Roles Management",
     "add_role": "Add Role",
     "roles": "Roles",
     "role_name": "Role Name",
     "sanctum": "Sanctum",
     "permissions_count": "Permissions Count",
-
     "update_role": "Update Role",
     "confirm_delete_role": "Are you sure you want to delete this role?",
-
     "role_added_successfully": "Role added successfully",
     "role_updated_successfully": "Role updated successfully",
     "role_deleted_successfully": "Role deleted successfully",
@@ -459,13 +451,11 @@
     "no_roles_found": "No roles found",
     "name_required": "Name is required",
     "enter_role_name": "Enter role name",
-
     "ok": "OK",
     "permissions_management": "Permissions Management",
     "permissions": "Permissions",
     "permission_name": "Permission Name",
     "guard_name": "Guard Name",
-
     "no_permissions": "No Permissions",
     "no_permissions_found": "No permissions found",
     "failed_fetch_permissions": "Failed to fetch permissions"

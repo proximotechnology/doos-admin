@@ -402,25 +402,20 @@
     "features": "الميزات",
     "no_features_found": "لم يتم العثور على ميزات",
     "start_adding_feature": "ابدأ بإضافة ميزة",
-
     "failed_to_load_plans": "فشل في تحميل الخطط",
     "failed_to_load_features": "فشل في تحميل الميزات",
     "feature_added_successfully": "تمت إضافة الميزة بنجاح",
     "failed_to_add_feature": "فشل في إضافة الميزة",
     "edit_feature": "تعديل الميزة",
-
     "feature_and_plan_required": "الميزة والخطة مطلوبان",
     "feature_updated_successfully": "تم تحديث الميزة بنجاح",
     "failed_to_update_feature": "فشل في تحديث الميزة",
-
     "feature_deleted_successfully": "تم حذف الميزة بنجاح",
     "failed_to_delete_feature": "فشل في حذف الميزة",
     "feature_plan": "ميزات الخطط",
-
     "years": "السنوات",
     "add_year": "إضافة سنة",
     "add": "إضافة",
-
     "enter_year": "أدخل السنة",
     "invalid_year": "يرجى إدخال سنة صحيحة",
     "no_image_selected": "يرجى اختيار صورة",
@@ -428,11 +423,8 @@
     "year_added_successfully": "تمت إضافة السنة بنجاح",
     "failed_update_year": "فشل تحديث السنة",
     "year_updated_successfully": "تم تحديث السنة بنجاح",
-
     "failed_to_load_brands": "فشل تحميل العلامات التجارية",
-
     "update_year": "تحديث السنة",
-
     "filter": "تصفية",
     "reset_filters": "إعادة تعيين الفلاتر",
     "search_by_name": "البحث حسب الاسم",
@@ -448,9 +440,7 @@
     "role_name": "اسم الدور",
     "sanctum": "Sanctum",
     "permissions_count": "عدد الصلاحيات",
-
     "confirm_delete_role": "هل أنت متأكد من حذف هذا الدور؟",
-
     "role_added_successfully": "تمت إضافة الدور بنجاح",
     "role_updated_successfully": "تم تحديث الدور بنجاح",
     "role_deleted_successfully": "تم حذف الدور بنجاح",
