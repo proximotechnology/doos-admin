@@ -32,6 +32,22 @@
                 width: 100% !important;
                 position: relative;
             }
+
+            /* تحسينات النافذة المنبثقة */
+            .modal-container {
+                display: flex;
+                flex-direction: column;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                flex-shrink: 0;
+            }
+
+            .modal-content {
+                flex: 1;
+                overflow-y: auto;
+            }
         </style>
         <!-- JS Libraries -->
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -145,8 +161,8 @@
         </div>
 
         <div id="carDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900 bg-opacity-70 px-1">
-            <div class="mx-auto my-12 flex max-h-[90vh] w-full max-w-5xl flex-col rounded-2xl border-primary bg-white px-6 py-10 shadow-2xl dark:bg-gray-800">
-                <div class="sticky top-0 z-10 flex items-center justify-between border-b-2 bg-white p-10 dark:border-gray-700 dark:bg-gray-800">
+            <div class="modal-container mx-auto w-full max-w-5xl rounded-2xl border-primary bg-white shadow-2xl dark:bg-gray-800">
+                <div class="modal-header flex items-center justify-between border-b-2 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
                     <h3 class="text-2xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
                     <button
                         type="button"
@@ -156,7 +172,7 @@
                         ✕
                     </button>
                 </div>
-                <div id="carDetailsContent" class="overflow-y-auto p-6 pt-0 text-base">
+                <div id="carDetailsContent" class="modal-content p-6 text-base">
                     <!-- Car details will be loaded here -->
                 </div>
             </div>
