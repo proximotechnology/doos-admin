@@ -47,6 +47,11 @@ document.addEventListener('alpine:init', () => {
                     const roleId = e.target.closest('.update-btn').dataset.id;
                     this.updateRole(roleId);
                 }
+                if (e.target.closest('.permissions-btn')) {
+                    const roleId = e.target.closest('.permissions-btn').dataset.id;
+                    const roleName = e.target.closest('.permissions-btn').dataset.name;
+                    this.showPermissionsModal(roleId, roleName);
+                }
             });
         },
 
@@ -102,7 +107,7 @@ document.addEventListener('alpine:init', () => {
             const mappedData = this.tableData.map((role, index) => [
                 this.formatText(index + 1),
                 this.formatText(role.name),
-                this.formatText(role.permissions_count),
+                this.getActionButtons1(role.id, role.permissions_count),
                 this.formatDate(role.created_at),
                 this.getActionButtons(role.id, role.name),
             ]);
@@ -131,7 +136,7 @@ document.addEventListener('alpine:init', () => {
 
         formatDate(dateString) {
             if (!dateString) return Alpine.store('i18n').t('na');
-            return new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' });
+            return new Date(dateString).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
         },
 
         formatText(text) {
@@ -154,6 +159,19 @@ document.addEventListener('alpine:init', () => {
                         </svg>
                     </button>
                 </div>`;
+        },
+
+        getActionButtons1(roleId, permissionsCount) {
+            return `
+                <div class="flex items-center gap-1 justify-center">
+                    <button class="btn permissions-btn btn-primary bg-blue-500 text-white rounded-md px-3 py-1 hover:bg-blue-600" data-id="${roleId}" data-name="${this.tableData.find(r => r.id == roleId)?.name}">
+                        ${permissionsCount}
+                    </button>
+                </div>`;
+        },
+
+        async showPermissionsModal(roleId, roleName) {
+            Alpine.store('permissionsModal').openModal(roleId, roleName);
         },
 
         async updateRole(roleId) {
@@ -180,6 +198,10 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/roles/${roleId}`, {
                     method: 'DELETE',
                     headers: {
@@ -188,7 +210,12 @@ document.addEventListener('alpine:init', () => {
                     },
                 });
 
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_delete_role'));
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_delete_role'));
+                }
+
                 coloredToast('success', Alpine.store('i18n').t('role_deleted_successfully'));
                 await this.fetchRoles();
             } catch (error) {

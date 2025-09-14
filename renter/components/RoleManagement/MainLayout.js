@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loadComponent('components/RoleManagement/RoleManagement.html', 'role-management-container');
     loadComponent('components/RoleManagement/Modals/UpdateModal.html', 'update-modal-container');
     loadComponent('components/RoleManagement/Modals/DeleteModal.html', 'delete-modal-container');
+    loadComponent('components/RoleManagement/Modals/PermissionsModal.html', 'permissions-modal-container');
+
 });
 
 async function loadComponent(url, containerId) {
