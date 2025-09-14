@@ -48,10 +48,26 @@ jobs:
                   cd ..
                   ls -lah deploy.zip
 
-            # 5. Upload ZIP to VPS
             # 7. Upload ZIP to VPS
             - name: Upload ZIP to VPS
               uses: appleboy/scp-action@v0.1.7
+              with:
+              host: 67.223.117.9
+              username: root
+              key: |
+                  -----BEGIN OPENSSH PRIVATE KEY-----
+                  b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                  QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
+                  ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
+                  AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
+                  uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+                  -----END OPENSSH PRIVATE KEY-----
+              source: deploy.zip
+              target: /var/www/html/doosdoostest
+
+            # 8. SSH into VPS and extract ZIP
+            - name: Deploy on VPS
+              uses: appleboy/ssh-action@v1.2.0
               with:
                   host: 67.223.117.9
                   username: root
@@ -63,92 +79,8 @@ jobs:
                       AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
                       uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
                       -----END OPENSSH PRIVATE KEY-----
-                  source: deploy.zip
-                  target: /var/www/html/doosdoostest
-
-            # 6. SSH into VPS and deploy
-            - name: Deploy on VPS
-              uses: appleboy/ssh-action@v1.2.0
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      echo "Starting deployment process..."
                       cd /var/www/html/doosdoostest
-
-                      # Create backup of current version
-                      if [ -d "admin" ]; then
-                        backup_name="backup_$(date +%Y%m%d_%H%M%S)"
-                        tar -czf "${backup_name}.tar.gz" admin/
-                        echo "Backup created: ${backup_name}.tar.gz"
-                      fi
-
-                      # Remove old admin directory if exists
-                      if [ -d "admin_old" ]; then
-                        rm -rf admin_old
-                      fi
-
-                      # Extract new version to temporary directory
-                      mkdir -p admin_temp
-                      unzip -o deploy.zip -d admin_temp/
-
-                      # Move extracted content to admin directory
-                      if [ -d "admin" ]; then
-                        mv admin admin_old
-                      fi
-
-                      mv admin_temp admin
-
-                      # Set proper permissions
-                      chown -R www-data:www-data admin
-                      chmod -R 755 admin
-                      find admin -type f -exec chmod 644 {} \;
-
-                      # Verify .htaccess file
-                      if [ -f "admin/.htaccess" ]; then
-                        echo ".htaccess file found and deployed"
-                        chmod 644 admin/.htaccess
-                      else
-                        echo "WARNING: .htaccess file not found in deployment"
-                      fi
-
-                      # Verify index.html file
-                      if [ -f "admin/index.html" ]; then
-                        echo "index.html file found and deployed"
-                      else
-                        echo "ERROR: index.html file not found in deployment"
-                        ls -la admin/
-                      fi
-
-                      # Cleanup
+                      unzip -o deploy.zip -d admin
                       rm -f deploy.zip
-                      if [ -d "admin_old" ]; then
-                        rm -rf admin_old
-                      fi
-
-                      # Test Apache configuration
-                      echo "Testing Apache configuration..."
-                      apache2ctl configtest
-
-                      # Reload Apache
-                      echo "Reloading Apache..."
                       systemctl reload apache2
-
-                      # Verify deployment
-                      echo "Deployment verification:"
-                      ls -la admin/
-                      echo "HTML files:"
-                      find admin/ -name "*.html" -o -name "*.htm"
-
-                      # Test if website is accessible
-                      echo "Testing website accessibility..."
-                      curl -I http://localhost/ || true
-
-                      echo "Deployment completed successfully!"
-
-            # 7. Cleanup workspace
-            - name: Cleanup Workspace
-              run: |
-                  rm -rf deploy
-                  rm -f deploy.zip
