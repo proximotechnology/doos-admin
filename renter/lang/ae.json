@@ -437,5 +437,29 @@
     "reset_filters": "إعادة تعيين الفلاتر",
     "search_by_name": "البحث حسب الاسم",
     "no_models": "لم يتم العثور على موديلات",
-    "no_data_available": "لا توجد بيانات متاحة للعرض"
+    "no_data_available": "لا توجد بيانات متاحة للعرض",
+    "spatie-permission": "إدارة الأدوار والصلاحيات",
+    "role": "دور",
+    "permission": "صلاحية",
+    "role-permission": "الأدوار والصلاحيات",
+    "roles_management": "إدارة الأدوار",
+    "add_role": "إضافة دور",
+    "roles": "الأدوار",
+    "role_name": "اسم الدور",
+    "sanctum": "Sanctum",
+    "permissions_count": "عدد الصلاحيات",
+
+    "confirm_delete_role": "هل أنت متأكد من حذف هذا الدور؟",
+
+    "role_added_successfully": "تمت إضافة الدور بنجاح",
+    "role_updated_successfully": "تم تحديث الدور بنجاح",
+    "role_deleted_successfully": "تم حذف الدور بنجاح",
+    "failed_to_add_role": "فشل إضافة الدور",
+    "failed_to_update_role": "فشل تحديث الدور",
+    "failed_to_delete_role": "فشل حذف الدور",
+    "failed_fetch_roles": "فشل جلب الأدوار",
+    "no_roles": "لا توجد أدوار",
+    "no_roles_found": "لم يتم العثور على أدوار",
+    "name_required": "الاسم مطلوب",
+    "enter_role_name": "أدخل اسم الدور"
 }

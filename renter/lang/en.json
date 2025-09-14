@@ -432,5 +432,33 @@
     "reset_filters": "Reset Filters",
     "search_by_name": "Search by Name",
     "no_models": "No Models Found",
-    "no_data_available": "No data available to display."
+    "no_data_available": "No data available to display.",
+    "spatie-permission": "R & P Management",
+    "role": "Role",
+    "permission": "Permission",
+    "role-permission": "Roles & Permissions",
+
+    "roles_management": "Roles Management",
+    "add_role": "Add Role",
+    "roles": "Roles",
+    "role_name": "Role Name",
+    "sanctum": "Sanctum",
+    "permissions_count": "Permissions Count",
+
+    "update_role": "Update Role",
+    "confirm_delete_role": "Are you sure you want to delete this role?",
+
+    "role_added_successfully": "Role added successfully",
+    "role_updated_successfully": "Role updated successfully",
+    "role_deleted_successfully": "Role deleted successfully",
+    "failed_to_add_role": "Failed to add role",
+    "failed_to_update_role": "Failed to update role",
+    "failed_to_delete_role": "Failed to delete role",
+    "failed_fetch_roles": "Failed to fetch roles",
+    "no_roles": "No Roles",
+    "no_roles_found": "No roles found",
+    "name_required": "Name is required",
+    "enter_role_name": "Enter role name",
+
+    "ok": "OK"
 }
