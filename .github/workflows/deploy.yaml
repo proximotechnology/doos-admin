@@ -3,7 +3,7 @@ name: Deploy Doos Admin Dashboard
 on:
     push:
         branches:
-            - main 
+            - main
 
 jobs:
     deploy:
@@ -14,56 +14,45 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v3
 
-            # 2. Debug - List Files
+            # 2. Setup Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+
+            # 3. Install dependencies
+            - name: Install Dependencies
+              run: npm install
+
+            # 4. Build Tailwind CSS
+            # - name: Build Tailwind CSS
+            #   run: npm run build
+
+            # 5. Debug - List Files
             - name: Debug Project Structure
-              run: |
-                  ls -lah
-                  echo "File structure:"
-                  find . -name "*.html" -o -name "*.js" -o -name "*.css" -o -name "*.json" -o -name ".htaccess"
+              run: ls -lah && ls -R
 
-            # 3. Create deployment directory structure
-            - name: Create Deployment Structure
-              run: |
-                  mkdir -p deploy
-                  # Copy all necessary files
-                  cp -r assets/ deploy/assets/
-                  cp -r renter/ deploy/renter/
-                  cp -r uber/ deploy/uber/
-                  cp *.json deploy/ 2>/dev/null || true
-                  cp *.html deploy/ 2>/dev/null || true
-                  cp *.png deploy/ 2>/dev/null || true
-                  cp *.ico deploy/ 2>/dev/null || true
-                  cp .htaccess deploy/ 2>/dev/null || true
-
-                  echo "Deployment structure created:"
-                  ls -la deploy/
-                  echo "HTML files in deploy:"
-                  find deploy/ -name "*.html"
-
-            # 4. Create deployment ZIP
+            # 6. Create deployment ZIP
             - name: Create Deployment ZIP
               run: |
-                  cd deploy
-                  zip -r ../deploy.zip .
-                  cd ..
-                  ls -lah deploy.zip
+                  zip -r deploy.zip assets renter uber lang ae.json en.json index.html favicon.png .htaccess
 
             # 7. Upload ZIP to VPS
             - name: Upload ZIP to VPS
               uses: appleboy/scp-action@v0.1.7
               with:
-              host: 67.223.117.9
-              username: root
-              key: |
-                  -----BEGIN OPENSSH PRIVATE KEY-----
-                  b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-                  QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
-                  ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
-                  AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
-                  uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
-                  -----END OPENSSH PRIVATE KEY-----
-              source: deploy.zip
-              target: /var/www/html/doosdoostest
+                  host: 67.223.117.9
+                  username: root
+                  key: |
+                      -----BEGIN OPENSSH PRIVATE KEY-----
+                      b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                      QyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4AAAAJgaAGq6GgBq
+                      ugAAAAtzc2gtZWQyNTUxOQAAACA74wfcOjf97UHSY+GWiu2CerjL5ZIeu3HbHZ+bVmVG4A
+                      AAAEBwxFBRpbqBOOJ++q1ZMYmF+/1Puh/yZp4V/BauR8Vf2jvjB9w6N/3tQdJj4ZaK7YJ6
+                      uMvlkh67cdsdn5tWZUbgAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+                      -----END OPENSSH PRIVATE KEY-----
+                  source: deploy.zip
+                  target: /var/www/html/doosdoostest
 
             # 8. SSH into VPS and extract ZIP
             - name: Deploy on VPS
