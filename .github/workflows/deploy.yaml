@@ -29,7 +29,6 @@ jobs:
                   cp -r assets/ deploy/assets/
                   cp -r renter/ deploy/renter/
                   cp -r uber/ deploy/uber/
-                  cp -r lang/ deploy/lang/
                   cp *.json deploy/ 2>/dev/null || true
                   cp *.html deploy/ 2>/dev/null || true
                   cp *.png deploy/ 2>/dev/null || true
