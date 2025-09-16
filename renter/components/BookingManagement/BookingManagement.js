@@ -211,7 +211,7 @@ document.addEventListener('alpine:init', () => {
                 this.formatDate(booking.date_end),
                 this.formatPrice(booking.total_price),
                 this.formatText(booking.payment_method),
-                this.formatStatus(booking.status),
+                this.formatStatus(booking.status, booking.id),
                 this.formatDate(booking.created_at),
                 this.getActionButtons(booking.id, booking.status, booking.is_paid),
             ]);
@@ -278,10 +278,14 @@ document.addEventListener('alpine:init', () => {
             return `$${parseFloat(price).toFixed(2)}`;
         },
 
-        formatStatus(status) {
+        formatStatus(status, bookingId) {
+            if (!status) return Alpine.store('i18n').t('na');
             const statusClass = `status-${status}`;
-            const statusText = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'N/A';
-            return `<span class="status-badge ${statusClass}">${Alpine.store('i18n').t(status)}</span>`;
+            const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+            return `
+                <button class="change-status-btn status-badge ${statusClass} btn btn-sm rounded-md px-3 py-1 hover:opacity-80" data-id="${bookingId}">
+                    ${Alpine.store('i18n').t(status)}
+                </button>`;
         },
 
         formatText(text) {
@@ -293,9 +297,6 @@ document.addEventListener('alpine:init', () => {
                 <div class="flex items-center gap-1 justify-center">
                     <button class="btn view-car-btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${bookingId}">
                         ${Alpine.store('i18n').t('view_details')}
-                    </button>
-                    <button class="btn change-status-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${bookingId}">
-                        ${Alpine.store('i18n').t('change_status')}
                     </button>
                     <button class="btn change-payment-btn ${isPaid === '1' ? 'btn-success' : 'btn-danger'} btn-sm rounded-md px-3 py-1" data-id="${bookingId}">
                         ${Alpine.store('i18n').t('change_payment')}
@@ -382,27 +383,27 @@ document.addEventListener('alpine:init', () => {
                                     <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.name || 'N/A'}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('email')}:</span>
+                                    <span class="text-green-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('email')}:</span>
                                     <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.email || 'N/A'}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('phone')}:</span>
+                                    <span class="text-green-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('phone')}:</span>
                                     <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.phone || 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between">
-                                    <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('country')}:</span>
+                                    <span class="text-green-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('country')}:</span>
                                     <span class="font-medium text-green-900 dark:text-white text-base">${car.owner.country || 'N/A'}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('has_license')}:</span>
+                                    <span class="text-green-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('has_license')}:</span>
                                     <span class="font-medium ${car.owner.has_license === '1' ? 'text-green-600' : 'text-red-600'} text-base">
                                         ${car.owner.has_license === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
                                     </span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-green-700 dark:text-green-200 text-base">${Alpine.store('i18n').t('is_company')}:</span>
+                                    <span class="text-green-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('is_company')}:</span>
                                     <span class="font-medium ${car.owner.is_company === '1' ? 'text-green-600' : 'text-red-600'} text-base">
                                         ${car.owner.is_company === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
                                     </span>
