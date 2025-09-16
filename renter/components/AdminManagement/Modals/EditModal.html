@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: inherit;
+                border-bottom: 1px solid #e5e7eb;
+            }
+        </style>
+    </head>
+    <body>
+        <div
+            x-data="{ isUpdating: false }"
+            x-show="$store.editModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.editModal.closeModal()">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 bg-white p-0 shadow-lg dark:bg-gray-800"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="modal-header flex items-center justify-between bg-[#fbfbfb] px-5 py-4 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('edit_admin')"></h5>
+                        <button @click="$store.editModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-5">
+                        <form @submit.prevent="$store.editModal.updateAdmin()">
+                            <div class="grid grid-cols-1 gap-5">
+                                <input type="text" :placeholder="$store.i18n.t('name')" class="form-input" x-model="$store.global.sharedData.name" required />
+                                <select class="form-select" required>
+                                    <option value="web" x-text="$store.i18n.t('admin')"></option>
+                                </select>
+                            </div>
+                            <div class="mt-6 flex items-center justify-end gap-4">
+                                <button
+                                    type="button"
+                                    @click="$store.editModal.closeModal()"
+                                    class="btn btn-outline-danger rounded-md px-4 py-2 text-sm hover:bg-red-50"
+                                    x-text="$store.i18n.t('cancel')"
+                                ></button>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary rounded-md px-4 py-2 text-sm"
+                                    :disabled="isUpdating"
+                                    x-text="$store.i18n.t('update')"
+                                ></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div x-show="isUpdating" class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-800/50">
+                        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

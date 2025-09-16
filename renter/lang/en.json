@@ -468,5 +468,46 @@
     "permission_updated_successfully": "Permission updated successfully",
     "failed_to_update_permission": "Failed to update permission",
 
-    "role_not_found": "Role not found"
+    "role_not_found": "Role not found",
+
+    "admins_management": "Admins Management",
+    "admins": "Admins",
+    "add_admin": "Add Admin",
+    "edit_admin": "Edit Admin",
+    "delete_admin": "Delete Admin",
+
+    "select_role": "Select Role",
+
+    "web": "Web",
+
+    "no_admins": "No Admins",
+    "no_admins_found": "No admins found",
+    "no_admins_description": "No admins were found in the system",
+    "failed_fetch_admins": "Failed to fetch admins",
+    "failed_to_add_admin": "Failed to add admin",
+    "admin_added_success": "Admin added successfully",
+    "admin_updated_success": "Admin updated successfully",
+    "failed_to_update_admin": "Failed to update admin",
+    "admin_deleted_success": "Admin deleted successfully",
+    "failed_to_delete_admin": "Failed to delete admin",
+    "admin_not_found": "Admin not found",
+    "all_fields_required": "All fields are required",
+
+    "draft": "Draft",
+
+    "failed_to_load_car_details": "Failed to load car details",
+    "car_details_not_found": "Car details not found",
+    "select_status_required": "Please select a status",
+    "select_payment_status": "Select Payment Status",
+    "select_payment_status_required": "Please select a payment status",
+    "booking_status_guide": "Booking Status Guide",
+    "draft_description": "When the user creates the booking but has not paid for it.",
+    "pending_description": "After creating the booking and completing the payment.",
+    "confirm_description": "The car owner will review the booking and confirm the order.",
+    "picked_up_description": "After the booking is confirmed by the admin, the renter changes the status to 'Picked Up', meaning the renter has taken the car.",
+    "returned_description": "After picking up the car, when the renter returns it, the status should be changed to 'Returned'.",
+    "completed_description": "After the renter returns the car, the owner checks the car and changes the status to 'Completed'.",
+    "canceled_description": "Canceled by the owner when they want to reject the order, or by the renter when they want to cancel the order.",
+    "note": "Note",
+    "cancel_restriction": "The renter can only cancel the order when the status is 'Pending' or 'Draft', and so can the owner."
 }

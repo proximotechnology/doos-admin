@@ -34,11 +34,12 @@
                         </div>
                         <div class="overflow-hidden">
                             <!-- form grid -->
-                            <form x-data="Add_Category" @submit.prevent="Add_Category">
-                                <div class="grid grid-cols-1 justify-between gap-5 sm:flex">
-                                    <input type="text" :placeholder="$store.i18n.t('enter_name')" class="form-input" x-model="fullname" required />
+                            <form x-data="Add_Brand" @submit.prevent="addBrand">
+                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                    <input type="text" :placeholder="$store.i18n.t('name')" class="form-input" x-model="name" required />
+                                    <input type="text" :placeholder="$store.i18n.t('country')" class="form-input" x-model="country" required />
+                                    <input type="file" :placeholder="$store.i18n.t('image')" class="form-input" x-ref="image" accept="image/*" required />
                                 </div>
-
                                 <button type="submit" class="btn btn-primary mt-6">
                                     <span x-text="$store.i18n.t('create')"></span>
                                 </button>
@@ -46,14 +47,37 @@
                         </div>
                     </div>
                 </div>
-                <div x-data="multipleTable" x-init="fetchManagers()">
-                    <div class="panel mt-6">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0" x-text="$store.i18n.t('brand')"></h5>
+                <div x-data="brandTable" x-init="fetchBrands()">
+                    <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('brand')"></h5>
+                        <!-- Filters -->
+                        <div class="mb-5">
+                            <form @submit.prevent="applyFilters">
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <input
+                                        type="text"
+                                        class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        x-model="filters.name"
+                                        :placeholder="$store.i18n.t('search_by_name')"
+                                    />
+                                    <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                                        <span x-text="$store.i18n.t('filter')"></span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                                        @click="resetFilters"
+                                        x-text="$store.i18n.t('reset_filters')"
+                                    ></button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Table -->
                         <div id="tableLoading" class="flex hidden items-center justify-center py-8">
                             <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                            <span class="ml-2" x-text="$store.i18n.t('loading_data')"></span>
                         </div>
-                        <table id="myTable1" class="whitespace-nowrap"></table>
+                        <table id="brandTable" class="whitespace-nowrap"></table>
                         <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path
@@ -63,8 +87,8 @@
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_plans')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_plan')"></p>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_brands')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_brand')"></p>
                         </div>
                     </div>
                 </div>

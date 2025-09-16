@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-  const loadingIndicator = {
+    const loadingIndicator = {
         show: function () {
             document.getElementById('loadingIndicator').classList.remove('hidden');
         },
@@ -36,9 +36,10 @@ document.addEventListener('alpine:init', () => {
             this.brandId = null;
             Alpine.store('global').sharedData.name = '';
             Alpine.store('global').sharedData.country = '';
+            Alpine.store('global').sharedData.image = '';
         },
 
-        async confirmUpdate() {
+        async updateBrand() {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
@@ -46,23 +47,34 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
+                const formData = new FormData();
+                const name = Alpine.store('global').sharedData.name;
+                formData.append('name', name);
+                formData.append('make_id', name.charAt(0).toUpperCase() + name.slice(1));
+                formData.append('country', Alpine.store('global').sharedData.country);
+
+                const imageInput = document.querySelector('input[type="file"][x-ref="image"]');
+                if (imageInput && imageInput.files[0]) {
+                    formData.append('image', imageInput.files[0]);
+                }
+
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update/${this.brandId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        name: Alpine.store('global').sharedData.name,
-                        country: Alpine.store('global').sharedData.country,
-                    }),
+                    body: formData,
                 });
 
                 const result = await response.json();
-
                 if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_update_brand'));
+                    const errorMsg =
+                        result.message ||
+                        Object.values(result.errors || {})
+                            .flat()
+                            .join('\n') ||
+                        Alpine.store('i18n').t('failed_update_brand');
+                    throw new Error(errorMsg);
                 }
 
                 coloredToast('success', Alpine.store('i18n').t('brand_updated_successfully'));
@@ -73,6 +85,19 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 loadingIndicator.hide();
             }
-        },
+        }
     });
 });
+function coloredToast(color, message) {
+    const toast = Swal.mixin({
+        toast: true,
+        position: 'bottom-start',
+        icon: color === 'success' ? 'success' : 'error',
+        title: message,
+        showConfirmButton: false,
+        timer: 3000,
+        showCloseButton: true,
+        customClass: { popup: `color-${color}` },
+    });
+    toast.fire();
+}

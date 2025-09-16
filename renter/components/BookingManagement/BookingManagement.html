@@ -1,22 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html :lang="$store.i18n.getLocale()" :dir="$store.i18n.getLocale() === 'ar' ? 'rtl' : 'ltr'">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Booking Management</title>
+        <title x-text="$store.i18n.t('booking_management')"></title>
         <!-- CSS Libraries -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
         <script src="https://cdn.tailwindcss.com"></script>
-        <!-- JS Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
-    <body>
-        <div>
-            <ul class="flex space-x-2 rtl:space-x-reverse">
+    <body class="bg-gray-100 font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
+        <div class="container mx-auto p-6">
+            <ul class="flex space-x-2 text-sm text-gray-600 dark:text-gray-400 rtl:space-x-reverse">
                 <li>
                     <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
                 </li>
@@ -37,13 +33,81 @@
                 </div>
 
                 <div x-data="bookingTable" x-init="initComponent()">
+                    <!-- Booking Status Notes Section -->
+                    <div class="panel mb-5 rounded-lg bg-white p-6 shadow dark:bg-gray-800" x-data="{ isNotesOpen: false }">
+                        <button
+                            class="flex w-full items-center justify-between rounded-md bg-gray-50 p-3 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
+                            @click="isNotesOpen = !isNotesOpen"
+                        >
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('booking_status_guide')"></h5>
+                            <svg
+                                class="h-5 w-5 transition-transform duration-300"
+                                :class="{ 'rotate-180': isNotesOpen }"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div
+                            x-show="isNotesOpen"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform scale-95"
+                            x-transition:enter-end="opacity-100 transform scale-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 transform scale-100"
+                            x-transition:leave-end="opacity-0 transform scale-95"
+                            class="mt-4 rounded-md bg-gray-50 p-4 dark:bg-gray-700"
+                        >
+                            <ul class="space-y-3 text-sm">
+                                <li>
+                                    <strong x-text="$store.i18n.t('draft') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('draft_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('pending') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('pending_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('confirm') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('confirm_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('picked_up') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('picked_up_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('returned') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('returned_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('completed') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('completed_description')"></span>
+                                </li>
+                                <li>
+                                    <strong x-text="$store.i18n.t('canceled') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('canceled_description')"></span>
+                                </li>
+                                <li class="italic">
+                                    <strong x-text="$store.i18n.t('note') + ':'"></strong>
+                                    <span x-text="$store.i18n.t('cancel_restriction')"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <!-- Filters Section -->
-                    <div class="panel filter-section mb-5">
+                    <div class="panel filter-section mb-5 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                         <h5 class="mb-3 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('filters')"></h5>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div>
                                 <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
-                                <select class="form-select w-full" x-model="filters.status">
+                                <select
+                                    class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.status"
+                                >
                                     <option value="" x-text="$store.i18n.t('all')"></option>
                                     <option value="pending" x-text="$store.i18n.t('pending')"></option>
                                     <option value="confirmed" x-text="$store.i18n.t('confirmed')"></option>
@@ -51,41 +115,51 @@
                                     <option value="returned" x-text="$store.i18n.t('returned')"></option>
                                     <option value="completed" x-text="$store.i18n.t('completed')"></option>
                                     <option value="canceled" x-text="$store.i18n.t('canceled')"></option>
-
-                                    <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
                                 </select>
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_from')"></label>
-                                <input type="date" class="form-input w-full" x-model="filters.date_from" />
+                                <input
+                                    type="date"
+                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.date_from"
+                                />
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_to')"></label>
-                                <input type="date" class="form-input w-full" x-model="filters.date_to" />
+                                <input
+                                    type="date"
+                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.date_to"
+                                />
                             </div>
                             <div class="flex items-end">
-                                <button class="btn btn-primary w-full" @click="applyFilters()" x-text="$store.i18n.t('apply_filters')"></button>
+                                <button
+                                    class="btn btn-primary w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                                    @click="applyFilters()"
+                                    x-text="$store.i18n.t('apply_filters')"
+                                ></button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="panel mt-6">
+                    <div class="panel mt-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                         <div class="mb-5 flex items-center justify-between">
                             <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('booking_management')"></h5>
-                            <div class="flex space-x-2">
-                                <span class="badge bg-primary" x-text="$store.i18n.t('total') + ': ' + meta.total"></span>
-                                <span class="badge bg-warning" x-text="$store.i18n.t('pending') + ': ' + meta.pending"></span>
-                                <span class="badge bg-info" x-text="$store.i18n.t('picked_up') + ': ' + meta.picked_up"></span>
-                                <span class="badge bg-black" x-text="$store.i18n.t('draft') + ': ' + meta.draft"></span>
-                                <span class="badge bg-secondary" x-text="$store.i18n.t('returned') + ': ' + meta.Returned"></span>
-                                <span class="badge bg-success" x-text="$store.i18n.t('completed') + ': ' + meta.Completed"></span>
-                                <span class="badge bg-danger" x-text="$store.i18n.t('canceled') + ': ' + meta.Canceled"></span>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge rounded-full bg-primary px-3 py-1" x-text="$store.i18n.t('total') + ': ' + meta.total"></span>
+                                <span class="badge rounded-full bg-warning px-3 py-1" x-text="$store.i18n.t('pending') + ': ' + meta.pending"></span>
+                                <span class="badge rounded-full bg-info px-3 py-1" x-text="$store.i18n.t('picked_up') + ': ' + meta.picked_up"></span>
+                                <span class="badge rounded-full bg-black px-3 py-1" x-text="$store.i18n.t('draft') + ': ' + meta.draft"></span>
+                                <span class="badge rounded-full bg-secondary px-3 py-1" x-text="$store.i18n.t('returned') + ': ' + meta.Returned"></span>
+                                <span class="badge rounded-full bg-success px-3 py-1" x-text="$store.i18n.t('completed') + ': ' + meta.Completed"></span>
+                                <span class="badge rounded-full bg-danger px-3 py-1" x-text="$store.i18n.t('canceled') + ': ' + meta.Canceled"></span>
                             </div>
                         </div>
 
                         <div id="tableLoading" class="flex hidden items-center justify-center py-8">
                             <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                            <span class="ltr:ml-2 rtl:mr-2" x-text="$store.i18n.t('loading_data')"></span>
                         </div>
                         <table id="myTable1" class="whitespace-nowrap"></table>
                         <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
@@ -105,24 +179,34 @@
             </div>
         </div>
 
-        <div id="carDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center  p-4">
+        <!-- Only the modal section is updated; the rest of the file remains as in the previous response -->
+        <div id="carDetailsModal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 p-4">
             <div
-                class="modal-container mx-auto my-12 flex max-h-[90vh] w-full max-w-5xl flex-col rounded-2xl border-primary bg-white px-6 py-10 shadow-2xl dark:bg-gray-800 "
+                class="modal-container mx-auto flex max-h-[80vh] w-full max-w-5xl flex-col rounded-2xl border border-primary bg-white shadow-2xl dark:bg-gray-800"
+                x-data="{ scrollY: 0 }"
+                x-init="scrollY = window.scrollY"
+                :style="{ transform: `translateY(${scrollY}px)` }"
             >
-                <div class="modal-header sticky top-0 z-10 flex items-center justify-between border-b-2 bg-white p-10 dark:border-gray-700 dark:bg-gray-800">
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
+                <div class="modal-header flex items-center justify-between border-b-2 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
                     <button
                         type="button"
-                        class="rounded-full p-3 text-lg font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
-                        onclick="document.getElementById('carDetailsModal').classList.add('hidden')"
+                        class="rounded-full p-2 text-lg font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
+                        @click="document.getElementById('carDetailsModal').classList.add('hidden')"
                     >
                         ✕
                     </button>
                 </div>
-                <div id="carDetailsContent" class="modal-content overflow-y-auto p-6 pt-0 text-base">
+                <div id="carDetailsContent" class="modal-content overflow-y-auto p-6 text-base">
                     <!-- Car details will be loaded here -->
                 </div>
             </div>
         </div>
+
+        <!-- JS Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="BookingManagement.js"></script>
     </body>
 </html>

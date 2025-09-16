@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                </li>
+                  <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('users')"></span>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('admins_management')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <div class="mb-6 grid gap-6 xl:grid-cols-1">
+                    <div class="panel h-full">
+                        <div class="mb-5 flex items-center">
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('add_admin')"></h5>
+                        </div>
+                        <div class="overflow-hidden">
+                            <form x-data="Add_Admin" @submit.prevent="addAdmin">
+                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                    <select class="form-select" x-model="role_id" required>
+                                        <option value="" disabled x-text="$store.i18n.t('select_role')"></option>
+                                        <template x-for="role in roles" :key="role.id">
+                                            <option :value="role.id" x-text="role.name"></option>
+                                        </template>
+                                    </select>
+                                    <input type="text" :placeholder="$store.i18n.t('name')" class="form-input" x-model="name" required />
+                                    <input type="email" :placeholder="$store.i18n.t('email')" class="form-input" x-model="email" required />
+                                    <input type="text" :placeholder="$store.i18n.t('phone')" class="form-input" x-model="phone" required />
+                                    <input type="text" :placeholder="$store.i18n.t('country')" class="form-input" x-model="country" required />
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-6">
+                                    <span x-text="$store.i18n.t('create')"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-data="adminsTable" x-init="init()">
+                    <div class="panel mt-6">
+                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('admins')"></h5>
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                        <div id="tableContent" class="hidden">
+                            <div class="table-responsive">
+                                <table class="whitespace-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th x-text="$store.i18n.t('id')"></th>
+                                            <th x-text="$store.i18n.t('name')"></th>
+                                            <th x-text="$store.i18n.t('email')"></th>
+                                            <th x-text="$store.i18n.t('phone')"></th>
+                                            <th x-text="$store.i18n.t('country')"></th>
+                                            <th x-text="$store.i18n.t('role')"></th>
+                                            <th x-text="$store.i18n.t('email_verified')"></th>
+                                            <th x-text="$store.i18n.t('created_at')"></th>
+                                            <th x-text="$store.i18n.t('action')"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(admin, index) in admins" :key="admin.id">
+                                            <tr>
+                                                <td x-text="index + 1"></td>
+                                                <td x-text="admin.name"></td>
+                                                <td x-text="admin.email"></td>
+                                                <td x-text="admin.phone"></td>
+                                                <td x-text="admin.country"></td>
+                                                <td x-text="admin.role"></td>
+                                                <td>
+                                                    <span
+                                                        x-text="admin.email_verified_at ? $store.i18n.t('yes') : $store.i18n.t('no')"
+                                                        :class="admin.email_verified_at ? 'text-success' : 'text-danger'"
+                                                    ></span>
+                                                </td>
+                                                <td x-text="formatDate(admin.created_at)"></td>
+                                                <td>
+                                                    <div class="flex items-center justify-center gap-1">
+                                                        <button
+                                                            class="btn update-btn btn-warning rounded-md bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600"
+                                                            :data-id="admin.id"
+                                                            :data-name="admin.name"
+                                                        >
+                                                            <span x-text="$store.i18n.t('edit')"></span>
+                                                        </button>
+                                                        <button
+                                                            class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1 hover:bg-red-600"
+                                                            :data-id="admin.id"
+                                                        >
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path
+                                                                    opacity="0.5"
+                                                                    d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="1.5"
+                                                                    stroke-linecap="round"
+                                                                />
+                                                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                                                <path
+                                                                    d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="1.5"
+                                                                    stroke-linecap="round"
+                                                                />
+                                                                <path
+                                                                    opacity="0.5"
+                                                                    d="M9.5 11L10 16"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="1.5"
+                                                                    stroke-linecap="round"
+                                                                />
+                                                                <path
+                                                                    opacity="0.5"
+                                                                    d="M14.5 11L14 16"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="1.5"
+                                                                    stroke-linecap="round"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="admins.length === 0">
+                                            <tr>
+                                                <td colspan="9" class="py-4 text-center">
+                                                    <span x-text="$store.i18n.t('no_admins_found')"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_admins')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_admins_description')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

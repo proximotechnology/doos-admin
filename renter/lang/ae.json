@@ -466,5 +466,45 @@
     "manage_permissions_for": "إدارة الصلاحيات لـ",
     "close": "إغلاق",
 
-    "failed_to_update_permission": "فشل تحديث الصلاحية"
+    "failed_to_update_permission": "فشل تحديث الصلاحية",
+    "admins_management": "إدارة المسؤولين",
+    "admins": "المسؤولون",
+    "add_admin": "إضافة مسؤول",
+    "edit_admin": "تعديل مسؤول",
+    "delete_admin": "حذف مسؤول",
+
+    "select_role": "اختر الدور",
+
+    "web": "Web",
+
+    "no_admins": "لا يوجد مسؤولون",
+    "no_admins_found": "لم يتم العثور على مسؤولين",
+    "no_admins_description": "لم يتم العثور على أي مسؤولين في النظام",
+    "failed_fetch_admins": "فشل جلب المسؤولين",
+    "failed_to_add_admin": "فشل إضافة المسؤول",
+    "admin_added_success": "تم إضافة المسؤول بنجاح",
+    "admin_updated_success": "تم تحديث المسؤول بنجاح",
+    "failed_to_update_admin": "فشل تحديث المسؤول",
+    "admin_deleted_success": "تم حذف المسؤول بنجاح",
+    "failed_to_delete_admin": "فشل حذف المسؤول",
+    "admin_not_found": "المسؤول غير موجود",
+    "all_fields_required": "جميع الحقول مطلوبة",
+
+    "draft": "مسودة",
+    "failed_to_load_car_details": "فشل تحميل تفاصيل السيارة",
+    "car_details_not_found": "تفاصيل السيارة غير موجودة",
+    "select_status_required": "يجب اختيار حالة",
+    "select_payment_status": "اختر حالة الدفع",
+    "select_payment_status_required": "يجب اختيار حالة الدفع",
+
+    "booking_status_guide": "دليل حالات الحجز",
+    "draft_description": "عندما يقوم المستخدم بإنشاء الحجز ولكنه لم يدفع مقابله.",
+    "pending_description": "بعد إنشاء الحجز وإتمام الدفع له.",
+    "confirm_description": "مالك السيارة سيراجع الحجز ويؤكده.",
+    "picked_up_description": "بعد تأكيد الحجز من قبل المسؤول، يقوم المستأجر بتغيير الحالة إلى 'تم الاستلام'، مما يعني أن المستأجر استلم السيارة.",
+    "returned_description": "بعد استلام السيارة، عندما يعيد المستأجر السيارة، يجب تغيير الحالة إلى 'تم الإرجاع'.",
+    "completed_description": "بعد إعادة السيارة، يقوم المالك بفحص السيارة وتغيير حالة الطلب إلى 'مكتمل'.",
+    "canceled_description": "يمكن للمالك إلغاء الطلب عندما يريد رفضه، ويمكن للمستأجر إلغاء الطلب عندما يريد ذلك.",
+    "note": "ملاحظة",
+    "cancel_restriction": "يمكن للمستأجر إلغاء الطلب فقط عندما يكون الحالة 'معلق' أو 'مسودة'، وكذلك المالك."
 }

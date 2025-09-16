@@ -446,7 +446,7 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('add_model_successful'));
                 const multipleTable = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
                 if (multipleTable && multipleTable.fetchManagers) {
-                    await multipleTable.fetchManagers(1); // إعادة تعيين الصفحة إلى 1 بعد الإضافة
+                    await multipleTable.fetchManagers(1);
                 }
             } catch (error) {
                 coloredToast('danger', error.message);

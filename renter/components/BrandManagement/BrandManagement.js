@@ -1,96 +1,94 @@
 document.addEventListener('alpine:init', () => {
     const loadingIndicator = {
         show: function () {
-            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('loadingIndicator')?.classList.remove('hidden');
         },
         hide: function () {
-            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            document.getElementById('tableLoading')?.classList.remove('hidden');
+            document.getElementById('brandTable')?.classList.add('hidden');
+            document.getElementById('tableEmptyState')?.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('myTable1').classList.remove('hidden');
+            document.getElementById('tableLoading')?.classList.add('hidden');
+            document.getElementById('brandTable')?.classList.remove('hidden');
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            document.getElementById('tableEmptyState')?.classList.remove('hidden');
+            document.getElementById('brandTable')?.classList.add('hidden');
+            document.getElementById('tableLoading')?.classList.add('hidden');
         }
     };
 
-
+    function coloredToast(color, message) {
+        const toast = Swal.mixin({
+            toast: true,
+            position: 'bottom-start',
+            icon: color === 'success' ? 'success' : 'error',
+            title: message,
+            showConfirmButton: false,
+            timer: 3000,
+            showCloseButton: true,
+            customClass: { popup: `color-${color}` },
+        });
+        toast.fire();
+    }
 
     Alpine.store('brandTable', {
         refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
-            if (tableComponent && tableComponent.fetchManagers) {
-                await tableComponent.fetchManagers(1);
+            const tableComponent = Alpine.$data(document.querySelector('[x-data="brandTable"]'));
+            if (tableComponent && tableComponent.fetchBrands) {
+                await tableComponent.fetchBrands(1);
             }
         }
     });
 
-    Alpine.data('multipleTable', () => ({
+
+
+    Alpine.data('brandTable', () => ({
         tableData: [],
         paginationMeta: {},
-        datatable1: null,
+        datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
+        filters: {
+            name: ''
+        },
 
         async init() {
-
-            // Event Delegation for Buttons
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
-                    const managerId = e.target.closest('.delete-btn').dataset.id;
-                    this.deleteManager(managerId);
+                    const brandId = e.target.closest('.delete-btn').dataset.id;
+                    this.deleteBrand(brandId);
                 }
                 if (e.target.closest('.update-btn')) {
-                    const managerId = e.target.closest('.update-btn').dataset.id;
-                    this.updateManager(managerId);
+                    const brandId = e.target.closest('.update-btn').dataset.id;
+                    this.updateBrand(brandId);
                 }
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchManagers(page);
-                }
-                const dropdownBtn = e.target.closest('.dropdown-toggle');
-                const statusOption = e.target.closest('.status-option');
-
-                if (dropdownBtn) {
-                    const dropdown = dropdownBtn.closest('.dropdown');
-                    const menu = dropdown.querySelector('.dropdown-menu');
-                    menu.classList.toggle('hidden');
-                }
-
-                if (statusOption) {
-                    const dropdown = statusOption.closest('.dropdown');
-                    const managerId = dropdown.dataset.id;
-                    const newStatus = statusOption.dataset.value;
-                    const toggleBtn = dropdown.querySelector('.dropdown-toggle');
-
-                    toggleBtn.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                    toggleBtn.className = `dropdown-toggle btn btn-sm ${this.getStatusClass(newStatus)}`;
-                    dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+                    this.fetchBrands(page);
                 }
             });
         },
 
-        async fetchManagers(page = 1) {
+        async fetchBrands(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
                 this.currentPage = page;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
-                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
+                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
                     window.location.href = 'auth-boxed-signin.html';
                     return;
                 }
 
                 const queryParams = new URLSearchParams({ page, per_page: 10 });
+                if (this.filters.name) queryParams.append('name', this.filters.name);
+
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?${queryParams.toString()}`, {
                     method: 'GET',
                     headers: {
@@ -100,8 +98,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data);
-
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {
@@ -113,6 +109,8 @@ document.addEventListener('alpine:init', () => {
                         to: data.data.to,
                         links: data.data.links
                     };
+                    console.log(data.data);
+                    
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -121,29 +119,38 @@ document.addEventListener('alpine:init', () => {
                         loadingIndicator.hideTableLoader();
                     }
                 } else {
-                    throw new Error(data.message || 'Invalid response format');
+                    throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
                 console.error('Error fetching brands:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
-                coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_brands'));
             }
         },
 
+        applyFilters() {
+            this.fetchBrands(1);
+        },
+
+        resetFilters() {
+            this.filters.name = '';
+            this.fetchBrands(1);
+        },
+
         populateTable() {
-            if (this.datatable1) {
-                this.datatable1.destroy();
+            if (this.datatable) {
+                this.datatable.destroy();
             }
 
-            const mappedData = this.tableData.map((manager, index) => [
+            const mappedData = this.tableData.map((brand, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
-                this.formatName(manager.name, manager.image, index),
-                this.formatText(manager.country),
-                this.getActionButtons(manager.id, manager.name, manager.image),
+                this.formatName(brand.name, brand.image, index),
+                this.formatText(brand.country),
+                this.getActionButtons(brand.id, brand.name, brand.image),
             ]);
 
-            this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
+            this.datatable = new simpleDatatables.DataTable('#brandTable', {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
@@ -153,7 +160,7 @@ document.addEventListener('alpine:init', () => {
                     ],
                     data: mappedData,
                 },
-                searchable: true,
+                searchable: false,
                 perPage: 10,
                 perPageSelect: false,
                 columns: [{ select: 0, sort: 'asc' }],
@@ -177,7 +184,7 @@ document.addEventListener('alpine:init', () => {
             paginationHTML += '<nav class="flex items-center space-x-2">';
 
             if (this.paginationMeta.current_page > 1) {
-                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page - 1}">
                     ${Alpine.store('i18n').t('previous')}
                 </button>`;
             }
@@ -186,13 +193,13 @@ document.addEventListener('alpine:init', () => {
             const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
 
             for (let i = startPage; i <= endPage; i++) {
-                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary bg-blue-600 text-white' : 'btn-outline-primary border border-blue-600 text-blue-600'} hover:bg-blue-100" data-page="${i}">
+                paginationHTML += `<button class="pagination-btn btn btn-sm ${i === this.paginationMeta.current_page ? 'btn-primary bg-blue-600 text-white' : 'btn-outline-primary border border-blue-600 text-blue-600'} rounded-md px-3 py-1 hover:bg-blue-100" data-page="${i}">
                     ${i}
                 </button>`;
             }
 
             if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
-                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
+                paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary rounded-md px-3 py-1 hover:bg-blue-100" data-page="${this.paginationMeta.current_page + 1}">
                     ${Alpine.store('i18n').t('next')}
                 </button>`;
             }
@@ -202,6 +209,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatName(name, imageUrl, index) {
+            console.log(imageUrl);
+            
             const defaultImage = 'assets/images/default-avatar.png';
             const cleanUrl = imageUrl || defaultImage;
 
@@ -222,13 +231,13 @@ document.addEventListener('alpine:init', () => {
             return text || Alpine.store('i18n').t('na');
         },
 
-        getActionButtons(managerId, name, image) {
+        getActionButtons(brandId, name, image) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${managerId}" data-name="${name}">
+                <div class="flex items-center gap-1 justify-center">
+                    <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${brandId}" data-name="${name}">
                         ${Alpine.store('i18n').t('update')}
                     </button>
-                    <button class="btn btn-sm btn-danger delete-btn ml-2 rounded-md px-3 py-1 hover:bg-red-600" data-id="${managerId}">
+                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1 hover:bg-red-600" data-id="${brandId}">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -240,28 +249,23 @@ document.addEventListener('alpine:init', () => {
                 </div>`;
         },
 
-        getStatusClass(status) {
-            const classes = {
-                active: 'btn-success bg-green-500 text-white',
-                pending: 'btn-warning bg-yellow-500 text-white',
-                rejected: 'btn-danger bg-red-500 text-white',
-            };
-            return classes[status] || 'btn-primary bg-blue-500 text-white';
-        },
-
-        async updateManager(managerId) {
-            const brand = this.tableData.find((b) => b.id == managerId);
-            if (!brand) return;
+        async updateBrand(brandId) {
+            const brand = this.tableData.find((b) => b.id == brandId);
+            if (!brand) {
+                coloredToast('danger', Alpine.store('i18n').t('brand_not_found'));
+                return;
+            }
 
             Alpine.store('global').sharedData.name = brand.name;
             Alpine.store('global').sharedData.country = brand.country;
+            Alpine.store('global').sharedData.image = brand.image;
 
-            Alpine.store('updateModal').openModal(managerId);
+            Alpine.store('updateModal').openModal(brandId);
         },
 
-        async deleteManager(managerId) {
+        async deleteBrand(brandId) {
             const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(managerId, () => {
+                Alpine.store('deleteModal').openModal(brandId, () => {
                     resolve(true);
                 });
             });
@@ -270,9 +274,12 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${managerId}`, {
+                if (!token) {
+                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${brandId}`, {
                     method: 'DELETE',
                     headers: {
                         Accept: 'application/json',
@@ -280,26 +287,18 @@ document.addEventListener('alpine:init', () => {
                     },
                 });
 
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_brand'));
-                coloredToast('success', Alpine.store('i18n').t('delete_brand_successful'));
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_delete_brand'));
+                }
 
-                await this.fetchManagers(this.currentPage);
+                coloredToast('success', Alpine.store('i18n').t('delete_brand_successful'));
+                await this.fetchBrands(this.currentPage);
             } catch (error) {
-                this.showError(error.message || Alpine.store('i18n').t('error_delete_brand'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_brand'));
             } finally {
                 loadingIndicator.hide();
             }
-        },
-
-        getStatusColor(status) {
-            const statusColors = {
-                active: 'success',
-                inactive: 'danger',
-                pending: 'warning',
-                suspended: 'secondary',
-                banned: 'dark',
-            };
-            return statusColors[status?.toLowerCase()] || 'primary';
         },
 
         getPaginationIcon(type) {
@@ -310,41 +309,34 @@ document.addEventListener('alpine:init', () => {
                 next: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
             };
             return icons[type];
-        },
-
-        showSuccess(message) {
-            Swal.fire({
-                icon: 'success',
-                title: Alpine.store('i18n').t('success'),
-                text: message,
-                timer: 3000,
-                showConfirmButton: false,
-            });
-        },
-
-        showError(message) {
-            Swal.fire({
-                icon: 'error',
-                title: Alpine.store('i18n').t('error'),
-                text: message,
-            });
-        },
+        }
     }));
 
-    Alpine.data('Add_Category', () => ({
+    Alpine.data('Add_Brand', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
-        fullname: '',
+        name: '',
         country: '',
+        image: null,
 
-        async Add_Category() {
+        async addBrand() {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
+                if (!token) {
+                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+
+                if (!this.name.trim() || !this.country.trim() || !this.$refs.image.files[0]) {
+                    throw new Error(Alpine.store('i18n').t('all_fields_required'));
+                }
+
+                const makeId = this.name.charAt(0).toUpperCase() + this.name.slice(1);
 
                 const formData = new FormData();
-                formData.append('name', this.fullname);
+                formData.append('make_id', makeId);
+                formData.append('name', this.name);
                 formData.append('country', this.country);
+                formData.append('image', this.$refs.image.files[0]);
 
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
                     method: 'POST',
@@ -355,46 +347,26 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const result = await response.json();
-
                 if (!response.ok) {
                     const errorMsg =
                         result.message ||
                         Object.values(result.errors || {})
                             .flat()
                             .join('\n') ||
-                        Alpine.store('i18n').t('error_create_brand');
+                        Alpine.store('i18n').t('failed_to_add_brand');
                     throw new Error(errorMsg);
                 }
 
-                this.fullname = '';
+                this.name = '';
                 this.country = '';
-
+                this.$refs.image.value = '';
                 coloredToast('success', Alpine.store('i18n').t('add_brand_successful'));
                 await Alpine.store('brandTable').refreshTable();
-
             } catch (error) {
-                coloredToast('danger', error.message);
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_brand'));
             } finally {
                 loadingIndicator.hide();
             }
-        },
+        }
     }));
 });
-
-// Global coloredToast function
-function coloredToast(color, message) {
-    const toast = window.Swal.mixin({
-        toast: true,
-        position: 'bottom-start',
-        showConfirmButton: false,
-        timer: 3000,
-        showCloseButton: true,
-        animation: false,
-        customClass: {
-            popup: `color-${color}`,
-        },
-    });
-    toast.fire({
-        title: message,
-    });
-}
