@@ -279,7 +279,7 @@
     "is_paid": "Paid",
     "driver_type": "Driver Type",
     "has_representative": "Has Representative",
-    "confirmed": "Confirmed",
+    "confirm": "Confirmed",
     "picked_up": "Picked Up",
     "returned": "Returned",
     "completed": "Completed",

@@ -281,7 +281,7 @@
     "is_paid": "مدفوع",
     "driver_type": "نوع السائق",
     "has_representative": "لديه ممثل",
-    "confirmed": "تم التأكيد",
+    "confirm": "تم التأكيد",
     "picked_up": "تم الاستلام",
     "returned": "تم الإرجاع",
     "completed": "مكتمل",

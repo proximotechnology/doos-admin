@@ -57,7 +57,9 @@ document.addEventListener('alpine:init', () => {
             picked_up: 0,
             Returned: 0,
             Completed: 0,
-            Canceled: 0
+            Canceled: 0,
+            pending: 0
+
         },
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
@@ -134,7 +136,8 @@ document.addEventListener('alpine:init', () => {
                         picked_up: 0,
                         Returned: 0,
                         Completed: 0,
-                        Canceled: 0
+                        Canceled: 0,
+                        pending: 0
                     };
                     this.paginationMeta = data.pagination || {
                         current_page: 1,
@@ -279,6 +282,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatStatus(status, bookingId) {
+            console.log(status);
+            if (status == "Canceled")
+                status = "canceled"
+
             if (!status) return Alpine.store('i18n').t('na');
             const statusClass = `status-${status}`;
             const statusText = status.charAt(0).toUpperCase() + status.slice(1);
@@ -579,7 +586,9 @@ document.addEventListener('alpine:init', () => {
                         'picked_up': Alpine.store('i18n').t('picked_up'),
                         'Returned': Alpine.store('i18n').t('returned'),
                         'Completed': Alpine.store('i18n').t('completed'),
-                        'Canceled': Alpine.store('i18n').t('canceled')
+                        'canceled': Alpine.store('i18n').t('canceled'),
+                        'pending': Alpine.store('i18n').t('pending')
+
                     },
                     inputPlaceholder: Alpine.store('i18n').t('select_status'),
                     showCancelButton: true,

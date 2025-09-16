@@ -119,8 +119,16 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
+            // Set shared data for the modal
+            Alpine.store('global').sharedData.role_id = admin.role_id || '';
             Alpine.store('global').sharedData.name = admin.name;
-            Alpine.store('global').sharedData.guard_name = 'web';
+            Alpine.store('global').sharedData.email = admin.email;
+            Alpine.store('global').sharedData.phone = admin.phone;
+            Alpine.store('global').sharedData.country = admin.country;
+
+            // Fetch roles for the dropdown
+            await Alpine.store('editModal').fetchRoles();
+
             Alpine.store('editModal').openModal(adminId);
         },
 
@@ -238,8 +246,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const result = await response.json();
-                console.log(result);
-
                 if (!response.ok) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_admin'));
                 }
@@ -252,14 +258,12 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('admin_added_success'));
                 await Alpine.store('adminsTable').refreshTable();
             } catch (error) {
-                console.log(error);
-
-                console.log(result);
-
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_admin'));
             } finally {
                 loadingIndicator.hide();
             }
         }
     }));
+
+
 });
