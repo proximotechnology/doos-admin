@@ -325,6 +325,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 if (!this.name.trim() || !this.country.trim() || !this.$refs.image.files[0]) {
+                    
                     throw new Error(Alpine.store('i18n').t('all_fields_required'));
                 }
 

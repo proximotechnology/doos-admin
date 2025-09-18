@@ -48,20 +48,24 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const formData = new FormData();
-                const name = Alpine.store('global').sharedData.name;
-                formData.append('name', name);
-                formData.append('make_id', name.charAt(0).toUpperCase() + name.slice(1));
-                formData.append('country', Alpine.store('global').sharedData.country);
+                formData.append('id', this.brandId);
+                formData.append('name', Alpine.store('global').sharedData.name || '');
+                formData.append('make_id', (Alpine.store('global').sharedData.name || '').charAt(0).toUpperCase() + (Alpine.store('global').sharedData.name || '').slice(1));
+                formData.append('country', Alpine.store('global').sharedData.country || '');
 
                 const imageInput = document.querySelector('input[type="file"][x-ref="image"]');
                 if (imageInput && imageInput.files[0]) {
                     formData.append('image', imageInput.files[0]);
+                } else {
+                    // Send current image URL if no new image is selected
+                    formData.append('current_image', Alpine.store('global').sharedData.image || '');
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update/${this.brandId}`, {
-                    method: 'POST',
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update`, {
+                    method: 'POST', // Using POST with _method=PUT for Laravel
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
                     },
                     body: formData,
                 });
@@ -72,20 +76,25 @@ document.addEventListener('alpine:init', () => {
                         result.message ||
                         Object.values(result.errors || {})
                             .flat()
-                            .join('\n') ||
+                            .join(', ') ||
                         Alpine.store('i18n').t('failed_update_brand');
                     throw new Error(errorMsg);
                 }
 
                 coloredToast('success', Alpine.store('i18n').t('brand_updated_successfully'));
+                // Update sharedData with new image URL if returned by API
+                if (result.data && result.data.image) {
+                    Alpine.store('global').sharedData.image = result.data.image;
+                }
                 await Alpine.store('brandTable').refreshTable();
                 this.closeModal();
             } catch (error) {
+                console.error('Update Brand Error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_brand'));
             } finally {
                 loadingIndicator.hide();
             }
-        }
+        },
     });
 });
 function coloredToast(color, message) {
