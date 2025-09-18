@@ -46,7 +46,7 @@
             <div x-data="roleTable" x-init="fetchRoles()">
                 <div class="panel mt-6">
                     <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0" x-text="$store.i18n.t('roles')"></h5>
-                    <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
                         <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
                         <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
                     </div>

@@ -509,5 +509,25 @@
     "completed_description": "After the renter returns the car, the owner checks the car and changes the status to 'Completed'.",
     "canceled_description": "Canceled by the owner when they want to reject the order, or by the renter when they want to cancel the order.",
     "note": "Note",
-    "cancel_restriction": "The renter can only cancel the order when the status is 'Pending' or 'Draft', and so can the owner."
+    "cancel_restriction": "The renter can only cancel the order when the status is 'Pending' or 'Draft', and so can the owner.",
+
+    "subscribers": "Subscribers",
+    "subscribers_management": "Subscribers Management",
+    "no_users": "No Users",
+    "no_users_description": "No users found",
+    "no_subscribers": "No Subscribers",
+    "no_subscribers_description": "No subscribers found",
+
+    "delete_subscriber_warning": "You won't be able to revert this subscriber!",
+
+    "failed_delete_subscriber": "Failed to delete subscriber",
+
+    "subscriber_deleted_success": "Subscriber deleted successfully",
+
+    "create_admin": "Create Admin",
+    "message": "Message",
+    "manager": "Manager",
+    "support": "Support",
+    "failed_to_create_admin": "Failed to create admin",
+    "admin_created_success": "Admin created successfully"
 }

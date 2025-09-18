@@ -506,5 +506,28 @@
     "completed_description": "بعد إعادة السيارة، يقوم المالك بفحص السيارة وتغيير حالة الطلب إلى 'مكتمل'.",
     "canceled_description": "يمكن للمالك إلغاء الطلب عندما يريد رفضه، ويمكن للمستأجر إلغاء الطلب عندما يريد ذلك.",
     "note": "ملاحظة",
-    "cancel_restriction": "يمكن للمستأجر إلغاء الطلب فقط عندما يكون الحالة 'معلق' أو 'مسودة'، وكذلك المالك."
+    "cancel_restriction": "يمكن للمستأجر إلغاء الطلب فقط عندما يكون الحالة 'معلق' أو 'مسودة'، وكذلك المالك.",
+
+    "subscribers": "المشتركين",
+    "subscribers_management": "إدارة المشتركين",
+    "no_users": "لا توجد مستخدمين",
+    "no_users_description": "لم يتم العثور على مستخدمين",
+    "no_subscribers": "لا توجد مشتركين",
+    "no_subscribers_description": "لم يتم العثور على مشتركين",
+
+    "failed_fetch_subscribers": "فشل جلب بيانات المشتركين",
+    "failed_fetch_subscribers_try_again": "فشل جلب بيانات المشتركين، حاول مرة أخرى",
+
+    "delete_subscriber_warning": "لن تتمكن من استعادة هذا المشترك!",
+
+    "failed_delete_subscriber": "فشل حذف المشترك",
+
+    "subscriber_deleted_success": "تم حذف المشترك بنجاح",
+    "message": "الرسائل",
+
+    "create_admin": "إنشاء أدمن",
+    "manager": "مدير",
+    "support": "دعم",
+    "failed_to_create_admin": "فشل إنشاء الأدمن",
+    "admin_created_success": "تم إنشاء الأدمن بنجاح"
 }

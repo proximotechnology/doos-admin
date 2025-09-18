@@ -34,27 +34,17 @@ document.addEventListener('alpine:init', () => {
         toast.fire({ title: message });
     }
 
-    Alpine.store('global', {
-        sharedData: {
-            name: '',
-            role: ''
-        }
-    });
-
-
-
-
-    Alpine.store('usersTable', {
+    Alpine.store('subscribersTable', {
         refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="usersTable"]'));
-            if (tableComponent && tableComponent.fetchUsers) {
-                await tableComponent.fetchUsers(tableComponent.currentPage);
+            const tableComponent = Alpine.$data(document.querySelector('[x-data="subscribersTable"]'));
+            if (tableComponent && tableComponent.fetchSubscribers) {
+                await tableComponent.fetchSubscribers(tableComponent.currentPage);
             }
         }
     });
 
-    Alpine.data('usersTable', () => ({
-        users: [],
+    Alpine.data('subscribersTable', () => ({
+        subscribers: [],
         paginationMeta: {},
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
@@ -64,15 +54,18 @@ document.addEventListener('alpine:init', () => {
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchUsers(page);
+                    this.fetchSubscribers(page);
                 }
-
+                if (e.target.closest('.delete-subscriber-btn')) {
+                    const subscriberId = e.target.closest('.delete-subscriber-btn').dataset.id;
+                    this.deleteSubscriber(subscriberId);
+                }
             });
 
-            await this.fetchUsers(1);
+            await this.fetchSubscribers(1);
         },
 
-        async fetchUsers(page = 1) {
+        async fetchSubscribers(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
                 this.currentPage = page;
@@ -85,7 +78,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all?${queryParams.toString()}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribers/index?${queryParams.toString()}`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -94,23 +87,23 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_users'));
+                    throw new Error(Alpine.store('i18n').t('failed_fetch_subscribers'));
                 }
 
                 const data = await response.json();
                 if (data.status && data.data) {
-                    this.users = data.data.data.filter(user => user.type === '0') || [];
+                    this.subscribers = data.data || [];
                     this.paginationMeta = {
-                        current_page: data.data.current_page,
-                        last_page: data.data.last_page,
-                        per_page: data.data.per_page,
-                        total: data.data.total,
-                        from: data.data.from,
-                        to: data.data.to,
-                        links: data.data.links
+                        current_page: data.current_page || 1,
+                        last_page: data.last_page || 1,
+                        per_page: data.per_page || 10,
+                        total: data.total || 0,
+                        from: data.from || 0,
+                        to: data.to || 0,
+                        links: data.links || []
                     };
 
-                    if (this.users.length === 0) {
+                    if (this.subscribers.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();
@@ -120,10 +113,10 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching users:', error);
+                console.error('Error fetching subscribers:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_users_try_again'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_subscribers_try_again'));
             }
         },
 
@@ -132,28 +125,20 @@ document.addEventListener('alpine:init', () => {
                 this.datatable.destroy();
             }
 
-            const mappedData = this.users.map((user, index) => [
+            const mappedData = this.subscribers.map((subscriber, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
-                this.formatText(user.name),
-                this.formatText(user.email),
-                this.formatText(user.phone),
-                this.formatText(user.country),
-                this.formatVerified(user.email_verified_at),
-                this.formatLicense(user.has_license),
-                this.formatDate(user.created_at),
+                this.formatText(subscriber.email),
+                this.formatDate(subscriber.created_at),
+                this.getActionButtons(subscriber.id)
             ]);
 
             this.datatable = new simpleDatatables.DataTable('#myTable1', {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
-                        Alpine.store('i18n').t('name'),
                         Alpine.store('i18n').t('email'),
-                        Alpine.store('i18n').t('phone'),
-                        Alpine.store('i18n').t('country'),
-                        Alpine.store('i18n').t('email_verified'),
-                        Alpine.store('i18n').t('has_license'),
-                        Alpine.store('i18n').t('registration_date'),
+                        Alpine.store('i18n').t('created_at'),
+                        `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
                     data: mappedData,
                 },
@@ -214,24 +199,20 @@ document.addEventListener('alpine:init', () => {
             return new Date(dateString).toLocaleDateString();
         },
 
-        formatVerified(emailVerifiedAt) {
-            return `<span class="${emailVerifiedAt ? 'text-success' : 'text-danger'}">
-                ${emailVerifiedAt ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
-            </span>`;
+        getActionButtons(subscriberId) {
+            return `
+                <div class="flex items-center gap-1 justify-center">
+                    <button class="btn delete-subscriber-btn btn-danger btn-sm rounded-md px-3 py-1" data-id="${subscriberId}">
+                        ${Alpine.store('i18n').t('delete')}
+                    </button>
+                </div>`;
         },
 
-        formatLicense(hasLicense) {
-            return `<span class="${hasLicense === '1' ? 'text-success' : 'text-danger'}">
-                ${hasLicense === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
-            </span>`;
-        },
-
-
-        async deleteUser(userId) {
+        async deleteSubscriber(subscriberId) {
             try {
                 const isConfirmed = await Swal.fire({
                     title: Alpine.store('i18n').t('are_you_sure'),
-                    text: Alpine.store('i18n').t('delete_warning'),
+                    text: Alpine.store('i18n').t('delete_subscriber_warning'),
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -242,7 +223,7 @@ document.addEventListener('alpine:init', () => {
                 if (!isConfirmed.isConfirmed) return;
 
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/delete/${userId}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribers/delete/${subscriberId}`, {
                     method: 'DELETE',
                     headers: {
                         Accept: 'application/json',
@@ -251,13 +232,13 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_delete_user'));
+                    throw new Error(Alpine.store('i18n').t('failed_delete_subscriber'));
                 }
 
-                coloredToast('success', Alpine.store('i18n').t('user_deleted_success'));
-                await this.fetchUsers(this.currentPage);
+                coloredToast('success', Alpine.store('i18n').t('subscriber_deleted_success'));
+                await this.fetchSubscribers(this.currentPage);
             } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_user'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_subscriber'));
             }
         }
     }));
