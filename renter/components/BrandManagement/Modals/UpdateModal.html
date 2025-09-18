@@ -16,7 +16,7 @@
     </head>
     <body>
         <div
-            x-data="{ imagePreview: $store.global.sharedData.image || 'assets/images/default-avatar.png' }"
+            x-data="{ imagePreview: $store.global.sharedData.image || '/assets/images/avatar-car.webp' }"
             x-show="$store.updateModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
@@ -58,7 +58,7 @@
                                         class="h-12 w-12 rounded-full object-cover"
                                         :src="imagePreview"
                                         alt="Brand Image"
-                                        @error="imagePreview = 'assets/images/default-avatar.png'"
+                                        @error="imagePreview = '/assets/images/avatar-car.webp'"
                                         width="48"
                                         height="48"
                                     />

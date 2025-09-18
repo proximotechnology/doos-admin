@@ -59,7 +59,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update/${this.brandId}`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

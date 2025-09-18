@@ -209,7 +209,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatName(name, imageUrl, index) {
-            const defaultImage = '/assets/images/user.png'; // Ensure this path is correct
+            const defaultImage = '/assets/images/avatar-car.webp'; // Ensure this path is correct
             const cleanUrl = imageUrl && imageUrl !== 'null' && imageUrl !== '' ? imageUrl : defaultImage;
 
             return `
