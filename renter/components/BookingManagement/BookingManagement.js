@@ -127,6 +127,7 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
 
+
                 if (data.status && Array.isArray(data.data)) {
                     this.tableData = data.data;
                     this.meta = data.meta || {
@@ -282,7 +283,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatStatus(status, bookingId) {
-            console.log(status);
             if (status == "Canceled")
                 status = "canceled"
 

@@ -63,11 +63,13 @@ document.addEventListener('alpine:init', () => {
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                // if (!response.ok) {
+                //     throw new Error(`HTTP error! status: ${response.status}`);
+                // }
 
                 const data = await response.json();
+                console.log(data);
+                
 
                 if (data.status && data.user) {
                     this.user = data.user;
@@ -118,7 +120,7 @@ document.addEventListener('alpine:init', () => {
                     updateData.password_confirmation = this.formData.password_confirmation;
                 }
 
-                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/update_my_info/1`, {
+                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/update_my_info`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

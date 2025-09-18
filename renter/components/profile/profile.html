@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div x-data="profileData()" x-init="init()">
+        <div x-data="profileData()">
             <div class="container mx-auto p-4">
                 <ul class="mb-4 flex space-x-2">
                     <li>
@@ -225,6 +225,7 @@
                                                 x-model="formData.email"
                                                 class="form-input dark:bg-gray-700 dark:text-white"
                                                 required
+                                                autocomplete="email"
                                             />
                                         </div>
                                         <div>
@@ -243,6 +244,7 @@
                                                 x-model="formData.password"
                                                 class="form-input dark:bg-gray-700 dark:text-white"
                                                 :placeholder="$store.i18n.t('leave_empty_password')"
+                                                autocomplete="new-password"
                                             />
                                         </div>
                                         <div>
@@ -252,6 +254,7 @@
                                                 type="password"
                                                 x-model="formData.password_confirmation"
                                                 class="form-input dark:bg-gray-700 dark:text-white"
+                                                autocomplete="new-password"
                                             />
                                         </div>
                                         <div class="mt-3 sm:col-span-2">

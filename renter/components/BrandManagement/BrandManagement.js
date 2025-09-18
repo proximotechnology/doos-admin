@@ -110,7 +110,7 @@ document.addEventListener('alpine:init', () => {
                         links: data.data.links
                     };
                     console.log(data.data);
-                    
+
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -209,22 +209,20 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatName(name, imageUrl, index) {
-            console.log(imageUrl);
-            
-            const defaultImage = 'assets/images/default-avatar.png';
-            const cleanUrl = imageUrl || defaultImage;
+            const defaultImage = '/assets/images/user.png'; // Ensure this path is correct
+            const cleanUrl = imageUrl && imageUrl !== 'null' && imageUrl !== '' ? imageUrl : defaultImage;
 
             return `
-                <div class="flex items-center w-max" x-data="{ imgError: false }">
-                    <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                         :src="imgError ? '${defaultImage}' : '${cleanUrl}'"
-                         alt="${name || Alpine.store('i18n').t('unknown')}"
-                         @error="imgError = true"
-                         loading="lazy"
-                         width="36"
-                         height="36" />
-                    ${name || Alpine.store('i18n').t('unknown')}
-                </div>`;
+        <div class="flex items-center w-max">
+            <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
+                 src="${cleanUrl}"
+                 alt="${name || Alpine.store('i18n').t('unknown')}"
+                 onerror="this.src='/assets/images/avatar-car.webp';"
+                 loading="lazy"
+                 width="36"
+                 height="36" />
+            <span>${name || Alpine.store('i18n').t('unknown')}</span>
+        </div>`;
         },
 
         formatText(text) {
