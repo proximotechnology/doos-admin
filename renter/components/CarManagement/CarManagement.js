@@ -303,7 +303,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(carId) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn view-car-btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('view_details')}
                     </button>

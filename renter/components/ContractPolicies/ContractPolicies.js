@@ -85,7 +85,7 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
                 console.log(data);
-                
+
                 if (data.status === 'success' && Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
                     this.paginationMeta = {
@@ -332,7 +332,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(policyId) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn edit-policy-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${policyId}">
                         ${Alpine.store('i18n').t('edit')}
                     </button>

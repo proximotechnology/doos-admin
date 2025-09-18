@@ -233,7 +233,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(brandId, name, image) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${brandId}" data-name="${name}">
                         ${Alpine.store('i18n').t('update')}
                     </button>

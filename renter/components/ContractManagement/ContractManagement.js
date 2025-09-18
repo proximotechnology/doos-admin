@@ -215,19 +215,20 @@ document.addEventListener('alpine:init', () => {
                     ],
                     data: mappedData,
                 },
-                searchable: true,
-                perPage: 10,
-                perPageSelect: [10, 20, 30, 50, 100],
-                columns: [{ select: 0, sort: 'asc' }],
-                firstLast: true,
-                firstText: this.generatePaginationHTML('first'),
-                lastText: this.generatePaginationHTML('last'),
-                prevText: this.generatePaginationHTML('prev'),
-                nextText: this.generatePaginationHTML('next'),
-                layout: {
-                    top: '{search}',
-                    bottom: '{info}{select}{pager}',
-                },
+                 searchable: true,
+        perPage: 10,
+        perPageSelect: false,
+        columns: [{ select: 0, sort: 'asc' }],
+        firstLast: true,
+        firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
+        lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
+        prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
+        nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
+        labels: { perPage: '{select}' },
+        layout: {
+            top: '{search}',
+            bottom: this.generatePaginationHTML() + '{info}{pager}'
+        }
             });
         },
 
@@ -257,7 +258,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(contractId) {
             return `
-                        <div class="flex items-center gap-1 justify-center">
+                        <div class="flex items-center gap-1">
                             <button class="btn view-contract-btn btn-primary btn-sm" data-id="${contractId}">
                                 ${Alpine.store('i18n').t('view_details')}
                             </button>

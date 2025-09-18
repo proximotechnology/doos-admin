@@ -201,7 +201,7 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(subscriberId) {
             return `
-                <div class="flex items-center gap-1 justify-center">
+                <div class="flex items-center gap-1">
                     <button class="btn delete-subscriber-btn btn-danger btn-sm rounded-md px-3 py-1" data-id="${subscriberId}">
                         ${Alpine.store('i18n').t('delete')}
                     </button>
