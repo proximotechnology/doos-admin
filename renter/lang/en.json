@@ -529,5 +529,27 @@
     "manager": "Manager",
     "support": "Support",
     "failed_to_create_admin": "Failed to create admin",
-    "admin_created_success": "Admin created successfully"
+    "admin_created_success": "Admin created successfully",
+
+    "image": "Image",
+    "testimonials": "Testimonials",
+    "add_testimonial": "Add Testimonial",
+    "filter_testimonials": "Filter Testimonials",
+    "update_testimonial": "Update Testimonial",
+    "delete_testimonial": "Delete Testimonial",
+    "confirm_delete_testimonial": "Are you sure you want to delete this testimonial?",
+    "testimonial_updated_successfully": "Testimonial updated successfully",
+    "failed_update_testimonial": "Failed to update testimonial",
+    "add_testimonial_successful": "Testimonial added successfully",
+    "failed_to_add_testimonial": "Failed to add testimonial",
+    "delete_testimonial_successful": "Testimonial deleted successfully",
+    "failed_delete_testimonial": "Failed to delete testimonial",
+    "testimonial_not_found": "Testimonial not found",
+    "image_input_missing": "Image input field not found. Please check the form.",
+
+    "failed_fetch_testimonials": "Failed to fetch testimonials",
+    "apply": "Apply",
+    "reset": "Reset",
+
+    "no_data": "No data available"
 }

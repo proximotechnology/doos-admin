@@ -8,16 +8,16 @@ document.addEventListener('alpine:init', () => {
         },
         showTableLoader: function () {
             document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('brandTable')?.classList.add('hidden');
+            document.getElementById('testimonialTable')?.classList.add('hidden');
             document.getElementById('tableEmptyState')?.classList.add('hidden');
         },
         hideTableLoader: function () {
             document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('brandTable')?.classList.remove('hidden');
+            document.getElementById('testimonialTable')?.classList.remove('hidden');
         },
         showEmptyState: function () {
             document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('brandTable')?.classList.add('hidden');
+            document.getElementById('testimonialTable')?.classList.add('hidden');
             document.getElementById('tableLoading')?.classList.add('hidden');
         }
     };
@@ -36,18 +36,16 @@ document.addEventListener('alpine:init', () => {
         toast.fire();
     }
 
-    Alpine.store('brandTable', {
+    Alpine.store('testimonialTable', {
         refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="brandTable"]'));
-            if (tableComponent && tableComponent.fetchBrands) {
-                await tableComponent.fetchBrands(1);
+            const tableComponent = Alpine.$data(document.querySelector('[x-data="testimonialTable"]'));
+            if (tableComponent && tableComponent.fetchTestimonials) {
+                await tableComponent.fetchTestimonials(1);
             }
         }
     });
 
-
-
-    Alpine.data('brandTable', () => ({
+    Alpine.data('testimonialTable', () => ({
         tableData: [],
         paginationMeta: {},
         datatable: null,
@@ -60,21 +58,22 @@ document.addEventListener('alpine:init', () => {
         async init() {
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
-                    const brandId = e.target.closest('.delete-btn').dataset.id;
-                    this.deleteBrand(brandId);
+                    const testimonialId = e.target.closest('.delete-btn').dataset.id;
+                    this.deleteTestimonial(testimonialId);
                 }
                 if (e.target.closest('.update-btn')) {
-                    const brandId = e.target.closest('.update-btn').dataset.id;
-                    this.updateBrand(brandId);
+                    const testimonialId = e.target.closest('.update-btn').dataset.id;
+                    this.updateTestimonial(testimonialId);
                 }
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchBrands(page);
+                    this.fetchTestimonials(page);
                 }
             });
+            await this.fetchTestimonials();
         },
 
-        async fetchBrands(page = 1) {
+        async fetchTestimonials(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
                 this.currentPage = page;
@@ -86,10 +85,10 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
+                const queryParams = new URLSearchParams({ page, per_page: 15 });
                 if (this.filters.name) queryParams.append('name', this.filters.name);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?${queryParams.toString()}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/filter?${queryParams.toString()}`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -98,7 +97,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                if (data.success && data.data) {
+                if (data.status && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {
                         current_page: data.data.current_page,
@@ -109,8 +108,6 @@ document.addEventListener('alpine:init', () => {
                         to: data.data.to,
                         links: data.data.links
                     };
-                    console.log(data.data);
-
 
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -122,20 +119,20 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching brands:', error);
+                console.error('Error fetching testimonials:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_brands'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_testimonials'));
             }
         },
 
         applyFilters() {
-            this.fetchBrands(1);
+            this.fetchTestimonials(1);
         },
 
         resetFilters() {
             this.filters.name = '';
-            this.fetchBrands(1);
+            this.fetchTestimonials(1);
         },
 
         populateTable() {
@@ -143,27 +140,32 @@ document.addEventListener('alpine:init', () => {
                 this.datatable.destroy();
             }
 
-            const mappedData = this.tableData.map((brand, index) => [
+            const mappedData = this.tableData.map((testimonial, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
-                this.formatName(brand.name, brand.image, index),
-                this.formatText(brand.country),
-                this.getActionButtons(brand.id, brand.name, brand.image),
+                this.formatName(testimonial.name, testimonial.image, index),
+                this.formatText(testimonial.rating),
+                this.formatText(testimonial.comment),
+                this.getActionButtons(testimonial.id, testimonial.name, testimonial.image, testimonial.rating, testimonial.comment),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#brandTable', {
+            this.datatable = new simpleDatatables.DataTable('#testimonialTable', {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
                         Alpine.store('i18n').t('name'),
-                        Alpine.store('i18n').t('country'),
+                        Alpine.store('i18n').t('rating'),
+                        Alpine.store('i18n').t('comment'),
                         `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
                     data: mappedData,
                 },
                 searchable: false,
-                perPage: 10,
+                perPage: 15,
                 perPageSelect: false,
-                columns: [{ select: 0, sort: 'asc' }],
+                columns: [
+                    { select: 0, sort: 'asc' },
+                    { select: [1], render: (data) => data } // Allow HTML rendering for name column
+                ],
                 firstLast: true,
                 firstText: this.getPaginationIcon('first'),
                 lastText: this.getPaginationIcon('last'),
@@ -209,33 +211,38 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatName(name, imageUrl, index) {
-            const defaultImage = '/assets/images/avatar-car.webp'; // Ensure this path is correct
+            const defaultImage = '/assets/images/avatar-testimonial.webp';
             const cleanUrl = imageUrl && imageUrl !== 'null' && imageUrl !== '' ? imageUrl : defaultImage;
 
             return `
-        <div class="flex items-center w-max">
-            <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                 src="${cleanUrl}"
-                 alt="${name || Alpine.store('i18n').t('unknown')}"
-                 onerror="this.src='/assets/images/avatar-car.webp';"
-                 loading="lazy"
-                 width="36"
-                 height="36" />
-            <span>${name || Alpine.store('i18n').t('unknown')}</span>
-        </div>`;
+                <div class="flex items-center w-max">
+                    <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
+                         src="${cleanUrl}"
+                         alt="${name || Alpine.store('i18n').t('unknown')}"
+                         onerror="this.src='${defaultImage}';"
+                         loading="lazy"
+                         width="36"
+                         height="36" />
+                    <span>${name || Alpine.store('i18n').t('unknown')}</span>
+                </div>`;
         },
 
         formatText(text) {
             return text || Alpine.store('i18n').t('na');
         },
 
-        getActionButtons(brandId, name, image) {
+        getActionButtons(testimonialId, name, image, rating, comment) {
             return `
                 <div class="flex items-center gap-1">
-                    <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${brandId}" data-name="${name}">
+                    <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" 
+                            data-id="${testimonialId}" 
+                            data-name="${name}" 
+                            data-image="${image || ''}" 
+                            data-rating="${rating || ''}" 
+                            data-comment="${comment || ''}">
                         ${Alpine.store('i18n').t('update')}
                     </button>
-                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1 hover:bg-red-600" data-id="${brandId}">
+                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1 hover:bg-red-600" data-id="${testimonialId}">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -247,28 +254,32 @@ document.addEventListener('alpine:init', () => {
                 </div>`;
         },
 
-        async updateBrand(brandId) {
-            const brand = this.tableData.find((b) => b.id == brandId);
-            if (!brand) {
-                coloredToast('danger', Alpine.store('i18n').t('brand_not_found'));
+        async updateTestimonial(testimonialId) {
+            const testimonial = this.tableData.find((t) => t.id == testimonialId);
+            if (!testimonial) {
+                coloredToast('danger', Alpine.store('i18n').t('testimonial_not_found'));
                 return;
             }
 
-            // تعيين البيانات مع التحقق من قيمة الصورة
-            Alpine.store('global').sharedData.name = brand.name || '';
-            Alpine.store('global').sharedData.country = brand.country || '';
+            Alpine.store('global').sharedData.name = testimonial.name || '';
+            Alpine.store('global').sharedData.comment = testimonial.comment || '';
+            Alpine.store('global').sharedData.rating = testimonial.rating || '';
+            Alpine.store('global').sharedData.image = testimonial.image || '';
 
-            Alpine.store('updateModal').openModal(brandId);
+            Alpine.store('updateModal').openModal(testimonialId);
         },
 
-        async deleteBrand(brandId) {
+        async deleteTestimonial(testimonialId) {
+            console.log("s");
+            
             const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(brandId, () => {
+                Alpine.store('deleteModal').openModal(testimonialId, () => {
                     resolve(true);
                 });
             });
 
             if (!deleteConfirmed) return;
+            console.log("s");
 
             try {
                 loadingIndicator.show();
@@ -277,7 +288,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${brandId}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/delete/${testimonialId}`, {
                     method: 'DELETE',
                     headers: {
                         Accept: 'application/json',
@@ -287,13 +298,13 @@ document.addEventListener('alpine:init', () => {
 
                 const result = await response.json();
                 if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_delete_brand'));
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_delete_testimonial'));
                 }
 
-                coloredToast('success', Alpine.store('i18n').t('delete_brand_successful'));
-                await this.fetchBrands(this.currentPage);
+                coloredToast('success', Alpine.store('i18n').t('delete_testimonial_successful'));
+                await this.fetchTestimonials(this.currentPage);
             } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_brand'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_testimonial'));
             } finally {
                 loadingIndicator.hide();
             }
@@ -310,13 +321,14 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('Add_Brand', () => ({
+    Alpine.data('Add_Testimonial', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         name: '',
-        country: '',
+        comment: '',
+        rating: '',
         image: null,
 
-        async addBrand() {
+        async addTestimonial() {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
@@ -324,20 +336,17 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                if (!this.name.trim() || !this.country.trim() || !this.$refs.image.files[0]) {
-
+                if (!this.name.trim() || !this.comment.trim() || !this.rating || !this.$refs.image.files[0]) {
                     throw new Error(Alpine.store('i18n').t('all_fields_required'));
                 }
 
-                const makeId = this.name.charAt(0).toUpperCase() + this.name.slice(1);
-
                 const formData = new FormData();
-                formData.append('make_id', makeId);
                 formData.append('name', this.name);
-                formData.append('country', this.country);
+                formData.append('comment', this.comment);
+                formData.append('rating', this.rating);
                 formData.append('image', this.$refs.image.files[0]);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/store`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -351,18 +360,19 @@ document.addEventListener('alpine:init', () => {
                         result.message ||
                         Object.values(result.errors || {})
                             .flat()
-                            .join('\n') ||
-                        Alpine.store('i18n').t('failed_to_add_brand');
+                            .join(', ') ||
+                        Alpine.store('i18n').t('failed_to_add_testimonial');
                     throw new Error(errorMsg);
                 }
 
                 this.name = '';
-                this.country = '';
+                this.comment = '';
+                this.rating = '';
                 this.$refs.image.value = '';
-                coloredToast('success', Alpine.store('i18n').t('add_brand_successful'));
-                await Alpine.store('brandTable').refreshTable();
+                coloredToast('success', Alpine.store('i18n').t('add_testimonial_successful'));
+                await Alpine.store('testimonialTable').refreshTable();
             } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_brand'));
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_testimonial'));
             } finally {
                 loadingIndicator.hide();
             }

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title x-text="$store.i18n.t('testimonials')"></title>
+    </head>
+    <body>
+        <ul class="flex space-x-2 rtl:space-x-reverse">
+            <li>
+                <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+            </li>
+            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <span x-text="$store.i18n.t('testimonials')"></span>
+            </li>
+        </ul>
+
+        <div class="pt-5">
+            <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                    <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                    <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('no_data')"></p>
+                </div>
+            </div>
+            <div x-data="testimonialTable" class="mb-5">
+                <!-- Add Testimonial Form -->
+                <div class="mb-5 rounded-md bg-white p-5 shadow-md dark:bg-gray-800">
+                    <h2 class="mb-4 text-lg font-bold dark:text-white" x-text="$store.i18n.t('add_testimonial')"></h2>
+                    <form x-data="Add_Testimonial" @submit.prevent="addTestimonial()">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="add_testimonial_name" class="dark:text-white" x-text="$store.i18n.t('name')"></label>
+                                <input
+                                    id="add_testimonial_name"
+                                    type="text"
+                                    :placeholder="$store.i18n.t('name')"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="name"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label for="add_testimonial_comment" class="dark:text-white" x-text="$store.i18n.t('comment')"></label>
+                                <textarea
+                                    id="add_testimonial_comment"
+                                    :placeholder="$store.i18n.t('comment')"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="comment"
+                                    required
+                                ></textarea>
+                            </div>
+                            <div>
+                                <label for="add_testimonial_rating" class="dark:text-white" x-text="$store.i18n.t('rating')"></label>
+                                <input
+                                    id="add_testimonial_rating"
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    :placeholder="$store.i18n.t('rating')"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="rating"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label for="add_testimonial_image" class="dark:text-white" x-text="$store.i18n.t('image')"></label>
+                                <input
+                                    id="add_testimonial_image"
+                                    type="file"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-ref="image"
+                                    accept="image/*"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary rounded-md px-4 py-2 text-sm" x-text="$store.i18n.t('add')"></button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="mb-5 rounded-md bg-white p-5 shadow-md dark:bg-gray-800">
+                    <h2 class="mb-4 text-lg font-bold dark:text-white" x-text="$store.i18n.t('filter_testimonials')"></h2>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="filter_name" class="dark:text-white" x-text="$store.i18n.t('name')"></label>
+                            <input
+                                id="filter_name"
+                                type="text"
+                                :placeholder="$store.i18n.t('name')"
+                                class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                x-model="filters.name"
+                            />
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button @click="applyFilters()" class="btn btn-primary rounded-md px-4 py-2 text-sm" x-text="$store.i18n.t('apply')"></button>
+                            <button
+                                @click="resetFilters()"
+                                class="btn btn-outline-secondary rounded-md px-4 py-2 text-sm"
+                                x-text="$store.i18n.t('reset')"
+                            ></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="panel">
+                    <div class="mb-5 flex items-center justify-between">
+                        <h5 class="text-lg font-semibold dark:text-white" x-text="$store.i18n.t('testimonials')"></h5>
+                    </div>
+                    <div class="relative">
+                        <div id="tableLoading" class="grid hidden h-32 place-content-center">
+                            <svg width="64" height="64" viewBox="0 0 135 135" xmlns="http://www.w3.org/2000/svg" fill="#4361ee">
+                                <path
+                                    d="M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"
+                                >
+                                    <animateTransform
+                                        attributeName="transform"
+                                        type="rotate"
+                                        from="0 67 67"
+                                        to="-360 67 67"
+                                        dur="2.5s"
+                                        repeatCount="indefinite"
+                                    />
+                                </path>
+                            </svg>
+                        </div>
+                        <div id="tableEmptyState" class="hidden text-center text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_data')"></div>
+                        <table id="testimonialTable" class="whitespace-nowrap"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

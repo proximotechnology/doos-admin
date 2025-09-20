@@ -529,5 +529,25 @@
     "manager": "مدير",
     "support": "دعم",
     "failed_to_create_admin": "فشل إنشاء الأدمن",
-    "admin_created_success": "تم إنشاء الأدمن بنجاح"
+    "admin_created_success": "تم إنشاء الأدمن بنجاح",
+    "image": "الصورة",
+    "testimonials": "الشهادات",
+    "add_testimonial": "إضافة شهادة",
+    "filter_testimonials": "تصفية الشهادات",
+    "update_testimonial": "تحديث الشهادة",
+    "delete_testimonial": "حذف الشهادة",
+    "confirm_delete_testimonial": "هل أنت متأكد من حذف هذه الشهادة؟",
+    "testimonial_updated_successfully": "تم تحديث الشهادة بنجاح",
+    "failed_update_testimonial": "فشل تحديث الشهادة",
+    "add_testimonial_successful": "تم إضافة الشهادة بنجاح",
+    "failed_to_add_testimonial": "فشل إضافة الشهادة",
+    "delete_testimonial_successful": "تم حذف الشهادة بنجاح",
+    "failed_delete_testimonial": "فشل حذف الشهادة",
+    "testimonial_not_found": "الشهادة غير موجودة",
+    "image_input_missing": "حقل الصورة غير موجود. الرجاء التحقق من النموذج.",
+    "failed_fetch_testimonials": "فشل جلب الشهادات",
+    "apply": "تطبيق",
+    "reset": "إعادة تعيين",
+
+    "no_data": "لا توجد بيانات"
 }
