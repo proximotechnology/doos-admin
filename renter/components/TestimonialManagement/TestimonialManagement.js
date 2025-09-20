@@ -52,7 +52,8 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
         filters: {
-            name: ''
+            name: '',
+            rating: ''
         },
 
         async init() {
@@ -87,6 +88,8 @@ document.addEventListener('alpine:init', () => {
 
                 const queryParams = new URLSearchParams({ page, per_page: 15 });
                 if (this.filters.name) queryParams.append('name', this.filters.name);
+                if (this.filters.rating) queryParams.append('rating', this.filters.rating);
+
 
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/filter?${queryParams.toString()}`, {
                     method: 'GET',
@@ -132,6 +135,8 @@ document.addEventListener('alpine:init', () => {
 
         resetFilters() {
             this.filters.name = '';
+            this.filters.rating = '';
+
             this.fetchTestimonials(1);
         },
 
@@ -271,7 +276,7 @@ document.addEventListener('alpine:init', () => {
 
         async deleteTestimonial(testimonialId) {
             console.log("s");
-            
+
             const deleteConfirmed = await new Promise((resolve) => {
                 Alpine.store('deleteModal').openModal(testimonialId, () => {
                     resolve(true);

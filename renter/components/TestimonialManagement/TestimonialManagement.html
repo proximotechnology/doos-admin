@@ -81,32 +81,44 @@
                 </div>
 
                 <!-- Filter Section -->
-                <div class="mb-5 rounded-md bg-white p-5 shadow-md dark:bg-gray-800">
-                    <h2 class="mb-4 text-lg font-bold dark:text-white" x-text="$store.i18n.t('filter_testimonials')"></h2>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div>
-                            <label for="filter_name" class="dark:text-white" x-text="$store.i18n.t('name')"></label>
-                            <input
-                                id="filter_name"
-                                type="text"
-                                :placeholder="$store.i18n.t('name')"
-                                class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                x-model="filters.name"
-                            />
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <button @click="applyFilters()" class="btn btn-primary rounded-md px-4 py-2 text-sm" x-text="$store.i18n.t('apply')"></button>
-                            <button
-                                @click="resetFilters()"
-                                class="btn btn-outline-secondary rounded-md px-4 py-2 text-sm"
-                                x-text="$store.i18n.t('reset')"
-                            ></button>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Table Section -->
                 <div class="panel">
+                    <div class="mb-5 rounded-md bg-white p-5 shadow-md dark:bg-gray-800">
+                        <h2 class="mb-4 text-lg font-bold dark:text-white" x-text="$store.i18n.t('filter_testimonials')"></h2>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="filter_name" class="dark:text-white" x-text="$store.i18n.t('name')"></label>
+                                <input
+                                    id="filter_name"
+                                    type="text"
+                                    :placeholder="$store.i18n.t('name')"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.name"
+                                />
+                            </div>
+                            <div>
+                                <label for="filter_rating" class="dark:text-white" x-text="$store.i18n.t('rating')"></label>
+                                <input
+                                    id="filter_rating"
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    :placeholder="$store.i18n.t('rating')"
+                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.rating"
+                                />
+                            </div>
+                            <div class="flex items-end gap-2">
+                                <button @click="applyFilters()" class="btn btn-primary rounded-md px-4 py-2 text-sm" x-text="$store.i18n.t('apply')"></button>
+                                <button
+                                    @click="resetFilters()"
+                                    class="btn btn-outline-secondary rounded-md px-4 py-2 text-sm"
+                                    x-text="$store.i18n.t('reset')"
+                                ></button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mb-5 flex items-center justify-between">
                         <h5 class="text-lg font-semibold dark:text-white" x-text="$store.i18n.t('testimonials')"></h5>
                     </div>
