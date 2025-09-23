@@ -46,7 +46,6 @@
     position: relative;
 }
 
-/* تحسينات النافذة المنبثقة */
 .modal-container {
     display: flex;
     flex-direction: column;

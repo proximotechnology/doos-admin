@@ -34,10 +34,10 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('featurePlans', () => ({
         plans: [],
         tableData: [],
-        paginationMeta: {}, // إضافة متغير لتخزين بيانات التصفح
+        paginationMeta: {},
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
-        currentPage: 1, // إضافة متغير لتتبع الصفحة الحالية
+        currentPage: 1,
         form: {
             plan_id: '',
             feature: ''
@@ -170,7 +170,7 @@ document.addEventListener('alpine:init', () => {
                     data: mappedData,
                 },
                 searchable: true,
-                perPage: this.paginationMeta.per_page || 10, // استخدام per_page من الـ API
+                perPage: this.paginationMeta.per_page || 10,
                 perPageSelect: [10, 20, 30, 50, 100],
                 columns: [{ select: 0, sort: 'asc' }],
                 firstLast: true,
@@ -192,14 +192,12 @@ document.addEventListener('alpine:init', () => {
             let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
             paginationHTML += '<nav class="flex items-center space-x-2">';
 
-            // زر "السابق"
             if (this.paginationMeta.current_page > 1) {
                 paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page - 1}">
                     ${Alpine.store('i18n').t('previous')}
                 </button>`;
             }
 
-            // أرقام الصفحات
             const startPage = Math.max(1, this.paginationMeta.current_page - 2);
             const endPage = Math.min(this.paginationMeta.last_page, startPage + 4);
 
@@ -209,7 +207,6 @@ document.addEventListener('alpine:init', () => {
                 </button>`;
             }
 
-            // زر "التالي"
             if (this.paginationMeta.current_page < this.paginationMeta.last_page) {
                 paginationHTML += `<button class="pagination-btn btn btn-sm btn-outline-primary" data-page="${this.paginationMeta.current_page + 1}">
                     ${Alpine.store('i18n').t('next')}

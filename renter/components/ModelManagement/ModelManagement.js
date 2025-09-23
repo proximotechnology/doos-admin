@@ -133,7 +133,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         applyFilters() {
-            this.fetchManagers(1); // إعادة تعيين الصفحة إلى 1 عند تطبيق الفلتر
+            this.fetchManagers(1);
         },
 
         resetFilters() {

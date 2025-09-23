@@ -344,7 +344,6 @@
                         }
 
                         try {
-                            // تحقق من أن عنوان URL صحيح
                             const apiUrl = `${this.apiBaseUrl}/web/admins/login`;
 
                             const response = await fetch(apiUrl, {
@@ -382,7 +381,6 @@
                         } catch (error) {
                             console.error('Login error Ride-Type:', error);
 
-                            // رسائل خطأ أكثر تحديداً
                             if (error.message.includes('Failed to fetch')) {
                                 coloredToast('danger', 'Network error. Please check your connection.');
                             } else {
@@ -400,7 +398,7 @@
 
                     showError(message) {
                         coloredToast('danger', message);
-                    }, // أضف هذه الدالة في Alpine.data('auth')
+                    },
                     getErrorMessage(error) {
                         if (error.message.includes('Failed to fetch')) {
                             return 'Cannot connect to server. Please check your internet connection.';

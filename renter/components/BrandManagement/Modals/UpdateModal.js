@@ -35,12 +35,10 @@ document.addEventListener('alpine:init', () => {
             this.brandId = id;
             this.isOpen = true;
 
-            // البحث عن البيانات الحالية للعلامة التجارية
             const tableComponent = Alpine.$data(document.querySelector('[x-data="brandTable"]'));
             const brand = tableComponent.tableData.find((b) => b.id == id);
 
             if (brand) {
-                // تعيين البيانات في global store
                 Alpine.store('global').sharedData.name = brand.name || '';
                 Alpine.store('global').sharedData.country = brand.country || '';
                 Alpine.store('global').sharedData.image = brand.image || '';
@@ -53,13 +51,11 @@ document.addEventListener('alpine:init', () => {
             this.brandId = null;
             this.callback = null;
 
-            // إعادة تعيين البيانات
             Alpine.store('global').sharedData.name = '';
             Alpine.store('global').sharedData.country = '';
             Alpine.store('global').sharedData.image = '';
             Alpine.store('global').sharedData.imageFile = null;
 
-            // إعادة تعيين input file
             const imageInput = document.querySelector('input[x-ref="imageInput"]');
             if (imageInput) {
                 imageInput.value = '';
@@ -80,7 +76,6 @@ document.addEventListener('alpine:init', () => {
                 formData.append('make_id', (Alpine.store('global').sharedData.name || '').charAt(0).toUpperCase() + (Alpine.store('global').sharedData.name || '').slice(1));
                 formData.append('country', Alpine.store('global').sharedData.country || '');
 
-                // إرسال الصورة كملف فقط إذا تم اختيار صورة جديدة
                 if (Alpine.store('global').sharedData.imageFile instanceof File) {
                     formData.append('image', Alpine.store('global').sharedData.imageFile);
                 }

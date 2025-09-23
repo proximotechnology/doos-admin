@@ -197,10 +197,8 @@ document.addEventListener('alpine:init', () => {
                 formData.append('year', year);
                 formData.append('image', file);
 
-                // الحصول على apiBaseUrl بطريقة آمنة
                 let apiBaseUrl = API_CONFIG?.BASE_URL_Renter;
                 if (!apiBaseUrl) {
-                    // محاولة الحصول من Alpine إذا كان متاحاً
                     const tableElement = document.querySelector('[x-data="multipleTable"]');
                     if (tableElement && Alpine.$data(tableElement)) {
                         apiBaseUrl = Alpine.$data(tableElement).apiBaseUrl;
@@ -227,7 +225,6 @@ document.addEventListener('alpine:init', () => {
 
                 coloredToast('success', Alpine.store('i18n').t('year_added_successfully'));
 
-                // تحديث الجدول بطريقة آمنة
                 const tableElement = document.querySelector('[x-data="multipleTable"]');
                 if (tableElement && Alpine.$data(tableElement) && Alpine.$data(tableElement).fetchManagers) {
                     await Alpine.$data(tableElement).fetchManagers();
@@ -261,7 +258,6 @@ document.addEventListener('alpine:init', () => {
             this.yearId = yearId;
             this.currentYear = currentYear;
 
-            // استخدام setTimeout لضمان أن Alpine.js قام بتهيئة العناصر
             setTimeout(() => {
                 if (Alpine.store('global')) {
                     Alpine.store('global').sharedData.year = currentYear; // Sync with input
@@ -310,7 +306,6 @@ document.addEventListener('alpine:init', () => {
                 formData.append('year', year);
                 if (file) formData.append('image', file); // Image is optional for update
 
-                // استخدام apiBaseUrl من المخزن
                 const apiBaseUrl = this.apiBaseUrl || globalApiBaseUrl;
                 if (!apiBaseUrl) {
                     throw new Error('لم يتم تعريف عنوان API');
@@ -332,7 +327,6 @@ document.addEventListener('alpine:init', () => {
 
                 coloredToast('success', Alpine.store('i18n').t('year_updated_successfully'));
 
-                // تحديث الجدول بطريقة آمنة
                 const tableElement = document.querySelector('[x-data="multipleTable"]');
                 if (tableElement && Alpine.$data(tableElement) && Alpine.$data(tableElement).fetchManagers) {
                     await Alpine.$data(tableElement).fetchManagers();
