@@ -254,10 +254,13 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            // تعيين البيانات مع التحقق من قيمة الصورة
+            // تعيين البيانات في global store
             Alpine.store('global').sharedData.name = brand.name || '';
             Alpine.store('global').sharedData.country = brand.country || '';
+            Alpine.store('global').sharedData.image = brand.image || '';
+            Alpine.store('global').sharedData.imageFile = null;
 
+            // فتح المودال
             Alpine.store('updateModal').openModal(brandId);
         },
 
