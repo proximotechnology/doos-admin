@@ -500,7 +500,7 @@ document.addEventListener('alpine:init', () => {
                                     <span class="font-medium text-gray-800 dark:text-white text-base">${car.owner.email || 'N/A'}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('phone')}:</label>
+                                    <span class="text-gray-600 dark:text-gray-300 text-base">${Alpine.store('i18n').t('phone')}:</span>
                                     <span class="font-medium text-gray-800 dark:text-white text-base">${car.owner.phone || 'N/A'}</span>
                                 </div>
                             </div>
@@ -525,6 +525,98 @@ document.addEventListener('alpine:init', () => {
                         </div>
                     </div>
                 ` : '';
+
+                const additionalFeaturesHtml = car.additional_features && Array.isArray(car.additional_features) && car.additional_features.length > 0 ? `
+                    <div class="mt-6 rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+                        <h4 class="mb-3 text-lg font-semibold text-indigo-800 dark:text-indigo-300">${Alpine.store('i18n').t('additional_features')}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            ${car.additional_features.map(feature => `
+                                <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                                    <div class="text-sm text-indigo-600 dark:text-indigo-400 font-medium capitalize">
+                                        ${Alpine.store('i18n').t(feature) || feature.replace(/([A-Z])/g, ' $1').trim()}
+                                    </div>
+                                    <div class="text-base font-semibold text-green-600">
+                                        ${Alpine.store('i18n').t('yes')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+                const licenseImageHtml = car.image_license ? `
+                    <div class="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                        <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('license_image')}</h4>
+                        <div class="flex justify-center">
+                            <img src="${car.image_license}" 
+                                 alt="License Image" 
+                                 class="max-w-xs h-48 object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
+                                 onclick="this.classList.toggle('max-w-xs'); this.classList.toggle('max-w-full');"
+                                 loading="lazy">
+                        </div>
+                    </div>
+                ` : '';
+
+                let mapHtml = '';
+                const lat = parseFloat(car.lat);
+                const lng = parseFloat(car.lang);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    mapHtml = `
+                        <div class="mt-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
+                            <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('location')}</h4>
+                            <div class="mb-2 text-green-700 dark:text-green-200">
+                                ${Alpine.store('i18n').t('latitude')}: ${lat.toFixed(6)}, ${Alpine.store('i18n').t('longitude')}: ${lng.toFixed(6)}
+                            </div>
+                            <div id="map-${car.id}" class="h-64 w-full rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div id="map-loading-${car.id}" class="flex items-center justify-center h-full">
+                                    ${Alpine.store('i18n').t('loading_map')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    mapHtml = `
+                        <div class="mt-6 rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+                            <h4 class="mb-3 text-lg font-semibold text-red-800 dark:text-red-300">${Alpine.store('i18n').t('location')}</h4>
+                            <div class="text-red-700 dark:text-red-200">
+                                ${Alpine.store('i18n').t('invalid_coordinates')}: ${Alpine.store('i18n').t('latitude')}: ${car.lat || 'N/A'}, ${Alpine.store('i18n').t('longitude')}: ${car.lang || 'N/A'}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let returnMapHtml = '';
+                const latReturn = parseFloat(car.lat_return);
+                const lngReturn = parseFloat(car.lang_return);
+                if (!isNaN(latReturn) && !isNaN(lngReturn)) {
+                    returnMapHtml = `
+                        <div class="mt-6 rounded-lg bg-teal-50 p-4 dark:bg-teal-900/20">
+                            <h4 class="mb-3 text-lg font-semibold text-teal-800 dark:text-teal-300">${Alpine.store('i18n').t('return_location')}</h4>
+                            <div class="mb-2 text-teal-700 dark:text-teal-200">
+                                ${Alpine.store('i18n').t('latitude')}: ${latReturn.toFixed(6)}, 
+                                ${Alpine.store('i18n').t('longitude')}: ${lngReturn.toFixed(6)}, 
+                                ${Alpine.store('i18n').t('address_return')}: ${car.address_return || 'N/A'}
+                            </div>
+                            <div id="return-map-${car.id}" class="h-64 w-full rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div id="return-map-loading-${car.id}" class="flex items-center justify-center h-full">
+                                    ${Alpine.store('i18n').t('loading_map')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    returnMapHtml = `
+                        <div class="mt-6 rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+                            <h4 class="mb-3 text-lg font-semibold text-red-800 dark:text-red-300">${Alpine.store('i18n').t('return_location')}</h4>
+                            <div class="text-red-700 dark:text-red-200">
+                                ${Alpine.store('i18n').t('invalid_coordinates')}: 
+                                ${Alpine.store('i18n').t('latitude')}: ${car.lat_return || 'N/A'}, 
+                                ${Alpine.store('i18n').t('longitude')}: ${car.lang_return || 'N/A'}, 
+                                ${Alpine.store('i18n').t('address_return')}: ${car.address_return || 'N/A'}
+                            </div>
+                        </div>
+                    `;
+                }
 
                 const dynamicFeaturesHtml = car.cars_features ? `
                     <div class="mt-6 rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
@@ -570,47 +662,6 @@ document.addEventListener('alpine:init', () => {
                     </div>
                     </div>
                 ` : '';
-
-                const licenseImageHtml = car.image_license ? `
-                    <div class="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                        <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('license_image')}</h4>
-                        <div class="flex justify-center">
-                        <img src="${car.image_license}" 
-                            alt="License Image" 
-                            class="max-w-xs h-48 object-contain rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
-                            onclick="this.classList.toggle('max-w-xs'); this.classList.toggle('max-w-full');"
-                            loading="lazy">
-                        </div>
-                    </div>
-                ` : '';
-
-                let mapHtml = '';
-                const lat = parseFloat(car.lat);
-                const lng = parseFloat(car.lang);
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    mapHtml = `
-                        <div class="mt-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-                            <h4 class="mb-3 text-lg font-semibold text-green-800 dark:text-green-300">${Alpine.store('i18n').t('location')}</h4>
-                            <div class="mb-2 text-green-700 dark:text-green-200">
-                                ${Alpine.store('i18n').t('latitude')}: ${lat.toFixed(6)}, ${Alpine.store('i18n').t('longitude')}: ${lng.toFixed(6)}
-                            </div>
-                            <div id="map-${car.id}" class="h-64 w-full rounded-lg border border-gray-200 dark:border-gray-700">
-                                <div id="map-loading-${car.id}" class="flex items-center justify-center h-full">
-                                    ${Alpine.store('i18n').t('loading_map')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    mapHtml = `
-                        <div class="mt-6 rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
-                            <h4 class="mb-3 text-lg font-semibold text-red-800 dark:text-red-300">${Alpine.store('i18n').t('location')}</h4>
-                            <div class="text-red-700 dark:text-red-200">
-                                ${Alpine.store('i18n').t('invalid_coordinates')}: ${Alpine.store('i18n').t('latitude')}: ${car.lat || 'N/A'}, ${Alpine.store('i18n').t('longitude')}: ${car.lang || 'N/A'}
-                            </div>
-                        </div>
-                    `;
-                }
 
                 const detailsHtml = `
                     <div class="space-y-6 text-base">
@@ -700,8 +751,10 @@ document.addEventListener('alpine:init', () => {
                             </div>
                         </div>
                         ${dynamicFeaturesHtml}
+                        ${additionalFeaturesHtml}
                         ${licenseImageHtml}
                         ${mapHtml}
+                        ${returnMapHtml}
                         ${ownerInfoHtml}
                         ${imagesHtml}
                     </div>
@@ -716,6 +769,15 @@ document.addEventListener('alpine:init', () => {
                     });
                 } else {
                     console.warn('Invalid coordinates for car ID:', car.id, { lat: car.lat, lng: car.lang });
+                    coloredToast('warning', Alpine.store('i18n').t('invalid_coordinates'));
+                }
+
+                if (!isNaN(latReturn) && !isNaN(lngReturn)) {
+                    loadGoogleMapsAPI(() => {
+                        this.initReturnMap(car.id, latReturn, lngReturn);
+                    });
+                } else {
+                    console.warn('Invalid return coordinates for car ID:', car.id, { lat_return: car.lat_return, lng_return: car.lang_return });
                     coloredToast('warning', Alpine.store('i18n').t('invalid_coordinates'));
                 }
             } catch (error) {
@@ -749,6 +811,39 @@ document.addEventListener('alpine:init', () => {
                 title: Alpine.store('i18n').t('car_location'),
                 icon: {
                     url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                    scaledSize: new google.maps.Size(40, 40)
+                }
+            });
+
+            setTimeout(() => {
+                google.maps.event.trigger(map, 'resize');
+                map.setCenter({ lat, lng });
+            }, 500);
+        },
+
+        initReturnMap(carId, lat, lng) {
+            const mapElement = document.getElementById(`return-map-${carId}`);
+            if (!mapElement) {
+                console.warn('Return map element not found for ID:', `return-map-${carId}`);
+                return;
+            }
+
+            const mapLoading = document.getElementById(`return-map-loading-${carId}`);
+            if (mapLoading) mapLoading.style.display = 'none';
+
+            const map = new google.maps.Map(mapElement, {
+                zoom: 15,
+                center: { lat, lng },
+                mapTypeControl: false,
+                streetViewControl: false
+            });
+
+            new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: Alpine.store('i18n').t('return_location'),
+                icon: {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                     scaledSize: new google.maps.Size(40, 40)
                 }
             });

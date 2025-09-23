@@ -549,5 +549,27 @@
     "apply": "تطبيق",
     "reset": "إعادة تعيين",
 
-    "no_data": "لا توجد بيانات"
+    "no_data": "لا توجد بيانات",
+    "return_location": "موقع الإرجاع",
+    "address_return": "عنوان الإرجاع",
+    "usb_charger": "شاحن USB",
+    "apple_carplay": "آبل كاربلاي",
+    "wheelchair_accessible": "مناسب للكراسي المتحركة",
+    "android_auto": "أندرويد أوتو",
+    "navigation": "نظام ملاحة",
+    "keyless_entry": "دخول بدون مفتاح",
+    "heated_seats": "مقاعد مدفأة",
+    "full_self_driving": "قيادة ذاتية كاملة",
+    "backup_camera": "كاميرا رجوع",
+    "spot_warning": "تحذير من النقاط العمياء",
+    "dashcam": "كاميرا داش",
+    "aux_input": "مدخل AUX",
+    "winter_tires": "إطارات الشتاء",
+    "bluetooth_audio": "صوت بلوتوث",
+    "roof_box": "صندوق السقف",
+    "bike_rack": "حامل الدراجات",
+    "gps": "نظام تحديد المواقع",
+    "baby_seat": "مقعد أطفال",
+    "air_conditioning": "تكييف هواء",
+    "cruise_control": "نظام تثبيت السرعة"
 }

@@ -40,6 +40,11 @@
     width: 100% !important;
     position: relative;
 }
+[id^='return-map-'] {
+    height: 456px !important;
+    width: 100% !important;
+    position: relative;
+}
 
 /* تحسينات النافذة المنبثقة */
 .modal-container {
