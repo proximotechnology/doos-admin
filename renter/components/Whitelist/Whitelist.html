@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- Load Google Maps API -->
+        <script>
+            loadGoogleMapsAPI();
+        </script>
+        <style>
+            .map-container {
+                height: 300px;
+                width: 100%;
+                border-radius: 8px;
+                overflow: hidden;
+                margin-top: 1rem;
+                border: 1px solid #e5e7eb;
+            }
+            .marker-info {
+                background: white;
+                padding: 10px;
+                border-radius: 4px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                font-size: 14px;
+                margin-top: 10px;
+            }
+            .coordinates-display {
+                background-color: #f9fafb;
+                padding: 0.5rem;
+                border-radius: 4px;
+                margin-top: 0.5rem;
+                font-family: monospace;
+            }
+            .search-box-container {
+                margin-bottom: 1rem;
+            }
+            .search-box {
+                box-sizing: border-box;
+                border: 1px solid transparent;
+                width: 100%;
+                height: 40px;
+                padding: 0 12px;
+                border-radius: 8px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                font-size: 14px;
+                outline: none;
+                text-overflow: ellipses;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <ul class="flex space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline">
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('locations')"></span>
+                </li>
+
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('white_locations')"></span>
+                </li>
+            </ul>
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+                <div class="mb-6 grid gap-6 xl:grid-cols-1">
+                    <div class="panel h-full">
+                        <div class="mb-5 flex items-center">
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('add_new_white_location')"></h5>
+                        </div>
+                        <div class="overflow-hidden">
+                            <!-- form grid -->
+                            <form x-data="Add_White_Location" @submit.prevent="Add_White_Location">
+                                <div class="grid grid-cols-1 gap-5">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            <span x-text="$store.i18n.t('select_address')"></span>
+                                        </label>
+                                        <div class="search-box-container">
+                                            <input
+                                                id="pac-input"
+                                                class="search-box"
+                                                type="text"
+                                                :placeholder="$store.i18n.t('search_address')"
+                                                x-model="address"
+                                                required
+                                            />
+                                        </div>
+                                        <div id="map" class="map-container"></div>
+                                        <div class="coordinates-display mt-3">
+                                            <div><strong>Latitude:</strong> <span x-text="lat || 'Not selected'"></span></div>
+                                            <div><strong>Longitude:</strong> <span x-text="lang || 'Not selected'"></span></div>
+                                        </div>
+                                        <input type="hidden" x-model="lat" required />
+                                        <input type="hidden" x-model="lang" required />
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary mt-6" :disabled="!lat || !lang || !address">
+                                    <span x-text="$store.i18n.t('add_white_location')"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div x-data="whiteLocationsTable" x-init="fetchWhiteLocations()">
+                    <div class="panel mt-6">
+                        <h5
+                            class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0"
+                            x-text="$store.i18n.t('white_locations_management')"
+                        ></h5>
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                        <table id="whiteLocationsDataTable" class="whitespace-nowrap"></table>
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_white_locations_found')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_white_location')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Editing White Location -->
+        <div
+            x-data="{ open: false, whiteLocationData: {} }"
+            x-show="open"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="w-full max-w-3xl rounded-lg bg-white shadow-xl dark:bg-gray-800">
+                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
+                    <h3 class="text-xl font-bold" x-text="$store.i18n.t('edit_white_location')"></h3>
+                    <button @click="open = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="$store.whiteLocationsTable.updateWhiteLocation(whiteLocationData.id)">
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <span x-text="$store.i18n.t('select_address')"></span>
+                                </label>
+                                <div class="search-box-container">
+                                    <input
+                                        id="edit-pac-input"
+                                        class="search-box"
+                                        type="text"
+                                        :placeholder="$store.i18n.t('search_address')"
+                                        x-model="whiteLocationData.address"
+                                        required
+                                    />
+                                </div>
+                                <div id="edit-map" class="map-container"></div>
+                                <div class="coordinates-display mt-3">
+                                    <div><strong>Latitude:</strong> <span x-text="whiteLocationData.lat || 'Not selected'"></span></div>
+                                    <div><strong>Longitude:</strong> <span x-text="whiteLocationData.lang || 'Not selected'"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between border-t p-4 dark:border-gray-700">
+                        <button type="button" @click="open = false" class="btn btn-outline-danger">
+                            <span x-text="$store.i18n.t('cancel')"></span>
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            :disabled="!whiteLocationData.lat || !whiteLocationData.lang || !whiteLocationData.address"
+                        >
+                            <span x-text="$store.i18n.t('update_white_location')"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
