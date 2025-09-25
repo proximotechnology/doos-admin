@@ -151,7 +151,9 @@
                                             </span>
                                         </div>
                                     </div>
-
+                                    <div class="text-right">
+                                        <a href="auth-boxed-password-reset.html" class="text-primary hover:underline">Forgot Password?</a>
+                                    </div>
                                     <button
                                         type="submit"
                                         class="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
@@ -352,6 +354,8 @@
                             });
 
                             const result = await response.json();
+                            console.log(result);
+                            
 
                             if (!response.ok) {
                                 throw new Error(result.message || 'Login failed. Please try again.');
