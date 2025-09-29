@@ -612,5 +612,22 @@
     "failed_update_white_location": "فشل في تحديث موقع قائمة بيضاء",
     "failed_delete_white_location": "فشل في حذف موقع قائمة بيضاء",
     "error_create_white_location": "خطأ في إنشاء موقع قائمة بيضاء",
-    "error_delete_white_location": "خطأ في حذف موقع قائمة بيضاء"
+    "error_delete_white_location": "خطأ في حذف موقع قائمة بيضاء",
+    "fees": "الرسوم",
+    "fees_management": "إدارة الرسوم",
+    "no_fees": "لا توجد رسوم",
+    "no_fees_description": "لم يتم العثور على رسوم. حاول مرة أخرى لاحقًا.",
+    "label": "التصنيف",
+    "type": "النوع",
+
+    "is_active": "نشط",
+
+    "failed_fetch_fees": "فشل جلب الرسوم",
+    "failed_fetch_fees_try_again": "فشل جلب الرسوم، حاول مرة أخرى",
+    "edit_fee": "تعديل الرسم",
+    "fixed": "ثابت",
+    "percentage": "نسبة مئوية",
+
+    "failed_update_fee": "فشل تحديث الرسم",
+    "fee_updated_successfully": "تم تحديث الرسم بنجاح"
 }

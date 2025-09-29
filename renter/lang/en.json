@@ -615,5 +615,21 @@
     "error_create_white_location": "Error creating white list location",
     "error_delete_white_location": "Error deleting white list location",
     "failed_to_load_map": "Failed to load the map. Please check your internet connection.",
-    "no_details_available": "No details available for"
+    "no_details_available": "No details available for",
+    "fees": "Fees",
+    "fees_management": "Fees Management",
+    "no_fees": "No Fees",
+    "no_fees_description": "No fees found. Try again later.",
+    "label": "Label",
+    "type": "Type",
+    "is_active": "Active",
+
+    "failed_fetch_fees": "Failed to fetch fees",
+    "failed_fetch_fees_try_again": "Failed to fetch fees, try again",
+    "edit_fee": "Edit Fee",
+    "fixed": "Fixed",
+    "percentage": "Percentage",
+
+    "failed_update_fee": "Failed to update fee",
+    "fee_updated_successfully": "Fee updated successfully"
 }

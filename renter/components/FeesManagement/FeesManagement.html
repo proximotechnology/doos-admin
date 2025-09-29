@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title x-text="$store.i18n.t('fees_management')"></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            .modal-header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: inherit;
+                border-bottom: 1px solid #e5e7eb;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100 font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
+        <div class="container mx-auto p-6">
+            <ul class="flex space-x-2 text-sm text-gray-600 dark:text-gray-400 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('fees')"></span>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('fees_management')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <div x-data="feesTable" x-init="init()">
+                    <div class="panel mt-6">
+                        <div class="mb-5 flex items-center justify-between">
+                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('fees_management')"></h5>
+                        </div>
+
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="ltr:ml-2 rtl:mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+
+                        <table id="myTable1" class="whitespace-nowrap"></table>
+
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_fees')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_fees_description')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
