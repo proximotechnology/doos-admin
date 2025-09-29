@@ -41,82 +41,6 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
-    Alpine.store('feesTable', {
-        isEditModalOpen: false,
-        refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="feesTable"]'));
-            if (tableComponent && tableComponent.fetchFees) {
-                await tableComponent.fetchFees(tableComponent.currentPage);
-            }
-        },
-        openEditModal(fee) {
-            this.isEditModalOpen = true;
-            const modalData = Alpine.$data(document.querySelector('[x-data][x-show="$store.feesTable.isEditModalOpen"]'));
-            if (modalData) {
-                modalData.feeData = {
-                    id: fee.id,
-                    type: fee.type,
-                    is_active: fee.is_active,
-                    description: fee.description || ''
-                };
-            }
-        },
-        closeEditModal() {
-            this.isEditModalOpen = false;
-            const modalData = Alpine.$data(document.querySelector('[x-data][x-show="$store.feesTable.isEditModalOpen"]'));
-            if (modalData) {
-                modalData.resetForm();
-            }
-        },
-        async updateFee(feeData) {
-            try {
-                loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
-
-                const formData = new FormData();
-                formData.append('type', feeData.type || '');
-                formData.append('is_active', feeData.is_active ? 1 : 0);
-                formData.append('description', feeData.description || '');
-
-                console.log('FormData contents:');
-                for (const pair of formData.entries()) {
-                    console.log(`${pair[0]}: ${pair[1]}`);
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/fees/update/${feeData.id}`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    const errorMsg =
-                        result.message ||
-                        Object.values(result.errors || {})
-                            .flat()
-                            .join(', ') ||
-                        Alpine.store('i18n').t('failed_update_fee');
-                    throw new Error(errorMsg);
-                }
-
-                coloredToast('success', Alpine.store('i18n').t('fee_updated_successfully'));
-                await this.refreshTable();
-                this.closeEditModal();
-            } catch (error) {
-                console.error('Update Fee Error:', error);
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_fee'));
-            } finally {
-                loadingIndicator.hide();
-            }
-        }
-    });
 
     Alpine.data('feesTable', () => ({
         fees: [],
@@ -277,7 +201,13 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatText(text) {
-            return text || Alpine.store('i18n').t('na');
+            if (text == "fixed") {
+                return Alpine.store('i18n').t('fixed');
+            }
+            else if (text == "percentage") {
+                return Alpine.store('i18n').t('percentage');
+            } else
+                return text || Alpine.store('i18n').t('na');
         },
 
         formatDate(dateString) {
