@@ -336,7 +336,7 @@
                         this.errorMessage = '';
 
                         if (!this.validateInputs()) {
-                            this.isLoading = false; 
+                            this.isLoading = false;
                             return;
                         }
 
@@ -354,8 +354,6 @@
                             });
 
                             const result = await response.json();
-                            console.log(result);
-                            
 
                             if (!response.ok) {
                                 throw new Error(result.message || 'Login failed. Please try again.');
@@ -386,11 +384,11 @@
                     },
 
                     showSuccess(message) {
-                        coloredToast('success', message); 
+                        coloredToast('success', message);
                     },
 
                     showError(message) {
-                        coloredToast('danger', message); 
+                        coloredToast('danger', message);
                     },
                 }));
             });

@@ -84,8 +84,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
-
                 if (data.status === 'success' && Array.isArray(data.data)) {
                     this.allTableData = data.data;
                     this.paginationMeta.total = this.allTableData.length;

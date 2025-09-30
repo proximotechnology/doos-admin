@@ -275,7 +275,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteTestimonial(testimonialId) {
-            console.log("s");
 
             const deleteConfirmed = await new Promise((resolve) => {
                 Alpine.store('deleteModal').openModal(testimonialId, () => {
@@ -284,8 +283,6 @@ document.addEventListener('alpine:init', () => {
             });
 
             if (!deleteConfirmed) return;
-            console.log("s");
-
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');

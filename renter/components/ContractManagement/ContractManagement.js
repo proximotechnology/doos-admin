@@ -113,8 +113,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
-                
 
                 if (data.status && Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
@@ -215,20 +213,20 @@ document.addEventListener('alpine:init', () => {
                     ],
                     data: mappedData,
                 },
-                 searchable: true,
-        perPage: 10,
-        perPageSelect: false,
-        columns: [{ select: 0, sort: 'asc' }],
-        firstLast: true,
-        firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
-        lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
-        prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
-        nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
-        labels: { perPage: '{select}' },
-        layout: {
-            top: '{search}',
-            bottom: this.generatePaginationHTML() + '{info}{pager}'
-        }
+                searchable: true,
+                perPage: 10,
+                perPageSelect: false,
+                columns: [{ select: 0, sort: 'asc' }],
+                firstLast: true,
+                firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
+                lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
+                prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
+                nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
+                labels: { perPage: '{select}' },
+                layout: {
+                    top: '{search}',
+                    bottom: this.generatePaginationHTML() + '{info}{pager}'
+                }
             });
         },
 

@@ -40,7 +40,6 @@ document.addEventListener('alpine:init', () => {
         refreshTable: async function () {
             const tableComponent = Alpine.$data(document.querySelector('[x-data="feesTable"]'));
             if (tableComponent && tableComponent.fetchFees) {
-                console.log('Refreshing table for page:', tableComponent.currentPage);
                 await tableComponent.fetchFees(tableComponent.currentPage);
             } else {
                 console.warn('Table component or fetchFees method not found');
@@ -56,7 +55,6 @@ document.addEventListener('alpine:init', () => {
                     is_active: fee.is_active,
                     description: fee.description || ''
                 };
-                console.log('Opened edit modal with fee data:', modalData.feeData);
             } else {
                 console.warn('Modal data component not found');
             }
@@ -66,7 +64,6 @@ document.addEventListener('alpine:init', () => {
             const modalData = Alpine.$data(document.querySelector('[x-data][x-show="$store.feesTable.isEditModalOpen"]'));
             if (modalData) {
                 modalData.resetForm();
-                console.log('Closed edit modal and reset form');
             } else {
                 console.warn('Modal data component not found');
             }
@@ -85,9 +82,6 @@ document.addEventListener('alpine:init', () => {
                     description: feeData.description || ''
                 };
 
-                console.log('Sending PUT request to:', `${this.apiBaseUrl}/api/admin/fees/update/${feeData.id}`);
-                console.log('Request payload:', payload);
-
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/fees/update/${feeData.id}`, {
                     method: 'PUT',
                     headers: {
@@ -100,11 +94,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const result = await response.json();
-                console.log('API response:', {
-                    status: response.status,
-                    ok: response.ok,
-                    result
-                });
+
 
                 if (!response.ok) {
                     const errorMsg =

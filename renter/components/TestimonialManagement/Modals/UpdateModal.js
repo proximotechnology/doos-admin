@@ -48,12 +48,10 @@ document.addEventListener('alpine:init', () => {
 
                 if (imageInput.files && imageInput.files[0]) {
                     formData.append('image', imageInput.files[0]);
-                    console.log('New image selected:', imageInput.files[0].name);
                 } else {
                     const currentImage = Alpine.store('global').sharedData.image || '';
                     if (currentImage) {
                         formData.append('current_image', currentImage);
-                        console.log('Using current image:', currentImage);
                     }
                 }
 

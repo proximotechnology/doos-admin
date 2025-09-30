@@ -109,9 +109,6 @@ document.addEventListener('alpine:init', () => {
                         to: data.data.to,
                         links: data.data.links
                     };
-                    console.log(data.data);
-
-
                     if (this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {

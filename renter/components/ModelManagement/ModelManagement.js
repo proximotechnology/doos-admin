@@ -101,7 +101,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data);
 
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
@@ -402,7 +401,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 this.brands = result.data.data;
-                console.log('Brands:', result.data);
             } catch (error) {
                 console.error('Error fetching brands:', error);
                 coloredToast('danger', error.message);

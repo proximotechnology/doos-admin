@@ -68,8 +68,6 @@ document.addEventListener('alpine:init', () => {
                 // }
 
                 const data = await response.json();
-                console.log(data);
-                
 
                 if (data.status && data.user) {
                     this.user = data.user;
