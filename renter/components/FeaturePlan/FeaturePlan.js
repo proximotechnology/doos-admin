@@ -238,6 +238,8 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const result = await response.json();
+                console.log(result);
+                
                 if (response.ok && result.status) {
                     coloredToast('success', Alpine.store('i18n').t('feature_added_successfully'));
                     this.form.plan_id = '';
@@ -247,6 +249,8 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_feature'));
                 }
             } catch (error) {
+                console.log(error);
+                
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -332,7 +336,7 @@ document.addEventListener('alpine:init', () => {
                 if (result.isConfirmed) {
                     loadingIndicator.show();
                     const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/destroy/${featureId}`, {
+                    const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/delete/${featureId}`, {
                         method: 'DELETE',
                         headers: {
                             Accept: 'application/json',

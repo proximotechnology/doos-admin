@@ -23,7 +23,7 @@ document.addEventListener('alpine:init', () => {
         users: [],
         plans: [],
         filters: {
-            status: 'pending',
+            status: '',
             user_id: '',
             plan_id: '',
             start_date: '',
@@ -31,15 +31,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         async init() {
+                        await this.fetchSubscriptions();
+
             await this.fetchUsers();
             await this.fetchPlans();
-            await this.fetchSubscriptions();
         },
         async fetchUsers() {
             try {
 
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all?per_page=999`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -49,7 +50,9 @@ document.addEventListener('alpine:init', () => {
 
                 if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_fetch_users'));
                 const data = await response.json();
-                this.users = data.user.filter((u) => u.type === '0');
+                console.log(data);
+                
+                this.users = data.data.data.filter((u) => u.type === '0');
             } catch (error) {
                 coloredToast('error', error.message);
             }
@@ -83,7 +86,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                let url = `${this.apiBaseUrl}/api/admin/subscribe/index?page=${this.currentPage}`;
+                let url = `${this.apiBaseUrl}/api/admin/subscribe/index?page=${this.currentPage}&per_page=10`;
 
                 if (this.filters.status) url += `&status=${this.filters.status}`;
                 if (this.filters.user_id) url += `&user_id=${this.filters.user_id}`;

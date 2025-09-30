@@ -12,7 +12,7 @@
                     <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
                 </li>
                 <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('cars_management')"></span>
+                    <span x-text="$store.i18n.t('plan_subscriptions')"></span>
                 </li>
 
                 <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
@@ -27,7 +27,7 @@
                         <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
                     </div>
                 </div>
-                <div x-data="subscriptionsTable" x-init="init()">
+                <div x-data="subscriptionsTable">
                     <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('status')"></label>
