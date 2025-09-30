@@ -7,15 +7,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="favicon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/perfect-scrollbar.min.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/perfect-scrollbar.min.css" />
         <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/file-upload-with-preview.min.css" />
 
-        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
-        <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
-        <script src=" /assets/js/perfect-scrollbar.min.js"></script>
-        <script defer src=" /assets/js/popper.min.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css" />
+        <link defer rel="stylesheet" type="text/css" media="screen" href="/assets/css/animate.css" />
+        <script src="/assets/js/perfect-scrollbar.min.js"></script>
+        <script defer src="/assets/js/popper.min.js"></script>
     </head>
 
     <body
@@ -67,16 +69,22 @@
             </template>
         </div>
 
-        <!-- Theme Customizer -->
+        <!-- start theme customizer section -->
         <div id="theme-customizer-container"></div>
 
+        <!-- end theme customizer section -->
+
         <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
-            <!-- Sidebar -->
+            <!-- start sidebar section -->
             <div id="sidebar-container"></div>
 
+            <!-- end sidebar section -->
+
             <div class="main-content flex min-h-screen flex-col">
-                <!-- Header -->
+                <!-- start header section -->
                 <div id="header-container"></div>
+
+                <!-- end header section -->
 
                 <!-- start main content section -->
                 <div class="animate__animated p-6" :class="[$store.app.animation]">
