@@ -139,11 +139,14 @@ document.addEventListener('alpine:init', () => {
                     },
                 });
 
+
                 if (!response.ok) {
                     throw new Error(Alpine.store('i18n').t('failed_to_load'));
                 }
 
                 const data = await response.json();
+                console.log(data);
+                
 
 
                 if (data.status && Array.isArray(data.data)) {

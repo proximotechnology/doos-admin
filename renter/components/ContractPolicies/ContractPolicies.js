@@ -23,7 +23,8 @@ document.addEventListener('alpine:init', () => {
     };
 
     Alpine.data('contractPolicies', () => ({
-        tableData: [],
+        allTableData: [], // Store all data fetched from backend
+        tableData: [], // Store current page data
         paginationMeta: {
             current_page: 1,
             last_page: 1,
@@ -41,7 +42,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initComponent() {
-            await this.fetchPolicies(1);
+            await this.fetchPolicies();
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.edit-policy-btn')) {
                     const policyId = e.target.closest('.edit-policy-btn').dataset.id;
@@ -53,15 +54,15 @@ document.addEventListener('alpine:init', () => {
                 }
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchPolicies(page);
+                    this.setPage(page);
                 }
             });
         },
 
-        async fetchPolicies(page = 1) {
+        async fetchPolicies() {
             try {
                 loadingIndicator.showTableLoader();
-                this.currentPage = parseInt(page);
+                this.currentPage = 1;
 
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -70,8 +71,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/get_all?${queryParams.toString()}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/get_all`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -86,24 +86,11 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
                 console.log(data);
 
-                if (data.status === 'success' && Array.isArray(data.data.data)) {
-                    this.tableData = data.data.data;
-                    this.paginationMeta = {
-                        current_page: data.data.current_page || 1,
-                        last_page: data.data.last_page || 1,
-                        per_page: data.data.per_page || 10,
-                        total: data.data.total || this.tableData.length,
-                        from: data.data.from || 1,
-                        to: data.data.to || this.tableData.length,
-                        links: data.data.links || []
-                    };
-
-                    if (this.tableData.length === 0) {
-                        loadingIndicator.showEmptyState();
-                    } else {
-                        this.populateTable();
-                        loadingIndicator.hideTableLoader();
-                    }
+                if (data.status === 'success' && Array.isArray(data.data)) {
+                    this.allTableData = data.data;
+                    this.paginationMeta.total = this.allTableData.length;
+                    this.paginationMeta.last_page = Math.ceil(this.allTableData.length / this.paginationMeta.per_page);
+                    this.setPage(1);
                 } else {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
@@ -115,8 +102,24 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        setPage(page) {
+            this.currentPage = parseInt(page);
+            const start = (this.currentPage - 1) * this.paginationMeta.per_page;
+            const end = start + this.paginationMeta.per_page;
+            this.tableData = this.allTableData.slice(start, end);
+            this.paginationMeta.from = start + 1;
+            this.paginationMeta.to = Math.min(end, this.allTableData.length);
+
+            if (this.tableData.length === 0) {
+                loadingIndicator.showEmptyState();
+            } else {
+                this.populateTable();
+                loadingIndicator.hideTableLoader();
+            }
+        },
+
         generatePaginationHTML() {
-            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+            if (this.paginationMeta.last_page <= 1) return '';
 
             let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
             paginationHTML += '<nav class="flex items-center space-x-2 rtl:space-x-reverse">';
@@ -211,7 +214,7 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok && result.status === 'success') {
                     coloredToast('success', Alpine.store('i18n').t('policy_added_successfully'));
                     this.resetForm();
-                    await this.fetchPolicies(1);
+                    await this.fetchPolicies();
                 } else {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_policy'));
                 }
@@ -224,7 +227,7 @@ document.addEventListener('alpine:init', () => {
 
         async editPolicy(policyId) {
             try {
-                const policy = this.tableData.find(p => p.id == policyId);
+                const policy = this.allTableData.find(p => p.id == policyId);
                 if (!policy) {
                     throw new Error(Alpine.store('i18n').t('policy_not_found'));
                 }
@@ -270,7 +273,7 @@ document.addEventListener('alpine:init', () => {
                     const result = await response.json();
                     if (response.ok && result.status === 'success') {
                         coloredToast('success', Alpine.store('i18n').t('policy_updated_successfully'));
-                        await this.fetchPolicies(this.currentPage);
+                        await this.fetchPolicies();
                     } else {
                         throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_policy'));
                     }
@@ -308,7 +311,7 @@ document.addEventListener('alpine:init', () => {
                     const data = await response.json();
                     if (response.ok && data.status === 'success') {
                         coloredToast('success', Alpine.store('i18n').t('policy_deleted_successfully'));
-                        await this.fetchPolicies(this.currentPage);
+                        await this.fetchPolicies();
                     } else {
                         throw new Error(data.message || Alpine.store('i18n').t('failed_to_delete_policy'));
                     }
