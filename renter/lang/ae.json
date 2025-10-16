@@ -15,7 +15,6 @@
     "pro": "احترافي",
     "admin_email": "admin@gmail.com",
     "sign_out": "تسجيل الخروج",
-
     "loading_data": "جاري تحميل البيانات...",
     "add_plan": "إضافة خطة",
     "enter_plan_name": "أدخل اسم الخطة",
@@ -213,7 +212,6 @@
     "stations_management": "إدارة المحطات",
     "location": "الموقع",
     "locations": "المواقع",
-
     "coordinates": "الإحداثيات",
     "view_on_map": "عرض على الخريطة",
     "edit": "تعديل",
@@ -463,22 +461,17 @@
     "failed_fetch_permissions": "فشل جلب الصلاحيات",
     "ok": "موافق",
     "role_permissions_management": "إدارة صلاحيات الأدوار",
-
     "manage_permissions": "إدارة الصلاحيات",
     "manage_permissions_for": "إدارة الصلاحيات لـ",
     "close": "إغلاق",
-
     "failed_to_update_permission": "فشل تحديث الصلاحية",
     "admins_management": "إدارة المسؤولين",
     "admins": "المسؤولون",
     "add_admin": "إضافة مسؤول",
     "edit_admin": "تعديل مسؤول",
     "delete_admin": "حذف مسؤول",
-
     "select_role": "اختر الدور",
-
     "web": "Web",
-
     "no_admins": "لا يوجد مسؤولون",
     "no_admins_found": "لم يتم العثور على مسؤولين",
     "no_admins_description": "لم يتم العثور على أي مسؤولين في النظام",
@@ -491,14 +484,12 @@
     "failed_to_delete_admin": "فشل حذف المسؤول",
     "admin_not_found": "المسؤول غير موجود",
     "all_fields_required": "جميع الحقول مطلوبة",
-
     "draft": "مسودة",
     "failed_to_load_car_details": "فشل تحميل تفاصيل السيارة",
     "car_details_not_found": "تفاصيل السيارة غير موجودة",
     "select_status_required": "يجب اختيار حالة",
     "select_payment_status": "اختر حالة الدفع",
     "select_payment_status_required": "يجب اختيار حالة الدفع",
-
     "booking_status_guide": "دليل حالات الحجز",
     "draft_description": "عندما يقوم المستخدم بإنشاء الحجز ولكنه لم يدفع مقابله.",
     "pending_description": "بعد إنشاء الحجز وإتمام الدفع له.",
@@ -509,24 +500,18 @@
     "canceled_description": "يمكن للمالك إلغاء الطلب عندما يريد رفضه، ويمكن للمستأجر إلغاء الطلب عندما يريد ذلك.",
     "note": "ملاحظة",
     "cancel_restriction": "يمكن للمستأجر إلغاء الطلب فقط عندما يكون الحالة 'معلق' أو 'مسودة'، وكذلك المالك.",
-
     "subscribers": "المشتركين",
     "subscribers_management": "إدارة المشتركين",
     "no_users": "لا توجد مستخدمين",
     "no_users_description": "لم يتم العثور على مستخدمين",
     "no_subscribers": "لا توجد مشتركين",
     "no_subscribers_description": "لم يتم العثور على مشتركين",
-
     "failed_fetch_subscribers": "فشل جلب بيانات المشتركين",
     "failed_fetch_subscribers_try_again": "فشل جلب بيانات المشتركين، حاول مرة أخرى",
-
     "delete_subscriber_warning": "لن تتمكن من استعادة هذا المشترك!",
-
     "failed_delete_subscriber": "فشل حذف المشترك",
-
     "subscriber_deleted_success": "تم حذف المشترك بنجاح",
     "message": "الرسائل",
-
     "create_admin": "إنشاء أدمن",
     "manager": "مدير",
     "support": "دعم",
@@ -550,7 +535,6 @@
     "failed_fetch_testimonials": "فشل جلب الشهادات",
     "apply": "تطبيق",
     "reset": "إعادة تعيين",
-
     "no_data": "لا توجد بيانات",
     "return_location": "موقع الإرجاع",
     "address_return": "عنوان الإرجاع",
@@ -598,7 +582,6 @@
     "white_locations": "مواقع القائمة البيضاء",
     "white_location": "موقع قائمة بيضاء",
     "add_new_white_location": "إضافة موقع قائمة بيضاء جديد",
-
     "add_white_location": "إضافة موقع قائمة بيضاء",
     "white_locations_management": "إدارة مواقع القائمة البيضاء",
     "no_white_locations_found": "لم يتم العثور على مواقع قائمة بيضاء",
@@ -619,33 +602,26 @@
     "no_fees_description": "لم يتم العثور على رسوم. حاول مرة أخرى لاحقًا.",
     "label": "التصنيف",
     "type": "النوع",
-
     "is_active": "نشط",
-
     "failed_fetch_fees": "فشل جلب الرسوم",
     "failed_fetch_fees_try_again": "فشل جلب الرسوم، حاول مرة أخرى",
     "edit_fee": "تعديل الرسم",
     "fixed": "ثابت",
     "percentage": "نسبة مئوية",
-
     "failed_update_fee": "فشل تحديث الرسم",
     "fee_updated_successfully": "تم تحديث الرسم بنجاح",
     "wallet": "المحفظة",
-
     "wallet_management": "إدارة المحفظة",
     "total_requests": "إجمالي الطلبات",
     "pending_requests": "الطلبات قيد الانتظار",
     "approved_requests": "الطلبات المعتمدة",
     "rejected_requests": "الطلبات المرفوضة",
     "completed_requests": "الطلبات المكتملة",
-
     "amount": "المبلغ",
-
     "no_withdrawals": "لا يوجد سحوبات",
     "no_withdrawals_found": "لم يتم العثور على طلبات سحب",
     "withdrawal_details": "تفاصيل السحب",
     "processed_at": "تاريخ المعالجة",
-
     "wallet_info": "معلومات المحفظة",
     "balance": "الرصيد",
     "available_balance": "الرصيد المتاح",
@@ -657,7 +633,6 @@
     "bank_name": "اسم البنك",
     "admin_notes": "ملاحظات المشرف",
     "processed_by": "معالج بواسطة",
-
     "reject": "رفض",
     "complete": "اكمال",
     "enter_admin_notes": "أدخل ملاحظات المشرف",

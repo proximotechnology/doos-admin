@@ -211,7 +211,6 @@
     "stations_management": "Stations Management",
     "location": "Location",
     "locations": "Locations",
-
     "coordinates": "Coordinates",
     "view_on_map": "View on Map",
     "edit": "Edit",
@@ -462,26 +461,19 @@
     "no_permissions_found": "No permissions found",
     "failed_fetch_permissions": "Failed to fetch permissions",
     "role_permissions_management": "Role Permissions Management",
-
     "manage_permissions": "Manage Permissions",
     "manage_permissions_for": "Manage Permissions for",
     "close": "Close",
-
     "permission_updated_successfully": "Permission updated successfully",
     "failed_to_update_permission": "Failed to update permission",
-
     "role_not_found": "Role not found",
-
     "admins_management": "Admins Management",
     "admins": "Admins",
     "add_admin": "Add Admin",
     "edit_admin": "Edit Admin",
     "delete_admin": "Delete Admin",
-
     "select_role": "Select Role",
-
     "web": "Web",
-
     "no_admins": "No Admins",
     "no_admins_found": "No admins found",
     "no_admins_description": "No admins were found in the system",
@@ -494,9 +486,7 @@
     "failed_to_delete_admin": "Failed to delete admin",
     "admin_not_found": "Admin not found",
     "all_fields_required": "All fields are required",
-
     "draft": "Draft",
-
     "failed_to_load_car_details": "Failed to load car details",
     "car_details_not_found": "Car details not found",
     "select_status_required": "Please select a status",
@@ -512,27 +502,21 @@
     "canceled_description": "Canceled by the owner when they want to reject the order, or by the renter when they want to cancel the order.",
     "note": "Note",
     "cancel_restriction": "The renter can only cancel the order when the status is 'Pending' or 'Draft', and so can the owner.",
-
     "subscribers": "Subscribers",
     "subscribers_management": "Subscribers Management",
     "no_users": "No Users",
     "no_users_description": "No users found",
     "no_subscribers": "No Subscribers",
     "no_subscribers_description": "No subscribers found",
-
     "delete_subscriber_warning": "You won't be able to revert this subscriber!",
-
     "failed_delete_subscriber": "Failed to delete subscriber",
-
     "subscriber_deleted_success": "Subscriber deleted successfully",
-
     "create_admin": "Create Admin",
     "message": "Message",
     "manager": "Manager",
     "support": "Support",
     "failed_to_create_admin": "Failed to create admin",
     "admin_created_success": "Admin created successfully",
-
     "image": "Image",
     "testimonials": "Testimonials",
     "add_testimonial": "Add Testimonial",
@@ -548,7 +532,6 @@
     "failed_delete_testimonial": "Failed to delete testimonial",
     "testimonial_not_found": "Testimonial not found",
     "image_input_missing": "Image input field not found. Please check the form.",
-
     "failed_fetch_testimonials": "Failed to fetch testimonials",
     "apply": "Apply",
     "reset": "Reset",
@@ -575,7 +558,6 @@
     "baby_seat": "Baby Seat",
     "air_conditioning": "Air Conditioning",
     "cruise_control": "Cruise Control",
-
     "black_locations": "Black List Locations",
     "black_location": "Black List Location",
     "add_new_black_location": "Add New Black List Location",
@@ -595,11 +577,9 @@
     "failed_delete_black_location": "Failed to delete black list location",
     "error_create_black_location": "Error creating black list location",
     "error_delete_black_location": "Error deleting black list location",
-
     "white_locations": "White List Locations",
     "white_location": "White List Location",
     "add_new_white_location": "Add New White List Location",
-
     "add_white_location": "Add White List Location",
     "white_locations_management": "White List Locations Management",
     "no_white_locations_found": "No white list locations found",
@@ -623,31 +603,25 @@
     "label": "Label",
     "type": "Type",
     "is_active": "Active",
-
     "failed_fetch_fees": "Failed to fetch fees",
     "failed_fetch_fees_try_again": "Failed to fetch fees, try again",
     "edit_fee": "Edit Fee",
     "fixed": "Fixed",
     "percentage": "Percentage",
-
     "failed_update_fee": "Failed to update fee",
     "fee_updated_successfully": "Fee updated successfully",
     "wallet": "Wallet",
-
     "wallet_management": "Wallet Management",
-
     "total_requests": "Total Requests",
     "pending_requests": "Pending Requests",
     "approved_requests": "Approved Requests",
     "rejected_requests": "Rejected Requests",
     "completed_requests": "Completed Requests",
-
     "amount": "Amount",
     "no_withdrawals": "No Withdrawals",
     "no_withdrawals_found": "No withdrawal requests found",
     "withdrawal_details": "Withdrawal Details",
     "processed_at": "Processed At",
-
     "wallet_info": "Wallet Info",
     "balance": "Balance",
     "available_balance": "Available Balance",
@@ -659,7 +633,6 @@
     "bank_name": "Bank Name",
     "admin_notes": "Admin Notes",
     "processed_by": "Processed By",
-
     "reject": "Reject",
     "complete": "Complete",
     "enter_admin_notes": "Enter Admin Notes",
