@@ -629,5 +629,51 @@
     "percentage": "نسبة مئوية",
 
     "failed_update_fee": "فشل تحديث الرسم",
-    "fee_updated_successfully": "تم تحديث الرسم بنجاح"
+    "fee_updated_successfully": "تم تحديث الرسم بنجاح",
+    "wallet": "المحفظة",
+
+    "wallet_management": "إدارة المحفظة",
+    "total_requests": "إجمالي الطلبات",
+    "pending_requests": "الطلبات قيد الانتظار",
+    "approved_requests": "الطلبات المعتمدة",
+    "rejected_requests": "الطلبات المرفوضة",
+    "completed_requests": "الطلبات المكتملة",
+
+    "amount": "المبلغ",
+
+    "no_withdrawals": "لا يوجد سحوبات",
+    "no_withdrawals_found": "لم يتم العثور على طلبات سحب",
+    "withdrawal_details": "تفاصيل السحب",
+    "processed_at": "تاريخ المعالجة",
+
+    "wallet_info": "معلومات المحفظة",
+    "balance": "الرصيد",
+    "available_balance": "الرصيد المتاح",
+    "pending_balance": "الرصيد المعلق",
+    "payment_details": "تفاصيل الدفع",
+    "payment_reference": "مرجع الدفع",
+    "account_name": "اسم الحساب",
+    "account_number": "رقم الحساب",
+    "bank_name": "اسم البنك",
+    "admin_notes": "ملاحظات المشرف",
+    "processed_by": "معالج بواسطة",
+
+    "reject": "رفض",
+    "complete": "اكمال",
+    "enter_admin_notes": "أدخل ملاحظات المشرف",
+    "admin_notes_placeholder": "أدخل الملاحظات...",
+    "admin_notes_required": "مطلوب ملاحظات المشرف",
+    "select_payment_method": "اختر طريقة الدفع",
+    "bank_transfer": "تحويل بنكي",
+    "cash": "نقدًا",
+    "card": "بطاقة",
+    "payment_method_required": "مطلوب طريقة دفع",
+    "enter_payment_reference": "أدخل مرجع الدفع",
+    "payment_reference_placeholder": "أدخل المرجع...",
+    "payment_reference_required": "مطلوب مرجع الدفع",
+    "withdrawal_updated_successfully": "تم تحديث طلب السحب بنجاح",
+    "withdrawal_completed_successfully": "تم اكمال طلب السحب بنجاح",
+    "failed_update_withdrawal": "فشل تحديث طلب السحب",
+    "failed_complete_withdrawal": "فشل اكمال طلب السحب",
+    "failed_to_load_withdrawal_details": "فشل تحميل تفاصيل السحب"
 }

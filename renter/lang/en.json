@@ -631,5 +631,51 @@
     "percentage": "Percentage",
 
     "failed_update_fee": "Failed to update fee",
-    "fee_updated_successfully": "Fee updated successfully"
+    "fee_updated_successfully": "Fee updated successfully",
+    "wallet": "Wallet",
+
+    "wallet_management": "Wallet Management",
+
+    "total_requests": "Total Requests",
+    "pending_requests": "Pending Requests",
+    "approved_requests": "Approved Requests",
+    "rejected_requests": "Rejected Requests",
+    "completed_requests": "Completed Requests",
+
+    "amount": "Amount",
+    "no_withdrawals": "No Withdrawals",
+    "no_withdrawals_found": "No withdrawal requests found",
+    "withdrawal_details": "Withdrawal Details",
+    "processed_at": "Processed At",
+
+    "wallet_info": "Wallet Info",
+    "balance": "Balance",
+    "available_balance": "Available Balance",
+    "pending_balance": "Pending Balance",
+    "payment_details": "Payment Details",
+    "payment_reference": "Payment Reference",
+    "account_name": "Account Name",
+    "account_number": "Account Number",
+    "bank_name": "Bank Name",
+    "admin_notes": "Admin Notes",
+    "processed_by": "Processed By",
+
+    "reject": "Reject",
+    "complete": "Complete",
+    "enter_admin_notes": "Enter Admin Notes",
+    "admin_notes_placeholder": "Enter notes...",
+    "admin_notes_required": "Admin notes are required",
+    "select_payment_method": "Select Payment Method",
+    "bank_transfer": "Bank Transfer",
+    "cash": "Cash",
+    "card": "Card",
+    "payment_method_required": "Payment method is required",
+    "enter_payment_reference": "Enter Payment Reference",
+    "payment_reference_placeholder": "Enter reference...",
+    "payment_reference_required": "Payment reference is required",
+    "withdrawal_updated_successfully": "Withdrawal updated successfully",
+    "withdrawal_completed_successfully": "Withdrawal completed successfully",
+    "failed_update_withdrawal": "Failed to update withdrawal",
+    "failed_complete_withdrawal": "Failed to complete withdrawal",
+    "failed_to_load_withdrawal_details": "Failed to load withdrawal details"
 }

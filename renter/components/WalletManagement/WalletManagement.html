@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html :lang="$store.i18n.getLocale()" :dir="$store.i18n.getLocale() === 'ar' ? 'rtl' : 'ltr'">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title x-text="$store.i18n.t('wallet_management')"></title>
+        <!-- CSS Libraries -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
+        <div class="container mx-auto p-6">
+            <ul class="flex space-x-2 text-sm text-gray-600 dark:text-gray-400 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                </li>
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                    <span x-text="$store.i18n.t('wallet_management')"></span>
+                </li>
+            </ul>
+
+            <div class="pt-5">
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                    </div>
+                </div>
+
+                <div x-data="walletTable" x-init="initComponent()">
+                    <!-- Filters Section -->
+                    <div class="panel filter-section mb-5 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <h5 class="mb-3 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('filters')"></h5>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
+                                <select
+                                    class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.status"
+                                >
+                                    <option value="" x-text="$store.i18n.t('all')"></option>
+                                    <option value="pending" x-text="$store.i18n.t('pending')"></option>
+                                    <option value="approved" x-text="$store.i18n.t('approved')"></option>
+                                    <option value="rejected" x-text="$store.i18n.t('rejected')"></option>
+                                    <option value="completed" x-text="$store.i18n.t('completed')"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_from')"></label>
+                                <input
+                                    type="date"
+                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.date_from"
+                                />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_to')"></label>
+                                <input
+                                    type="date"
+                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    x-model="filters.date_to"
+                                />
+                            </div>
+                            <div class="flex items-end">
+                                <button
+                                    class="btn btn-primary w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                                    @click="applyFilters()"
+                                    x-text="$store.i18n.t('apply_filters')"
+                                ></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel mt-6">
+                        <div class="mb-5 flex items-center justify-between">
+                            <h5 class="mb-3 text-lg font-semibold dark:text-white-light md:mb-0" x-text="$store.i18n.t('wallet_management')"></h5>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge bg-primary px-3 py-1" x-text="$store.i18n.t('total_requests') + ': ' + meta.total_requests"></span>
+                                <span class="badge bg-warning px-3 py-1" x-text="$store.i18n.t('pending_requests') + ': ' + meta.pending_requests"></span>
+                                <span class="badge bg-success px-3 py-1" x-text="$store.i18n.t('approved_requests') + ': ' + meta.approved_requests"></span>
+                                <span class="badge bg-danger px-3 py-1" x-text="$store.i18n.t('rejected_requests') + ': ' + meta.rejected_requests"></span>
+                                <span class="badge bg-info px-3 py-1" x-text="$store.i18n.t('completed_requests') + ': ' + meta.completed_requests"></span>
+                            </div>
+                        </div>
+
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+                            <span class="ltr:ml-2 rtl:mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                        <table id="myTable1" class="whitespace-nowrap"></table>
+                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_withdrawals')"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_withdrawals_found')"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Withdrawal Details -->
+        <div id="withdrawalDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 bg-gray-900 bg-opacity-70 px-1">
+            <div
+                class="modal-container mx-auto flex max-h-[80vh] w-full max-w-5xl flex-col rounded-2xl border border-primary bg-white shadow-2xl dark:bg-gray-800"
+                x-data="{ scrollY: 0 }"
+                x-init="scrollY = window.scrollY"
+                :style="{ transform: `translateY(${scrollY}px)` }"
+            >
+                <div class="modal-header flex items-center justify-between border-b-2 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('withdrawal_details')"></h3>
+                    <button
+                        type="button"
+                        class="rounded-full p-2 text-lg font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
+                        @click="document.getElementById('withdrawalDetailsModal').classList.add('hidden')"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <div id="withdrawalDetailsContent" class="modal-content overflow-y-auto p-6 text-base">
+                    <!-- Withdrawal details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- JS Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="WalletManagement.js"></script>
+    </body>
+</html>
