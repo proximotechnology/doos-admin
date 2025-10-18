@@ -33,7 +33,7 @@
                     <!-- Filters Section -->
                     <div class="panel filter-section mb-5 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                         <h5 class="mb-3 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('filters')"></h5>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
                                 <select
@@ -47,22 +47,7 @@
                                     <option value="completed" x-text="$store.i18n.t('completed')"></option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_from')"></label>
-                                <input
-                                    type="date"
-                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    x-model="filters.date_from"
-                                />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-sm font-medium" x-text="$store.i18n.t('date_to')"></label>
-                                <input
-                                    type="date"
-                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    x-model="filters.date_to"
-                                />
-                            </div>
+
                             <div class="flex items-end">
                                 <button
                                     class="btn btn-primary w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
