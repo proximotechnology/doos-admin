@@ -143,6 +143,8 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
+                console.log(data);
+
                 if (Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
                     this.paginationMeta = {
@@ -324,137 +326,226 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('car_not_found'));
                 }
 
-                let statusHtml = `
-                    <div class="text-right max-h-96 overflow-y-auto">
-                        <div class="mb-4">
-                            <label class="block mb-2 font-medium">${Alpine.store('i18n').t('select_status')}</label>
-                            <select id="statusSelect" class="swal2-input w-full">
-                                <option value="active" ${car.status === 'active' ? 'selected' : ''}>${Alpine.store('i18n').t('active')}</option>
-                                <option value="inactive" ${car.status === 'inactive' ? 'selected' : ''}>${Alpine.store('i18n').t('inactive')}</option>
-                                <option value="rejected" ${car.status === 'rejected' ? 'selected' : ''}>${Alpine.store('i18n').t('rejected')}</option>
-                            </select>
-                        </div>
-                        <div id="rejectionReasonsSection" class="hidden">
-                            <label class="block mb-2 font-medium">${Alpine.store('i18n').t('rejection_reasons')}</label>
-                            <div id="rejectionReasonsContainer" class="space-y-2 mb-3">
-                                <div class="flex items-center gap-2 reason-item">
-                                    <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
-                                    <button type="button" class="btn btn-danger btn-sm remove-reason-btn hidden">×</button>
-                                </div>
-                            </div>
-                            <button type="button" id="addReasonBtn" class="btn btn-secondary btn-sm w-full">
-                                + ${Alpine.store('i18n').t('add_new_reason')}
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                const result = await Swal.fire({
-                    title: Alpine.store('i18n').t('change_status'),
-                    html: statusHtml,
-                    width: '600px',
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    confirmButtonText: Alpine.store('i18n').t('save'),
-                    cancelButtonText: Alpine.store('i18n').t('cancel'),
-                    didOpen: () => {
-                        const statusSelect = document.getElementById('statusSelect');
-                        const rejectionSection = document.getElementById('rejectionReasonsSection');
-                        const reasonsContainer = document.getElementById('rejectionReasonsContainer');
-                        const addReasonBtn = document.getElementById('addReasonBtn');
-
-                        const toggleRejectionSection = () => {
-                            if (statusSelect.value === 'rejected') {
-                                rejectionSection.classList.remove('hidden');
-                            } else {
-                                rejectionSection.classList.add('hidden');
-                            }
-                        };
-
-                        addReasonBtn.addEventListener('click', () => {
-                            const newReasonItem = document.createElement('div');
-                            newReasonItem.className = 'flex items-center gap-2 reason-item';
-                            newReasonItem.innerHTML = `
-                                <input type="text" class="swal2-input flex-1 rejection-reason-input" placeholder="${Alpine.store('i18n').t('write_reason_here')}">
-                                <button type="button" class="btn btn-danger btn-sm remove-reason-btn">×</button>
-                            `;
-                            reasonsContainer.appendChild(newReasonItem);
-
-                            newReasonItem.querySelector('.remove-reason-btn').addEventListener('click', function () {
-                                newReasonItem.remove();
-                            });
-                        });
-
-                        toggleRejectionSection();
-                        statusSelect.addEventListener('change', toggleRejectionSection);
-                    },
-                    preConfirm: () => {
-                        const statusSelect = document.getElementById('statusSelect');
-                        const selectedStatus = statusSelect.value;
-
-                        let rejectionReasons = [];
-
-                        if (selectedStatus === 'rejected') {
-                            const reasonInputs = document.querySelectorAll('.rejection-reason-input');
-                            reasonInputs.forEach(input => {
-                                if (input.value.trim()) {
-                                    rejectionReasons.push(input.value.trim());
-                                }
-                            });
-
-                            if (rejectionReasons.length === 0) {
-                                Swal.showValidationMessage(Alpine.store('i18n').t('please_enter_rejection_reasons'));
-                                return false;
-                            }
-                        }
-
-                        return {
-                            status: selectedStatus,
-                            rejection_reasons: rejectionReasons
-                        };
-                    }
-                });
+                const statusConfig = this.getStatusConfig(car);
+                const result = await this.showStatusModal(statusConfig);
 
                 if (result.isConfirmed && result.value) {
-                    loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-
-                    if (!token) {
-                        throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                    }
-
-                    const apiUrl = `${this.apiBaseUrl}/api/admin/cars/update_car_status/${carId}`;
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify(result.value)
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`${Alpine.store('i18n').t('failed_update_status')}: ${errorText}`);
-                    }
-
-                    const responseData = await response.json();
-
-                    if (responseData.status) {
-                        coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
-                        await this.fetchCars(this.currentPage);
-                    } else {
-                        throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
-                    }
+                    await this.updateCarStatus(carId, result.value);
                 }
             } catch (error) {
-                console.error('Error changing status:', error);
-                coloredToast('danger', error.message);
+                this.handleStatusError(error);
             } finally {
                 loadingIndicator.hide();
             }
+        },
+
+        // تكوين إعدادات الحالة
+        getStatusConfig(car) {
+            return {
+                title: Alpine.store('i18n').t('change_status'),
+                currentStatus: car.status,
+                statusOptions: [
+                    { value: 'active', label: Alpine.store('i18n').t('active') },
+                    { value: 'inactive', label: Alpine.store('i18n').t('inactive') },
+                    { value: 'rejected', label: Alpine.store('i18n').t('rejected') }
+                ],
+                texts: {
+                    selectStatus: Alpine.store('i18n').t('select_status'),
+                    rejectionReasons: Alpine.store('i18n').t('rejection_reasons'),
+                    writeReasonHere: Alpine.store('i18n').t('write_reason_here'),
+                    addNewReason: Alpine.store('i18n').t('add_new_reason'),
+                    pleaseEnterRejectionReasons: Alpine.store('i18n').t('please_enter_rejection_reasons'),
+                    save: Alpine.store('i18n').t('save'),
+                    cancel: Alpine.store('i18n').t('cancel')
+                }
+            };
+        },
+
+        // عرض النافذة المنبثقة لتغيير الحالة
+        async showStatusModal(config) {
+            const html = this.generateStatusHtml(config);
+
+            return await Swal.fire({
+                title: config.title,
+                html: html,
+                width: '600px',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: config.texts.save,
+                cancelButtonText: config.texts.cancel,
+                didOpen: () => this.initializeStatusModalEvents(),
+                preConfirm: () => this.validateStatusForm()
+            });
+        },
+
+        // توليد HTML للنموذج
+        generateStatusHtml(config) {
+            const statusOptions = config.statusOptions.map(option =>
+                `<option value="${option.value}" ${config.currentStatus === option.value ? 'selected' : ''}>
+            ${option.label}
+        </option>`
+            ).join('');
+
+            return `
+        <div class="status-modal">
+            <div class="mb-6">
+                <label class="block mb-3 font-semibold text-gray-700">${config.texts.selectStatus}</label>
+                <select id="statusSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    ${statusOptions}
+                </select>
+            </div>
+            <div id="rejectionReasonsSection" class="hidden transition-all duration-300">
+                <label class="block mb-3 font-semibold text-gray-700">${config.texts.rejectionReasons}</label>
+                <div id="rejectionReasonsContainer" class="space-y-3 mb-4">
+                    <div class="flex items-center gap-3 reason-item">
+                        <input type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rejection-reason-input" 
+                               placeholder="${config.texts.writeReasonHere}">
+                        <button type="button" class="remove-reason-btn hidden w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                            ×
+                        </button>
+                    </div>
+                </div>
+                <button type="button" id="addReasonBtn" class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                    + ${config.texts.addNewReason}
+                </button>
+            </div>
+        </div>
+    `;
+        },
+
+        // تهيئة الأحداث في النافذة المنبثقة
+        initializeStatusModalEvents() {
+            const statusSelect = document.getElementById('statusSelect');
+            const rejectionSection = document.getElementById('rejectionReasonsSection');
+            const reasonsContainer = document.getElementById('rejectionReasonsContainer');
+            const addReasonBtn = document.getElementById('addReasonBtn');
+
+            // تبديل قسم أسباب الرفض
+            const toggleRejectionSection = () => {
+                const isRejected = statusSelect.value === 'rejected';
+                rejectionSection.classList.toggle('hidden', !isRejected);
+
+                if (isRejected) {
+                    rejectionSection.classList.add('fade-in');
+                }
+            };
+
+            addReasonBtn.addEventListener('click', () => {
+                this.addNewReasonField(reasonsContainer);
+            });
+
+            reasonsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-reason-btn')) {
+                    this.removeReasonField(e.target.closest('.reason-item'));
+                }
+            });
+
+            statusSelect.addEventListener('change', toggleRejectionSection);
+            toggleRejectionSection();
+        },
+
+        addNewReasonField(container) {
+            const reasonItem = document.createElement('div');
+            reasonItem.className = 'flex items-center gap-3 reason-item fade-in';
+            reasonItem.innerHTML = `
+        <input type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rejection-reason-input" 
+               placeholder="${Alpine.store('i18n').t('write_reason_here')}">
+        <button type="button" class="remove-reason-btn w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+            ×
+        </button>
+    `;
+
+            container.appendChild(reasonItem);
+
+            this.toggleRemoveButtons(container);
+        },
+
+        removeReasonField(reasonItem) {
+            reasonItem.classList.add('fade-out');
+            setTimeout(() => {
+                reasonItem.remove();
+                this.toggleRemoveButtons(document.getElementById('rejectionReasonsContainer'));
+            }, 300);
+        },
+
+        toggleRemoveButtons(container) {
+            const reasonItems = container.querySelectorAll('.reason-item');
+            const removeButtons = container.querySelectorAll('.remove-reason-btn');
+
+            const shouldShowRemove = reasonItems.length > 1;
+
+            removeButtons.forEach(btn => {
+                btn.classList.toggle('hidden', !shouldShowRemove);
+            });
+        },
+
+        validateStatusForm() {
+            const statusSelect = document.getElementById('statusSelect');
+            const selectedStatus = statusSelect.value;
+
+            const result = {
+                status: selectedStatus,
+                rejection_reasons: []
+            };
+
+            if (selectedStatus === 'rejected') {
+                const reasonInputs = document.querySelectorAll('.rejection-reason-input');
+                reasonInputs.forEach(input => {
+                    const value = input.value.trim();
+                    if (value) {
+                        result.rejection_reasons.push(value);
+                    }
+                });
+
+                if (result.rejection_reasons.length === 0) {
+                    Swal.showValidationMessage(Alpine.store('i18n').t('please_enter_rejection_reasons'));
+                    return false;
+                }
+            }
+
+            return result;
+        },
+
+        async updateCarStatus(carId, data) {
+            loadingIndicator.show();
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+            }
+
+            const apiUrl = `${this.apiBaseUrl}/api/admin/cars/update_car_status/${carId}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`${Alpine.store('i18n').t('failed_update_status')}: ${errorText}`);
+            }
+
+            const responseData = await response.json();
+
+            if (responseData.status) {
+                coloredToast('success', Alpine.store('i18n').t('status_updated_successfully'));
+                await this.fetchCars(this.currentPage);
+            } else {
+                throw new Error(responseData.message || Alpine.store('i18n').t('failed_update_status'));
+            }
+        },
+
+        handleStatusError(error) {
+            console.error('Error changing car status:', error);
+
+            const errorMessage = error.message || Alpine.store('i18n').t('unexpected_error');
+            coloredToast('danger', errorMessage);
         },
 
         async showCarDetails(carId) {
@@ -867,77 +958,238 @@ document.addEventListener('alpine:init', () => {
                     .map(([key, value]) => {
                         const translatedLabel = Alpine.store('i18n').t(key) || key.replace(/_/g, ' ');
                         return `
-                            <div class="mb-1">
-                                <label class="block mb-1 w-full">${translatedLabel}</label>
-                                <input id="${key}" class="swal2-input w-full" 
-                                       placeholder="${translatedLabel}"
-                                       value="${value || ''}">
-                            </div>
-                        `;
+                    <div class="flex items-center gap-3 mb-3 feature-item">
+                        <label class="block mb-1 w-1/3 font-medium text-gray-700">${translatedLabel}</label>
+                        <input type="text" 
+                               id="${key}" 
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                               placeholder="${translatedLabel}"
+                               value="${value || ''}">
+                    </div>
+                `;
                     })
                     .join('');
+
+                // معالجة الميزات الإضافية - فك تشفير JSON string
+                const getAdditionalFeaturesArray = (features) => {
+                    if (!features.additional_features) return [];
+
+                    try {
+                        // إذا كانت سلسلة JSON
+                        if (typeof features.additional_features === 'string' && features.additional_features.startsWith('[')) {
+                            return JSON.parse(features.additional_features);
+                        }
+                        // إذا كانت مصفوفة بالفعل
+                        else if (Array.isArray(features.additional_features)) {
+                            return features.additional_features;
+                        }
+                        // إذا كانت سلسلة عادية مفصولة بفواصل
+                        else if (typeof features.additional_features === 'string') {
+                            return features.additional_features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+                        }
+                    } catch (error) {
+                        console.error('Error parsing additional_features:', error);
+                    }
+
+                    return [];
+                };
+
+                const additionalFeaturesArray = getAdditionalFeaturesArray(features);
+
+                const additionalFeaturesHtml = `
+            <div class="mt-6">
+                <label class="block mb-3 font-medium text-gray-700">${Alpine.store('i18n').t('additional_features')}</label>
+                <div id="additionalFeaturesContainer" class="space-y-2 mb-3">
+                    ${additionalFeaturesArray.map(feature => `
+                        <div class="flex items-center gap-3 additional-feature-item">
+                            <input type="text" 
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 additional-feature-input" 
+                                   placeholder="${Alpine.store('i18n').t('enter_feature')}"
+                                   value="${feature}">
+                            <button type="button" class="remove-additional-feature-btn w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                ×
+                            </button>
+                        </div>
+                    `).join('')}
+                    ${additionalFeaturesArray.length === 0 ? `
+                        <div class="flex items-center gap-3 additional-feature-item">
+                            <input type="text" 
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 additional-feature-input" 
+                                   placeholder="${Alpine.store('i18n').t('enter_feature')}">
+                            <button type="button" class="remove-additional-feature-btn w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors hidden">
+                                ×
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+                <button type="button" id="addAdditionalFeatureBtn" class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                    + ${Alpine.store('i18n').t('add_new_feature')}
+                </button>
+            </div>
+        `;
 
                 const { value: formValues } = await Swal.fire({
                     title: Alpine.store('i18n').t('edit_features'),
                     html: `
-                        <div class="text-right max-h-96 overflow-y-auto">
-                            ${featureFields}
-                        </div>
-                    `,
-                    width: '600px',
+                <div class="text-right max-h-96 overflow-y-auto">
+                    <div class="mb-6">
+                        ${featureFields}
+                    </div>
+                    ${additionalFeaturesHtml}
+                </div>
+            `,
+                    width: '700px',
                     focusConfirm: false,
                     showCancelButton: true,
                     confirmButtonText: Alpine.store('i18n').t('save'),
                     cancelButtonText: Alpine.store('i18n').t('cancel'),
+                    didOpen: () => {
+                        this.initializeFeaturesEvents();
+                    },
                     preConfirm: () => {
-                        const formData = {};
-                        Object.keys(features)
-                            .filter(key => !excludedKeys.includes(key))
-                            .forEach(key => {
-                                const inputElement = document.getElementById(key);
-                                if (inputElement) {
-                                    let inputValue = inputElement.value;
-                                    if (key === 'all_have_seatbelts') {
-                                        inputValue = parseInt(inputValue) || 0;
-                                    } else if (key === 'num_of_door' || key === 'num_of_seat') {
-                                        inputValue = inputValue ? parseInt(inputValue) : null;
-                                    }
-                                    formData[key] = inputValue;
-                                }
-                            });
-                        return formData;
+                        return this.validateFeaturesForm(features);
                     }
                 });
 
                 if (formValues) {
-                    loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/updateCarFeatures/${carId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            features: formValues
-                        })
-                    });
-
-                    const result = await response.json();
-                    if (response.ok) {
-                        coloredToast('success', Alpine.store('i18n').t('car_updated_successfully'));
-                        await this.fetchCars(this.currentPage);
-                    } else {
-                        throw new Error(result.message || Alpine.store('i18n').t('failed_update_car'));
-                    }
+                    await this.updateCarFeatures(carId, formValues);
                 }
             } catch (error) {
-                console.error('Error in editFeatures:', error);
-                coloredToast('danger', error.message);
+                this.handleFeaturesError(error);
             } finally {
                 loadingIndicator.hide();
             }
+        },
+
+        validateFeaturesForm(originalFeatures) {
+            const formData = {};
+            const excludedKeys = ['id', 'cars_id', 'created_at', 'updated_at'];
+
+            // معالجة الحقول الأساسية
+            Object.keys(originalFeatures)
+                .filter(key => !excludedKeys.includes(key) && key !== 'additional_features')
+                .forEach(key => {
+                    const inputElement = document.getElementById(key);
+                    if (inputElement) {
+                        let inputValue = inputElement.value;
+
+                        // تحويل الأنواع الخاصة
+                        if (key === 'all_have_seatbelts') {
+                            inputValue = parseInt(inputValue) || 0;
+                        } else if (key === 'num_of_door' || key === 'num_of_seat') {
+                            inputValue = inputValue ? parseInt(inputValue) : null;
+                        }
+
+                        formData[key] = inputValue;
+                    }
+                });
+
+            // معالجة الميزات الإضافية
+            const additionalInputs = document.querySelectorAll('.additional-feature-input');
+            const additionalFeatures = [];
+
+            additionalInputs.forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    additionalFeatures.push(value);
+                }
+            });
+
+            // إرسال الميزات الإضافية كـ array
+            formData.additional_features = additionalFeatures;
+
+            return formData;
+        },
+
+        async updateCarFeatures(carId, data) {
+            loadingIndicator.show();
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+            }
+
+            // تحضير البيانات بشكل صحيح
+            const requestData = {
+                features: data
+            };
+
+            console.log('Sending features data:', requestData);
+
+            const response = await fetch(`${this.apiBaseUrl}/api/updateCarFeatures/${carId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`${Alpine.store('i18n').t('failed_update_car')}: ${errorText}`);
+            }
+
+            const result = await response.json();
+
+            if (response.ok && result.status) {
+                coloredToast('success', Alpine.store('i18n').t('car_updated_successfully'));
+                await this.fetchCars(this.currentPage);
+            } else {
+                throw new Error(result.message || Alpine.store('i18n').t('failed_update_car'));
+            }
+        },
+        initializeFeaturesEvents() {
+            const addBtn = document.getElementById('addAdditionalFeatureBtn');
+            const container = document.getElementById('additionalFeaturesContainer');
+
+            if (addBtn && container) {
+                addBtn.addEventListener('click', () => {
+                    this.addAdditionalFeatureField(container);
+                });
+
+                container.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-additional-feature-btn')) {
+                        this.removeAdditionalFeatureField(e.target.closest('.additional-feature-item'));
+                    }
+                });
+
+                this.toggleAdditionalFeatureRemoveButtons(container);
+            }
+        },
+
+        addAdditionalFeatureField(container) {
+            const featureItem = document.createElement('div');
+            featureItem.className = 'flex items-center gap-3 additional-feature-item fade-in';
+            featureItem.innerHTML = `
+        <input type="text" 
+               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 additional-feature-input" 
+               placeholder="${Alpine.store('i18n').t('enter_feature')}">
+        <button type="button" class="remove-additional-feature-btn w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+            ×
+        </button>
+    `;
+
+            container.appendChild(featureItem);
+            this.toggleAdditionalFeatureRemoveButtons(container);
+        }, removeAdditionalFeatureField(featureItem) {
+            featureItem.classList.add('fade-out');
+            setTimeout(() => {
+                featureItem.remove();
+                this.toggleAdditionalFeatureRemoveButtons(document.getElementById('additionalFeaturesContainer'));
+            }, 300);
+        },
+
+        toggleAdditionalFeatureRemoveButtons(container) {
+            const featureItems = container.querySelectorAll('.additional-feature-item');
+            const removeButtons = container.querySelectorAll('.remove-additional-feature-btn');
+
+            const shouldShowRemove = featureItems.length > 1;
+
+            removeButtons.forEach(btn => {
+                btn.classList.toggle('hidden', !shouldShowRemove);
+            });
         },
 
         async deleteCar(carId) {
