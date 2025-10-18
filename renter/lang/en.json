@@ -441,6 +441,8 @@
     "permissions_count": "Permissions Count",
     "update_role": "Update Role",
     "confirm_delete_role": "Are you sure you want to delete this role?",
+    "confirm_delete_car": "Are you sure you want to delete this car?",
+
     "role_added_successfully": "Role added successfully",
     "role_updated_successfully": "Role updated successfully",
     "role_deleted_successfully": "Role deleted successfully",
@@ -650,5 +652,109 @@
     "withdrawal_completed_successfully": "Withdrawal completed successfully",
     "failed_update_withdrawal": "Failed to update withdrawal",
     "failed_complete_withdrawal": "Failed to complete withdrawal",
-    "failed_to_load_withdrawal_details": "Failed to load withdrawal details"
+    "failed_to_load_withdrawal_details": "Failed to load withdrawal details",
+    "booking_information": "Booking Information",
+    "booking_status": "Booking Status",
+    "booking_duration": "Booking Duration",
+    "booking_period": "Booking Period",
+    "pickup_details": "Pickup Details",
+    "return_details": "Return Details",
+    "pricing_details": "Pricing Details",
+
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+
+    "montypay": "MontyPay",
+
+    "credit_card": "Credit Card",
+
+    "individual": "Individual",
+    "company": "Company",
+
+    "user_information": "User Information",
+    "renter_details": "Renter Details",
+    "owner_information": "Owner Information",
+    "user_type": "User Type",
+    "contact_info": "Contact Information",
+    "verification_status": "Verification Status",
+    "license_status": "License Status",
+    "car_ownership": "Car Ownership",
+    "online_status": "Online Status",
+
+    "location_details": "Location Details",
+    "pickup_location": "Pickup Location",
+
+    "pickup_time": "Pickup Time",
+    "return_time": "Return Time",
+
+    "total_amount": "Total Amount",
+    "final_price": "Final Price",
+    "service_fee": "Service Fee",
+    "insurance_cost": "Insurance Cost",
+    "daily_rate": "Daily Rate",
+
+    "additional_information": "Additional Information",
+    "created_date": "Created Date",
+    "updated_date": "Updated Date",
+    "completed_date": "Completed Date",
+    "notifications": "Notifications",
+    "pickup_notification": "Pickup Notification",
+    "return_notification": "Return Notification",
+    "cancellation_status": "Cancellation Status",
+
+    "representative_status": "Representative Status",
+    "not_assigned": "Not Assigned",
+    "assigned": "Assigned",
+    "representative_completed": "Completed",
+
+    "car_information": "Car Information",
+    "car_images": "Car Images",
+    "car_specifications": "Car Specifications",
+    "car_features": "Car Features",
+
+    "hours": "hours",
+    "from": "From",
+    "loading": "Loading...",
+
+    "status_active": "Active",
+    "status_inactive": "Inactive",
+    "status_pending": "Pending Review",
+
+    "verified": "Verified",
+    "not_verified": "Not Verified",
+    "no_license": "No License",
+    "no_car": "No Car",
+
+    "pickup_date": "Pickup Date",
+    "return_date": "Return Date",
+    "duration_days": "Duration (Days)",
+
+    "contact_user": "Contact User",
+    "view_documents": "View Documents",
+    "download_receipt": "Download Receipt",
+
+    "is_online": "Is Online",
+
+    "repres_status": "Representative Status",
+
+    "fee_percentage": "Fee Percentage",
+    "insurance_price": "Insurance Price",
+
+    "is_notify": "Is Notify",
+    "is_notify_return": "Is Notify Return",
+    "is_cancell_picked_up": "Is Cancel Picked Up",
+
+    "map": "Map",
+    "loading_map": "Loading map...",
+    "car_location": "Car Location",
+
+    "change_payment_status": "Change Payment Status",
+
+    "add_new_feature": "Add New Feature",
+    "enter_feature": "Enter feature name",
+
+    "unexpected_error": "An unexpected error occurred",
+    "car_not_found": "Car not found",
+
+    "clear": "Clear"
 }

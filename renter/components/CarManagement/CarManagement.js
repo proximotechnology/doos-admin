@@ -1195,7 +1195,7 @@ document.addEventListener('alpine:init', () => {
         async deleteCar(carId) {
             try {
                 const result = await Swal.fire({
-                    title: Alpine.store('i18n').t('confirm_delete'),
+                    title: Alpine.store('i18n').t('confirm_delete_car'),
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: Alpine.store('i18n').t('delete'),

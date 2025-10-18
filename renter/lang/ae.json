@@ -441,6 +441,8 @@
     "sanctum": "Sanctum",
     "permissions_count": "عدد الصلاحيات",
     "confirm_delete_role": "هل أنت متأكد من حذف هذا الدور؟",
+    "confirm_delete_car": "هل أنت متأكد من حذف هذه السيارة؟",
+
     "role_added_successfully": "تمت إضافة الدور بنجاح",
     "role_updated_successfully": "تم تحديث الدور بنجاح",
     "role_deleted_successfully": "تم حذف الدور بنجاح",
@@ -650,5 +652,42 @@
     "withdrawal_completed_successfully": "تم اكمال طلب السحب بنجاح",
     "failed_update_withdrawal": "فشل تحديث طلب السحب",
     "failed_complete_withdrawal": "فشل اكمال طلب السحب",
-    "failed_to_load_withdrawal_details": "فشل تحميل تفاصيل السحب"
+    "failed_to_load_withdrawal_details": "فشل تحميل تفاصيل السحب",
+
+    "loading": "جاري التحميل...",
+
+    "montypay": "مونتي باي",
+
+    "individual": "فرد",
+    "company": "شركة",
+
+    "is_online": "متصل الآن",
+
+    "booking_status": "حالة الحجز",
+    "repres_status": "حالة المندوب",
+    "not_assigned": "غير معين",
+    "assigned": "معين",
+
+    "final_price": "السعر النهائي",
+    "fee_percentage": "نسبة الرسوم",
+    "insurance_price": "سعر التأمين",
+
+    "pickup_location": "موقع الاستلام",
+    "pickup_time": "وقت الاستلام",
+    "return_time": "وقت الإرجاع",
+
+    "is_notify": "تم الإشعار",
+    "is_notify_return": "تم إشعار الإرجاع",
+    "is_cancell_picked_up": "تم إلغاء الاستلام",
+    "map": "الخريطة",
+    "loading_map": "جاري تحميل الخريطة...",
+    "car_location": "موقع السيارة",
+    "change_payment_status": "تغيير حالة الدفع",
+    "add_new_feature": "إضافة ميزة جديدة",
+    "enter_feature": "أدخل اسم الميزة",
+
+    "unexpected_error": "حدث خطأ غير متوقع",
+    "car_not_found": "السيارة غير موجودة",
+
+    "clear": "مسح"
 }
