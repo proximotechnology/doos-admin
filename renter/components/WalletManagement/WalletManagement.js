@@ -66,8 +66,6 @@ document.addEventListener('alpine:init', () => {
         currentPage: 1,
         filters: {
             status: '',
-            date_from: '',
-            date_to: ''
         },
 
         async initComponent() {
@@ -98,23 +96,24 @@ document.addEventListener('alpine:init', () => {
         },
 
         async fetchWithdrawals(page = 1) {
+            loadingIndicator.showTableLoader();
+            this.currentPage = page;
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                this.showError(Alpine.store('i18n').t('auth_token_missing'));
+                window.location.href = 'auth-boxed-signin.html';
+                return;
+            }
+
+            const queryParams = new URLSearchParams({ page });
+            if (this.filters.status) queryParams.append('status', this.filters.status);
+
+            const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/index?${queryParams}`;
+            console.log(url);
+            
             try {
-                loadingIndicator.showTableLoader();
-                this.currentPage = page;
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'auth-boxed-signin.html';
-                    return;
-                }
-
-                const queryParams = new URLSearchParams({ page });
-                if (this.filters.status) queryParams.append('status', this.filters.status);
-                if (this.filters.date_from) queryParams.append('date_from', this.filters.date_from);
-                if (this.filters.date_to) queryParams.append('date_to', this.filters.date_to);
-
-                const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/?${queryParams.toString()}`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -122,13 +121,15 @@ document.addEventListener('alpine:init', () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                
+
 
                 if (!response.ok) {
                     throw new Error(Alpine.store('i18n').t('failed_to_load'));
                 }
 
                 const data = await response.json();
+                console.log("sad", data);
+
                 if (data.status && Array.isArray(data.data.withdrawal_requests)) {
                     this.tableData = data.data.withdrawal_requests;
                     this.paginationMeta = data.data.pagination || {
@@ -179,7 +180,7 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
                 console.log(data);
-                
+
                 if (data.status && data.data.statistics) {
                     this.meta = data.data.statistics;
                 } else {
@@ -280,7 +281,6 @@ document.addEventListener('alpine:init', () => {
 
         formatStatus(status, withdrawalId) {
             const statusClass = `status-${status.toLowerCase()}`;
-            const statusText = status.charAt(0).toUpperCase() + status.slice(1);
             return `<span class="status-badge ${statusClass} px-3 py-1 rounded-md">${Alpine.store('i18n').t(status.toLowerCase())}</span>`;
         },
 
@@ -484,6 +484,7 @@ document.addEventListener('alpine:init', () => {
                     body: JSON.stringify(payload)
                 });
 
+
                 if (!response.ok) {
                     throw new Error(await response.text() || Alpine.store('i18n').t('failed_update_withdrawal'));
                 }
@@ -536,7 +537,7 @@ document.addEventListener('alpine:init', () => {
                     if (!value) return Alpine.store('i18n').t('admin_notes_required');
                 }
             });
-            return value || '';
+            return adminNotes || '';
         },
 
         async getPaymentMethod() {
@@ -554,7 +555,7 @@ document.addEventListener('alpine:init', () => {
                     if (!value) return Alpine.store('i18n').t('payment_method_required');
                 }
             });
-            return value || '';
+            return paymentMethod || '';
         },
 
         async getPaymentReference() {
@@ -567,7 +568,7 @@ document.addEventListener('alpine:init', () => {
                     if (!value) return Alpine.store('i18n').t('payment_reference_required');
                 }
             });
-            return value || '';
+            return paymentReference || '';
         },
 
         showSuccess(message) {
