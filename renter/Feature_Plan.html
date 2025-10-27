@@ -18,6 +18,7 @@
         <link defer rel="stylesheet" type="text/css" media="screen" href="/assets/css/animate.css" />
         <script src="/assets/js/perfect-scrollbar.min.js"></script>
         <script defer src="/assets/js/popper.min.js"></script>
+        <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
     </head>
 
     <body
@@ -88,9 +89,7 @@
 
                 <!-- start main content section -->
                 <div class="animate__animated p-6" :class="[$store.app.animation]">
-                
                     <div id="feature-plan-management-container"></div>
-
                 </div>
                 <!-- end main content section -->
 
@@ -146,7 +145,7 @@
                     },
                 }));
 
-           coloredToast = (color, message) => {
+                coloredToast = (color, message) => {
                     const toast = window.Swal.mixin({
                         toast: true,
                         position: 'bottom-start',
@@ -162,8 +161,7 @@
                         title: message, // Show the custom message
                     });
                 };
-
-         });
+            });
         </script>
     </body>
 </html>

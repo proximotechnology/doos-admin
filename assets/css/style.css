@@ -13472,3 +13472,24 @@ pre {
     border-color: #ef4444 !important;
 }
 
+/* تأثيرات المؤشر */
+#chat-header-icon.has-notifications {
+    background-color: rgb(254 226 226) !important;
+    color: rgb(220 38 38) !important;
+}
+
+.dark #chat-header-icon.has-notifications {
+    background-color: rgb(127 29 29 / 0.3) !important;
+    color: rgb(248 113 113) !important;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.animate-ping {
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}

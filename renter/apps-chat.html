@@ -14,9 +14,9 @@
 
         <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
         <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
-        <script src=" /assets/js/perfect-scrollbar.min.js"></script>
-        <script defer src=" /assets/js/popper.min.js"></script>    
-    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+        <script src="/assets/js/perfect-scrollbar.min.js"></script>
+        <script defer src="/assets/js/popper.min.js"></script>
+        <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     </head>
 
     <body
@@ -68,20 +68,27 @@
             </template>
         </div>
 
-        <!-- Theme Customizer -->
+        <!-- start theme customizer section -->
         <div id="theme-customizer-container"></div>
 
+        <!-- end theme customizer section -->
+
         <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
-            <!-- Sidebar -->
+            <!-- start sidebar section -->
             <div id="sidebar-container"></div>
 
+            <!-- end sidebar section -->
+
             <div class="main-content flex min-h-screen flex-col">
-                <!-- Header -->
+                <!-- start header section -->
                 <div id="header-container"></div>
 
-                <div class="animate__animated p-6" :class="[$store.app.animation]">
-                    <div id="contract-management-container"></div>
+                <!-- end header section -->
+
+                <div class="dvanimation animate__animated p-6" :class="[$store.app.animation]">
+                    <div id="chat"></div>
                 </div>
+
                 <!-- start footer section -->
                 <div class="mt-auto p-6 text-center dark:text-white-dark ltr:sm:text-left rtl:sm:text-right">
                     © <span id="footer-year">2025</span>. Developed By High Level Technology.
@@ -89,7 +96,6 @@
                 <!-- end footer section -->
             </div>
         </div>
-        <!-- Scripts -->
         <script src="../assets/js/alpine-collaspe.min.js"></script>
         <script src="../assets/js/alpine-persist.min.js"></script>
         <script defer src="../assets/js/alpine-ui.min.js"></script>
@@ -104,11 +110,11 @@
         <script src="components/Header/Header.js"></script>
         <script src="components/Sidebar/Sidebar.js"></script>
         <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
-        <script src="components/ContractManagement/ContractManagement.js"></script>
-        <script src="components/ContractManagement/MainLayout.js"></script>
+        <script src="components/Chat/ChatManagement.js"></script>
+        <script src="components/Chat/MainLayout.js"></script>
+
         <script>
             document.addEventListener('alpine:init', () => {
-                // main section
                 Alpine.data('scrollToTop', () => ({
                     showTopButton: false,
                     init() {
@@ -130,6 +136,7 @@
                         document.documentElement.scrollTop = 0;
                     },
                 }));
+                //chat
             });
         </script>
     </body>

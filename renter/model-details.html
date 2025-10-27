@@ -14,15 +14,14 @@
         <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
         <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
         <script src=" /assets/js/perfect-scrollbar.min.js"></script>
-        <script defer src=" /assets/js/popper.min.js"></script>
-    </head>
+        <script defer src=" /assets/js/popper.min.js"></script>    
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>    </head>
 
     <body
         x-data="main"
         class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased"
         :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]"
     >
-    
         <!-- sidebar menu overlay -->
         <div x-cloak class="fixed inset-0 z-50 bg-[black]/60 lg:hidden" :class="{'hidden' : !$store.app.sidebar}" @click="$store.app.toggleSidebar()"></div>
 
@@ -110,7 +109,7 @@
         <script src="components/Sidebar/Sidebar.js"></script>
         <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
         <script src="components/ModelManagement/ModelDetails.js"></script>
-                <script src="components/ModelManagement/MainLayout.js"></script>
+        <script src="components/ModelManagement/MainLayout.js"></script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.store('global', {

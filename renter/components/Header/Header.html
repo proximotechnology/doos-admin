@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
     </head>
     <body>
         <header class="z-40" :class="{'dark' : $store.app.semidark && $store.app.menu === 'horizontal'}">
@@ -176,6 +177,38 @@
                                 </li>
                             </ul>
                         </div>
+                        <a
+                            href="apps-chat.html"
+                            class="relative block rounded-full bg-white-light/40 p-2 transition-all duration-300 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
+                            id="chat-header-icon"
+                            @click="$store.header?.resetUnreadCount()"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle r="3" transform="matrix(-1 0 0 1 19 5)" stroke="currentColor" stroke-width="1.5" />
+                                <path
+                                    opacity="0.5"
+                                    d="M14 2.20004C13.3538 2.06886 12.6849 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22C17.5228 22 22 17.5228 22 12C22 11.3151 21.9311 10.6462 21.8 10"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                />
+                            </svg>
+
+                            <!-- مؤشر أحمر مع العدد -->
+                            <span class="chat-indicator absolute -right-1 -top-1 hidden">
+                                <span class="flex items-center justify-center">
+                                    <!-- تأثير الوميض -->
+                                    <span class="absolute inline-flex h-4 w-4 animate-ping rounded-full bg-red-400 opacity-75"></span>
+
+                                    <!-- الدائرة الحمراء مع العدد -->
+                                    <span
+                                        class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg"
+                                        x-text="$store.header?.unreadCount > 99 ? '99+' : $store.header?.unreadCount"
+                                    >
+                                    </span>
+                                </span>
+                            </span>
+                        </a>
                         <div class="dropdown flex-shrink-0" x-data="dropdown" @click.outside="open = false">
                             <a
                                 href="javascript:;"
@@ -188,6 +221,7 @@
                                     class="h-5 w-5 rounded-full object-cover"
                                 />
                             </a>
+
                             <ul
                                 x-cloak
                                 x-show="open"
