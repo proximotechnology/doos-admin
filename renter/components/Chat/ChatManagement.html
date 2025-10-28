@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html :lang="$store.i18n.getLocale()" :dir="$store.i18n.getLocale() === 'ar' ? 'rtl' : 'ltr'">
-    <head> </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title x-text="$store.i18n.t('chat')"></title>
+    </head>
     <div x-data="chat">
         <div class="relative flex h-full gap-5 sm:h-[calc(100vh_-_150px)] sm:min-h-0" :class="{'min-h-[999px]' : isShowChatMenu}">
             <div
@@ -8,7 +13,13 @@
                 :class="isShowChatMenu && '!block'"
             >
                 <div class="relative">
-                    <input type="text" class="peer form-input ltr:pr-9 rtl:pl-9" placeholder="Searching..." x-model="searchUser" @keyup="searchUsers" />
+                    <input
+                        type="text"
+                        class="peer form-input ltr:pr-9 rtl:pl-9"
+                        :placeholder="$store.i18n.t('searching')"
+                        x-model="searchUser"
+                        @keyup="searchUsers"
+                    />
                     <div class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-2 rtl:left-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5" opacity="0.5"></circle>
@@ -69,7 +80,7 @@
                                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                                         />
                                     </svg>
-                                    <p>No users found</p>
+                                    <p x-text="$store.i18n.t('no_users_found')"></p>
                                 </div>
                             </div>
                         </template>
@@ -251,7 +262,7 @@
                                         fill="currentColor"
                                     />
                                 </svg>
-                                Click User To Chat
+                                <span x-text="$store.i18n.t('click_user_to_chat')"></span>
                             </p>
                         </div>
                     </div>
@@ -270,7 +281,12 @@
                                 <div class="relative flex-none"></div>
                                 <div class="mx-3">
                                     <p class="font-semibold" x-text="selectedUser.name"></p>
-                                    <p class="text-xs text-white-dark" x-text="selectedUser.active ? 'Active now' : 'Last seen at '+selectedUser.time"></p>
+                                    <p
+                                        class="text-xs text-white-dark"
+                                        x-text="selectedUser.active ? 
+                                               $store.i18n.t('active_now') : 
+                                               $store.i18n.t('last_seen_at') + ' ' + selectedUser.time"
+                                    ></p>
                                 </div>
                             </div>
 
@@ -280,8 +296,8 @@
                                     type="button"
                                     class="flex items-center space-x-2 rounded-lg px-3 py-2 transition-all duration-200"
                                     :class="loginUser.is_online 
-                ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/30' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600'"
+                                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/30' 
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600'"
                                     @click="toggleOnlineStatus()"
                                     x-data="{ tooltip: false }"
                                     @mouseenter="tooltip = true"
@@ -294,11 +310,22 @@
                                             :class="loginUser.is_online ? 'bg-green-500 animate-pulse' : 'bg-gray-400'"
                                         ></div>
                                     </div>
-                                    <span class="text-sm font-medium" x-text="loginUser.is_online ? 'Online' : 'Offline'"></span>
+                                    <span
+                                        class="text-sm font-medium"
+                                        x-text="loginUser.is_online ? 
+                                                  $store.i18n.t('online') : 
+                                                  $store.i18n.t('offline')"
+                                    >
+                                    </span>
 
                                     <!-- Tooltip -->
                                     <div x-show="tooltip" class="absolute z-50 -mt-12 rounded bg-black px-2 py-1 text-xs text-white shadow-lg">
-                                        <span x-text="loginUser.is_online ? 'Click to go offline' : 'Click to go online'"></span>
+                                        <span
+                                            x-text="loginUser.is_online ? 
+                                                     $store.i18n.t('click_to_go_offline') : 
+                                                     $store.i18n.t('click_to_go_online')"
+                                        >
+                                        </span>
                                     </div>
                                 </button>
                             </div>
@@ -341,8 +368,8 @@
                                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                                 ></path>
                                             </svg>
-                                            <p>No messages yet</p>
-                                            <p class="text-sm">Start a conversation by sending a message</p>
+                                            <p x-text="$store.i18n.t('no_messages_yet')"></p>
+                                            <p class="text-sm" x-text="$store.i18n.t('start_conversation_by_sending_message')"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -367,9 +394,8 @@
                             <div class="w-full items-center space-x-3 sm:flex rtl:space-x-reverse">
                                 <div class="relative flex-1">
                                     <input
-                                        id=""
                                         class="form-input rounded-full border-0 bg-[#f4f4f4] px-12 py-2 focus:outline-none"
-                                        placeholder="Type a message"
+                                        :placeholder="$store.i18n.t('type_a_message')"
                                         x-model="textMessage"
                                         @keyup.enter="sendMessage()"
                                     />

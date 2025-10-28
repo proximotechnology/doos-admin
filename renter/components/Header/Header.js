@@ -384,7 +384,7 @@ document.addEventListener('alpine:init', () => {
             if (this.unreadCount > 0) {
                 document.title = `(${this.unreadCount}) Chat App`;
             } else {
-                document.title = 'Chat App';
+                return
             }
         },
 

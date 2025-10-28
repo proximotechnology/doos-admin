@@ -7,7 +7,6 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         onlineStatus: true,
 
-
         loginUser: {
             id: null,
             name: '',
@@ -18,15 +17,17 @@ document.addEventListener('alpine:init', () => {
         },
 
         contactList: [],
-
         selectedUser: null,
         searchUser: '',
         textMessage: '',
         isLoading: true,
-
         allUsers: [],
         showAllUsers: true,
 
+        // دالة الترجمة
+        t(key) {
+            return Alpine.store('i18n').t(`${key}`);
+        },
 
         async init() {
             await this.loadCurrentUser();
@@ -38,15 +39,14 @@ document.addEventListener('alpine:init', () => {
             this.startLastSeenUpdates();
             this.setupPageVisibilityHandlers();
             this.notifyHeaderUpdate();
-
         },
+
         notifyHeaderUpdate() {
             const event = new CustomEvent('chat-data-updated', {
                 detail: this
             });
             document.dispatchEvent(event);
         },
-
 
         startLastSeenUpdates() {
             setInterval(async () => {
@@ -91,18 +91,14 @@ document.addEventListener('alpine:init', () => {
                 const channelName = `chat-private-channel-${this.loginUser.id}`;
                 this.channel = this.pusher.subscribe(channelName);
 
-
                 this.channel.bind("Private_chat", (data) => {
                     this.handlePrivateChat(data);
                 });
-
-
-
-
-
             } catch (error) {
+                console.error('Pusher initialization error:', error);
             }
         },
+
         async loadAllUsers() {
             const token = localStorage.getItem('authToken');
             if (!token) {
@@ -135,7 +131,7 @@ document.addEventListener('alpine:init', () => {
                             phone: user.phone,
                             country: user.country,
                             time: this.formatTime(user.last_seen_at),
-                            preview: 'Start a conversation',
+                            preview: this.t('start_conversation'),
                             messages: [],
                             active: false,
                             is_online: false,
@@ -145,10 +141,10 @@ document.addEventListener('alpine:init', () => {
                             created_at: user.created_at
                         }));
 
-
                     this.mergeUsers();
                 }
             } catch (error) {
+                console.error('Error loading users:', error);
             }
         },
 
@@ -184,7 +180,6 @@ document.addEventListener('alpine:init', () => {
             this.allUsers.sort((a, b) => {
                 if (a.is_online && !b.is_online) return -1;
                 if (!a.is_online && b.is_online) return 1;
-
                 return new Date(b.last_seen_at) - new Date(a.last_seen_at);
             });
         },
@@ -210,8 +205,10 @@ document.addEventListener('alpine:init', () => {
                     this.selectedUser.messages = [...newMessages, ...this.selectedUser.messages];
                 }
             } catch (error) {
+                console.error('Error loading more messages:', error);
             }
         },
+
         async loadCurrentUser() {
             const token = localStorage.getItem('authToken');
             if (!token) {
@@ -251,10 +248,12 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Failed to load user data');
                 }
             } catch (error) {
+                console.error('Error loading current user:', error);
             } finally {
                 this.isLoading = false;
             }
         },
+
         handlePrivateChat(data) {
             const { sender_id, message, sender_name, created_at, message_id, conversation_id } = data;
 
@@ -267,7 +266,7 @@ document.addEventListener('alpine:init', () => {
                         name: sender_name || `User ${sender_id}`,
                         path: this.getUserAvatar(sender_id),
                         time: this.formatTime(created_at),
-                        preview: message || '[attachment]',
+                        preview: message || this.t('new_message'),
                         messages: [],
                         active: true,
                         unreadCount: 0,
@@ -276,12 +275,9 @@ document.addEventListener('alpine:init', () => {
                     this.allUsers.unshift(user);
                 }
 
-
                 this.allUsers = [...this.allUsers];
             }
         },
-
-
 
         async loadOnlineUsers() {
             const token = localStorage.getItem('authToken');
@@ -311,7 +307,7 @@ document.addEventListener('alpine:init', () => {
                             name: onlineUser.name,
                             path: onlineUser.image || this.getUserAvatar(onlineUser.id),
                             time: onlineUser.last_seen_formatted,
-                            preview: 'Start a conversation',
+                            preview: this.t('start_conversation'),
                             messages: [],
                             active: true,
                             is_online: true,
@@ -322,10 +318,10 @@ document.addEventListener('alpine:init', () => {
 
                     this.mergeUsers();
                 }
-            } catch (error) { }
+            } catch (error) {
+                console.error('Error loading online users:', error);
+            }
         },
-
-
 
         startOnlineUsersPolling() {
             setInterval(() => {
@@ -378,8 +374,12 @@ document.addEventListener('alpine:init', () => {
 
                     const result = await response.json();
                     await this.updateLastSeen();
+
+                    // إشعار بنجاح الإرسال
+                    this.showToast(this.t('message_sent'), 'success');
                 } catch (error) {
                     this.markMessageAsFailed();
+                    this.showToast(this.t('message_failed'), 'error');
                 }
             }
         },
@@ -393,6 +393,7 @@ document.addEventListener('alpine:init', () => {
                 this.selectedUser.messages = [...this.selectedUser.messages];
             }
         },
+
         addMessageLocally(messageText, messageId = null, conversationId = null, isSent = true) {
             if (!this.selectedUser) {
                 return;
@@ -403,7 +404,7 @@ document.addEventListener('alpine:init', () => {
                 fromUserId: this.loginUser.id,
                 toUserId: this.selectedUser.userId,
                 text: messageText,
-                time: 'Just now',
+                time: this.t('just_now'),
                 timestamp: new Date().toISOString(),
                 isRead: true,
                 isSent: isSent,
@@ -417,7 +418,7 @@ document.addEventListener('alpine:init', () => {
 
             this.selectedUser.messages.push(newMessage);
             this.selectedUser.preview = messageText;
-            this.selectedUser.time = 'Just now';
+            this.selectedUser.time = this.t('just_now');
 
             if (conversationId && !this.selectedUser.conversationId) {
                 this.selectedUser.conversationId = conversationId;
@@ -430,7 +431,7 @@ document.addEventListener('alpine:init', () => {
                 }
                 contactUser.messages.push(newMessage);
                 contactUser.preview = messageText;
-                contactUser.time = 'Just now';
+                contactUser.time = this.t('just_now');
             }
 
             this.textMessage = '';
@@ -481,12 +482,13 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
+                console.error('Error marking messages as read:', error);
             }
         },
+
         async loadChatHistory(userId) {
             try {
                 const messages = await this.getConversation(userId, 1, 50);
-
 
                 if (messages && messages.length > 0) {
                     let user = this.contactList.find(u => u.userId === userId);
@@ -496,8 +498,8 @@ document.addEventListener('alpine:init', () => {
                             userId: userId,
                             name: `User ${userId}`,
                             path: this.getUserAvatar(userId),
-                            time: 'Just now',
-                            preview: messages[0]?.message || 'New message',
+                            time: this.t('just_now'),
+                            preview: messages[0]?.message || this.t('new_message'),
                             messages: [],
                             active: true,
                             unreadCount: 0
@@ -519,7 +521,6 @@ document.addEventListener('alpine:init', () => {
 
                     user.messages.reverse();
 
-
                     if (this.selectedUser && this.selectedUser.userId === userId) {
                         this.selectedUser.messages = [...user.messages];
                         this.scrollToBottom();
@@ -530,6 +531,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
+                console.error('Error loading chat history:', error);
                 if (this.selectedUser && this.selectedUser.userId === userId) {
                     this.selectedUser.messages = this.selectedUser.messages || [];
                 }
@@ -550,8 +552,10 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
+                    // تم التحديث بنجاح
                 }
             } catch (error) {
+                console.error('Error updating last seen:', error);
             }
         },
 
@@ -569,8 +573,10 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
+                    // تم التعطيل بنجاح
                 }
             } catch (error) {
+                console.error('Error marking offline:', error);
             }
         },
 
@@ -588,8 +594,10 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
+                    // تم التفعيل بنجاح
                 }
             } catch (error) {
+                console.error('Error marking online:', error);
             }
         },
 
@@ -614,16 +622,17 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await response.json();
 
-
                 if (data.status === 'success') {
                     return data.data || [];
                 } else {
                     throw new Error(data.message || 'Failed to load conversation');
                 }
             } catch (error) {
+                console.error('Error getting conversation:', error);
                 return [];
             }
         },
+
         searchUsers() {
             setTimeout(() => {
                 const element = document.querySelector('.chat-users');
@@ -680,8 +689,6 @@ document.addEventListener('alpine:init', () => {
             this.allUsers = [...this.allUsers];
         },
 
-
-
         scrollToBottom() {
             if (this.isShowUserChat) {
                 setTimeout(() => {
@@ -694,7 +701,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatTime(timestamp) {
-            if (!timestamp) return 'Just now';
+            if (!timestamp) return this.t('just_now');
 
             const date = new Date(timestamp);
             const now = new Date();
@@ -703,10 +710,10 @@ document.addEventListener('alpine:init', () => {
             const diffHours = Math.floor(diffMs / 3600000);
             const diffDays = Math.floor(diffMs / 86400000);
 
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            if (diffDays < 7) return `${diffDays}d ago`;
+            if (diffMins < 1) return this.t('just_now');
+            if (diffMins < 60) return `${diffMins}${this.t('minutes_ago')}`;
+            if (diffHours < 24) return `${diffHours}${this.t('hours_ago')}`;
+            if (diffDays < 7) return `${diffDays}${this.t('days_ago')}`;
 
             return date.toLocaleDateString();
         },
@@ -718,17 +725,18 @@ document.addEventListener('alpine:init', () => {
                 'profile-7.jpeg', 'profile-8.jpeg', 'profile-9.jpeg', 'profile-10.jpeg'
             ];
             return avatars[userId % avatars.length] || 'profile-default.jpeg';
-        }, async toggleOnlineStatus() {
+        },
+
+        async toggleOnlineStatus() {
             try {
                 if (this.loginUser.is_online) {
                     await this.goOffline();
                 } else {
                     await this.goOnline();
                 }
-
-
+                this.showToast(this.t('status_updated'), 'success');
             } catch (error) {
-                this.showToastNotification('Failed to change status');
+                this.showToast(this.t('failed_status_change'), 'error');
             }
         },
 
@@ -748,7 +756,6 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok) {
                     this.loginUser.is_online = false;
                     this.onlineStatus = false;
-
                 }
             } catch (error) {
                 throw error;
@@ -771,15 +778,27 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok) {
                     this.loginUser.is_online = true;
                     this.onlineStatus = true;
-
                     await this.updateLastSeen();
-
                 }
             } catch (error) {
                 throw error;
             }
         },
 
-    }));
+        showToast(message, type = 'info') {
+            // يمكنك استخدام مكتبة الإشعارات الخاصة بك هنا
+            const toast = window.Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
 
+            toast.fire({
+                icon: type,
+                title: message
+            });
+        }
+    }));
 });
