@@ -296,7 +296,7 @@
     "booking_updated_successfully": "Booking updated successfully",
     "failed_update_booking": "Failed to update booking",
     "delete_booking": "Delete Booking",
-    "confirm_delete": "Are you sure you want to delete this booking?",
+    "confirm_delete": "Are you sure you want to delete?",
     "delete_successful": "Booking deleted successfully",
     "delete_failed": "Failed to delete booking",
     "make": "Make",
@@ -898,5 +898,7 @@
 
     "category": "Category",
     "chat_management": "Chat Management",
-    "tecket": "Support Tickets"
+    "tecket": "Support Tickets",
+    "delete_year": "Delete Year",
+    "delete_year_confirmation": "Are you sure you want to delete this year? This action cannot be undone."
 }

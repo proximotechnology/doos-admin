@@ -82,7 +82,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteYear(yearId) {
-            const deleteConfirmed = confirm(Alpine.store('i18n').t('confirm_delete_year'));
+            const deleteConfirmed = await new Promise((resolve) => {
+                Alpine.store('deleteYearModal').openModal(yearId, (id) => {
+                    resolve(true);
+                });
+            });
 
             if (!deleteConfirmed) return;
 
@@ -152,7 +156,7 @@ document.addEventListener('alpine:init', () => {
             this.isOpen = true;
             setTimeout(() => {
                 if (Alpine.store('global')) {
-                    Alpine.store('global').sharedData.year = ''; // Reset year input
+                    Alpine.store('global').sharedData.year = '';
                 }
             }, 100);
         },
@@ -225,9 +229,9 @@ document.addEventListener('alpine:init', () => {
 
                 coloredToast('success', Alpine.store('i18n').t('year_added_successfully'));
 
-                const tableElement = document.querySelector('[x-data="multipleTable"]');
-                if (tableElement && Alpine.$data(tableElement) && Alpine.$data(tableElement).fetchManagers) {
-                    await Alpine.$data(tableElement).fetchManagers();
+                const modelDetailsComponent = Alpine.$data(document.querySelector('[x-data="modelDetails"]'));
+                if (modelDetailsComponent && modelDetailsComponent.fetchModelDetails) {
+                    await modelDetailsComponent.fetchModelDetails();
                 }
 
                 this.closeModal();
@@ -260,7 +264,7 @@ document.addEventListener('alpine:init', () => {
 
             setTimeout(() => {
                 if (Alpine.store('global')) {
-                    Alpine.store('global').sharedData.year = currentYear; // Sync with input
+                    Alpine.store('global').sharedData.year = currentYear;
                 }
             }, 100);
 
@@ -304,7 +308,7 @@ document.addEventListener('alpine:init', () => {
 
                 const formData = new FormData();
                 formData.append('year', year);
-                if (file) formData.append('image', file); // Image is optional for update
+                if (file) formData.append('image', file);
 
                 const apiBaseUrl = this.apiBaseUrl || globalApiBaseUrl;
                 if (!apiBaseUrl) {
@@ -327,9 +331,9 @@ document.addEventListener('alpine:init', () => {
 
                 coloredToast('success', Alpine.store('i18n').t('year_updated_successfully'));
 
-                const tableElement = document.querySelector('[x-data="multipleTable"]');
-                if (tableElement && Alpine.$data(tableElement) && Alpine.$data(tableElement).fetchManagers) {
-                    await Alpine.$data(tableElement).fetchManagers();
+                const modelDetailsComponent = Alpine.$data(document.querySelector('[x-data="modelDetails"]'));
+                if (modelDetailsComponent && modelDetailsComponent.fetchModelDetails) {
+                    await modelDetailsComponent.fetchModelDetails();
                 }
 
                 this.closeModal();

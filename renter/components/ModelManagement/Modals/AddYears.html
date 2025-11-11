@@ -90,5 +90,51 @@
                 </div>
             </div>
         </div>
+        <div
+            x-data
+            x-show="$store.deleteYearModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            style="display: none"
+            x-cloak
+        >
+            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.deleteYearModal.closeModal()">
+                <div
+                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                >
+                    <div class="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                        <h5 class="text-lg font-bold">
+                            <span x-text="$store.i18n.t('delete_year')"></span>
+                        </h5>
+                        <button @click="$store.deleteYearModal.closeModal()" class="text-white-dark hover:text-dark">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-center">
+                            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-danger/20">
+                                <svg class="h-8 w-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-dark dark:text-white" x-text="$store.i18n.t('confirm_delete')"></h3>
+                            <p class="mt-2 text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('delete_year_confirmation')"></p>
+                        </div>
+                        <div class="mt-8 flex items-center justify-end">
+                            <button @click="$store.deleteYearModal.closeModal()" class="btn btn-outline-danger">
+                                <span x-text="$store.i18n.t('cancel')"></span>
+                            </button>
+                            <button @click="$store.deleteYearModal.confirmDelete()" class="btn btn-danger ltr:ml-4 rtl:mr-4">
+                                <span x-text="$store.i18n.t('delete')"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

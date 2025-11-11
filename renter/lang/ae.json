@@ -297,7 +297,7 @@
     "booking_updated_successfully": "تم تحديث الحجز بنجاح",
     "failed_update_booking": "فشل تحديث الحجز",
     "delete_booking": "حذف الحجز",
-    "confirm_delete": "هل أنت متأكد من أنك تريد حذف هذا الحجز؟",
+    "confirm_delete": "هل أنت متأكد من أنك تريد الحذف ؟",
     "delete_successful": "تم حذف الحجز بنجاح",
     "delete_failed": "فشل حذف الحجز",
     "make": "الماركة",
@@ -832,5 +832,7 @@
     "chat_management": "إدارة المحادثات",
     "in_progress_tickets": "التذاكر قيد المعالجة",
     "category": "الفئة",
-    "tecket": "تذاكر الدعم"
+    "tecket": "تذاكر الدعم",
+    "delete_year": "حذف السنة",
+    "delete_year_confirmation": "هل أنت متأكد من أنك تريد حذف هذه السنة؟ لا يمكن التراجع عن هذا الإجراء."
 }
