@@ -1,4 +1,3 @@
-// نظام الإشعارات والتحميل
 const loadingIndicator = {
     show: function () {
         document.getElementById('loadingIndicator').classList.remove('hidden');
@@ -7,17 +6,13 @@ const loadingIndicator = {
         document.getElementById('loadingIndicator').classList.add('hidden');
     },
     showTableLoader: function () {
-        // يمكن إضافة مؤشر تحميل للجدول إذا لزم الأمر
     },
     hideTableLoader: function () {
-        // يمكن إخفاء مؤشر تحميل للجدول إذا لزم الأمر
     },
     showEmptyState: function () {
-        // يمكن إضافة حالة فارغة إذا لزم الأمر
     }
 };
 
-// نظام الإشعارات الملونة
 function coloredToast(color, message) {
     const toast = window.Swal.mixin({
         toast: true,
@@ -66,7 +61,6 @@ document.addEventListener('alpine:init', () => {
             performance: {}
         },
 
-        // Quick Replies
         quickReplies: [
             {
                 id: 1,
@@ -90,16 +84,13 @@ document.addEventListener('alpine:init', () => {
             }
         ],
 
-        // دالة الترجمة
 
 
-        // Initialize
         async init() {
             await this.loadTickets();
             await this.loadStatistics();
         },
 
-        // Load tickets list
         async loadTickets() {
             const token = localStorage.getItem('authToken');
             if (!token) return;
@@ -135,7 +126,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Load statistics
         async loadStatistics() {
             const token = localStorage.getItem('authToken');
             if (!token) return;
@@ -160,7 +150,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Filter tickets
         filteredTickets() {
             let filtered = this.tickets;
 
@@ -184,7 +173,6 @@ document.addEventListener('alpine:init', () => {
             return filtered;
         },
 
-        // Select ticket
         async selectTicket(ticket) {
             try {
                 loadingIndicator.show();
@@ -205,7 +193,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Load ticket details
         async loadTicketDetails(ticketId) {
             const token = localStorage.getItem('authToken');
             if (!token) return;
@@ -244,7 +231,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Send reply
         async sendReply() {
             if (!this.replyMessage.trim() || !this.selectedTicket) {
                 coloredToast('warning', this.t('please_enter_message'));
@@ -310,7 +296,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Add internal note
         async addInternalNote() {
             if (!this.replyMessage.trim() || !this.selectedTicket) {
                 coloredToast('warning', this.t('please_enter_message'));
@@ -372,7 +357,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Update ticket status
         async updateStatus(status) {
             if (!this.selectedTicket) return;
 
@@ -420,7 +404,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Update ticket priority
         async updatePriority(priority) {
             if (!this.selectedTicket) return;
 
@@ -467,7 +450,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Close ticket
         async closeTicket() {
             if (!this.selectedTicket) return;
 
@@ -540,7 +522,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Reopen ticket
         async reopenTicket() {
             if (!this.selectedTicket) return;
 
@@ -613,7 +594,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // Apply quick reply
         applyQuickReply(reply) {
             this.replyMessage = reply.text;
         },

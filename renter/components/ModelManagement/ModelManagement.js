@@ -251,14 +251,13 @@ document.addEventListener('alpine:init', () => {
         async updateManager(managerId) {
             const model = this.tableData.find((m) => m.id == managerId);
             if (!model) return;
-            Alpine.store('global').sharedData.fullname2 = model.name;
 
             const updateConfirmed = await new Promise((resolve) => {
                 Alpine.store('updateModal').openModal(
                     managerId,
                     model.name,
                     (id, name) => {
-                        resolve(true);
+                        resolve({ id, name });
                     }
                 );
             });
@@ -267,7 +266,6 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
@@ -275,28 +273,31 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
+                const formData = new FormData();
+                formData.append('name', updateConfirmed.name);
+
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/update/${managerId}`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        name: Alpine.store('global').sharedData.fullname2,
-                    }),
+                    body: formData,
                 });
+
                 const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_update_model'));
+                    const errorMsg = result.message ||
+                        (result.errors ? Object.values(result.errors).flat().join(', ') : Alpine.store('i18n').t('failed_update_model'));
+                    throw new Error(errorMsg);
                 }
 
                 coloredToast('success', Alpine.store('i18n').t('model_updated_successfully'));
                 await this.fetchManagers(this.currentPage);
             } catch (error) {
                 console.error('Update error:', error);
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_model'));
+                coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
             }
