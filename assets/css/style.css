@@ -13493,3 +13493,181 @@ pre {
 .animate-ping {
     animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+/* ===========================
+   CONTAINER
+=========================== */
+.msl-container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+    font-family: "Arial", sans-serif;
+}
+
+/* ===========================
+   BREADCRUMB
+=========================== */
+.msl-breadcrumb {
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+.msl-breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+}
+.msl-breadcrumb span {
+    margin: 0 6px;
+}
+.msl-breadcrumb strong {
+    color: #444;
+}
+
+/* ===========================
+   GRID LAYOUT
+=========================== */
+.msl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+@media (max-width: 900px) {
+    .msl-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===========================
+   CARD
+=========================== */
+.msl-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    transition: 0.25s;
+}
+.msl-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+}
+.msl-card-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+/* ===========================
+   ROW & INFO
+=========================== */
+.msl-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.msl-label {
+    font-weight: 600;
+    color: #555;
+}
+.msl-value {
+    font-weight: 500;
+    color: #222;
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+.msl-btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+.msl-btn-primary:hover {
+    background: #0056c7;
+}
+.msl-flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===========================
+   YEARS LIST
+=========================== */
+.msl-years-container {
+    margin-top: 15px;
+}
+.msl-years-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #e0e6ef;
+}
+.msl-years-item img {
+    width: 70px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.msl-years-item .msl-year-label {
+    font-size: 16px;
+    font-weight: bold;
+}
+.msl-year-actions button {
+    padding: 7px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+.msl-edit-btn {
+    background: #ffc107;
+    color: #000;
+}
+.msl-delete-btn {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* ===========================
+   LOADING OVERLAY
+=========================== */
+.msl-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.msl-loading-overlay.hidden {
+    display: none;
+}
+.msl-loading-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+}
+.msl-spinner {
+    width: 45px;
+    height: 45px;
+    border: 5px solid #ddd;
+    border-top-color: #007bff;
+    border-radius: 50%;
+    margin: auto;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+

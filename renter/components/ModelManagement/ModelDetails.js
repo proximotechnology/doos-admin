@@ -120,28 +120,12 @@ document.addEventListener('alpine:init', () => {
 
             return years.map(year => {
                 return `
-                    <div class="flex items-center mb-4 p-4 border rounded-lg dark:border-gray-700" x-data="{ imgError: false }">
-                        <div class="flex-shrink-0 mr-4">
-                            <img class="w-16 h-12 rounded object-cover"
-                                 src="${year.image || 'assets/images/default-car.png'}"
-                                 alt="Image for year ${year.year}"
-                                 @error="imgError = true"
-                                 loading="lazy" />
-                        </div>
-                        <div class="flex-grow">
-                            <h4 class="text-lg font-semibold">${year.year}</h4>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button class="btn btn-sm btn-warning edit-year-btn"
-                                    data-id="${year.id}"
-                                    data-year="${year.year}"
-                                    @click="updateYear(${year.id}, ${year.year})">
-                                ${Alpine.store('i18n').t('edit')}
-                            </button>
-                            <button class="btn btn-sm btn-danger"
-                                    @click="deleteYear(${year.id})">
-                                ${Alpine.store('i18n').t('delete')}
-                            </button>
+                       <div class="msl-years-item" x-data="{ imgError: false }">
+                        <img src="${year.image || 'assets/images/default-car.png'}" alt="Year ${year.year}" @error="imgError = true"/>
+                        <span class="msl-year-label">${year.year}</span>
+                        <div class="msl-year-actions">
+                            <button class="msl-edit-btn" @click="updateYear(${year.id}, ${year.year})">${Alpine.store('i18n').t('edit')}</button>
+                            <button class="msl-delete-btn" @click="deleteYear(${year.id})">${Alpine.store('i18n').t('delete')}</button>
                         </div>
                     </div>
                 `;
