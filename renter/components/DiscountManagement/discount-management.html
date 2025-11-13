@@ -36,7 +36,7 @@
                 <!-- Add Discount Form -->
                 <div class="mb-6">
                     <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('add_coupon')"></h5>
+                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('add_discount')"></h5>
                         <form x-data="Add_Discount" x-init="init" @submit.prevent="addDiscount">
                             <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 <!-- Title Selection -->
@@ -145,7 +145,7 @@
                 <!-- Discounts Table -->
                 <div x-data="discountTable" >
                     <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('coupons_list')"></h5>
+                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('discuont_list')"></h5>
 
                         <!-- Filters -->
                         <div class="mb-5">

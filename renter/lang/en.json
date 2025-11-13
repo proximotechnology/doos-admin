@@ -904,7 +904,7 @@
     "discount_management": "Discount Management",
     "coupons": "Coupons",
 
-    "add_coupon": "Add Coupon",
+    "add_discount": "Add Discount",
     "create_coupon": "Create Coupon",
     "discount_scope": "Discount Scope",
     "select_scope": "Select Scope",
@@ -921,7 +921,7 @@
     "scope": "Scope",
     "value": "Value",
 
-    "coupons_list": "Coupons List",
+    "discuont_list": "Discount List",
     "search_by_title": "Search by scope",
     "no_coupons": "No Coupons",
 
