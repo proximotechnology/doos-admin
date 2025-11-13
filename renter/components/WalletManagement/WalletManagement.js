@@ -22,7 +22,6 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
-
     function coloredToast(color, message) {
         const toast = window.Swal.mixin({
             toast: true,
@@ -111,7 +110,7 @@ document.addEventListener('alpine:init', () => {
 
             const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/index?${queryParams}`;
             console.log(url);
-            
+
             try {
 
                 const response = await fetch(url, {
@@ -456,17 +455,30 @@ document.addEventListener('alpine:init', () => {
         async processWithdrawal(withdrawalId, action) {
             try {
                 let payload = {};
+
                 if (action === 'approved') {
+                    const adminNotes = await this.getAdminNotes();
+                    if (adminNotes === null) return;
+
+                    const paymentMethod = await this.getPaymentMethod();
+                    if (paymentMethod === null) return;
+
+                    const paymentReference = await this.getPaymentReference();
+                    if (paymentReference === null) return;
+
                     payload = {
                         action: 'approved',
-                        admin_notes: await this.getAdminNotes(),
-                        payment_method: await this.getPaymentMethod(),
-                        payment_reference: await this.getPaymentReference()
+                        admin_notes: adminNotes,
+                        payment_method: paymentMethod,
+                        payment_reference: paymentReference
                     };
                 } else if (action === 'rejected') {
+                    const adminNotes = await this.getAdminNotes();
+                    if (adminNotes === null) return;
+
                     payload = {
                         action: 'rejected',
-                        admin_notes: await this.getAdminNotes()
+                        admin_notes: adminNotes
                     };
                 }
 
@@ -483,7 +495,6 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: JSON.stringify(payload)
                 });
-
 
                 if (!response.ok) {
                     throw new Error(await response.text() || Alpine.store('i18n').t('failed_update_withdrawal'));
@@ -528,47 +539,80 @@ document.addEventListener('alpine:init', () => {
         },
 
         async getAdminNotes() {
-            const { value: adminNotes } = await Swal.fire({
-                title: Alpine.store('i18n').t('enter_admin_notes'),
-                input: 'text',
-                inputPlaceholder: Alpine.store('i18n').t('admin_notes_placeholder'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('admin_notes_required');
+            try {
+                const { value: adminNotes, isConfirmed } = await Swal.fire({
+                    title: Alpine.store('i18n').t('enter_admin_notes'),
+                    input: 'text',
+                    inputPlaceholder: Alpine.store('i18n').t('admin_notes_placeholder'),
+                    showCancelButton: true,
+                    confirmButtonText: Alpine.store('i18n').t('confirm'),
+                    cancelButtonText: Alpine.store('i18n').t('cancel'),
+                    inputValidator: (value) => {
+                        if (!value) return Alpine.store('i18n').t('admin_notes_required');
+                    }
+                });
+
+                if (!isConfirmed) {
+                    return null;
                 }
-            });
-            return adminNotes || '';
+
+                return adminNotes || '';
+            } catch (error) {
+                return null;
+            }
         },
 
         async getPaymentMethod() {
-            const { value: paymentMethod } = await Swal.fire({
-                title: Alpine.store('i18n').t('select_payment_method'),
-                input: 'select',
-                inputOptions: {
-                    bank_transfer: Alpine.store('i18n').t('bank_transfer'),
-                    cash: Alpine.store('i18n').t('cash'),
-                    card: Alpine.store('i18n').t('card')
-                },
-                inputPlaceholder: Alpine.store('i18n').t('select_payment_method'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('payment_method_required');
+            try {
+                const { value: paymentMethod, isConfirmed } = await Swal.fire({
+                    title: Alpine.store('i18n').t('select_payment_method'),
+                    input: 'select',
+                    inputOptions: {
+                        bank_transfer: Alpine.store('i18n').t('bank_transfer'),
+                        cash: Alpine.store('i18n').t('cash'),
+                        card: Alpine.store('i18n').t('card')
+                    },
+                    inputPlaceholder: Alpine.store('i18n').t('select_payment_method'),
+                    showCancelButton: true,
+                    confirmButtonText: Alpine.store('i18n').t('confirm'),
+                    cancelButtonText: Alpine.store('i18n').t('cancel'),
+                    inputValidator: (value) => {
+                        if (!value) return Alpine.store('i18n').t('payment_method_required');
+                    }
+                });
+
+                if (!isConfirmed) {
+                    return null;
                 }
-            });
-            return paymentMethod || '';
+
+                return paymentMethod || '';
+            } catch (error) {
+                return null;
+            }
         },
 
         async getPaymentReference() {
-            const { value: paymentReference } = await Swal.fire({
-                title: Alpine.store('i18n').t('enter_payment_reference'),
-                input: 'text',
-                inputPlaceholder: Alpine.store('i18n').t('payment_reference_placeholder'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('payment_reference_required');
+            try {
+                const { value: paymentReference, isConfirmed } = await Swal.fire({
+                    title: Alpine.store('i18n').t('enter_payment_reference'),
+                    input: 'text',
+                    inputPlaceholder: Alpine.store('i18n').t('payment_reference_placeholder'),
+                    showCancelButton: true,
+                    confirmButtonText: Alpine.store('i18n').t('confirm'),
+                    cancelButtonText: Alpine.store('i18n').t('cancel'),
+                    inputValidator: (value) => {
+                        if (!value) return Alpine.store('i18n').t('payment_reference_required');
+                    }
+                });
+
+                if (!isConfirmed) {
+                    return null;
                 }
-            });
-            return paymentReference || '';
+
+                return paymentReference || '';
+            } catch (error) {
+                return null;
+            }
         },
 
         showSuccess(message) {

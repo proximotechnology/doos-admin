@@ -17,14 +17,21 @@
     <body>
         <div
             x-data="{ 
-        imagePreview: $store.global.sharedData.image || 'assets/images/default-avatar.png',
+        imagePreview: $store.global.sharedData.image || '/assets/images/avatar-car.webp',
+        init() {
+            this.$watch('$store.updateModal.isOpen', (isOpen) => {
+                if (isOpen) {
+                    this.imagePreview = $store.global.sharedData.image || '/assets/images/avatar-car.webp';
+                }
+            });
+        },
         updateImagePreview(event) {
             const file = event.target.files[0];
             if (file) {
                 this.imagePreview = URL.createObjectURL(file);
                 $store.global.sharedData.imageFile = file;
             } else {
-                this.imagePreview = $store.global.sharedData.image || 'assets/images/default-avatar.png';
+                this.imagePreview = $store.global.sharedData.image || '/assets/images/avatar-car.webp';
                 $store.global.sharedData.imageFile = null;
             }
         }
@@ -71,7 +78,7 @@
                                                 class="h-12 w-12 rounded-full object-cover"
                                                 :src="imagePreview"
                                                 alt="Brand Image"
-                                                @error="imagePreview = 'assets/images/default-avatar.png'"
+                                                @error="imagePreview = '/assets/images/avatar-car.webp'"
                                                 width="48"
                                                 height="48"
                                             />
