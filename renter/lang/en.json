@@ -900,5 +900,58 @@
     "chat_management": "Chat Management",
     "tecket": "Support Tickets",
     "delete_year": "Delete Year",
-    "delete_year_confirmation": "Are you sure you want to delete this year? This action cannot be undone."
+    "delete_year_confirmation": "Are you sure you want to delete this year? This action cannot be undone.",
+    "discount_management": "Discount Management",
+    "coupons": "Coupons",
+
+    "add_coupon": "Add Coupon",
+    "create_coupon": "Create Coupon",
+    "discount_scope": "Discount Scope",
+    "select_scope": "Select Scope",
+    "by_brand": "By Brand",
+    "by_model": "By Model",
+    "discount_type": "Discount Type",
+    "select_type": "Select Type",
+    "fixed_amount": "Fixed Amount",
+    "discount_value": "Discount Value",
+    "enter_percentage": "Enter percentage",
+    "enter_amount": "Enter amount",
+
+    "select_model": "Select Model",
+    "scope": "Scope",
+    "value": "Value",
+
+    "coupons_list": "Coupons List",
+    "search_by_title": "Search by scope",
+    "no_coupons": "No Coupons",
+
+    "update_discount_status": "Update Discount Status",
+
+    "add_discount_successful": "Discount added successfully",
+    "discount_updated_successfully": "Discount updated successfully",
+    "discount_activated_successfully": "Discount activated successfully",
+    "discount_deactivated_successfully": "Discount deactivated successfully",
+    "delete_discount_successful": "Discount deleted successfully",
+    "failed_update_discount": "Failed to update discount",
+    "failed_delete_discount": "Failed to delete discount",
+    "error_create_discount": "Error creating discount",
+    "end_date_must_be_after_start_date": "End date must be after start date",
+
+    "failed_to_load_models": "Failed to load models",
+
+    "brand_required": "Brand is required",
+    "model_required": "Model is required",
+    "percentage_required": "Percentage is required",
+    "amount_required": "Amount is required",
+    "dates_required": "Start and end dates are required",
+
+    "status_expired": "Expired",
+
+    "type_percentage": "Percentage",
+    "type_fixed": "Fixed Amount",
+
+    "scope_all": "All Cars",
+    "scope_brand": "Specific Brand",
+    "scope_model": "Specific Model",
+    "discount": "Discount"
 }
