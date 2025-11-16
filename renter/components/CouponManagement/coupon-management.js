@@ -8,16 +8,16 @@ document.addEventListener('alpine:init', () => {
         },
         showTableLoader: function () {
             document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('discountsTable')?.classList.add('hidden');
+            document.getElementById('couponsTable')?.classList.add('hidden');
             document.getElementById('tableEmptyState')?.classList.add('hidden');
         },
         hideTableLoader: function () {
             document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('discountsTable')?.classList.remove('hidden');
+            document.getElementById('couponsTable')?.classList.remove('hidden');
         },
         showEmptyState: function () {
             document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('discountsTable')?.classList.add('hidden');
+            document.getElementById('couponsTable')?.classList.add('hidden');
             document.getElementById('tableLoading')?.classList.add('hidden');
         }
     };
@@ -37,50 +37,49 @@ document.addEventListener('alpine:init', () => {
         });
     }
 
-    Alpine.store('discountTable', {
+    Alpine.store('couponTable', {
         refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="discountTable"]'));
-            if (tableComponent && tableComponent.fetchDiscounts) {
-                await tableComponent.fetchDiscounts(1);
+            const tableComponent = Alpine.$data(document.querySelector('[x-data="couponTable"]'));
+            if (tableComponent && tableComponent.fetchCoupons) {
+                await tableComponent.fetchCoupons(1);
             }
         }
     });
 
-    Alpine.data('discountTable', () => ({
+    Alpine.data('couponTable', () => ({
         tableData: [],
         paginationMeta: {},
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
         filters: {
-            title: ''
+            code: ''
         },
 
         async init() {
-            await this.fetchDiscounts(1);
+            await this.fetchCoupons(1);
 
             document.addEventListener('click', (e) => {
-
                 if (e.target.closest('.update-btn')) {
-                    const discountId = e.target.closest('.update-btn').dataset.id;
-                    this.updateDiscount(discountId);
+                    const couponId = e.target.closest('.update-btn').dataset.id;
+                    this.updateCoupon(couponId);
                 }
                 if (e.target.closest('.activate-btn')) {
-                    const discountId = e.target.closest('.activate-btn').dataset.id;
-                    this.toggleDiscountStatus(discountId, 'active');
+                    const couponId = e.target.closest('.activate-btn').dataset.id;
+                    this.toggleCouponStatus(couponId, 'active');
                 }
                 if (e.target.closest('.deactivate-btn')) {
-                    const discountId = e.target.closest('.deactivate-btn').dataset.id;
-                    this.toggleDiscountStatus(discountId, 'inactive');
+                    const couponId = e.target.closest('.deactivate-btn').dataset.id;
+                    this.toggleCouponStatus(couponId, 'inactive');
                 }
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchDiscounts(page);
+                    this.fetchCoupons(page);
                 }
             });
         },
 
-        async fetchDiscounts(page = 1) {
+        async fetchCoupons(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
                 this.currentPage = page;
@@ -93,9 +92,9 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.title) queryParams.append('title', this.filters.title);
+                if (this.filters.code) queryParams.append('code', this.filters.code);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/index?${queryParams.toString()}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/index?${queryParams.toString()}`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',
@@ -106,14 +105,14 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
 
                 if (data.success && data.data) {
-                    this.tableData = data.data.discounts || [];
+                    this.tableData = data.data.data || [];
                     this.paginationMeta = {
-                        current_page: data.data.pagination.current_page,
-                        last_page: data.data.pagination.last_page,
-                        per_page: data.data.pagination.per_page,
-                        total: data.data.pagination.total,
-                        from: data.data.pagination.from,
-                        to: data.data.pagination.to
+                        current_page: data.data.current_page,
+                        last_page: data.data.last_page,
+                        per_page: data.data.per_page,
+                        total: data.data.total,
+                        from: data.data.from,
+                        to: data.data.to
                     };
 
                     if (this.tableData.length === 0) {
@@ -126,7 +125,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Invalid response format');
                 }
             } catch (error) {
-                console.error('Error fetching discounts:', error);
+                console.error('Error fetching coupons:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -134,12 +133,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         applyFilters() {
-            this.fetchDiscounts(1);
+            this.fetchCoupons(1);
         },
 
         resetFilters() {
-            this.filters.title = '';
-            this.fetchDiscounts(1);
+            this.filters.code = '';
+            this.fetchCoupons(1);
         },
 
         populateTable() {
@@ -147,22 +146,22 @@ document.addEventListener('alpine:init', () => {
                 this.datatable.destroy();
             }
 
-            const mappedData = this.tableData.map((discount, index) => [
+            const mappedData = this.tableData.map((coupon, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
-                this.formatTitle(discount.title),
-                this.formatType(discount.type),
-                this.formatValue(discount.value, discount.type),
-                this.formatDate(discount.date_from),
-                this.formatDate(discount.date_end),
-                this.formatStatus(discount.status),
-                this.getActionButtons(discount.id, discount.status),
+                this.formatText(coupon.code),
+                this.formatType(coupon.type),
+                this.formatValue(coupon.value, coupon.type),
+                this.formatDate(coupon.date_from),
+                this.formatDate(coupon.date_end),
+                this.formatStatus(coupon.status),
+                this.getActionButtons(coupon.id, coupon.status),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#discountsTable', {
+            this.datatable = new simpleDatatables.DataTable('#couponsTable', {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
-                        Alpine.store('i18n').t('scope'),
+                        Alpine.store('i18n').t('code'),
                         Alpine.store('i18n').t('type'),
                         Alpine.store('i18n').t('value'),
                         Alpine.store('i18n').t('start_date'),
@@ -220,15 +219,6 @@ document.addEventListener('alpine:init', () => {
             return paginationHTML;
         },
 
-        formatTitle(title) {
-            const titles = {
-                'all_cars': Alpine.store('i18n').t('all_cars'),
-                'brand': Alpine.store('i18n').t('by_brand'),
-                'model': Alpine.store('i18n').t('by_model')
-            };
-            return titles[title] || this.formatText(title);
-        },
-
         formatType(type) {
             const types = {
                 'percentage': Alpine.store('i18n').t('percentage'),
@@ -263,43 +253,33 @@ document.addEventListener('alpine:init', () => {
             return text || Alpine.store('i18n').t('na');
         },
 
-        getActionButtons(discountId, status) {
+        getActionButtons(couponId, status) {
             const isActive = status === 'active';
-            const isPending = status === 'pending';
-            const isInactive = status === 'inactive';
-
-            const isUpdateDisabled = isActive || isInactive;
-            const isStatusDisabled = isPending || isInactive;
 
             return `
-        <div class="flex gap-1">
-            <button class="btn update-btn btn-warning btn-sm" data-id="${discountId}" ${isUpdateDisabled ? 'disabled' : ''}>
-                ${Alpine.store('i18n').t('update')}
-            </button>
-            ${isActive ?
-                    `<button class="btn deactivate-btn btn-secondary btn-sm" data-id="${discountId}">
-                    ${Alpine.store('i18n').t('deactivate')}
-                </button>` :
-                    `<button class="btn activate-btn btn-success btn-sm" data-id="${discountId}" ${isStatusDisabled ? 'disabled' : ''}>
-                    ${Alpine.store('i18n').t('activate')}
-                </button>`
+                <div class="flex gap-1">
+                    <button class="btn update-btn btn-warning btn-sm" data-id="${couponId}">
+                        ${Alpine.store('i18n').t('update')}
+                    </button>
+                    ${isActive ?
+                    `<button class="btn deactivate-btn btn-secondary btn-sm" data-id="${couponId}">
+                            ${Alpine.store('i18n').t('deactivate')}
+                        </button>` :
+                    `<button class="btn activate-btn btn-success btn-sm" data-id="${couponId}">
+                            ${Alpine.store('i18n').t('activate')}
+                        </button>`
                 }
-        </div>`;
+                </div>`;
         },
 
-        async updateDiscount(discountId) {
-            const discount = this.tableData.find((d) => d.id == discountId);
-            if (!discount) return;
-
-            if (discount.status === 'active' || discount.status === 'inactive') {
-                coloredToast('danger', 'Cannot update discount with ' + discount.status + ' status. Only pending discounts can be updated.');
-                return;
-            }
+        async updateCoupon(couponId) {
+            const coupon = this.tableData.find((c) => c.id == couponId);
+            if (!coupon) return;
 
             const updateConfirmed = await new Promise((resolve) => {
                 Alpine.store('updateModal').openModal(
-                    discountId,
-                    discount,
+                    couponId,
+                    coupon,
                     (updatedData) => {
                         resolve(updatedData);
                     }
@@ -317,7 +297,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/update/${discountId}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/update/${couponId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -330,13 +310,25 @@ document.addEventListener('alpine:init', () => {
                 const result = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = result.message ||
-                        (result.errors ? Object.values(result.errors).flat().join(', ') : Alpine.store('i18n').t('failed_update_discount'));
-                    throw new Error(errorMsg);
+                    let errorMessage = Alpine.store('i18n').t('failed_update_coupon');
+
+                    if (result.errors) {
+                        const errorMessages = [];
+                        for (const field in result.errors) {
+                            if (Array.isArray(result.errors[field])) {
+                                errorMessages.push(...result.errors[field]);
+                            }
+                        }
+                        errorMessage = errorMessages.join(', ');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+
+                    throw new Error(errorMessage);
                 }
 
-                coloredToast('success', Alpine.store('i18n').t('discount_updated_successfully'));
-                await this.fetchDiscounts(this.currentPage);
+                coloredToast('success', Alpine.store('i18n').t('coupon_updated_successfully'));
+                await this.fetchCoupons(this.currentPage);
             } catch (error) {
                 console.error('Update error:', error);
                 coloredToast('danger', error.message);
@@ -345,16 +337,11 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async toggleDiscountStatus(discountId, status) {
+        async toggleCouponStatus(couponId, status) {
             try {
-                const discount = this.tableData.find((d) => d.id == discountId);
-                if (!discount) {
-                    throw new Error('Discount not found');
-                }
-
-                if (discount.status === 'pending' || discount.status === 'inactive') {
-                    coloredToast('danger', 'Cannot change status of discount with ' + discount.status + ' status');
-                    return;
+                const coupon = this.tableData.find((c) => c.id == couponId);
+                if (!coupon) {
+                    throw new Error('Coupon not found');
                 }
 
                 loadingIndicator.show();
@@ -365,9 +352,16 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const updateData = { status };
+                const updateData = {
+                    status: status,
+                    type: coupon.type,
+                    code: coupon.code,
+                    value: coupon.value,
+                    date_from: coupon.date_from,
+                    date_end: coupon.date_end
+                };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/update/${discountId}`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/update/${couponId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -377,24 +371,32 @@ document.addEventListener('alpine:init', () => {
                     body: JSON.stringify(updateData),
                 });
 
+                const result = await response.json();
 
                 if (!response.ok) {
-                    const errorData = await response.json();
+                    let errorMessage = Alpine.store('i18n').t('failed_update_coupon');
 
-                    const errorMsg = errorData.message ||
-                        (errorData.errors ? Object.values(errorData.errors).flat().join(', ') :
-                            Alpine.store('i18n').t('failed_update_discount'));
-                    throw new Error(errorMsg);
+                    if (result.errors) {
+                        const errorMessages = [];
+                        for (const field in result.errors) {
+                            if (Array.isArray(result.errors[field])) {
+                                errorMessages.push(...result.errors[field]);
+                            }
+                        }
+                        errorMessage = errorMessages.join(', ');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+
+                    throw new Error(errorMessage);
                 }
-
-                const result = await response.json();
 
                 coloredToast('success',
                     status === 'active' ?
-                        Alpine.store('i18n').t('discount_activated_successfully') :
-                        Alpine.store('i18n').t('discount_deactivated_successfully')
+                        Alpine.store('i18n').t('coupon_activated_successfully') :
+                        Alpine.store('i18n').t('coupon_deactivated_successfully')
                 );
-                await this.fetchDiscounts(this.currentPage);
+                await this.fetchCoupons(this.currentPage);
             } catch (error) {
                 console.error('Status toggle error:', error);
                 coloredToast('danger', error.message);
@@ -402,7 +404,6 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.hide();
             }
         },
-
 
         getPaginationIcon(type) {
             const icons = {
@@ -415,110 +416,37 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('Add_Discount', () => ({
+    Alpine.data('Add_Coupon', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
-        title: '',
+        code: '',
         type: '',
         value: '',
         date_from: '',
         date_end: '',
-        brand_id: '',
-        model_id: '',
-        brands: [],
-        models: [],
+        status: 'active',
 
-        async init() {
-            await this.fetchBrands();
-        },
-
-        async fetchBrands() {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_brands'));
-                }
-
-                this.brands = result.data.data;
-            } catch (error) {
-                console.error('Error fetching brands:', error);
-                coloredToast('danger', error.message);
-            }
-        },
-
-        async fetchModels() {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_models'));
-                }
-
-                this.models = result.data.data;
-            } catch (error) {
-                console.error('Error fetching models:', error);
-                coloredToast('danger', error.message);
-            }
-        },
-
-        onTitleChange() {
-            if (this.title === 'model') {
-                this.fetchModels();
-            }
-            this.brand_id = '';
-            this.model_id = '';
-        },
-
-        async addDiscount() {
+        async addCoupon() {
             try {
                 loadingIndicator.show();
 
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
+                // Validate dates
                 if (new Date(this.date_end) <= new Date(this.date_from)) {
                     throw new Error(Alpine.store('i18n').t('end_date_must_be_after_start_date'));
                 }
 
                 const payload = {
-                    title: this.title,
+                    code: this.code,
                     type: this.type,
                     value: parseFloat(this.value),
                     date_from: this.date_from,
-                    date_end: this.date_end
+                    date_end: this.date_end,
+                    status: this.status
                 };
 
-                if (this.title === 'brand' && this.brand_id) {
-                    payload.brands = [parseInt(this.brand_id)];
-                }
-
-                if (this.title === 'model' && this.model_id) {
-                    payload.models = [parseInt(this.model_id)];
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/store`, {
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/store`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -535,22 +463,22 @@ document.addEventListener('alpine:init', () => {
                         Object.values(result.errors || {})
                             .flat()
                             .join('\n') ||
-                        Alpine.store('i18n').t('error_create_discount');
+                        Alpine.store('i18n').t('error_create_coupon');
                     throw new Error(errorMsg);
                 }
 
-                this.title = '';
+                // Reset form
+                this.code = '';
                 this.type = '';
                 this.value = '';
                 this.date_from = '';
                 this.date_end = '';
-                this.brand_id = '';
-                this.model_id = '';
+                this.status = 'active';
 
-                coloredToast('success', Alpine.store('i18n').t('add_discount_successful'));
-                const discountTable = Alpine.$data(document.querySelector('[x-data="discountTable"]'));
-                if (discountTable && discountTable.fetchDiscounts) {
-                    await discountTable.fetchDiscounts(1);
+                coloredToast('success', Alpine.store('i18n').t('add_coupon_successful'));
+                const couponTable = Alpine.$data(document.querySelector('[x-data="couponTable"]'));
+                if (couponTable && couponTable.fetchCoupons) {
+                    await couponTable.fetchCoupons(1);
                 }
             } catch (error) {
                 coloredToast('danger', error.message);

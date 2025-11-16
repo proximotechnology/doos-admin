@@ -110,8 +110,7 @@ document.addEventListener('alpine:init', () => {
             if (this.filters.status) queryParams.append('status', this.filters.status);
 
             const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/index?${queryParams}`;
-            console.log(url);
-            
+
             try {
 
                 const response = await fetch(url, {
@@ -128,7 +127,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log("sad", data);
 
                 if (data.status && Array.isArray(data.data.withdrawal_requests)) {
                     this.tableData = data.data.withdrawal_requests;
@@ -141,7 +139,6 @@ document.addEventListener('alpine:init', () => {
                         to: 0,
                         links: []
                     };
-                    console.log();
 
 
                     if (this.tableData.length === 0) {
@@ -179,7 +176,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
 
                 if (data.status && data.data.statistics) {
                     this.meta = data.data.statistics;

@@ -50,7 +50,6 @@ document.addEventListener('alpine:init', () => {
 
                 if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_fetch_users'));
                 const data = await response.json();
-                console.log(data);
                 
                 this.users = data.data.data.filter((u) => u.type === '0');
             } catch (error) {

@@ -865,5 +865,28 @@
     "failed_delete_discount": "فشل في حذف الخصم",
     "error_create_discount": "خطأ في إنشاء الخصم",
     "end_date_must_be_after_start_date": "تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء",
-    "discount":"الخصومات"
+    "discount": "الخصومات",
+
+    "coupon_management": "إدارة الكوبونات",
+
+    "search_by_code": "البحث بالكود",
+
+    "add_coupon": "إضافة كوبون",
+    "update_coupon": "تحديث الكوبون",
+    "coupons_list": "قائمة الكوبونات",
+
+    "coupon_code": "كود الكوبون",
+    "enter_coupon_code": "أدخل كود الكوبون",
+
+    "code": "الكود",
+
+    "date_end": "إلى تاريخ",
+
+    "add_coupon_successful": "تم إضافة الكوبون بنجاح",
+    "coupon_updated_successfully": "تم تحديث الكوبون بنجاح",
+    "coupon_activated_successfully": "تم تفعيل الكوبون بنجاح",
+    "coupon_deactivated_successfully": "تم إلغاء تفعيل الكوبون بنجاح",
+
+    "failed_update_coupon": "فشل تحديث الكوبون",
+    "error_create_coupon": "خطأ في إنشاء الكوبون"
 }

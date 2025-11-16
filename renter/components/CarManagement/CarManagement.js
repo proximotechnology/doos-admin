@@ -143,7 +143,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await response.json();
-                console.log(data);
 
                 if (Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
@@ -1114,7 +1113,6 @@ document.addEventListener('alpine:init', () => {
                 features: data
             };
 
-            console.log('Sending features data:', requestData);
 
             const response = await fetch(`${this.apiBaseUrl}/api/updateCarFeatures/${carId}`, {
                 method: 'POST',

@@ -238,8 +238,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 const result = await response.json();
-                console.log(result);
-                
+
                 if (response.ok && result.status) {
                     coloredToast('success', Alpine.store('i18n').t('feature_added_successfully'));
                     this.form.plan_id = '';
@@ -249,8 +248,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_feature'));
                 }
             } catch (error) {
-                console.log(error);
-                
+
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();

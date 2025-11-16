@@ -953,5 +953,25 @@
     "scope_all": "All Cars",
     "scope_brand": "Specific Brand",
     "scope_model": "Specific Model",
-    "discount": "Discount"
+    "discount": "Discount",
+
+    "coupon_management": "Coupon Management",
+
+    "search_by_code": "Search by code",
+
+    "add_coupon": "Add Coupon",
+    "update_coupon": "Update Coupon",
+    "coupons_list": "Coupons List",
+    "coupon_code": "Coupon Code",
+    "enter_coupon_code": "Enter coupon code",
+
+    "code": "Code",
+
+    "date_end": "To Date",
+    "add_coupon_successful": "Coupon added successfully",
+    "coupon_updated_successfully": "Coupon updated successfully",
+    "coupon_activated_successfully": "Coupon activated successfully",
+    "coupon_deactivated_successfully": "Coupon deactivated successfully",
+    "failed_update_coupon": "Failed to update coupon",
+    "error_create_coupon": "Error creating coupon"
 }
