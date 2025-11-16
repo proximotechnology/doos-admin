@@ -973,5 +973,14 @@
     "coupon_activated_successfully": "Coupon activated successfully",
     "coupon_deactivated_successfully": "Coupon deactivated successfully",
     "failed_update_coupon": "Failed to update coupon",
-    "error_create_coupon": "Error creating coupon"
+    "error_create_coupon": "Error creating coupon",
+    "model_image": "Model Image",
+    "model_years": "Model Years",
+
+    "year_image": "Year Image",
+    "remove": "Remove",
+    "create_model": "Create Model",
+    "fill_required_fields": "Please fill all required fields",
+    "year_required": "Year is required",
+    "year_image_required": "Year image is required"
 }

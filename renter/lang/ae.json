@@ -888,5 +888,14 @@
     "coupon_deactivated_successfully": "تم إلغاء تفعيل الكوبون بنجاح",
 
     "failed_update_coupon": "فشل تحديث الكوبون",
-    "error_create_coupon": "خطأ في إنشاء الكوبون"
+    "error_create_coupon": "خطأ في إنشاء الكوبون",
+    "model_image": "صورة الموديل",
+    "model_years": "سنوات الموديل",
+
+    "year_image": "صورة السنة",
+    "remove": "إزالة",
+    "create_model": "إنشاء موديل",
+    "fill_required_fields": "يرجى ملء جميع الحقول المطلوبة",
+    "year_required": "السنة مطلوبة",
+    "year_image_required": "صورة السنة مطلوبة"
 }

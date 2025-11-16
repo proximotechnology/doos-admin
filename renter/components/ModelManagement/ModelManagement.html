@@ -5,7 +5,6 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <!-- Tailwind CSS -->
-       
     </head>
     <body class="bg-gray-100 dark:bg-gray-900">
         <div id="header-container"></div>
@@ -40,28 +39,98 @@
                     <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                         <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('add_model_car')"></h5>
                         <form x-data="Add_Category" x-init="init" @submit.prevent="Add_Category">
-                            <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                                <input
-                                    type="text"
-                                    class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    :placeholder="$store.i18n.t('enter_name')"
-                                    x-model="name"
-                                    required
-                                />
-                                <select
-                                    class="form-select rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    x-model="brand_id"
-                                    required
-                                >
-                                    <option value="" selected disabled x-text="$store.i18n.t('select_brand')"></option>
-                                    <template x-for="brand in brands" :key="brand.id">
-                                        <option :value="brand.id" x-text="brand.name"></option>
-                                    </template>
-                                </select>
-                                <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                                    <span x-text="$store.i18n.t('create')"></span>
-                                </button>
+                            <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <!-- Name -->
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('name')"></label>
+                                    <input
+                                        type="text"
+                                        class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        :placeholder="$store.i18n.t('enter_name')"
+                                        x-model="name"
+                                        required
+                                    />
+                                </div>
+
+                                <!-- Brand Selection -->
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('brand')"></label>
+                                    <select
+                                        class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        x-model="brand_id"
+                                        required
+                                    >
+                                        <option value="" selected disabled x-text="$store.i18n.t('select_brand')"></option>
+                                        <template x-for="brand in brands" :key="brand.id">
+                                            <option :value="brand.id" x-text="brand.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Model Image -->
+                                <div class="md:col-span-2">
+                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('model_image')"></label>
+                                    <input
+                                        type="file"
+                                        class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        @change="handleModelImage"
+                                        accept="image/*"
+                                    />
+                                </div>
                             </div>
+
+                            <!-- Years Section -->
+                            <div class="mb-6">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h6 class="text-lg font-medium dark:text-white" x-text="$store.i18n.t('model_years')"></h6>
+                                    <button type="button" @click="addYear" class="btn btn-primary btn-sm">
+                                        <span x-text="$store.i18n.t('add_year')"></span>
+                                    </button>
+                                </div>
+
+                                <!-- Years List -->
+                                <div class="space-y-4">
+                                    <template x-for="(year, index) in years" :key="index">
+                                        <div class="grid grid-cols-1 gap-4 rounded-lg border p-4 dark:border-gray-600 md:grid-cols-3">
+                                            <!-- Year -->
+                                            <div>
+                                                <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('year')"></label>
+                                                <input
+                                                    type="number"
+                                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                    :placeholder="$store.i18n.t('enter_year')"
+                                                    x-model="year.year"
+                                                    min="1900"
+                                                    max="2030"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <!-- Year Image -->
+                                            <div>
+                                                <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('year_image')"></label>
+                                                <input
+                                                    type="file"
+                                                    class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                    @change="handleYearImage($event, index)"
+                                                    accept="image/*"
+                                                />
+                                            </div>
+
+                                            <!-- Remove Button -->
+                                            <div class="flex items-end">
+                                                <button type="button" @click="removeYear(index)" class="btn btn-danger w-full" x-show="years.length > 1">
+                                                    <span x-text="$store.i18n.t('remove')"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
+                                <span x-text="$store.i18n.t('create_model')"></span>
+                            </button>
                         </form>
                     </div>
                 </div>

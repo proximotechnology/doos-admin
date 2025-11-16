@@ -377,6 +377,13 @@ document.addEventListener('alpine:init', () => {
         name: '',
         brand_id: '',
         brands: [],
+        modelImage: null,
+        years: [
+            {
+                year: '',
+                image: null
+            }
+        ],
 
         async init() {
             await this.fetchBrands();
@@ -408,6 +415,33 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        addYear() {
+            this.years.push({
+                year: '',
+                image: null
+            });
+        },
+
+        removeYear(index) {
+            if (this.years.length > 1) {
+                this.years.splice(index, 1);
+            }
+        },
+
+        handleModelImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.modelImage = file;
+            }
+        },
+
+        handleYearImage(event, index) {
+            const file = event.target.files[0];
+            if (file) {
+                this.years[index].image = file;
+            }
+        },
+
         async Add_Category() {
             try {
                 loadingIndicator.show();
@@ -415,14 +449,39 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
+                if (!this.name || !this.brand_id) {
+                    throw new Error(Alpine.store('i18n').t('fill_required_fields'));
+                }
+
+                for (let i = 0; i < this.years.length; i++) {
+                    const year = this.years[i];
+                    if (!year.year) {
+                        throw new Error(Alpine.store('i18n').t('year_required') + ` (${i + 1})`);
+                    }
+                    if (!year.image) {
+                        throw new Error(Alpine.store('i18n').t('year_image_required') + ` (${i + 1})`);
+                    }
+                }
+
                 const formData = new FormData();
                 formData.append('name', this.name);
                 formData.append('brand_id', this.brand_id);
 
+                if (this.modelImage) {
+                    formData.append('image', this.modelImage);
+                }
+
+                this.years.forEach((yearData, index) => {
+                    formData.append(`years[${index}][year]`, yearData.year);
+                    if (yearData.image) {
+                        formData.append(`years[${index}][image]`, yearData.image);
+                    }
+                });
+
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/store`, {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        'Authorization': `Bearer ${token}`,
                     },
                     body: formData,
                 });
@@ -430,17 +489,24 @@ document.addEventListener('alpine:init', () => {
                 const result = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg =
-                        result.message ||
-                        Object.values(result.errors || {})
-                            .flat()
-                            .join('\n') ||
-                        Alpine.store('i18n').t('error_create_model');
-                    throw new Error(errorMsg);
+                    let errorMessage = Alpine.store('i18n').t('error_create_model');
+
+                    if (result.errors) {
+                        const errorMessages = [];
+                        for (const field in result.errors) {
+                            if (Array.isArray(result.errors[field])) {
+                                errorMessages.push(...result.errors[field]);
+                            }
+                        }
+                        errorMessage = errorMessages.join(', ');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+
+                    throw new Error(errorMessage);
                 }
 
-                this.name = '';
-                this.brand_id = '';
+                this.resetForm();
 
                 coloredToast('success', Alpine.store('i18n').t('add_model_successful'));
                 const multipleTable = Alpine.$data(document.querySelector('[x-data="multipleTable"]'));
@@ -452,6 +518,23 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 loadingIndicator.hide();
             }
+        },
+
+        resetForm() {
+            this.name = '';
+            this.brand_id = '';
+            this.modelImage = null;
+            this.years = [
+                {
+                    year: '',
+                    image: null
+                }
+            ];
+
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                input.value = '';
+            });
         },
     }));
 
