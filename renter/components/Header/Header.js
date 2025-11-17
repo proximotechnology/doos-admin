@@ -426,7 +426,6 @@ document.addEventListener('alpine:init', () => {
             }
         }
     }));
-
     Alpine.data('logout', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
 
@@ -442,15 +441,35 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (!response.ok) {
+                    if (response.status === 500) {
+                        console.warn('Server error 500 during logout - clearing token locally');
+                        this.clearAuthData();
+                        window.location.href = 'auth-boxed-signin.html';
+                        return;
+                    }
+
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.message || 'فشل تسجيل الخروج');
                 }
 
-                localStorage.removeItem('authToken');
+                this.clearAuthData();
                 window.location.href = 'auth-boxed-signin.html';
+
             } catch (error) {
-                alert('حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة لاحقًا.', error);
+                console.log('Logout error:', error);
+
+                this.clearAuthData();
+                window.location.href = 'auth-boxed-signin.html';
             }
+        },
+
+        clearAuthData() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUserId');
+            localStorage.removeItem('chatData');
+            localStorage.removeItem('userData');
+
+            console.log('Auth data cleared successfully');
         },
     }));
     Alpine.store('i18n', {
