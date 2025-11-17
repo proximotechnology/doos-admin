@@ -290,7 +290,6 @@
                                 </div>
                             </div>
 
-                            <!-- زر تبديل حالة الاتصال -->
                             <div class="flex items-center space-x-2 rtl:space-x-reverse">
                                 <button
                                     type="button"
@@ -304,7 +303,6 @@
                                     @mouseleave="tooltip = false"
                                 >
                                     <div class="relative">
-                                        <!-- مؤشر الحالة -->
                                         <div
                                             class="h-3 w-3 rounded-full border-2 border-white dark:border-gray-800"
                                             :class="loginUser.is_online ? 'bg-green-500 animate-pulse' : 'bg-gray-400'"
@@ -334,7 +332,6 @@
 
                         <div class="perfect-scrollbar relative h-full overflow-y-auto" style="max-height: calc(100vh - 290px)">
                             <div class="chat-conversation-box min-h-[400px] space-y-5 p-4 pb-[68px] sm:min-h-[300px] sm:pb-0">
-                                <!-- الرسائل الحالية -->
                                 <template x-if="selectedUser && Array.isArray(selectedUser.messages) && selectedUser.messages.length > 0">
                                     <template x-for="message in selectedUser.messages" :key="message.id">
                                         <div class="flex items-start gap-3" :class="{'justify-end' : message.isSentByMe}">
@@ -356,7 +353,6 @@
                                     </template>
                                 </template>
 
-                                <!-- حالة عندما لا توجد رسائل -->
                                 <template x-if="selectedUser && (!selectedUser.messages || selectedUser.messages.length === 0)">
                                     <div class="flex h-full items-center justify-center py-8">
                                         <div class="text-center text-gray-500 dark:text-gray-400">
@@ -374,7 +370,6 @@
                                     </div>
                                 </template>
 
-                                <!-- مؤشر الكتابة -->
                                 <div id="typing-indicator" class="flex hidden items-start gap-3">
                                     <div class="space-y-2">
                                         <div class="flex items-center gap-3">

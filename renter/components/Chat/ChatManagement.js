@@ -24,7 +24,6 @@ document.addEventListener('alpine:init', () => {
         allUsers: [],
         showAllUsers: true,
 
-        // دالة الترجمة
         t(key) {
             return Alpine.store('i18n').t(`${key}`);
         },
@@ -375,7 +374,6 @@ document.addEventListener('alpine:init', () => {
                     const result = await response.json();
                     await this.updateLastSeen();
 
-                    // إشعار بنجاح الإرسال
                     this.showToast(this.t('message_sent'), 'success');
                 } catch (error) {
                     this.markMessageAsFailed();
@@ -552,7 +550,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
-                    // تم التحديث بنجاح
                 }
             } catch (error) {
                 console.error('Error updating last seen:', error);
@@ -573,7 +570,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
-                    // تم التعطيل بنجاح
                 }
             } catch (error) {
                 console.error('Error marking offline:', error);
@@ -594,7 +590,6 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
-                    // تم التفعيل بنجاح
                 }
             } catch (error) {
                 console.error('Error marking online:', error);
@@ -786,7 +781,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         showToast(message, type = 'info') {
-            // يمكنك استخدام مكتبة الإشعارات الخاصة بك هنا
             const toast = window.Swal.mixin({
                 toast: true,
                 position: 'top-end',

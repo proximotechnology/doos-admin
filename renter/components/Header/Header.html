@@ -194,13 +194,10 @@
                                 />
                             </svg>
 
-                            <!-- مؤشر أحمر مع العدد -->
                             <span class="chat-indicator absolute -right-1 -top-1 hidden">
                                 <span class="flex items-center justify-center">
-                                    <!-- تأثير الوميض -->
                                     <span class="absolute inline-flex h-4 w-4 animate-ping rounded-full bg-red-400 opacity-75"></span>
 
-                                    <!-- الدائرة الحمراء مع العدد -->
                                     <span
                                         class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg"
                                         x-text="$store.header?.unreadCount > 99 ? '99+' : $store.header?.unreadCount"

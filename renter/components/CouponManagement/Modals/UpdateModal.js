@@ -36,7 +36,6 @@ document.addEventListener('alpine:init', () => {
             this.callback = callback;
             this.isOpen = true;
 
-            // تعبئة البيانات في النموذج
             Alpine.store('global').sharedData = {
                 code: couponData.code,
                 type: couponData.type,
@@ -53,7 +52,6 @@ document.addEventListener('alpine:init', () => {
             this.callback = null;
             this.couponData = null;
 
-            // إعادة تعيين البيانات المشتركة
             Alpine.store('global').sharedData = {
                 code: '',
                 type: '',

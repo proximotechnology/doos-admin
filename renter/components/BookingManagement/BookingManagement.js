@@ -579,7 +579,6 @@ document.addEventListener('alpine:init', () => {
             </div>
         `;
 
-                // Maps Section - التصحيح
                 let mapsHtml = '';
                 const lat = parseFloat(booking.lat);
                 const lng = parseFloat(booking.lang);
@@ -619,7 +618,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
 
-                // بعد إظهار المحتوى - تحميل الخرائط
                 setTimeout(() => {
                     if (!isNaN(lat) && !isNaN(lng)) {
                         this.initMap(booking.id, lat, lng);
@@ -688,7 +686,6 @@ document.addEventListener('alpine:init', () => {
                 document.getElementById('carDetailsContent').innerHTML = detailsHtml;
                 document.getElementById('carDetailsModal').classList.remove('hidden');
 
-                // تحميل الخرائط بعد عرض المحتوى
                 setTimeout(() => {
                     if (!isNaN(lat) && !isNaN(lng)) {
                         this.initMap('pickup', booking.id, lat, lng, booking.address || t('pickup_location'));
@@ -706,7 +703,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // الدوال المساعدة الجديدة
         formatUserType(type) {
             const types = {
                 '0': Alpine.store('i18n').t('individual'),

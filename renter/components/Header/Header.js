@@ -18,7 +18,7 @@ document.addEventListener('alpine:init', () => {
         channel: null,
         unreadCount: 0,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
-        chatData: null, // لتخزين بيانات الشات
+        chatData: null,
 
         init() {
             const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -36,13 +36,10 @@ document.addEventListener('alpine:init', () => {
                 }
             }
 
-            // تحميل بيانات الشات وحساب الرسائل غير المقروءة
             this.loadChatData();
 
-            // الاستماع لتحديثات بيانات الشات
             this.setupChatDataListener();
 
-            // تهيئة Pusher فقط في الصفحات الداخلية
             if (this.isInternalPage()) {
                 this.initializePusher();
             }
@@ -60,33 +57,27 @@ document.addEventListener('alpine:init', () => {
             return !excludedPages.some(page => currentPath.includes(page));
         },
 
-        // تحميل بيانات الشات من مكون الشات الرئيسي
         loadChatData() {
-            // محاولة الوصول إلى بيانات مكون الشات
             const chatComponent = document.querySelector('[x-data="chat"]')?._x_dataStack?.[0];
             if (chatComponent) {
                 this.chatData = chatComponent;
                 this.calculateUnreadCount();
             } else {
-                // إذا لم يكن مكون الشات متاحاً، تحميل من localStorage
                 this.loadFromLocalStorage();
             }
         },
 
-        // حساب عدد الرسائل غير المقروءة من البيانات المحلية
         calculateUnreadCount() {
             if (!this.chatData) return;
 
             let totalUnread = 0;
 
-            // حساب من allUsers
             if (this.chatData.allUsers && Array.isArray(this.chatData.allUsers)) {
                 totalUnread = this.chatData.allUsers.reduce((total, user) => {
                     return total + (user.unreadCount || 0);
                 }, 0);
             }
 
-            // أو حساب من contactList إذا كان allUsers غير متوفر
             if (totalUnread === 0 && this.chatData.contactList && Array.isArray(this.chatData.contactList)) {
                 totalUnread = this.chatData.contactList.reduce((total, user) => {
                     return total + (user.unreadCount || 0);
@@ -98,7 +89,6 @@ document.addEventListener('alpine:init', () => {
             this.updatePageTitle();
         },
 
-        // تحميل البيانات من localStorage
         loadFromLocalStorage() {
             try {
                 const savedChatData = localStorage.getItem('chatData');
@@ -111,7 +101,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // حساب الرسائل غير المقروءة من localStorage
         calculateUnreadCountFromStorage(data) {
             let totalUnread = 0;
 
@@ -132,29 +121,24 @@ document.addEventListener('alpine:init', () => {
             this.updatePageTitle();
         },
 
-        // إعداد مستمع لتحديثات بيانات الشات
         setupChatDataListener() {
-            // الاستماع لأحداث مخصصة من مكون الشات
             document.addEventListener('chat-data-updated', (event) => {
                 this.chatData = event.detail;
                 this.calculateUnreadCount();
                 this.saveToLocalStorage();
             });
 
-            // الاستماع لتغييرات في localStorage (للمزامنة بين التبويبات)
             window.addEventListener('storage', (event) => {
                 if (event.key === 'chatData') {
                     this.loadFromLocalStorage();
                 }
             });
 
-            // تحديث دوري كل 10 ثواني
             setInterval(() => {
                 this.loadChatData();
             }, 10000);
         },
 
-        // حفظ البيانات في localStorage
         saveToLocalStorage() {
             try {
                 if (this.chatData) {
@@ -229,14 +213,11 @@ document.addEventListener('alpine:init', () => {
         handleNewMessage(data) {
             const { sender_id, message, sender_name } = data;
 
-            // تجاهل الرسائل المرسلة من المستخدم الحالي
             const currentUser = this.getCurrentUserId();
             if (sender_id === currentUser) return;
 
-            // زيادة العداد محلياً
             this.unreadCount++;
 
-            // تحديث البيانات المحلية
             this.updateLocalChatData(sender_id, message);
 
             this.updateHeaderNotification();
@@ -245,11 +226,9 @@ document.addEventListener('alpine:init', () => {
             this.playNotificationSound();
         },
 
-        // تحديث البيانات المحلية عند استقبال رسالة جديدة
         updateLocalChatData(senderId, message) {
             if (!this.chatData) return;
 
-            // تحديث allUsers
             if (this.chatData.allUsers && Array.isArray(this.chatData.allUsers)) {
                 const userIndex = this.chatData.allUsers.findIndex(user => user.userId === senderId);
                 if (userIndex !== -1) {
@@ -259,7 +238,6 @@ document.addEventListener('alpine:init', () => {
                 }
             }
 
-            // تحديث contactList
             if (this.chatData.contactList && Array.isArray(this.chatData.contactList)) {
                 const userIndex = this.chatData.contactList.findIndex(user => user.userId === senderId);
                 if (userIndex !== -1) {
@@ -273,12 +251,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         getCurrentUserId() {
-            // محاولة الحصول من مكون الشات
             if (this.chatData && this.chatData.loginUser) {
                 return this.chatData.loginUser.id;
             }
 
-            // أو من localStorage
             return localStorage.getItem('currentUserId');
         },
 
@@ -295,7 +271,6 @@ document.addEventListener('alpine:init', () => {
                         countElement.textContent = this.unreadCount > 99 ? '99+' : this.unreadCount;
                     }
 
-                    // إضافة تأثير الاهتزاز واللون الأحمر
                     chatIcon.classList.add('has-notifications');
                     setTimeout(() => {
                         chatIcon.classList.remove('animate-pulse');
@@ -343,7 +318,6 @@ document.addEventListener('alpine:init', () => {
                 </div>
             `;
 
-            // إضافة event listeners
             const viewBtn = notification.querySelector('.view-chat-btn');
             const closeBtn = notification.querySelector('.close-notification');
 
@@ -362,7 +336,6 @@ document.addEventListener('alpine:init', () => {
 
             document.body.appendChild(notification);
 
-            // إزالة تلقائية بعد 5 ثواني
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.style.opacity = '0';
@@ -401,21 +374,17 @@ document.addEventListener('alpine:init', () => {
             this.updateHeaderNotification();
             this.updatePageTitle();
 
-            // تحديث البيانات المحلية
             this.resetLocalUnreadCount();
         },
 
-        // إعادة تعيين العدادات المحلية
         resetLocalUnreadCount() {
             if (this.chatData) {
-                // إعادة تعيين allUsers
                 if (this.chatData.allUsers && Array.isArray(this.chatData.allUsers)) {
                     this.chatData.allUsers.forEach(user => {
                         user.unreadCount = 0;
                     });
                 }
 
-                // إعادة تعيين contactList
                 if (this.chatData.contactList && Array.isArray(this.chatData.contactList)) {
                     this.chatData.contactList.forEach(user => {
                         user.unreadCount = 0;

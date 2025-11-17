@@ -338,7 +338,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // تكوين إعدادات الحالة
         getStatusConfig(car) {
             return {
                 title: Alpine.store('i18n').t('change_status'),
@@ -360,7 +359,6 @@ document.addEventListener('alpine:init', () => {
             };
         },
 
-        // عرض النافذة المنبثقة لتغيير الحالة
         async showStatusModal(config) {
             const html = this.generateStatusHtml(config);
 
@@ -377,7 +375,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // توليد HTML للنموذج
         generateStatusHtml(config) {
             const statusOptions = config.statusOptions.map(option =>
                 `<option value="${option.value}" ${config.currentStatus === option.value ? 'selected' : ''}>
@@ -412,14 +409,12 @@ document.addEventListener('alpine:init', () => {
     `;
         },
 
-        // تهيئة الأحداث في النافذة المنبثقة
         initializeStatusModalEvents() {
             const statusSelect = document.getElementById('statusSelect');
             const rejectionSection = document.getElementById('rejectionReasonsSection');
             const reasonsContainer = document.getElementById('rejectionReasonsContainer');
             const addReasonBtn = document.getElementById('addReasonBtn');
 
-            // تبديل قسم أسباب الرفض
             const toggleRejectionSection = () => {
                 const isRejected = statusSelect.value === 'rejected';
                 rejectionSection.classList.toggle('hidden', !isRejected);
@@ -969,20 +964,16 @@ document.addEventListener('alpine:init', () => {
                     })
                     .join('');
 
-                // معالجة الميزات الإضافية - فك تشفير JSON string
                 const getAdditionalFeaturesArray = (features) => {
                     if (!features.additional_features) return [];
 
                     try {
-                        // إذا كانت سلسلة JSON
                         if (typeof features.additional_features === 'string' && features.additional_features.startsWith('[')) {
                             return JSON.parse(features.additional_features);
                         }
-                        // إذا كانت مصفوفة بالفعل
                         else if (Array.isArray(features.additional_features)) {
                             return features.additional_features;
                         }
-                        // إذا كانت سلسلة عادية مفصولة بفواصل
                         else if (typeof features.additional_features === 'string') {
                             return features.additional_features.split(',').map(f => f.trim()).filter(f => f.length > 0);
                         }
@@ -1064,7 +1055,6 @@ document.addEventListener('alpine:init', () => {
             const formData = {};
             const excludedKeys = ['id', 'cars_id', 'created_at', 'updated_at'];
 
-            // معالجة الحقول الأساسية
             Object.keys(originalFeatures)
                 .filter(key => !excludedKeys.includes(key) && key !== 'additional_features')
                 .forEach(key => {
@@ -1072,7 +1062,6 @@ document.addEventListener('alpine:init', () => {
                     if (inputElement) {
                         let inputValue = inputElement.value;
 
-                        // تحويل الأنواع الخاصة
                         if (key === 'all_have_seatbelts') {
                             inputValue = parseInt(inputValue) || 0;
                         } else if (key === 'num_of_door' || key === 'num_of_seat') {
@@ -1083,7 +1072,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 });
 
-            // معالجة الميزات الإضافية
             const additionalInputs = document.querySelectorAll('.additional-feature-input');
             const additionalFeatures = [];
 
@@ -1094,7 +1082,6 @@ document.addEventListener('alpine:init', () => {
                 }
             });
 
-            // إرسال الميزات الإضافية كـ array
             formData.additional_features = additionalFeatures;
 
             return formData;
@@ -1108,7 +1095,6 @@ document.addEventListener('alpine:init', () => {
                 throw new Error(Alpine.store('i18n').t('auth_token_missing'));
             }
 
-            // تحضير البيانات بشكل صحيح
             const requestData = {
                 features: data
             };
