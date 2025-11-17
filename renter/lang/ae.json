@@ -897,5 +897,26 @@
     "create_model": "إنشاء موديل",
     "fill_required_fields": "يرجى ملء جميع الحقول المطلوبة",
     "year_required": "السنة مطلوبة",
-    "year_image_required": "صورة السنة مطلوبة"
+    "year_image_required": "صورة السنة مطلوبة",
+
+    "confirm_approved": "تأكيد الموافقة",
+    "confirm_rejected": "تأكيد الرفض",
+    "confirm_approve": "تأكيد الموافقة",
+    "confirm_reject": "تأكيد الرفض",
+    "admin_notes_helper": "أضف ملاحظات حول هذه العملية للرجوع إليها داخلياً",
+    "payment_reference_helper": "معرف العملية، رقم المرجع، أو تفاصيل الدفع",
+    "approval_summary": "ملخص الموافقة",
+    "approval_note_1": "سيتم تحويل الأموال إلى حساب المستخدم",
+    "approval_note_2": "سيتم وضع علامة على العملية كمقبولة",
+    "approval_note_3": "سيتم إخطار المستخدم بالموافقة",
+    "rejection_warning": "ملاحظة هامة",
+    "rejection_warning_text": "رفض هذا الطلب سيخطر المستخدم وستبقى الأموال في محفظته",
+
+    "cancelled": "ملغى",
+    "cancel_withdrawal": "إلغاء عملية السحب",
+    "enter_cancel_reason": "أدخل سبب الإلغاء...",
+    "confirm_cancel": "تأكيد الإلغاء",
+    "cancel_reason_required": "سبب الإلغاء مطلوب",
+    "failed_cancel_withdrawal": "فشل إلغاء عملية السحب",
+    "withdrawal_cancelled_successfully": "تم إلغاء عملية السحب بنجاح"
 }

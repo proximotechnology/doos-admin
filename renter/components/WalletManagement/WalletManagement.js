@@ -451,18 +451,80 @@ document.addEventListener('alpine:init', () => {
 
         async processWithdrawal(withdrawalId, action) {
             try {
+                const { value: formValues, isConfirmed } = await Swal.fire({
+                    title: '',
+                    html: this.getFormHtml(action),
+                    width: '600px',
+                    padding: '0',
+                    background: '#fff',
+                    showCloseButton: true,
+                    showCancelButton: true,
+                    cancelButtonText: `
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span>${Alpine.store('i18n').t('cancel')}</span>
+                </div>
+            `,
+                    confirmButtonText: `
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                    ${action === 'approved' ?
+                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' :
+                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                        }
+                    <span>${Alpine.store('i18n').t(`confirm_${action}`)}</span>
+                </div>
+            `,
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonColor: action === 'approved' ? '#10b981' : '#ef4444',
+                    customClass: {
+                        container: 'z-50',
+                        popup: 'rounded-xl shadow-2xl border-0',
+                        header: 'p-0 border-0',
+                        title: 'hidden',
+                        closeButton: 'top-4 right-4 text-gray-400 hover:text-gray-600',
+                        htmlContainer: 'p-6 pt-4',
+                        actions: 'px-6 pb-6 gap-3',
+                        confirmButton: `py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${action === 'approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white`,
+                        cancelButton: 'py-3 px-6 rounded-lg font-medium transition-colors duration-200 bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    },
+                    preConfirm: () => {
+                        const adminNotes = document.getElementById('adminNotes').value.trim();
+                        let paymentMethod = '';
+                        let paymentReference = '';
+
+                        if (action === 'approved') {
+                            paymentMethod = document.getElementById('paymentMethod').value;
+                            paymentReference = document.getElementById('paymentReference').value.trim();
+
+                        }
+
+
+                        return {
+                            admin_notes: adminNotes,
+                            payment_method: paymentMethod,
+                            payment_reference: paymentReference
+                        };
+                    }
+                });
+
+                if (!isConfirmed) {
+                    return;
+                }
+
                 let payload = {};
                 if (action === 'approved') {
                     payload = {
                         action: 'approved',
-                        admin_notes: await this.getAdminNotes(),
-                        payment_method: await this.getPaymentMethod(),
-                        payment_reference: await this.getPaymentReference()
+                        admin_notes: formValues.admin_notes,
+                        payment_method: formValues.payment_method,
+                        payment_reference: formValues.payment_reference
                     };
                 } else if (action === 'rejected') {
                     payload = {
                         action: 'rejected',
-                        admin_notes: await this.getAdminNotes()
+                        admin_notes: formValues.admin_notes
                     };
                 }
 
@@ -480,7 +542,6 @@ document.addEventListener('alpine:init', () => {
                     body: JSON.stringify(payload)
                 });
 
-
                 if (!response.ok) {
                     throw new Error(await response.text() || Alpine.store('i18n').t('failed_update_withdrawal'));
                 }
@@ -493,6 +554,119 @@ document.addEventListener('alpine:init', () => {
             } finally {
                 loadingIndicator.hide();
             }
+        },
+
+        getFormHtml(action) {
+            const actionColor = action === 'approved' ? 'green' : 'red';
+            const actionIcon = action === 'approved' ?
+                '<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' :
+                '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+
+            let html = `
+        <div class="max-w-md mx-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-center mb-6 p-4 bg-${actionColor}-50 rounded-lg border border-${actionColor}-200">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    ${actionIcon}
+                    <h3 class="text-lg font-semibold text-${actionColor}-800">
+                        ${Alpine.store('i18n').t(`confirm_${action}`)}
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Admin Notes -->
+            <div class="mb-4">
+                <label for="adminNotes" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    ${Alpine.store('i18n').t('admin_notes')}
+                    <span class="text-red-500 ml-1">*</span>
+                </label>
+                <textarea 
+                    id="adminNotes" 
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-${actionColor}-500 focus:border-${actionColor}-500 transition-colors duration-200 resize-none" 
+                    placeholder="${Alpine.store('i18n').t('admin_notes_placeholder')}"
+                    rows="4"
+                    style="min-height: 100px;"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">${Alpine.store('i18n').t('admin_notes_helper')}</p>
+            </div>
+    `;
+
+            if (action === 'approved') {
+                html += `
+            <!-- Payment Method -->
+            <div class="mb-4">
+                <label for="paymentMethod" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    ${Alpine.store('i18n').t('payment_method')}
+                    <span class="text-red-500 ml-1">*</span>
+                </label>
+                <select 
+                    id="paymentMethod" 
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-${actionColor}-500 focus:border-${actionColor}-500 transition-colors duration-200 appearance-none bg-white"
+                >
+                    <option value="">${Alpine.store('i18n').t('select_payment_method')}</option>
+                    <option value="bank_transfer">🏦 ${Alpine.store('i18n').t('bank_transfer')}</option>
+                    <option value="cash">💵 ${Alpine.store('i18n').t('cash')}</option>
+                    <option value="card">💳 ${Alpine.store('i18n').t('card')}</option>
+                    <option value="digital_wallet">📱 ${Alpine.store('i18n').t('digital_wallet')}</option>
+                </select>
+            </div>
+
+            <!-- Payment Reference -->
+            <div class="mb-4">
+                <label for="paymentReference" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    ${Alpine.store('i18n').t('payment_reference')}
+                    <span class="text-red-500 ml-1">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="paymentReference" 
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-${actionColor}-500 focus:border-${actionColor}-500 transition-colors duration-200" 
+                    placeholder="${Alpine.store('i18n').t('payment_reference_placeholder')}"
+                >
+                <p class="text-xs text-gray-500 mt-1">${Alpine.store('i18n').t('payment_reference_helper')}</p>
+            </div>
+
+            <!-- Summary Card -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <h4 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ${Alpine.store('i18n').t('approval_summary')}
+                </h4>
+                <ul class="text-xs text-blue-700 space-y-1">
+                    <li>• ${Alpine.store('i18n').t('approval_note_1')}</li>
+                    <li>• ${Alpine.store('i18n').t('approval_note_2')}</li>
+                    <li>• ${Alpine.store('i18n').t('approval_note_3')}</li>
+                </ul>
+            </div>
+        `;
+            } else {
+                html += `
+            <!-- Rejection Warning -->
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                <h4 class="text-sm font-semibold text-orange-800 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    ${Alpine.store('i18n').t('rejection_warning')}
+                </h4>
+                <p class="text-xs text-orange-700">${Alpine.store('i18n').t('rejection_warning_text')}</p>
+            </div>
+        `;
+            }
+
+            html += `</div>`;
+            return html;
         },
 
         async completeWithdrawal(withdrawalId) {
@@ -523,49 +697,8 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async getAdminNotes() {
-            const { value: adminNotes } = await Swal.fire({
-                title: Alpine.store('i18n').t('enter_admin_notes'),
-                input: 'text',
-                inputPlaceholder: Alpine.store('i18n').t('admin_notes_placeholder'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('admin_notes_required');
-                }
-            });
-            return adminNotes || '';
-        },
 
-        async getPaymentMethod() {
-            const { value: paymentMethod } = await Swal.fire({
-                title: Alpine.store('i18n').t('select_payment_method'),
-                input: 'select',
-                inputOptions: {
-                    bank_transfer: Alpine.store('i18n').t('bank_transfer'),
-                    cash: Alpine.store('i18n').t('cash'),
-                    card: Alpine.store('i18n').t('card')
-                },
-                inputPlaceholder: Alpine.store('i18n').t('select_payment_method'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('payment_method_required');
-                }
-            });
-            return paymentMethod || '';
-        },
 
-        async getPaymentReference() {
-            const { value: paymentReference } = await Swal.fire({
-                title: Alpine.store('i18n').t('enter_payment_reference'),
-                input: 'text',
-                inputPlaceholder: Alpine.store('i18n').t('payment_reference_placeholder'),
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) return Alpine.store('i18n').t('payment_reference_required');
-                }
-            });
-            return paymentReference || '';
-        },
 
         showSuccess(message) {
             Swal.fire({

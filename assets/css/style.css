@@ -13484,7 +13484,8 @@ pre {
 }
 
 @keyframes ping {
-    75%, 100% {
+    75%,
+    100% {
         transform: scale(2);
         opacity: 0;
     }
@@ -13500,7 +13501,7 @@ pre {
     max-width: 1100px;
     margin: auto;
     padding: 20px;
-    font-family: "Arial", sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 /* ===========================
@@ -13542,12 +13543,12 @@ pre {
     background: white;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
     transition: 0.25s;
 }
 .msl-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 .msl-card-title {
     font-size: 20px;
@@ -13643,7 +13644,7 @@ pre {
 .msl-loading-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13656,7 +13657,7 @@ pre {
     padding: 30px;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
 }
 .msl-spinner {
     width: 45px;
@@ -13668,6 +13669,28 @@ pre {
     animation: spin 1s linear infinite;
 }
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.swal2-popup {
+    border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
 
+.swal2-close {
+    font-size: 24px !important;
+    color: #6b7280 !important;
+}
+
+.swal2-close:hover {
+    color: #374151 !important;
+    background: none !important;
+}
+
+.swal2-textarea:focus,
+.swal2-input:focus,
+.swal2-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}

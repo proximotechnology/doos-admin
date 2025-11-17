@@ -982,5 +982,25 @@
     "create_model": "Create Model",
     "fill_required_fields": "Please fill all required fields",
     "year_required": "Year is required",
-    "year_image_required": "Year image is required"
+    "year_image_required": "Year image is required",
+
+    "confirm_approved": "Confirm Approval",
+    "confirm_rejected": "Confirm Rejection",
+    "confirm_approve": "Confirm Approve",
+    "confirm_reject": "Confirm Reject",
+    "admin_notes_helper": "Add notes about this transaction for internal reference",
+    "payment_reference_helper": "Transaction ID, reference number, or payment details",
+    "approval_summary": "Approval Summary",
+    "approval_note_1": "Funds will be transferred to user's account",
+    "approval_note_2": "Transaction will be marked as approved",
+    "approval_note_3": "User will be notified of the approval",
+    "rejection_warning": "Important Notice",
+    "rejection_warning_text": "Rejecting this request will notify the user and the funds will remain in their wallet",
+
+    "cancel_withdrawal": "Cancel Withdrawal",
+    "enter_cancel_reason": "Enter cancellation reason...",
+    "confirm_cancel": "Confirm Cancellation",
+    "cancel_reason_required": "Cancellation reason is required",
+    "failed_cancel_withdrawal": "Failed to cancel withdrawal",
+    "withdrawal_cancelled_successfully": "Withdrawal cancelled successfully"
 }
