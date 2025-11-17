@@ -1866,7 +1866,6 @@ button,
 [type='button'],
 [type='reset'],
 [type='submit'] {
-    -webkit-appearance: button;
     /* 1 */
     background-color: transparent;
     /* 2 */
@@ -1913,7 +1912,6 @@ progress {
   */
 
 [type='search'] {
-    -webkit-appearance: textfield;
     /* 1 */
     outline-offset: -2px;
     /* 2 */
@@ -2054,7 +2052,6 @@ embed,
 object {
     display: block;
     /* 1 */
-    vertical-align: middle;
     /* 2 */
 }
 
@@ -4374,9 +4371,7 @@ label {
     color: rgb(136 142 168 / var(--tw-text-opacity));
 }
 
-.dropdown ul {
-    /* @apply my-1 min-w-[120px] rounded bg-white p-0 py-2 shadow dark:bg-[#1b2e4b]; */
-}
+
 
 .dropdown ul li > a,
 .dropdown ul li > button {
@@ -5203,7 +5198,6 @@ pre {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
 }
 
 .\!block {
