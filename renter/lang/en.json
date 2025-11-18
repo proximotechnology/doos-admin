@@ -1002,5 +1002,20 @@
     "confirm_cancel": "Confirm Cancellation",
     "cancel_reason_required": "Cancellation reason is required",
     "failed_cancel_withdrawal": "Failed to cancel withdrawal",
-    "withdrawal_cancelled_successfully": "Withdrawal cancelled successfully"
+    "withdrawal_cancelled_successfully": "Withdrawal cancelled successfully",
+    "filter_cars_by_criteria": "Filter cars by criteria",
+    "active_filters": "Active Filters",
+    "invalid_coordinates": "Invalid coordinates",
+    "permissions_endpoint_not_found": "The permissions endpoint is not available. Please contact the administrator.",
+    "update_role_description": "Update role information",
+    "feature_not_available": "Feature Not Available",
+    "contact_administrator": "Please contact the administrator to enable this feature.",
+    "update_model_description": "Update model information",
+    "update_brand_description": "Update brand information",
+    "add_year_description": "Add a new year to the model",
+    "update_year_description": "Update year information",
+    "delete_year_description": "Delete year confirmation",
+    "booking_status_guide_description": "Learn about booking statuses",
+    "filter_bookings_by_criteria": "Filter bookings by criteria",
+    "booking_details_description": "View booking information"
 }

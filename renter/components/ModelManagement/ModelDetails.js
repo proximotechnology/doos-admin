@@ -67,8 +67,7 @@ document.addEventListener('alpine:init', () => {
                 this.model = data.data;
             } catch (error) {
                 coloredToast('danger', error.message || 'فشل في جلب تفاصيل الموديل');
-                console.error('Error fetching model details:', error);
-            } finally {
+                } finally {
                 loadingIndicator.hide();
             }
         },

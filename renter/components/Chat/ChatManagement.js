@@ -1,5 +1,8 @@
-document.addEventListener('alpine:init', () => {
-    Alpine.data('chat', () => ({
+// Register Alpine component - works even if alpine:init already fired
+(function() {
+    function registerChatComponent() {
+        if (typeof Alpine !== 'undefined' && Alpine.data) {
+            Alpine.data('chat', () => ({
         isShowUserChat: false,
         isShowChatMenu: false,
         pusher: null,
@@ -82,20 +85,19 @@ document.addEventListener('alpine:init', () => {
 
         initializePusher() {
             try {
-                this.pusher = new Pusher('0c6840048793ecd5b54f', {
-                    cluster: 'mt1',
+                this.pusher = new Pusher(API_CONFIG.PUSHER.APP_KEY, {
+                    cluster: API_CONFIG.PUSHER.CLUSTER,
                     encrypted: true
                 });
 
-                const channelName = `chat-private-channel-${this.loginUser.id}`;
+                const channelName = `${API_CONFIG.PUSHER.CHANNEL_PREFIX}-${this.loginUser.id}`;
                 this.channel = this.pusher.subscribe(channelName);
 
                 this.channel.bind("Private_chat", (data) => {
                     this.handlePrivateChat(data);
                 });
             } catch (error) {
-                console.error('Pusher initialization error:', error);
-            }
+                }
         },
 
         async loadAllUsers() {
@@ -143,8 +145,7 @@ document.addEventListener('alpine:init', () => {
                     this.mergeUsers();
                 }
             } catch (error) {
-                console.error('Error loading users:', error);
-            }
+                }
         },
 
         mergeUsers() {
@@ -204,8 +205,7 @@ document.addEventListener('alpine:init', () => {
                     this.selectedUser.messages = [...newMessages, ...this.selectedUser.messages];
                 }
             } catch (error) {
-                console.error('Error loading more messages:', error);
-            }
+                }
         },
 
         async loadCurrentUser() {
@@ -247,8 +247,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Failed to load user data');
                 }
             } catch (error) {
-                console.error('Error loading current user:', error);
-            } finally {
+                } finally {
                 this.isLoading = false;
             }
         },
@@ -318,8 +317,7 @@ document.addEventListener('alpine:init', () => {
                     this.mergeUsers();
                 }
             } catch (error) {
-                console.error('Error loading online users:', error);
-            }
+                }
         },
 
         startOnlineUsersPolling() {
@@ -480,8 +478,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Error marking messages as read:', error);
-            }
+                }
         },
 
         async loadChatHistory(userId) {
@@ -529,7 +526,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Error loading chat history:', error);
                 if (this.selectedUser && this.selectedUser.userId === userId) {
                     this.selectedUser.messages = this.selectedUser.messages || [];
                 }
@@ -552,8 +548,7 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok) {
                 }
             } catch (error) {
-                console.error('Error updating last seen:', error);
-            }
+                }
         },
 
         async markOffline() {
@@ -572,8 +567,7 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok) {
                 }
             } catch (error) {
-                console.error('Error marking offline:', error);
-            }
+                }
         },
 
         async markOnline() {
@@ -592,8 +586,7 @@ document.addEventListener('alpine:init', () => {
                 if (response.ok) {
                 }
             } catch (error) {
-                console.error('Error marking online:', error);
-            }
+                }
         },
 
         async getConversation(userId, page = 1, perPage = 20) {
@@ -623,7 +616,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Failed to load conversation');
                 }
             } catch (error) {
-                console.error('Error getting conversation:', error);
                 return [];
             }
         },
@@ -795,4 +787,13 @@ document.addEventListener('alpine:init', () => {
             });
         }
     }));
-});
+        }
+    }
+    
+    // Register immediately if Alpine is ready, otherwise wait for alpine:init
+    if (typeof Alpine !== 'undefined' && Alpine.data) {
+        registerChatComponent();
+    } else {
+        document.addEventListener('alpine:init', registerChatComponent, { once: true });
+    }
+})();

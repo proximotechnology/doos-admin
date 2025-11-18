@@ -91,8 +91,7 @@ document.addEventListener('alpine:init', () => {
                     this.brands = result.data.data;
                 }
             } catch (error) {
-                console.error('Error fetching brands:', error);
-            }
+                }
         },
 
         async fetchModels() {
@@ -113,8 +112,7 @@ document.addEventListener('alpine:init', () => {
                     this.models = result.data.data;
                 }
             } catch (error) {
-                console.error('Error fetching models:', error);
-            }
+                }
         },
 
         formatDateForInput(dateString) {

@@ -1,23 +1,10 @@
+<!-- CarManagement Component -->
+<!-- Note: This is a component fragment, not a full HTML document -->
+<!-- Head/body tags are removed by ComponentLoader when loading -->
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title x-text="$store.i18n.t('cars_management')"></title>
-        <!-- CSS Libraries -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-        <script src="https://cdn.tailwindcss.com"></script>
-
-        <!-- JS Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="app.js"></script>
-        <!-- Mock API_CONFIG -->
-    </head>
-    <body class="bg-gray-50 p-6 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+<html lang="en">
+    <head> </head>
+    <body>
         <div>
             <ul class="mb-6 flex space-x-2 rtl:space-x-reverse">
                 <li>
@@ -26,7 +13,7 @@
                 <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                     <span x-text="$store.i18n.t('cars_management')"></span>
                 </li>
-                 <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                     <span x-text="$store.i18n.t('cars')"></span>
                 </li>
             </ul>
@@ -41,45 +28,207 @@
 
                 <div x-data="carsTable" x-init="initComponent()">
                     <!-- Filters Section -->
-                    <div class="panel filter-section mb-5">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('filters')"></h5>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-                            <div>
-                                <label class="mb-2 block text-sm font-medium" x-text="$store.i18n.t('status')"></label>
-                                <select class="form-select" x-model="filters.status" @change="applyFilters()">
-                                    <option value="" x-text="$store.i18n.t('all')"></option>
-                                    <option value="active" x-text="$store.i18n.t('active')"></option>
-                                    <option value="inactive" x-text="$store.i18n.t('inactive')"></option>
-                                    <option value="rejected" x-text="$store.i18n.t('rejected')"></option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="mb-2 block text-sm font-medium" x-text="$store.i18n.t('year')"></label>
-                                <input type="number" class="form-input" x-model="filters.year" :placeholder="$store.i18n.t('year')" @change="applyFilters()" />
-                            </div>
-                            <div>
-                                <label class="mb-2 block text-sm font-medium" x-text="$store.i18n.t('min_price')"></label>
-                                <input
-                                    type="number"
-                                    class="form-input"
-                                    x-model="filters.min_price"
-                                    :placeholder="$store.i18n.t('min_price')"
-                                    @change="applyFilters()"
-                                />
-                            </div>
-                            <div>
-                                <label class="mb-2 block text-sm font-medium" x-text="$store.i18n.t('max_price')"></label>
-                                <input
-                                    type="number"
-                                    class="form-input"
-                                    x-model="filters.max_price"
-                                    :placeholder="$store.i18n.t('max_price')"
-                                    @change="applyFilters()"
-                                />
+                    <div class="panel mb-5 overflow-hidden border-2 border-primary/20 shadow-lg">
+                        <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('filters')"></h5>
+                                        <p
+                                            class="text-xs text-gray-500 dark:text-gray-400"
+                                            x-text="$store.i18n.t('filter_cars_by_criteria') || 'فلترة السيارات حسب المعايير'"
+                                        ></p>
+                                    </div>
+                                </div>
+                                <button @click="resetFilters()" class="btn btn-outline-primary btn-sm flex items-center gap-2" :disabled="!hasActiveFilters()">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('reset_filters') || 'إعادة تعيين'"></span>
+                                </button>
                             </div>
                         </div>
-                        <div class="mt-5 flex justify-end">
-                            <button class="btn btn-primary" @click="applyFilters()" x-text="$store.i18n.t('apply_filters')"></button>
+
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <!-- Status Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('status')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <select class="form-select pr-10" x-model="filters.status" @change="applyFilters()">
+                                            <option value="" x-text="$store.i18n.t('all')"></option>
+                                            <option value="active" x-text="$store.i18n.t('active')"></option>
+                                            <option value="inactive" x-text="$store.i18n.t('inactive')"></option>
+                                            <option value="rejected" x-text="$store.i18n.t('rejected')"></option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Year Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('year')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            class="form-input pr-10"
+                                            x-model="filters.year"
+                                            :placeholder="$store.i18n.t('year') || 'السنة'"
+                                            @input="applyFilters()"
+                                        />
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Min Price Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('min_price')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            class="form-input pr-10"
+                                            x-model="filters.min_price"
+                                            :placeholder="$store.i18n.t('min_price') || 'أقل سعر'"
+                                            @input="applyFilters()"
+                                        />
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <span class="text-sm text-gray-500">ر.س</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Max Price Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('max_price')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            class="form-input pr-10"
+                                            x-model="filters.max_price"
+                                            :placeholder="$store.i18n.t('max_price') || 'أعلى سعر'"
+                                            @input="applyFilters()"
+                                        />
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <span class="text-sm text-gray-500">ر.س</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Filters Display -->
+                            <div
+                                x-show="hasActiveFilters()"
+                                x-transition
+                                class="mt-6 flex flex-wrap items-center gap-2 rounded-lg bg-primary/5 p-4 dark:bg-primary/10"
+                            >
+                                <span
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    x-text="$store.i18n.t('active_filters') || 'الفلاتر النشطة:'"
+                                ></span>
+                                <template x-if="filters.status">
+                                    <span class="badge badge-primary flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('status') + ': ' + filters.status"></span>
+                                        <button @click="filters.status = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="filters.year">
+                                    <span class="badge badge-info flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('year') + ': ' + filters.year"></span>
+                                        <button @click="filters.year = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="filters.min_price">
+                                    <span class="badge badge-success flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('min_price') + ': ' + filters.min_price + ' ر.س'"></span>
+                                        <button @click="filters.min_price = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="filters.max_price">
+                                    <span class="badge badge-warning flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('max_price') + ': ' + filters.max_price + ' ر.س'"></span>
+                                        <button @click="filters.max_price = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                            </div>
                         </div>
                     </div>
 
@@ -94,22 +243,26 @@
                             </div>
                         </div>
 
-                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="ml-2" x-text="$store.i18n.t('loading_data')"></span>
-                        </div>
-                        <table id="myTable1" class="whitespace-nowrap"></table>
-                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_cars')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_cars_found')"></p>
+                        <div class="table-container">
+                            <div id="tableLoading" class="table-loading hidden">
+                                <div class="table-loading-spinner"></div>
+                                <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                            </div>
+                            <div class="table-wrapper">
+                                <table id="myTable1" class="whitespace-nowrap"></table>
+                            </div>
+                            <div id="tableEmptyState" class="empty-state hidden">
+                                <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                                <h3 class="empty-state-title" x-text="$store.i18n.t('no_cars')"></h3>
+                                <p class="empty-state-description" x-text="$store.i18n.t('no_cars_found')"></p>
+                            </div>
                         </div>
                         <!-- Pagination -->
                     </div>
@@ -117,20 +270,44 @@
             </div>
         </div>
 
-        <div id="carDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 bg-gray-900 bg-opacity-70 px-1">
-            <div class="modal-container mx-auto w-full max-w-5xl rounded-2xl border-primary bg-white shadow-2xl dark:bg-gray-800">
-                <div class="modal-header flex items-center justify-between border-b-2 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
+        <!-- Car Details Modal -->
+        <div id="carDetailsModal" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/60 px-4 lg:pl-[calc(260px+1rem)] pt-16 lg:pt-4">
+            <div
+                class="modal-container relative mx-auto max-h-[calc(90vh-4rem)] w-full max-w-3xl overflow-hidden rounded-2xl border-2 border-primary/20 bg-white shadow-2xl dark:bg-gray-800"
+            >
+                <!-- Modal Header -->
+                <div
+                    class="modal-header sticky top-0 z-10 flex items-center justify-between border-b-2 border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-4 dark:border-gray-700 dark:from-primary/20 dark:via-primary/10"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('car_details')"></h3>
+                    </div>
                     <button
                         type="button"
-                        class="rounded-full p-3 text-lg font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
+                        class="close-modal-btn flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-red-100 hover:text-red-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
                         onclick="document.getElementById('carDetailsModal').classList.add('hidden')"
                     >
-                        ✕
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
-                <div id="carDetailsContent" class="modal-content p-6 text-base">
-                    <!-- Car details will be loaded here -->
+
+                <!-- Modal Content -->
+                <div class="modal-content max-h-[calc(90vh-80px)] overflow-y-auto p-4">
+                    <div id="carDetailsContent" class="space-y-4">
+                        <!-- Content will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>

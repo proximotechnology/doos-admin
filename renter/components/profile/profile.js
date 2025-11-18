@@ -84,7 +84,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching user data:', error);
                 coloredToast('danger', Alpine.store('i18n').t('failed_load_profile') + ': ' + error.message);
             } finally {
                 loadingIndicator.hide();
@@ -151,7 +150,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
             } catch (error) {
-                console.error('Error updating profile:', error);
                 coloredToast('danger', Alpine.store('i18n').t('failed_update_profile') + ': ' + error.message);
             } finally {
                 this.updating = false;

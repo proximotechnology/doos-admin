@@ -76,19 +76,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index?page=${page}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getPlans(page);
                 this.tableData = data.data;
                 this.paginationMeta = data.meta;
 
@@ -99,7 +87,6 @@ document.addEventListener('alpine:init', () => {
                     loadingIndicator.hideTableLoader();
                 }
             } catch (error) {
-                console.error('Error fetching plans:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -250,7 +237,6 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('plan_status_changed'));
                 await this.fetchPlans();
             } catch (error) {
-                console.error('Toggle active error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_toggle'));
             } finally {
                 loadingIndicator.hide();
@@ -289,31 +275,10 @@ document.addEventListener('alpine:init', () => {
                     count_day: parseInt(Alpine.store('global').sharedData.count_day),
                 };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/update/${planId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateData),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result) {
-                    coloredToast('success', Alpine.store('i18n').t('plan_updated_success'));
-                    await this.fetchPlans();
-                } else {
-                    coloredToast('warning', result.message || 'Update completed but server returned failure');
-                }
+                await ApiService.updatePlan(planId, updateData);
+                coloredToast('success', Alpine.store('i18n').t('plan_updated_success'));
+                await this.fetchPlans();
             } catch (error) {
-                console.error('Update error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_update'));
             } finally {
                 loadingIndicator.hide();
@@ -334,15 +299,10 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.show();
 
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/delete/${planId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_delete'));
+                if (!token) {
+                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+                await ApiService.deletePlan(planId);
                 coloredToast('success', Alpine.store('i18n').t('plan_deleted_success'));
 
                 await this.fetchPlans();
@@ -398,21 +358,7 @@ document.addEventListener('alpine:init', () => {
                 formData.append('car_limite', this.car_limite);
                 formData.append('count_day', this.count_day);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/store`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || Alpine.store('i18n').t('failed_to_add'));
-                }
-
-                const result = await response.json();
+                await ApiService.addPlan(formData);
 
                 // Reset form
                 this.name = '';
@@ -427,7 +373,6 @@ document.addEventListener('alpine:init', () => {
 
 
             } catch (error) {
-                console.error('Error adding plan:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add'));
             } finally {
                 this.isSubmitting = false;

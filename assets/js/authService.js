@@ -25,7 +25,7 @@ class AuthService {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error('Login error:', error);
+            // Silently handle login error
             throw error;
         }
     }

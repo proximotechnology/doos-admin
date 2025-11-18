@@ -120,7 +120,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching users:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_users_try_again'));

@@ -4,18 +4,20 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <!-- Load Google Maps API -->
-        <script>
-            loadGoogleMapsAPI();
-        </script>
         <style>
             .map-container {
-                height: 300px;
+                height: 500px;
+                min-height: 500px;
                 width: 100%;
                 border-radius: 8px;
                 overflow: hidden;
                 margin-top: 1rem;
                 border: 1px solid #e5e7eb;
+                position: relative;
+            }
+            #map, #edit-map {
+                height: 100% !important;
+                width: 100% !important;
             }
             .marker-info {
                 background: white;
@@ -95,7 +97,11 @@
                                                 required
                                             />
                                         </div>
-                                        <div id="map" class="map-container"></div>
+                                        <div id="map" class="map-container" style="position: relative;">
+                                            <div class="absolute top-2 left-2 z-10 rounded bg-white px-3 py-1 text-sm shadow-md dark:bg-gray-800 dark:text-white" style="pointer-events: none;">
+                                                <span x-text="$store.i18n.t('click_on_map_to_select_location') || 'انقر على الخريطة لتحديد الموقع'"></span>
+                                            </div>
+                                        </div>
                                         <div class="coordinates-display mt-3">
                                             <div><strong>Latitude:</strong> <span x-text="lat || 'Not selected'"></span></div>
                                             <div><strong>Longitude:</strong> <span x-text="lang || 'Not selected'"></span></div>
@@ -187,7 +193,11 @@
                                         required
                                     />
                                 </div>
-                                <div id="edit-map" class="map-container"></div>
+                                <div id="edit-map" class="map-container" style="position: relative;">
+                                    <div class="absolute top-2 left-2 z-10 rounded bg-white px-3 py-1 text-sm shadow-md dark:bg-gray-800 dark:text-white" style="pointer-events: none;">
+                                        <span x-text="$store.i18n.t('click_on_map_to_select_location') || 'انقر على الخريطة لتحديد الموقع'"></span>
+                                    </div>
+                                </div>
                                 <div class="coordinates-display mt-3">
                                     <div><strong>Latitude:</strong> <span x-text="blackLocationData.lat || 'Not selected'"></span></div>
                                     <div><strong>Longitude:</strong> <span x-text="blackLocationData.lang || 'Not selected'"></span></div>

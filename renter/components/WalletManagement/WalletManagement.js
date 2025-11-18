@@ -152,7 +152,6 @@ document.addEventListener('alpine:init', () => {
                 }
             } catch (error) {
 
-                console.error('Error fetching withdrawals:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -183,7 +182,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching statistics:', error);
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load_statistics') + ': ' + error.message);
             }
         },

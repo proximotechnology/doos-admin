@@ -13,6 +13,7 @@
         <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/file-upload-with-preview.min.css" />
 
         <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/components.css" />
         <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
         <script src=" /assets/js/perfect-scrollbar.min.js"></script>
         <script defer src=" /assets/js/popper.min.js"></script>    
@@ -90,6 +91,7 @@
             </div>
         </div>
         <!-- Scripts -->
+        <!-- Core Alpine.js and dependencies -->
         <script src="../assets/js/alpine-collaspe.min.js"></script>
         <script src="../assets/js/alpine-persist.min.js"></script>
         <script defer src="../assets/js/alpine-ui.min.js"></script>
@@ -97,14 +99,26 @@
         <script defer src="../assets/js/alpine.min.js"></script>
         <script src="../assets/js/custom.js"></script>
         <script src="../assets/js/config.js"></script>
-        <script defer src="../assets/js/sweetalert.min.js"></script>
-        <script src="../assets/js/simple-datatables.js"></script>
-        <script src="../assets/js/file-upload-with-preview.iife.js"></script>
-
+        <script src="../assets/js/api-service.js"></script>
+        
+        <!-- Component scripts - loaded before ComponentLoader to ensure they're available -->
         <script src="components/Header/Header.js"></script>
         <script src="components/Sidebar/Sidebar.js"></script>
         <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
+        
+        <!-- Component Loader System -->
+        <script src="../assets/js/component-loader.js"></script>
+        <script src="../assets/js/component-registry.js"></script>
+        
+        <!-- Other dependencies - MUST be loaded before component scripts that use them -->
+        <script defer src="../assets/js/sweetalert.min.js"></script>
+        <script src="../assets/js/simple-datatables.js"></script>
+        <script src="../assets/js/file-upload-with-preview.iife.js"></script>
+        
+        <!-- Component scripts - loaded after dependencies -->
         <script src="components/CarManagement/CarManagement.js"></script>
+
+        <!-- MainLayout - uses ComponentLoader to load component HTML -->
         <script src="components/CarManagement/MainLayout.js"></script>
         <script>
             document.addEventListener('alpine:init', () => {

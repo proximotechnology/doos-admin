@@ -12,7 +12,7 @@
         <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/perfect-scrollbar.min.css" />
         <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/file-upload-with-preview.min.css" />
 
-        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/style.css"`n        <link rel="stylesheet" type="text/css" media="screen" href=" /assets/css/components.css" /> />
         <link defer rel="stylesheet" type="text/css" media="screen" href=" /assets/css/animate.css" />
         <script src="/assets/js/perfect-scrollbar.min.js"></script>
         <script defer src="/assets/js/popper.min.js"></script>
@@ -103,14 +103,27 @@
         <script defer src="../assets/js/alpine.min.js"></script>
         <script src="../assets/js/custom.js"></script>
         <script src="../assets/js/config.js"></script>
+        <script src="../assets/js/api-service.js"></script>
+        <!-- Load component-loader.js synchronously (no defer) to ensure it's available -->
+        <script src="../assets/js/component-loader.js"></script>
+        <script src="../assets/js/component-registry.js"></script>
         <script defer src="../assets/js/sweetalert.min.js"></script>
         <script src="../assets/js/simple-datatables.js"></script>
         <script src="../assets/js/file-upload-with-preview.iife.js"></script>
 
-        <script src="components/Header/Header.js"></script>
-        <script src="components/Sidebar/Sidebar.js"></script>
-        <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
-        <script src="components/Chat/ChatManagement.js"></script>
+        <!-- Verify ComponentLoader is loaded before MainLayout -->
+        <script>
+            // Verify ComponentLoader is available
+            if (typeof window.ComponentLoader === 'undefined') {
+                // ComponentLoader failed to load
+            } else if (typeof window.ComponentLoader.loadStandardLayout !== 'function') {
+                // ComponentLoader.loadStandardLayout is not a function
+            } else {
+                // ComponentLoader is ready
+            }
+        </script>
+        
+        <!-- Component scripts are now loaded automatically by ComponentLoader -->
         <script src="components/Chat/MainLayout.js"></script>
 
         <script>

@@ -119,7 +119,6 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', `${this.t('loaded_tickets').replace('{count}', this.tickets.length)}`);
                 }
             } catch (error) {
-                console.error('Failed to load tickets:', error);
                 coloredToast('danger', this.t('failed_to_load'));
             } finally {
                 loadingIndicator.hide();
@@ -146,8 +145,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Failed to load statistics:', error);
-            }
+                }
         },
 
         filteredTickets() {
@@ -223,7 +221,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Failed to load ticket details:', error);
                 coloredToast('danger', this.t('failed_to_load_ticket_details'));
                 throw error;
             } finally {
@@ -289,7 +286,6 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', this.t('message_sent'));
                 }
             } catch (error) {
-                console.error('Failed to send reply:', error);
                 coloredToast('danger', this.t('failed_to_send'));
             } finally {
                 loadingIndicator.hide();
@@ -350,7 +346,6 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', this.t('internal_note_added'));
                 }
             } catch (error) {
-                console.error('Failed to add internal note:', error);
                 coloredToast('danger', this.t('failed_to_send'));
             } finally {
                 loadingIndicator.hide();
@@ -397,7 +392,6 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', this.t('status_updated'));
                 }
             } catch (error) {
-                console.error('Failed to update status:', error);
                 coloredToast('danger', this.t('failed_to_update'));
             } finally {
                 loadingIndicator.hide();
@@ -443,7 +437,6 @@ document.addEventListener('alpine:init', () => {
                     coloredToast('success', this.t('priority_updated'));
                 }
             } catch (error) {
-                console.error('Failed to update priority:', error);
                 coloredToast('danger', this.t('failed_to_update'));
             } finally {
                 loadingIndicator.hide();
@@ -515,7 +508,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Failed to close ticket:', error);
                 coloredToast('danger', this.t('failed_to_close'));
             } finally {
                 loadingIndicator.hide();
@@ -587,7 +579,6 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Failed to reopen ticket:', error);
                 coloredToast('danger', this.t('failed_to_reopen'));
             } finally {
                 loadingIndicator.hide();

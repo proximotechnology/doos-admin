@@ -109,11 +109,21 @@
         <script defer src="../assets/js/alpine.min.js"></script>
         <script src="../assets/js/custom.js"></script>
         <script src="../assets/js/config.js"></script>
+        <script src="../assets/js/api-service.js"></script>
+
+        <!-- Component scripts - loaded before ComponentLoader to ensure they are available -->
+        <script src="../assets/js/api-service.js"></script>
         <script defer src="../assets/js/sweetalert.min.js"></script>
         <script src="../assets/js/simple-datatables.js"></script>
         <script src="../assets/js/file-upload-with-preview.iife.js"></script>
 
         <script src="components/Header/Header.js"></script>
+        
+        <!-- Component Loader System -->
+        <script src="../assets/js/component-loader.js"></script>
+        <script src="../assets/js/component-registry.js"></script>
+        
+        <!-- Other dependencies -->
         <script src="components/Sidebar/Sidebar.js"></script>
         <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
         <script src="components/SubscribeManagement/SubscribeManagement.js"></script>

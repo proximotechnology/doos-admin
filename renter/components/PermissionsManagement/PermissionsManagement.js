@@ -35,26 +35,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.showTableLoader();
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'auth-boxed-signin.html';
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/permissions`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_permissions'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getPermissions();
                 if (data.status && Array.isArray(data.data)) {
                     this.tableData = data.data;
 
@@ -68,7 +49,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching permissions:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -81,10 +61,17 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((permission, index) => [
-                this.formatText(index + 1),
-                this.formatText(permission.name),
-                this.formatText(permission.guard_name),
-                this.formatDate(permission.created_at),
+                `<span class="text-sm font-medium text-gray-900 dark:text-white">${index + 1}</span>`,
+                `<div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">${this.formatText(permission.name)}</span>
+                </div>`,
+                `<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">${this.formatText(permission.guard_name)}</span>`,
+                `<span class="text-sm text-gray-600 dark:text-gray-400">${this.formatDate(permission.created_at)}</span>`,
             ]);
 
             this.datatable = new simpleDatatables.DataTable('#permissionsTable', {

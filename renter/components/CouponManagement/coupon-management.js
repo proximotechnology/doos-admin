@@ -125,7 +125,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Invalid response format');
                 }
             } catch (error) {
-                console.error('Error fetching coupons:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -330,7 +329,6 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('coupon_updated_successfully'));
                 await this.fetchCoupons(this.currentPage);
             } catch (error) {
-                console.error('Update error:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -398,7 +396,6 @@ document.addEventListener('alpine:init', () => {
                 );
                 await this.fetchCoupons(this.currentPage);
             } catch (error) {
-                console.error('Status toggle error:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();

@@ -4,39 +4,9 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-i18n@1.0.0/dist/alpine-i18n.umd.js"></script>
     </head>
-    <body class="bg-gray-100 transition-colors duration-200 dark:bg-gray-900">
-        <div
-            x-data
-            x-show="$store.deleteModal.isOpen"
-            x-transition
-            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
-            style="display: none"
-            x-cloak
-        >
-            <div class="w-full max-w-sm rounded-lg bg-white shadow-lg dark:bg-gray-800">
-                <div class="flex items-center justify-between border-b p-4 dark:border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-white">
-                        <span x-text="$store.i18n.t('delete_confirmation')"></span>
-                    </h3>
-                    <button @click="$store.deleteModal.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
-                </div>
-                <div class="p-4">
-                    <p class="text-gray-700 dark:text-gray-300">
-                        <span x-text="$store.i18n.t('confirm_delete_brand')"></span>
-                    </p>
-                </div>
-                <div class="flex justify-end gap-2 border-t p-4 dark:border-gray-700">
-                    <button @click="$store.deleteModal.closeModal()" class="btn btn-outline-danger">
-                        <span x-text="$store.i18n.t('no')"></span>
-                    </button>
-                    <button @click="$store.deleteModal.confirmDelete()" class="btn btn-primary">
-                        <span x-text="$store.i18n.t('yes')"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <body>
+        <!-- This modal is now handled by SweetAlert2 in DeleteModal.js -->
+        <div style="display: none;"></div>
     </body>
 </html>

@@ -89,18 +89,11 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.name) queryParams.append('name', this.filters.name);
+                const filters = {
+                    ...this.filters
+                };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getModels(page, filters);
 
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
@@ -124,7 +117,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Invalid response format');
                 }
             } catch (error) {
-                console.error('Error fetching models:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -276,27 +268,11 @@ document.addEventListener('alpine:init', () => {
                 const formData = new FormData();
                 formData.append('name', updateConfirmed.name);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/update/${managerId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    const errorMsg = result.message ||
-                        (result.errors ? Object.values(result.errors).flat().join(', ') : Alpine.store('i18n').t('failed_update_model'));
-                    throw new Error(errorMsg);
-                }
+                await ApiService.updateModel(managerId, formData);
 
                 coloredToast('success', Alpine.store('i18n').t('model_updated_successfully'));
                 await this.fetchManagers(this.currentPage);
             } catch (error) {
-                console.error('Update error:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -304,8 +280,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteManager(managerId) {
+            // Find the model to get its name
+            const model = this.tableData.find((m) => m.id == managerId);
+            const modelName = model?.name || 'this model';
+
             const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(managerId, () => {
+                Alpine.store('deleteModal').openModal(managerId, modelName, () => {
                     resolve(true);
                 });
             });
@@ -314,15 +294,10 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/delete/${managerId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_model'));
+                if (!token) {
+                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+                await ApiService.deleteModel(managerId);
                 coloredToast('success', Alpine.store('i18n').t('delete_model_successful'));
                 await this.fetchManagers(this.currentPage);
             } catch (error) {
@@ -394,23 +369,10 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_brands'));
-                }
+                const result = await ApiService.getBrands(1, { per_page: 1000 });
 
                 this.brands = result.data.data;
             } catch (error) {
-                console.error('Error fetching brands:', error);
                 coloredToast('danger', error.message);
             }
         },
@@ -453,9 +415,14 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('fill_required_fields'));
                 }
 
+                // Validate years
+                if (!this.years || this.years.length === 0) {
+                    throw new Error(Alpine.store('i18n').t('year_required'));
+                }
+
                 for (let i = 0; i < this.years.length; i++) {
                     const year = this.years[i];
-                    if (!year.year) {
+                    if (!year.year || year.year.toString().trim() === '') {
                         throw new Error(Alpine.store('i18n').t('year_required') + ` (${i + 1})`);
                     }
                     if (!year.image) {
@@ -465,46 +432,46 @@ document.addEventListener('alpine:init', () => {
 
                 const formData = new FormData();
                 formData.append('name', this.name);
-                formData.append('brand_id', this.brand_id);
+                formData.append('brand_id', this.brand_id.toString());
 
                 if (this.modelImage) {
                     formData.append('image', this.modelImage);
                 }
 
+                // Append years data - ensure proper format
                 this.years.forEach((yearData, index) => {
-                    formData.append(`years[${index}][year]`, yearData.year);
-                    if (yearData.image) {
+                    // Append year value as string
+                    const yearValue = yearData.year.toString().trim();
+                    formData.append(`years[${index}][year]`, yearValue);
+                    // Append year image file
+                    if (yearData.image instanceof File) {
                         formData.append(`years[${index}][image]`, yearData.image);
                     }
                 });
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    let errorMessage = Alpine.store('i18n').t('error_create_model');
-
-                    if (result.errors) {
-                        const errorMessages = [];
-                        for (const field in result.errors) {
-                            if (Array.isArray(result.errors[field])) {
-                                errorMessages.push(...result.errors[field]);
-                            }
-                        }
-                        errorMessage = errorMessages.join(', ');
-                    } else if (result.message) {
-                        errorMessage = result.message;
-                    }
-
-                    throw new Error(errorMessage);
+                // Debug: Log FormData before sending
+                console.group('📋 FormData before sending Model');
+                console.log('Name:', this.name);
+                console.log('Brand ID:', this.brand_id);
+                console.log('Model Image:', this.modelImage ? `[File: ${this.modelImage.name}]` : 'None');
+                console.log('Years Count:', this.years.length);
+                for (let i = 0; i < this.years.length; i++) {
+                    console.log(`Year ${i}:`, {
+                        year: this.years[i].year,
+                        image: this.years[i].image instanceof File ? `[File: ${this.years[i].image.name}]` : 'None'
+                    });
                 }
+                // Log FormData entries
+                for (const [key, value] of formData.entries()) {
+                    if (value instanceof File) {
+                        console.log(`${key}: [File: ${value.name}, size: ${value.size} bytes]`);
+                    } else {
+                        console.log(`${key}:`, value);
+                    }
+                }
+                console.groupEnd();
+
+                await ApiService.addModel(formData);
 
                 this.resetForm();
 

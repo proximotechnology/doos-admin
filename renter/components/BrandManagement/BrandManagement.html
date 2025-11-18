@@ -7,18 +7,35 @@
     </head>
     <body>
         <div>
-            <ul class="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
-                </li>
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('cars_management')"></span>
-                </li>
-
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('brand_car')"></span>
-                </li>
-            </ul>
+            <!-- Breadcrumb -->
+            <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2 rtl:space-x-reverse">
+                    <li>
+                        <a href="javascript:;" class="flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                            <svg class="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            <span x-text="$store.i18n.t('dashboard')"></span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('cars_management')"></span>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('brand_car')"></span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
 
             <div class="pt-5">
                 <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
@@ -27,68 +44,140 @@
                         <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
                     </div>
                 </div>
-                <div class="mb-6 grid gap-6 xl:grid-cols-1">
-                    <div class="panel h-full">
-                        <div class="mb-5 flex items-center">
-                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('add_brand_car')"></h5>
-                        </div>
-                        <div class="overflow-hidden">
-                            <!-- form grid -->
-                            <form x-data="Add_Brand" @submit.prevent="addBrand">
-                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                    <input type="text" :placeholder="$store.i18n.t('name')" class="form-input" x-model="name" required />
-                                    <input type="text" :placeholder="$store.i18n.t('country')" class="form-input" x-model="country" required />
-                                    <input type="file" :placeholder="$store.i18n.t('image')" class="form-input" x-ref="image" accept="image/*" required />
+                <!-- Add Brand Form -->
+                <div class="mb-6">
+                    <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                        <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-6">
-                                    <span x-text="$store.i18n.t('create')"></span>
-                                </button>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('add_brand_car')"></h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('add_brand_car') + ' ' + $store.i18n.t('brand_car')"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <form x-data="Add_Brand" @submit.prevent="addBrand">
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('name')"></span>
+                                        </label>
+                                        <input type="text" :placeholder="$store.i18n.t('name')" class="form-input" x-model="name" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('country')"></span>
+                                        </label>
+                                        <input type="text" :placeholder="$store.i18n.t('country')" class="form-input" x-model="country" required />
+                                    </div>
+                                    <div class="form-group sm:col-span-2">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('image')"></span>
+                                        </label>
+                                        <input type="file" :placeholder="$store.i18n.t('image')" class="form-input" x-ref="image" accept="image/*" required />
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-end border-t border-gray-200 pt-4 dark:border-gray-700">
+                                    <button type="submit" class="btn btn-primary flex items-center gap-2">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('create')"></span>
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
                 <div x-data="brandTable" x-init="fetchBrands()">
-                    <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('brand')"></h5>
+                    <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                        <div class="mb-5 flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('brand')"></h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('brand_car')"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
                         <!-- Filters -->
                         <div class="mb-5">
                             <form @submit.prevent="applyFilters">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                                    <input
-                                        type="text"
-                                        class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="filters.name"
-                                        :placeholder="$store.i18n.t('search_by_name')"
-                                    />
-                                    <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                                <div class="mb-4">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            class="form-input pr-10 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                                            x-model="filters.name"
+                                            :placeholder="$store.i18n.t('search_by_name')"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="submit" class="btn btn-primary flex items-center gap-2">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                        </svg>
                                         <span x-text="$store.i18n.t('filter')"></span>
                                     </button>
                                     <button
                                         type="button"
-                                        class="btn btn-secondary rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                                        class="btn btn-secondary flex items-center gap-2"
                                         @click="resetFilters"
-                                        x-text="$store.i18n.t('reset_filters')"
-                                    ></button>
+                                    >
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('reset_filters')"></span>
+                                    </button>
                                 </div>
                             </form>
                         </div>
                         <!-- Table -->
-                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="ml-2" x-text="$store.i18n.t('loading_data')"></span>
-                        </div>
-                        <table id="brandTable" class="whitespace-nowrap"></table>
-                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_brands')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_brand')"></p>
+                        <div class="table-container">
+                            <div id="tableLoading" class="table-loading hidden">
+                                <div class="table-loading-spinner"></div>
+                                <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                            </div>
+                            <div class="table-wrapper">
+                                <table id="brandTable" class="whitespace-nowrap"></table>
+                            </div>
+                            <div id="tableEmptyState" class="empty-state hidden">
+                                <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                                <h3 class="empty-state-title" x-text="$store.i18n.t('no_brands')"></h3>
+                                <p class="empty-state-description" x-text="$store.i18n.t('start_adding_brand')"></p>
+                            </div>
                         </div>
                     </div>
                 </div>

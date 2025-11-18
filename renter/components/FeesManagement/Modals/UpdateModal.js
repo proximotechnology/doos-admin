@@ -5,22 +5,19 @@ document.addEventListener('alpine:init', () => {
             if (indicator) {
                 indicator.classList.remove('hidden');
             } else {
-                console.warn('loadingIndicator element not found');
-            }
+                }
         },
         hide: function () {
             const indicator = document.getElementById('loadingIndicator');
             if (indicator) {
                 indicator.classList.add('hidden');
             } else {
-                console.warn('loadingIndicator element not found');
-            }
+                }
         }
     };
 
     function coloredToast(color, message) {
         if (!window.Swal) {
-            console.warn('SweetAlert2 is not loaded');
             return;
         }
         const toast = window.Swal.mixin({
@@ -42,8 +39,7 @@ document.addEventListener('alpine:init', () => {
             if (tableComponent && tableComponent.fetchFees) {
                 await tableComponent.fetchFees(tableComponent.currentPage);
             } else {
-                console.warn('Table component or fetchFees method not found');
-            }
+                }
         },
         openEditModal(fee) {
             this.isEditModalOpen = true;
@@ -56,8 +52,7 @@ document.addEventListener('alpine:init', () => {
                     description: fee.description || ''
                 };
             } else {
-                console.warn('Modal data component not found');
-            }
+                }
         },
         closeEditModal() {
             this.isEditModalOpen = false;
@@ -65,8 +60,7 @@ document.addEventListener('alpine:init', () => {
             if (modalData) {
                 modalData.resetForm();
             } else {
-                console.warn('Modal data component not found');
-            }
+                }
         },
         async updateFee(feeData) {
             try {
@@ -110,7 +104,6 @@ document.addEventListener('alpine:init', () => {
                 await this.refreshTable();
                 this.closeEditModal();
             } catch (error) {
-                console.error('Update Fee Error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_fee'));
             } finally {
                 loadingIndicator.hide();

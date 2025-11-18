@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "checkJs": false,
+    "allowJs": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@js/*": [
+        "./assets/js/*"
+      ],
+      "@css/*": [
+        "./assets/css/*"
+      ],
+      "@images/*": [
+        "./assets/images/*"
+      ],
+      "@renter/*": [
+        "./renter/*"
+      ],
+      "@uber/*": [
+        "./uber/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.js",
+    "**/*.html"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/**",
+    "dist",
+    "build",
+    ".git"
+  ]
+}

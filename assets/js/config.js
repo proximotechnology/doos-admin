@@ -1,16 +1,36 @@
 // config.js
-window.API_CONFIG = {
-    // BASE_URL_Renter: 'http://localhost:8000', 
+// This file uses environment variables loaded from env-loader.js
+// Make sure env-loader.js is loaded before this file
 
-    BASE_URL_Renter: 'https://api.doosdoostest.com', 
-    BASE_URL_Uber: 'https://api.doosdoos.com/api/v1', 
+window.API_CONFIG = {
+    // Use environment variables if available, otherwise fallback to defaults
+    BASE_URL_Renter: window.ENV?.BASE_URL_RENTER || 'https://api.doosdoostest.com',
+    BASE_URL_Uber: window.ENV?.BASE_URL_UBER || 'https://api.doosdoos.com/api/v1',
 
     ENDPOINTS: {
-        LOGIN: '/api/login', 
+        LOGIN: window.ENV?.API_ENDPOINT_LOGIN || '/api/login',
     },
+    
     DEFAULT_HEADERS: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    GOOGLE_MAPS_API_KEY: 'AIzaSyC5eqWELYeuHhL0gLu4BVHjbksnLlKA2uI'
+    
+    // Pusher Configuration
+    PUSHER: {
+        APP_KEY: window.ENV?.PUSHER_APP_KEY || '0c6840048793ecd5b54f',
+        CLUSTER: window.ENV?.PUSHER_CLUSTER || 'mt1',
+        CHANNEL_PREFIX: window.ENV?.PUSHER_CHANNEL_PREFIX || 'chat-private-channel',
+    },
+    
+    // Google Maps
+    GOOGLE_MAPS_API_KEY: window.ENV?.GOOGLE_MAPS_API_KEY || 'AIzaSyC5eqWELYeuHhL0gLu4BVHjbksnLlKA2uI',
+    
+    // Site Configuration
+    SITE_URL: window.ENV?.SITE_URL || 'https://admin.doosdoostest.com',
+    SITE_NAME: window.ENV?.SITE_NAME || 'Doos Admin Dashboard',
+    
+    // Environment
+    ENV: window.ENV?.ENV || 'production',
+    DEBUG: window.ENV?.DEBUG || false,
 };

@@ -4,158 +4,214 @@ let marker, editMarker;
 let geocoder;
 let autocomplete, editAutocomplete;
 let mapInitialized = false;
+let editMapInitialized = false;
 let initAttempts = 0;
-const MAX_INIT_ATTEMPTS = 10; // Reduced attempts for faster failure
+const MAX_INIT_ATTEMPTS = 20; // Increased attempts to allow more time for API loading
 
 function initMap(mapElementId, editMapElementId, component, modalComponent) {
-    if (mapInitialized) return;
-
     initAttempts++;
 
+    // Check if Google Maps API is loaded
     if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
         if (initAttempts >= MAX_INIT_ATTEMPTS) {
-            console.error('Google Maps API failed to load after multiple attempts');
+            console.error('Google Maps API failed to load after', MAX_INIT_ATTEMPTS, 'attempts');
             showMapError(mapElementId, editMapElementId);
             return;
         }
-        setTimeout(() => initMap(mapElementId, editMapElementId, component, modalComponent), 300);
+        setTimeout(() => initMap(mapElementId, editMapElementId, component, modalComponent), 500);
         return;
     }
 
+    // Check if map element exists
+    const mapElement = document.getElementById(mapElementId);
+    if (!mapElement) {
+        console.warn(`Map element with ID "${mapElementId}" not found. Retrying...`);
+        if (initAttempts < MAX_INIT_ATTEMPTS) {
+            setTimeout(() => initMap(mapElementId, editMapElementId, component, modalComponent), 300);
+        }
+        return;
+    }
+
+    // Prevent re-initialization
+    if (mapInitialized && mapElementId === 'map') return;
+    if (editMapInitialized && editMapElementId === 'edit-map') return;
+
     try {
-        mapInitialized = true;
-        geocoder = new google.maps.Geocoder();
+        geocoder = geocoder || new google.maps.Geocoder();
         const defaultCenter = { lat: 24.7136, lng: 46.6753 }; // Riyadh
 
         // Initialize main map
-        const mapElement = document.getElementById(mapElementId);
-        if (mapElement) {
-            map = new google.maps.Map(mapElement, {
-                center: defaultCenter,
-                zoom: 10,
-                mapTypeControl: false,
-                streetViewControl: false
-            });
-
-            marker = new google.maps.Marker({
-                map: map,
-                draggable: true,
-                animation: google.maps.Animation.DROP,
-            });
-
-            const input = document.getElementById('pac-input');
-            if (input) {
-                autocomplete = new google.maps.places.Autocomplete(input);
-                autocomplete.bindTo('bounds', map);
-
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (!place.geometry) {
-                        coloredToast('danger', Alpine.store('i18n').t('no_details_available') + ': ' + place.name);
-                        return;
+        if (mapElementId === 'map' && !mapInitialized) {
+            mapInitialized = true;
+            const mapElement = document.getElementById(mapElementId);
+            if (mapElement) {
+                // Ensure map element has proper dimensions
+                if (mapElement.offsetHeight === 0 || mapElement.offsetWidth === 0) {
+                    mapElement.style.height = '500px';
+                    mapElement.style.width = '100%';
+                }
+                map = new google.maps.Map(mapElement, {
+                    center: defaultCenter,
+                    zoom: 10,
+                    mapTypeControl: false,
+                    streetViewControl: false
+                });
+                // Trigger resize after a short delay to ensure map renders correctly
+                setTimeout(() => {
+                    if (map) {
+                        google.maps.event.trigger(map, 'resize');
+                        map.setCenter(defaultCenter);
                     }
+                }, 100);
 
-                    if (place.geometry.viewport) {
-                        map.fitBounds(place.geometry.viewport);
-                    } else {
-                        map.setCenter(place.geometry.location);
-                        map.setZoom(17);
+                marker = new google.maps.Marker({
+                    map: map,
+                    draggable: true,
+                    animation: google.maps.Animation.DROP,
+                    visible: false, // Initially hidden until user clicks or searches
+                });
+
+                const input = document.getElementById('pac-input');
+                if (input) {
+                    autocomplete = new google.maps.places.Autocomplete(input);
+                    autocomplete.bindTo('bounds', map);
+
+                    autocomplete.addListener('place_changed', () => {
+                        const place = autocomplete.getPlace();
+                        if (!place.geometry) {
+                            coloredToast('danger', Alpine.store('i18n').t('no_details_available') + ': ' + place.name);
+                            return;
+                        }
+
+                        if (place.geometry.viewport) {
+                            map.fitBounds(place.geometry.viewport);
+                        } else {
+                            map.setCenter(place.geometry.location);
+                            map.setZoom(17);
+                        }
+
+                        marker.setPosition(place.geometry.location);
+                        marker.setVisible(true);
+
+                        if (component) {
+                            component.lat = place.geometry.location.lat();
+                            component.lang = place.geometry.location.lng();
+                            component.address = place.formatted_address || input.value;
+                        }
+                    });
+                }
+
+                map.addListener('click', (e) => {
+                    // Show marker when user clicks on map
+                    if (marker) {
+                        marker.setVisible(true);
+                        marker.setPosition(e.latLng);
+                        map.panTo(e.latLng);
                     }
-
-                    marker.setPosition(place.geometry.location);
-                    marker.setVisible(true);
-
+                    placeMarkerAndPanTo(e.latLng, map, marker, 'pac-input');
                     if (component) {
-                        component.lat = place.geometry.location.lat();
-                        component.lang = place.geometry.location.lng();
-                        component.address = place.formatted_address || input.value;
+                        component.lat = e.latLng.lat();
+                        component.lang = e.latLng.lng();
                     }
                 });
+
+                marker.addListener('dragend', () => {
+                    const position = marker.getPosition();
+                    if (component) {
+                        component.lat = position.lat();
+                        component.lang = position.lng();
+                    }
+                    placeMarkerAndPanTo(position, map, marker, 'pac-input');
+                });
             }
-
-            map.addListener('click', (e) => {
-                placeMarkerAndPanTo(e.latLng, map, marker, 'pac-input');
-                if (component) {
-                    component.lat = e.latLng.lat();
-                    component.lang = e.latLng.lng();
-                }
-            });
-
-            marker.addListener('dragend', () => {
-                const position = marker.getPosition();
-                if (component) {
-                    component.lat = position.lat();
-                    component.lang = position.lng();
-                }
-                placeMarkerAndPanTo(position, map, marker, 'pac-input');
-            });
         }
 
         // Initialize edit map
-        const editMapElement = document.getElementById(editMapElementId);
-        if (editMapElement) {
-            editMap = new google.maps.Map(editMapElement, {
-                center: defaultCenter,
-                zoom: 10,
-                mapTypeControl: false,
-                streetViewControl: false
-            });
-
-            editMarker = new google.maps.Marker({
-                map: editMap,
-                draggable: true,
-                animation: google.maps.Animation.DROP,
-            });
-
-            const editInput = document.getElementById('edit-pac-input');
-            if (editInput) {
-                editAutocomplete = new google.maps.places.Autocomplete(editInput);
-                editAutocomplete.bindTo('bounds', editMap);
-
-                editAutocomplete.addListener('place_changed', () => {
-                    const place = editAutocomplete.getPlace();
-                    if (!place.geometry) {
-                        coloredToast('danger', Alpine.store('i18n').t('no_details_available') + ': ' + place.name);
-                        return;
+        if (editMapElementId === 'edit-map' && !editMapInitialized) {
+            const editMapElement = document.getElementById(editMapElementId);
+            if (editMapElement) {
+                editMapInitialized = true;
+                // Ensure map element has proper dimensions
+                if (editMapElement.offsetHeight === 0 || editMapElement.offsetWidth === 0) {
+                    editMapElement.style.height = '500px';
+                    editMapElement.style.width = '100%';
+                }
+                editMap = new google.maps.Map(editMapElement, {
+                    center: defaultCenter,
+                    zoom: 10,
+                    mapTypeControl: false,
+                    streetViewControl: false
+                });
+                // Trigger resize after a short delay to ensure map renders correctly
+                setTimeout(() => {
+                    if (editMap) {
+                        google.maps.event.trigger(editMap, 'resize');
+                        editMap.setCenter(defaultCenter);
                     }
+                }, 100);
 
-                    if (place.geometry.viewport) {
-                        editMap.fitBounds(place.geometry.viewport);
-                    } else {
-                        editMap.setCenter(place.geometry.location);
-                        editMap.setZoom(17);
+                editMarker = new google.maps.Marker({
+                    map: editMap,
+                    draggable: true,
+                    animation: google.maps.Animation.DROP,
+                    visible: false, // Initially hidden until user clicks or searches
+                });
+
+                const editInput = document.getElementById('edit-pac-input');
+                if (editInput) {
+                    editAutocomplete = new google.maps.places.Autocomplete(editInput);
+                    editAutocomplete.bindTo('bounds', editMap);
+
+                    editAutocomplete.addListener('place_changed', () => {
+                        const place = editAutocomplete.getPlace();
+                        if (!place.geometry) {
+                            coloredToast('danger', Alpine.store('i18n').t('no_details_available') + ': ' + place.name);
+                            return;
+                        }
+
+                        if (place.geometry.viewport) {
+                            editMap.fitBounds(place.geometry.viewport);
+                        } else {
+                            editMap.setCenter(place.geometry.location);
+                            editMap.setZoom(17);
+                        }
+
+                        editMarker.setPosition(place.geometry.location);
+                        editMarker.setVisible(true);
+
+                        if (modalComponent && modalComponent.whiteLocationData) {
+                            modalComponent.whiteLocationData.lat = place.geometry.location.lat();
+                            modalComponent.whiteLocationData.lang = place.geometry.location.lng();
+                            modalComponent.whiteLocationData.address = place.formatted_address || editInput.value;
+                        }
+                    });
+                }
+
+                editMap.addListener('click', (e) => {
+                    // Show marker when user clicks on map
+                    if (editMarker) {
+                        editMarker.setVisible(true);
+                        editMarker.setPosition(e.latLng);
+                        editMap.panTo(e.latLng);
                     }
-
-                    editMarker.setPosition(place.geometry.location);
-                    editMarker.setVisible(true);
-
+                    placeMarkerAndPanTo(e.latLng, editMap, editMarker, 'edit-pac-input');
                     if (modalComponent && modalComponent.whiteLocationData) {
-                        modalComponent.whiteLocationData.lat = place.geometry.location.lat();
-                        modalComponent.whiteLocationData.lang = place.geometry.location.lng();
-                        modalComponent.whiteLocationData.address = place.formatted_address || editInput.value;
+                        modalComponent.whiteLocationData.lat = e.latLng.lat();
+                        modalComponent.whiteLocationData.lang = e.latLng.lng();
                     }
                 });
+
+                editMarker.addListener('dragend', () => {
+                    const position = editMarker.getPosition();
+                    if (modalComponent && modalComponent.whiteLocationData) {
+                        modalComponent.whiteLocationData.lat = position.lat();
+                        modalComponent.whiteLocationData.lang = position.lng();
+                    }
+                    placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                });
             }
-
-            editMap.addListener('click', (e) => {
-                placeMarkerAndPanTo(e.latLng, editMap, editMarker, 'edit-pac-input');
-                if (modalComponent && modalComponent.whiteLocationData) {
-                    modalComponent.whiteLocationData.lat = e.latLng.lat();
-                    modalComponent.whiteLocationData.lang = e.latLng.lng();
-                }
-            });
-
-            editMarker.addListener('dragend', () => {
-                const position = editMarker.getPosition();
-                if (modalComponent && modalComponent.whiteLocationData) {
-                    modalComponent.whiteLocationData.lat = position.lat();
-                    modalComponent.whiteLocationData.lang = position.lng();
-                }
-                placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
-            });
         }
     } catch (error) {
-        console.error('Error in initMap:', error);
         showMapError(mapElementId, editMapElementId);
     }
 }
@@ -193,17 +249,50 @@ function placeMarkerAndPanTo(latLng, map, marker, inputId) {
 }
 
 function loadGoogleMapsAPI(mapElementId, editMapElementId, component, modalComponent) {
-    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
-        initMap(mapElementId, editMapElementId, component, modalComponent);
+    // Check if API_CONFIG is available
+    if (typeof API_CONFIG === 'undefined' || !API_CONFIG.GOOGLE_MAPS_API_KEY) {
+        console.error('Google Maps API key not found. Please check your configuration.');
+        showMapError(mapElementId, editMapElementId);
         return;
     }
+
+    // Check if Google Maps is already loaded
+    if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+        // Wait a bit to ensure DOM is ready
+        setTimeout(() => {
+            initMap(mapElementId, editMapElementId, component, modalComponent);
+        }, 100);
+        return;
+    }
+
+    // Check if script is already being loaded
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+        // Script is loading, wait for it
+        existingScript.addEventListener('load', () => {
+            setTimeout(() => {
+                initMap(mapElementId, editMapElementId, component, modalComponent);
+            }, 100);
+        });
+        existingScript.addEventListener('error', () => {
+            showMapError(mapElementId, editMapElementId);
+        });
+        return;
+    }
+
+    // Load Google Maps API
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`;
     script.async = true;
     script.defer = true;
-    script.onload = () => initMap(mapElementId, editMapElementId, component, modalComponent);
-    script.onerror = () => {
-        console.error('Failed to load Google Maps API');
+    script.onload = () => {
+        // Wait a bit to ensure everything is ready
+        setTimeout(() => {
+            initMap(mapElementId, editMapElementId, component, modalComponent);
+        }, 100);
+    };
+    script.onerror = (error) => {
+        console.error('Failed to load Google Maps API:', error);
         showMapError(mapElementId, editMapElementId);
     };
     document.head.appendChild(script);
@@ -284,7 +373,6 @@ document.addEventListener('alpine:init', () => {
                 modalComponent.open = false;
                 await this.refreshTable();
             } catch (error) {
-                console.error('Error updating white location:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -308,10 +396,16 @@ document.addEventListener('alpine:init', () => {
         currentPage: 1,
 
         async init() {
-            const addWhiteLocationComponent = Alpine.$data(document.querySelector('[x-data="Add_White_Location"]'));
-            const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
-            loadGoogleMapsAPI('map', 'edit-map', addWhiteLocationComponent, modalComponent);
             await this.fetchWhiteLocations(1);
+            
+            // Wait for component to be loaded before initializing maps
+            setTimeout(() => {
+                const addWhiteLocationComponent = Alpine.$data(document.querySelector('[x-data="Add_White_Location"]'));
+                const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
+                if (addWhiteLocationComponent) {
+                    loadGoogleMapsAPI('map', 'edit-map', addWhiteLocationComponent, modalComponent);
+                }
+            }, 500);
 
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
@@ -380,7 +474,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching white locations:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -557,6 +650,27 @@ document.addEventListener('alpine:init', () => {
         address: '',
         lat: '',
         lang: '',
+
+        init() {
+            // Initialize map after component is ready
+            this.$nextTick(() => {
+                // Wait for DOM to be ready and API_CONFIG to be available
+                const checkAndInit = () => {
+                    const mapElement = document.getElementById('map');
+                    if (mapElement && typeof API_CONFIG !== 'undefined' && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+                        const component = Alpine.$data(document.querySelector('[x-data="Add_White_Location"]'));
+                        const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
+                        if (component) {
+                            loadGoogleMapsAPI('map', 'edit-map', component, modalComponent);
+                        }
+                    } else {
+                        // Retry after a short delay
+                        setTimeout(checkAndInit, 200);
+                    }
+                };
+                setTimeout(checkAndInit, 500);
+            });
+        },
 
         async Add_White_Location() {
             try {

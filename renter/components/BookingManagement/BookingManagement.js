@@ -32,7 +32,6 @@ document.addEventListener('alpine:init', () => {
         script.defer = true;
         script.onload = callback;
         script.onerror = function () {
-            console.error('Failed to load Google Maps API');
             coloredToast('danger', Alpine.store('i18n').t('failed_to_load_map'));
         };
         document.head.appendChild(script);
@@ -90,11 +89,18 @@ document.addEventListener('alpine:init', () => {
             loadGoogleMapsAPI(() => { });
 
             // Event Delegation for buttons
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.view-car-btn')) {
-                    const bookingId = e.target.closest('.view-car-btn').dataset.id;
-                    this.showCarDetails(bookingId);
-                }
+            if (!this._listenersAttached) {
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.view-car-btn')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const btn = e.target.closest('.view-car-btn');
+                        const bookingId = btn.dataset.id;
+                        console.log('View details clicked, bookingId:', bookingId);
+                        if (bookingId) {
+                            this.showCarDetails(bookingId);
+                        }
+                    }
                 if (e.target.closest('.change-status-btn')) {
                     const bookingId = e.target.closest('.change-status-btn').dataset.id;
                     this.changeStatus(bookingId);
@@ -107,9 +113,29 @@ document.addEventListener('alpine:init', () => {
                     const page = e.target.closest('.pagination-btn').dataset.page;
                     this.fetchBookings(page);
                 }
-            });
+                });
+                this._listenersAttached = true;
+            }
 
             await this.fetchBookings(1);
+        },
+
+        applyFilters() {
+            this.currentPage = 1;
+            this.fetchBookings(1);
+        },
+
+        resetFilters() {
+            this.filters = {
+                status: '',
+                date_from: '',
+                date_to: ''
+            };
+            this.applyFilters();
+        },
+
+        hasActiveFilters() {
+            return !!(this.filters.status || this.filters.date_from || this.filters.date_to);
         },
 
         async fetchBookings(page = 1) {
@@ -178,7 +204,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching bookings:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -223,12 +248,12 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((booking, index) => [
-                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
+                `<span class="text-sm font-medium text-gray-900 dark:text-white">${(this.currentPage - 1) * this.paginationMeta.per_page + index + 1}</span>`,
                 this.formatCarInfo(booking.car),
                 this.formatDate(booking.date_from),
                 this.formatDate(booking.date_end),
                 this.formatPrice(booking.total_price),
-                this.formatText(booking.payment_method),
+                this.formatPaymentMethod(booking.payment_method),
                 this.formatStatus(booking.status, booking.id),
                 this.formatDate(booking.created_at),
                 this.getActionButtons(booking.id, booking.status, booking.is_paid),
@@ -269,68 +294,140 @@ document.addEventListener('alpine:init', () => {
         formatCarInfo(carDetails) {
             if (!carDetails) return Alpine.store('i18n').t('na');
 
-            const firstImage = carDetails.car_image && carDetails.car_image.length > 0
+            let firstImage = carDetails.car_image && carDetails.car_image.length > 0
                 ? carDetails.car_image[0].image
                 : 'assets/images/default-car.png';
 
+            const defaultImage = '/assets/images/default-car.png';
+
+            // Normalize image path
+            if (firstImage) {
+                // If it's already an absolute URL, keep it
+                if (firstImage.startsWith('http://') || firstImage.startsWith('https://')) {
+                    // Keep as is
+                }
+                // If it starts with assets/, add leading /
+                else if (firstImage.startsWith('assets/')) {
+                    firstImage = '/' + firstImage;
+                }
+                // If it starts with ./ remove it
+                else if (firstImage.startsWith('./')) {
+                    firstImage = '/' + firstImage.substring(2);
+                }
+                // Otherwise, add leading /
+                else {
+                    firstImage = '/' + firstImage;
+                }
+            }
+
+            // Clean and escape the image URL
+            const cleanImage = firstImage.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const escapedMake = (carDetails.make || 'Car').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const escapedYear = carDetails.years?.year ? String(carDetails.years.year).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'N/A';
+
             return `
-                <div class="flex items-center w-max" x-data="{ imgError: false }">
-                    <img class="w-9 h-9 rounded-full ltr:mr-2 rtl:ml-2 object-cover"
-                         :src="imgError ? 'assets/images/default-car.png' : '${firstImage}'"
-                         alt="${carDetails.make || 'Car'}"
-                         @error="imgError = true"
-                         loading="lazy"
-                         width="36"
-                         height="36" />
-                    ${carDetails.make || 'Car'} (${carDetails.years?.year || 'N/A'})
+                <div class="flex items-center gap-1.5 min-w-0 max-w-[200px]">
+                    <img class="w-8 h-8 rounded flex-shrink-0 object-cover border border-gray-200 dark:border-gray-700"
+                        src="${cleanImage}"
+                        alt="${escapedMake}"
+                        onerror="this.onerror=null; this.src='${defaultImage}';"
+                        loading="lazy"
+                        width="32"
+                        height="32"
+                        style="display: block; min-width: 32px; min-height: 32px;" />
+                    <span class="text-xs font-normal text-gray-900 dark:text-white truncate" style="max-width: 150px;" title="${escapedMake} (${escapedYear})">${escapedMake} (${escapedYear})</span>
                 </div>`;
         },
 
         formatDate(dateString) {
-            if (!dateString) return Alpine.store('i18n').t('na');
-            return new Date(dateString).toLocaleDateString();
+            if (!dateString) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            const date = new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' });
+            return `<span class="text-sm font-normal text-gray-900 dark:text-white">${date}</span>`;
         },
 
         formatPrice(price) {
             if (!price) return Alpine.store('i18n').t('na');
-            return `$${parseFloat(price).toFixed(2)}`;
+            return `<span class="text-sm font-medium text-gray-900 dark:text-white">${parseFloat(price).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</span>`;
         },
 
         formatStatus(status, bookingId) {
-            if (status == "Canceled")
-                status = "canceled"
-
-            if (!status) return Alpine.store('i18n').t('na');
-            const statusClass = `status-${status}`;
-            const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+            if (!status) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            
+            // Normalize status
+            if (status == "Canceled" || status == "canceled") {
+                status = "canceled";
+            } else if (status == "Completed" || status == "completed") {
+                status = "completed";
+            } else if (status == "Returned" || status == "returned") {
+                status = "returned";
+            } else if (status == "Picked_up" || status == "picked_up") {
+                status = "picked_up";
+            } else {
+                status = status.toLowerCase();
+            }
+            
+            const statusColors = {
+                'draft': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+                'confirm': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                'confirmed': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                'picked_up': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+                'returned': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
+                'completed': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                'canceled': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            };
+            
+            const statusClass = statusColors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            
             return `
-                <button class="change-status-btn status-badge ${statusClass} btn btn-sm rounded-md px-3 py-1 hover:opacity-80" data-id="${bookingId}">
-                    ${Alpine.store('i18n').t(status)}
+                <button class="change-status-btn table-action-btn inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors hover:opacity-80 ${statusClass}" data-id="${bookingId}" title="${Alpine.store('i18n').t('change_status')}">
+                    ${Alpine.store('i18n').t(status) || status}
                 </button>`;
         },
 
         formatText(text) {
-            return text || Alpine.store('i18n').t('na');
+            if (!text) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            return `<span class="text-sm font-normal text-gray-900 dark:text-white">${text}</span>`;
         },
 
         getActionButtons(bookingId, status, isPaid) {
             return `
                 <div class="flex items-center gap-1">
-                    <button class="btn view-car-btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${bookingId}">
-                        ${Alpine.store('i18n').t('view_details')}
+                    <button class="view-car-btn table-action-btn btn btn-primary btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${bookingId}" title="${Alpine.store('i18n').t('view_details')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('view_details')}</span>
                     </button>
-                    <button class="btn change-payment-btn ${isPaid === '1' ? 'btn-success' : 'btn-danger'} btn-sm rounded-md px-3 py-1" data-id="${bookingId}">
-                        ${Alpine.store('i18n').t('change_payment')}
+                    <button class="change-payment-btn table-action-btn btn ${isPaid === '1' ? 'btn-success' : 'btn-danger'} btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${bookingId}" title="${Alpine.store('i18n').t('change_payment')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('change_payment')}</span>
                     </button>
                 </div>`;
         },
 
         async showCarDetails(bookingId) {
             try {
+                console.log('showCarDetails called with bookingId:', bookingId, 'type:', typeof bookingId);
+                console.log('tableData length:', this.tableData.length);
+                
                 loadingIndicator.show();
 
-                const booking = this.tableData.find(b => b.id == bookingId);
-                if (!booking || !booking.car) {
+                // Convert bookingId to number for comparison
+                const id = parseInt(bookingId);
+                const booking = this.tableData.find(b => b.id === id || b.id == id);
+                console.log('Found booking:', booking);
+                
+                if (!booking) {
+                    console.error('Booking not found for id:', id);
+                    throw new Error(Alpine.store('i18n').t('car_details_not_found'));
+                }
+                
+                if (!booking.car) {
+                    console.error('Car not found in booking:', booking);
                     throw new Error(Alpine.store('i18n').t('car_details_not_found'));
                 }
 
@@ -670,21 +767,291 @@ document.addEventListener('alpine:init', () => {
             </div>
         `;
 
-                const detailsHtml = `
-            <div class="space-y-6 text-base">
-                ${bookingInfoHtml}
-                ${pricingInfoHtml}
-                ${locationInfoHtml}
-                ${userInfoHtml}
-                ${ownerInfoHtml}
-                ${mapsHtml}
-                ${additionalInfoHtml}
-                ${imagesHtml}
-            </div>
-        `;
+                // Hero Section with Car Image
+                const heroImage = car.car_image && car.car_image.length > 0 ? car.car_image[0].image : '/assets/images/default-car.png';
+                const heroHtml = `
+                    <div class="relative h-32 w-full overflow-hidden rounded-t-xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent">
+                        <img src="${heroImage}" alt="${car.make || 'Car'}" 
+                             class="h-full w-full object-cover opacity-30"
+                             onerror="this.src='/assets/images/default-car.png';">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <div class="text-center">
+                                <h2 class="text-lg font-bold text-white">${car.make || 'Car'} ${car.model ? `(${car.model.name || ''})` : ''}</h2>
+                                <p class="text-sm text-white/80">${car.years?.year || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
 
-                document.getElementById('carDetailsContent').innerHTML = detailsHtml;
-                document.getElementById('carDetailsModal').classList.remove('hidden');
+                // Quick Stats
+                const quickStatsHtml = `
+                    <div class="grid grid-cols-2 gap-2 px-4 pt-4">
+                        <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-xs font-medium text-blue-600 dark:text-blue-400">${Alpine.store('i18n').t('status')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${this.formatBookingStatus(booking.status)}</p>
+                        </div>
+                        <div class="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-xs font-medium text-green-600 dark:text-green-400">${Alpine.store('i18n').t('total_price')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${parseFloat(booking.total_price || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</p>
+                        </div>
+                        <div class="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-xs font-medium text-purple-600 dark:text-purple-400">${Alpine.store('i18n').t('date_from')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${this.formatDate1(booking.date_from)}</p>
+                        </div>
+                        <div class="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-xs font-medium text-indigo-600 dark:text-indigo-400">${Alpine.store('i18n').t('date_to')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${this.formatDate1(booking.date_end)}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Redesign sections with cards
+                const bookingInfoCard = `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('booking_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('booking_status')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${this.formatBookingStatus(booking.status)}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('payment_status')}</span>
+                                <span class="text-sm font-normal ${booking.is_paid === '1' ? 'text-green-600' : 'text-red-600'}">${booking.is_paid === '1' ? Alpine.store('i18n').t('paid') : Alpine.store('i18n').t('not_paid')}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('payment_method')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${this.formatPaymentMethodText(booking.payment_method)}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('duration')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${this.calculateDuration(booking.date_from, booking.date_end)}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('with_driver')}</span>
+                                <span class="text-sm font-normal ${booking.with_driver === '1' ? 'text-green-600' : 'text-red-600'}">${booking.with_driver === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const pricingCard = `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('pricing_info')}</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('total_price')}</p>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(booking.total_price || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</p>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('final_price')}</p>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(booking.final_price || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</p>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('fee_percentage')}</p>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(booking.fee_percentage || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</p>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('insurance_price')}</p>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(booking.insurancePrice || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Redesign user and owner info
+                const userInfoCard = booking.user ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('user_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('name')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${booking.user.name || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('email')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white break-all">${booking.user.email || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('phone')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${booking.user.phone || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('country')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${booking.user.country || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                const ownerInfoCard = car.owner ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('owner_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('name')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${car.owner.name || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('email')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white break-all">${car.owner.email || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('phone')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${car.owner.phone || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('country')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${car.owner.country || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // Redesign location info
+                const locationCard = `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('locations')}</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="rounded-lg border border-indigo-100 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+                                <h4 class="mb-2 text-sm font-semibold text-indigo-900 dark:text-indigo-100">${Alpine.store('i18n').t('pickup_location')}</h4>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-indigo-700 dark:text-indigo-300">${Alpine.store('i18n').t('address')}:</span>
+                                        <span class="font-normal text-black dark:text-white">${booking.address || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-indigo-700 dark:text-indigo-300">${Alpine.store('i18n').t('time')}:</span>
+                                        <span class="font-normal text-black dark:text-white">${booking.time_from || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rounded-lg border border-teal-100 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-900/20">
+                                <h4 class="mb-2 text-sm font-semibold text-teal-900 dark:text-teal-100">${Alpine.store('i18n').t('return_location')}</h4>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-teal-700 dark:text-teal-300">${Alpine.store('i18n').t('address')}:</span>
+                                        <span class="font-normal text-black dark:text-white">${booking.address_return || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-teal-700 dark:text-teal-300">${Alpine.store('i18n').t('time')}:</span>
+                                        <span class="font-normal text-black dark:text-white">${booking.time_return || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Redesign images section
+                const imagesCard = car.car_image && car.car_image.length > 0 ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('images')} (${car.car_image.length})</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            ${car.car_image.map((img, index) => `
+                                <div class="group relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <img src="${img.image}" alt="Car Image ${index + 1}" 
+                                         class="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                         loading="lazy"
+                                         onerror="this.src='/assets/images/default-car.png';">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+                const detailsHtml = `
+                    <div class="space-y-4">
+                        ${heroHtml}
+                        ${quickStatsHtml}
+                        <div class="grid grid-cols-1 gap-4 px-4">
+                            ${bookingInfoCard}
+                            ${pricingCard}
+                            ${userInfoCard}
+                            ${ownerInfoCard}
+                            ${locationCard}
+                            ${imagesCard}
+                            ${mapsHtml}
+                        </div>
+                    </div>
+                `;
+
+                const carDetailsContent = document.getElementById('carDetailsContent');
+                const carDetailsModal = document.getElementById('carDetailsModal');
+                
+                if (!carDetailsContent || !carDetailsModal) {
+                    throw new Error('Modal elements not found');
+                }
+
+                const carDetailsContentDiv = carDetailsModal.querySelector('#carDetailsContent');
+                if (carDetailsContentDiv) {
+                    carDetailsContentDiv.innerHTML = detailsHtml;
+                } else {
+                    carDetailsContent.innerHTML = detailsHtml;
+                }
+                carDetailsModal.classList.remove('hidden');
 
                 setTimeout(() => {
                     if (!isNaN(lat) && !isNaN(lng)) {
@@ -696,7 +1063,6 @@ document.addEventListener('alpine:init', () => {
                 }, 100);
 
             } catch (error) {
-                console.error('Error loading car details:', error);
                 coloredToast('danger', t('failed_to_load_car_details') + ': ' + error.message);
             } finally {
                 loadingIndicator.hide();
@@ -732,6 +1098,18 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatPaymentMethod(method) {
+            if (!method) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            const methods = {
+                'montypay': 'MontyPay',
+                'cash': Alpine.store('i18n').t('cash'),
+                'card': Alpine.store('i18n').t('card')
+            };
+            const methodText = methods[method] || method;
+            return `<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">${methodText}</span>`;
+        },
+
+        formatPaymentMethodText(method) {
+            if (!method) return Alpine.store('i18n').t('na');
             const methods = {
                 'montypay': 'MontyPay',
                 'cash': Alpine.store('i18n').t('cash'),
@@ -776,7 +1154,6 @@ document.addEventListener('alpine:init', () => {
         initMap(carId, lat, lng) {
             const mapElement = document.getElementById(`map-${carId}`);
             if (!mapElement) {
-                console.warn('Map element not found for ID:', `map-${carId}`);
                 return;
             }
 
@@ -809,7 +1186,6 @@ document.addEventListener('alpine:init', () => {
         initReturnMap(carId, lat, lng) {
             const mapElement = document.getElementById(`return-map-${carId}`);
             if (!mapElement) {
-                console.warn('Return map element not found for ID:', `return-map-${carId}`);
                 return;
             }
 

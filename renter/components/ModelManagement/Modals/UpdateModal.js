@@ -26,8 +26,7 @@ document.addEventListener('alpine:init', () => {
             if (this.callback && typeof this.callback === 'function') {
                 this.callback(this.modelId, Alpine.store('global').sharedData.fullname2);
             } else {
-                console.error('Callback is not a function:', this.callback);
-            }
+                }
             this.closeModal();
         },
     });

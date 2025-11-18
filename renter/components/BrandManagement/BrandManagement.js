@@ -86,18 +86,11 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.name) queryParams.append('name', this.filters.name);
+                const filters = {
+                    ...this.filters
+                };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getBrands(page, filters);
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {
@@ -119,7 +112,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching brands:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_brands'));
@@ -260,8 +252,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteBrand(brandId) {
+            // Find the brand to get its name
+            const brand = this.tableData.find((b) => b.id == brandId);
+            const brandName = brand?.name || 'this brand';
+
             const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(brandId, () => {
+                Alpine.store('deleteModal').openModal(brandId, brandName, () => {
                     resolve(true);
                 });
             });
@@ -275,19 +271,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/delete/${brandId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_delete_brand'));
-                }
-
+                await ApiService.deleteBrand(brandId);
                 coloredToast('success', Alpine.store('i18n').t('delete_brand_successful'));
                 await this.fetchBrands(this.currentPage);
             } catch (error) {
@@ -335,24 +319,7 @@ document.addEventListener('alpine:init', () => {
                 formData.append('country', this.country);
                 formData.append('image', this.$refs.image.files[0]);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/store`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    const errorMsg =
-                        result.message ||
-                        Object.values(result.errors || {})
-                            .flat()
-                            .join('\n') ||
-                        Alpine.store('i18n').t('failed_to_add_brand');
-                    throw new Error(errorMsg);
-                }
+                await ApiService.addBrand(formData);
 
                 this.name = '';
                 this.country = '';

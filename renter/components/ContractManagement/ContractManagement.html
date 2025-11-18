@@ -5,57 +5,95 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title x-text="$store.i18n.t('contracts_management')"></title>
-        <!-- CSS Libraries -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <!-- JS Libraries -->
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
-    <body class="bg-gray-50 p-6 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-        <div>
-            <ul class="mb-6 flex space-x-2 rtl:space-x-reverse">
+    <body>
+        <!-- Breadcrumb -->
+        <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse">
                 <li>
-                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                    <a href="javascript:;" class="flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                        <svg class="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
                 </li>
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('car_management')"></span>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('cars_management')"></span>
+                    </div>
                 </li>
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('contracts_management')"></span>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('contracts_management')"></span>
+                    </div>
                 </li>
-            </ul>
+            </ol>
+        </nav>
 
-            <div class="pt-5">
-                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
-                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
+                <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div x-data="contractsTable" x-init="initComponent()">
+            <!-- Contracts Table -->
+            <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="mb-5 flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('contracts')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('contracts_management')"></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2" x-show="meta && Object.keys(meta).length > 0">
+                        <span class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:bg-primary/20 dark:text-primary" x-text="$store.i18n.t('total') + ': ' + (meta?.total || 0)"></span>
+                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" x-text="$store.i18n.t('pending') + ': ' + (meta?.pending || 0)"></span>
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" x-text="$store.i18n.t('active') + ': ' + (meta?.active || 0)"></span>
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300" x-text="$store.i18n.t('completed') + ': ' + (meta?.completed || 0)"></span>
                     </div>
                 </div>
 
-                <div x-data="contractsTable" x-init="initComponent()">
-                    <!-- Filters Section -->
-
-                    <div class="panel mt-6">
-                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="ml-2" x-text="$store.i18n.t('loading_data')"></span>
+                <div class="p-6">
+                    <!-- Table Container -->
+                    <div class="table-container">
+                        <!-- Loading State -->
+                        <div id="tableLoading" class="table-loading hidden">
+                            <div class="table-loading-spinner"></div>
+                            <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
                         </div>
-                        <table id="contractsTable" class="whitespace-nowrap"></table>
-                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                        <!-- Table Wrapper -->
+                        <div class="table-wrapper">
+                            <table id="contractsTable" class="whitespace-nowrap"></table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="tableEmptyState" class="empty-state hidden">
+                            <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_contracts')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_contracts_found')"></p>
+                            <h3 class="empty-state-title" x-text="$store.i18n.t('no_contracts')"></h3>
+                            <p class="empty-state-description" x-text="$store.i18n.t('no_contracts_found')"></p>
                         </div>
                     </div>
                 </div>
@@ -63,22 +101,38 @@
         </div>
 
         <!-- Contract Details Modal -->
-        <div id="contractDetailsModal" class="fixed inset-0 z-50 hidden items-center border-b-2 bg-black/60 px-6 py-12 md:px-8 md:py-16">
-            <div
-                class="modal-container mx-auto my-12 flex max-h-[90vh] w-full max-w-5xl flex-col rounded-2xl border-primary bg-white px-6 py-10 shadow-2xl dark:bg-gray-800"
-            >
-                <div class="modal-header sticky top-0 z-10 flex items-center justify-between border-b-2 bg-white p-10 dark:border-gray-700 dark:bg-gray-800">
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('contract_details')"></h3>
-                    <button
-                        type="button"
-                        class="rounded-full p-4 text-2xl font-bold text-gray-500 transition hover:bg-red-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-800 dark:hover:text-white"
-                        onclick="document.getElementById('contractDetailsModal').classList.add('hidden')"
-                    >
-                        ✕
-                    </button>
+        <div id="contractDetailsModal" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/60 px-4 lg:pl-[calc(260px+1rem)] pt-16 lg:pt-4 backdrop-blur-sm">
+            <div class="modal-container relative mx-auto max-h-[calc(90vh-4rem)] w-full max-w-3xl overflow-hidden rounded-2xl border-2 border-primary/20 bg-white shadow-2xl dark:bg-gray-800">
+                <!-- Modal Header -->
+                <div class="modal-header bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('contract_details')"></h5>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('view_contract_information') || 'View contract information'"></p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                            onclick="document.getElementById('contractDetailsModal').classList.add('hidden')"
+                        >
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div id="contractDetailsContent" class="modal-content overflow-y-auto p-10 text-lg md:p-12">
-                    <!-- Contract details will be loaded here -->
+                <!-- Modal Content -->
+                <div class="modal-content max-h-[calc(90vh-80px)] overflow-y-auto p-4">
+                    <div id="contractDetailsContent" class="space-y-4">
+                        <!-- Contract details will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>

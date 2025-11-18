@@ -918,5 +918,20 @@
     "confirm_cancel": "تأكيد الإلغاء",
     "cancel_reason_required": "سبب الإلغاء مطلوب",
     "failed_cancel_withdrawal": "فشل إلغاء عملية السحب",
-    "withdrawal_cancelled_successfully": "تم إلغاء عملية السحب بنجاح"
+    "withdrawal_cancelled_successfully": "تم إلغاء عملية السحب بنجاح",
+    "filter_cars_by_criteria": "فلترة السيارات حسب المعايير",
+    "active_filters": "الفلاتر النشطة",
+    "invalid_coordinates": "إحداثيات غير صحيحة",
+    "permissions_endpoint_not_found": "نقطة نهاية الصلاحيات غير متاحة. يرجى الاتصال بالمسؤول.",
+    "update_role_description": "تحديث معلومات الدور",
+    "feature_not_available": "الميزة غير متاحة",
+    "contact_administrator": "يرجى الاتصال بالمسؤول لتفعيل هذه الميزة.",
+    "update_model_description": "تحديث معلومات الموديل",
+    "update_brand_description": "تحديث معلومات الماركة",
+    "add_year_description": "إضافة سنة جديدة للموديل",
+    "update_year_description": "تحديث معلومات السنة",
+    "delete_year_description": "تأكيد حذف السنة",
+    "booking_status_guide_description": "تعرف على حالات الحجز",
+    "filter_bookings_by_criteria": "فلترة الحجوزات حسب المعايير",
+    "booking_details_description": "عرض معلومات الحجز"
 }

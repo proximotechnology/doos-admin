@@ -126,7 +126,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || 'Invalid response format');
                 }
             } catch (error) {
-                console.error('Error fetching discounts:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -338,7 +337,6 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('discount_updated_successfully'));
                 await this.fetchDiscounts(this.currentPage);
             } catch (error) {
-                console.error('Update error:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -396,7 +394,6 @@ document.addEventListener('alpine:init', () => {
                 );
                 await this.fetchDiscounts(this.currentPage);
             } catch (error) {
-                console.error('Status toggle error:', error);
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
@@ -452,7 +449,6 @@ document.addEventListener('alpine:init', () => {
 
                 this.brands = result.data.data;
             } catch (error) {
-                console.error('Error fetching brands:', error);
                 coloredToast('danger', error.message);
             }
         },
@@ -478,7 +474,6 @@ document.addEventListener('alpine:init', () => {
 
                 this.models = result.data.data;
             } catch (error) {
-                console.error('Error fetching models:', error);
                 coloredToast('danger', error.message);
             }
         },

@@ -42,7 +42,6 @@ document.addEventListener('alpine:init', () => {
 
                 const imageInput = document.querySelector('input[type="file"][x-ref="image"]');
                 if (!imageInput) {
-                    console.error('Image input not found');
                     throw new Error(Alpine.store('i18n').t('image_input_missing'));
                 }
 
@@ -83,7 +82,6 @@ document.addEventListener('alpine:init', () => {
                 await Alpine.store('testimonialTable').refreshTable();
                 this.closeModal();
             } catch (error) {
-                console.error('Update Testimonial Error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_testimonial'));
             } finally {
                 loadingIndicator.hide();

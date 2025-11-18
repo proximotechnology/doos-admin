@@ -59,26 +59,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.showTableLoader();
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    this.showError(Alpine.store('i18n').t('auth_token_missing'));
-                    window.location.href = 'auth-boxed-signin.html';
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_roles'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getRoles();
                 if (data.status && Array.isArray(data.data)) {
                     this.tableData = data.data;
 
@@ -92,7 +73,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching roles:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -105,10 +85,17 @@ document.addEventListener('alpine:init', () => {
             }
 
             const mappedData = this.tableData.map((role, index) => [
-                this.formatText(index + 1),
-                this.formatText(role.name),
+                `<span class="text-sm font-medium text-gray-900 dark:text-white">${index + 1}</span>`,
+                `<div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">${this.formatText(role.name)}</span>
+                </div>`,
                 this.getActionButtons1(role.id, role.permissions_count),
-                this.formatDate(role.created_at),
+                `<span class="text-sm text-gray-600 dark:text-gray-400">${this.formatDate(role.created_at)}</span>`,
                 this.getActionButtons(role.id, role.name),
             ]);
 
@@ -127,9 +114,15 @@ document.addEventListener('alpine:init', () => {
                 perPage: 10,
                 perPageSelect: false,
                 columns: [{ select: 0, sort: 'asc' }],
+                firstLast: true,
+                firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
+                lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
+                prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
+                nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
+                labels: { perPage: '{select}' },
                 layout: {
                     top: '{search}',
-                    bottom: '{info}',
+                    bottom: '{info}{pager}',
                 },
             });
         },
@@ -145,17 +138,16 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(roleId, name) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="btn update-btn btn-warning bg-yellow-500 text-white rounded-md px-3 py-1 hover:bg-yellow-600" data-id="${roleId}" data-name="${name}">
-                        ${Alpine.store('i18n').t('update')}
+                <div class="flex items-center justify-center gap-2">
+                    <button class="table-action-btn table-action-btn-warning update-btn flex items-center gap-1.5" data-id="${roleId}" data-name="${name}" title="${Alpine.store('i18n').t('update')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('update')}</span>
                     </button>
-                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1 hover:bg-red-600" data-id="${roleId}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <button class="table-action-btn table-action-btn-danger delete-btn flex items-center justify-center" data-id="${roleId}" title="${Alpine.store('i18n').t('delete')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>
                 </div>`;
@@ -163,9 +155,12 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons1(roleId, permissionsCount) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="btn permissions-btn btn-primary bg-blue-500 text-white rounded-md px-3 py-1 hover:bg-blue-600" data-id="${roleId}" data-name="${this.tableData.find(r => r.id == roleId)?.name}">
-                        ${permissionsCount}
+                <div class="flex items-center justify-center">
+                    <button class="table-action-btn table-action-btn-primary permissions-btn flex items-center gap-1.5" data-id="${roleId}" data-name="${this.tableData.find(r => r.id == roleId)?.name}" title="${Alpine.store('i18n').t('permissions')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span class="text-xs font-semibold">${permissionsCount}</span>
                     </button>
                 </div>`;
         },
@@ -187,8 +182,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteRole(roleId) {
+            // Find the role to get its name
+            const role = this.tableData.find((r) => r.id == roleId);
+            const roleName = role?.name || 'this role';
+
             const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(roleId, () => {
+                Alpine.store('deleteModal').openModal(roleId, roleName, () => {
                     resolve(true);
                 });
             });
@@ -197,24 +196,8 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles/${roleId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_delete_role'));
-                }
+                await ApiService.deleteRole(roleId);
 
                 coloredToast('success', Alpine.store('i18n').t('role_deleted_successfully'));
                 await this.fetchRoles();
@@ -248,28 +231,11 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_missing'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name: this.name,
-                        guard_name: this.guard_name
-                    }),
+                await ApiService.addRole({
+                    name: this.name,
+                    guard_name: this.guard_name
                 });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    const errorMsg = result.message || Object.values(result.errors || {}).flat().join('\n') || Alpine.store('i18n').t('failed_to_add_role');
-                    throw new Error(errorMsg);
-                }
 
                 this.name = '';
                 this.guard_name = 'sanctum';

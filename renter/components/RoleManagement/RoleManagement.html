@@ -6,7 +6,7 @@
         <title x-text="$store.i18n.t('roles_management')"></title>
     </head>
     <body>
-        <ul class="flex space-x-2 rtl:space-x-reverse">
+        <ul class="mb-6 flex space-x-2 rtl:space-x-reverse">
             <li>
                 <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
             </li>
@@ -22,46 +22,108 @@
                     <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
                 </div>
             </div>
-            <div class="mb-6 grid gap-6 xl:grid-cols-1">
-                <div class="panel h-full">
-                    <div class="mb-5 flex items-center">
-                        <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('add_role')"></h5>
-                    </div>
-                    <div class="overflow-hidden">
-                        <!-- form grid -->
-                        <form x-data="Add_Role" @submit.prevent="addRole">
-                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                <input type="text" :placeholder="$store.i18n.t('enter_role_name')" class="form-input" x-model="name" required />
-                                <select class="form-select" x-model="guard_name" required>
-                                    <option value="sanctum" x-text="$store.i18n.t('Admin')"></option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-6">
-                                <span x-text="$store.i18n.t('create')"></span>
-                            </button>
-                        </form>
+
+            <!-- Add Role Form -->
+            <div class="panel mb-6 overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('add_role')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('add_role') + ' ' + $store.i18n.t('roles')"></p>
+                        </div>
                     </div>
                 </div>
+                <div class="p-6">
+                    <form x-data="Add_Role" @submit.prevent="addRole">
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('role_name')"></span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    :placeholder="$store.i18n.t('enter_role_name')" 
+                                    class="form-input" 
+                                    x-model="name" 
+                                    required 
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('guard_name')"></span>
+                                </label>
+                                <div class="relative">
+                                    <select class="form-select pr-10" x-model="guard_name" required>
+                                        <option value="sanctum" x-text="$store.i18n.t('sanctum')"></option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" class="btn btn-primary flex items-center gap-2">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span x-text="$store.i18n.t('create')"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
+
+            <!-- Roles Table -->
             <div x-data="roleTable" x-init="fetchRoles()">
-                <div class="panel mt-6">
-                    <h5 class="mb-5 text-lg font-semibold dark:text-white-light md:absolute md:top-[25px] md:mb-0" x-text="$store.i18n.t('roles')"></h5>
-                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                        <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                    <div class="mb-5 flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('roles')"></h5>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('roles_management')"></p>
+                            </div>
+                        </div>
                     </div>
-                    <table id="rolesTable" class="whitespace-nowrap"></table>
-                    <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_roles')"></h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_roles_found')"></p>
+
+                    <div class="table-container">
+                        <div id="tableLoading" class="table-loading hidden">
+                            <div class="table-loading-spinner"></div>
+                            <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table id="rolesTable" class="whitespace-nowrap"></table>
+                        </div>
+                        <div id="tableEmptyState" class="empty-state hidden">
+                            <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h3 class="empty-state-title" x-text="$store.i18n.t('no_roles')"></h3>
+                            <p class="empty-state-description" x-text="$store.i18n.t('no_roles_found')"></p>
+                        </div>
                     </div>
                 </div>
             </div>

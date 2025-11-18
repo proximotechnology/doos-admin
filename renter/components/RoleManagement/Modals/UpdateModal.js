@@ -46,29 +46,11 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles/${this.roleId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name: Alpine.store('global').sharedData.name,
-                        guard_name: Alpine.store('global').sharedData.guard_name
-                    }),
+                await ApiService.updateRole(this.roleId, {
+                    name: Alpine.store('global').sharedData.name,
+                    guard_name: Alpine.store('global').sharedData.guard_name || 'sanctum'
                 });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_role'));
-                }
 
                 coloredToast('success', Alpine.store('i18n').t('role_updated_successfully'));
                 await Alpine.store('roleTable').refreshTable();

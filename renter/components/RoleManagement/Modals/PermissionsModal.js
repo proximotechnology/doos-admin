@@ -18,8 +18,8 @@ document.addEventListener('alpine:init', () => {
         async openModal(roleId, roleName) {
             this.roleId = roleId;
             this.roleName = roleName;
-            await this.fetchPermissions();
             this.isOpen = true;
+            await this.fetchPermissions();
         },
 
         closeModal() {
@@ -32,31 +32,21 @@ document.addEventListener('alpine:init', () => {
         async fetchPermissions() {
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles/${this.roleId}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_permissions'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getRolePermissions(this.roleId);
                 if (data.status && data.permissions) {
                     this.permissions = data.permissions;
+                } else if (data.status && Array.isArray(data.data)) {
+                    this.permissions = data.data;
+                } else if (data.status && Array.isArray(data)) {
+                    // Handle direct array response
+                    this.permissions = data;
                 } else {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_permissions'));
+                this.closeModal();
             } finally {
                 loadingIndicator.hide();
             }
@@ -65,32 +55,27 @@ document.addEventListener('alpine:init', () => {
         async togglePermission(permissionId, isChecked) {
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+
+                // Get current permission IDs
+                const currentPermissionIds = this.permissions
+                    .filter(p => p.granted || (p.id === permissionId && isChecked))
+                    .map(p => p.id);
+
+                // If unchecking, remove from array
+                if (!isChecked) {
+                    const index = currentPermissionIds.indexOf(permissionId);
+                    if (index > -1) {
+                        currentPermissionIds.splice(index, 1);
+                    }
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/permissions/role`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        role_id: this.roleId,
-                        permission_id: permissionId
-                    }),
-                });
-
-                const result = await response.json();
-
+                const result = await ApiService.assignPermissionsToRole(this.roleId, currentPermissionIds);
 
                 const permission = this.permissions.find(p => p.id === permissionId);
                 if (permission) {
                     permission.granted = isChecked;
                 }
-                coloredToast('success', result.message);
+                coloredToast('success', result.message || Alpine.store('i18n').t('permission_updated_successfully'));
                 await Alpine.store('roleTable').refreshTable();
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_update_permission'));

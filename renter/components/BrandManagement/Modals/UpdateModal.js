@@ -100,7 +100,6 @@ document.addEventListener('alpine:init', () => {
                 await Alpine.store('brandTable').refreshTable();
                 this.closeModal();
             } catch (error) {
-                console.error('Update Brand Error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_brand'));
             } finally {
                 loadingIndicator.hide();

@@ -110,7 +110,6 @@ document.addEventListener('alpine:init', () => {
                     loadingIndicator.showEmptyState();
                 }
             } catch (error) {
-                console.error('Error fetching reviews:', error);
                 coloredToast('danger', Alpine.store('i18n').t('failed_load_reviews'));
                 loadingIndicator.showEmptyState();
             }
@@ -130,8 +129,7 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
                 this.cars = data.data.data || [];
             } catch (error) {
-                console.error('Error fetching cars:', error);
-            }
+                }
         },
 
         filterReviews() {
@@ -240,7 +238,6 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('success', Alpine.store('i18n').t('review_deleted_success'));
                 await this.fetchReviews();
             } catch (error) {
-                console.error('Delete error:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_review'));
             }
         },

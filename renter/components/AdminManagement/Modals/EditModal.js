@@ -54,7 +54,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching roles for edit:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_roles'));
             }
         },

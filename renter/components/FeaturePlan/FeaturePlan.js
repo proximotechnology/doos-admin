@@ -135,7 +135,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('failed_to_load_features'));
                 }
             } catch (error) {
-                console.error('Error fetching features:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load_features') + ': ' + error.message);

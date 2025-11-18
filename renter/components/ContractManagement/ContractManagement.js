@@ -69,16 +69,27 @@ document.addEventListener('alpine:init', () => {
             await this.fetchContracts(1);
 
             // Event Delegation for buttons
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.view-contract-btn')) {
-                    const contractId = e.target.closest('.view-contract-btn').dataset.id;
-                    this.showContractDetails(contractId);
-                }
-                if (e.target.closest('.pagination-btn')) {
-                    const page = e.target.closest('.pagination-btn').dataset.page;
-                    this.fetchContracts(page);
-                }
-            });
+            if (!this._listenersAttached) {
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.view-contract-btn')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const btn = e.target.closest('.view-contract-btn');
+                        const contractId = btn.dataset.id;
+                        console.log('View contract clicked, contractId:', contractId);
+                        if (contractId) {
+                            this.showContractDetails(contractId);
+                        }
+                    }
+                    if (e.target.closest('.pagination-btn')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const page = e.target.closest('.pagination-btn').dataset.page;
+                        this.fetchContracts(page);
+                    }
+                });
+                this._listenersAttached = true;
+            }
         },
 
         async fetchContracts(page = 1) {
@@ -142,7 +153,6 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                console.error('Error fetching contracts:', error);
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load') + ': ' + error.message);
@@ -231,36 +241,82 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatCarInfo(car) {
-            if (!car) return Alpine.store('i18n').t('na');
+            if (!car) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            
+            let firstImage = car.car_image && car.car_image.length > 0
+                ? car.car_image[0].image
+                : 'assets/images/default-car.png';
+
+            const defaultImage = '/assets/images/default-car.png';
+
+            // Normalize image path
+            if (firstImage) {
+                if (firstImage.startsWith('http://') || firstImage.startsWith('https://')) {
+                    // Keep as is
+                } else if (firstImage.startsWith('assets/')) {
+                    firstImage = '/' + firstImage;
+                } else if (firstImage.startsWith('./')) {
+                    firstImage = '/' + firstImage.substring(2);
+                } else {
+                    firstImage = '/' + firstImage;
+                }
+            }
+
+            const cleanImage = firstImage.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const escapedMake = (car.make || 'Car').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const escapedYear = car.years?.year ? String(car.years.year).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : (car.model_year_id ? String(car.model_year_id).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'N/A');
+
             return `
-                        <div class="flex items-center w-max" x-data="{ imgError: false }">
-                   
-                            ${car.make || 'Car'} (${car.model_year_id || 'N/A'})
-                        </div>`;
+                <div class="flex items-center gap-1.5 min-w-0 max-w-[200px]">
+                    <img class="w-8 h-8 rounded flex-shrink-0 object-cover border border-gray-200 dark:border-gray-700"
+                        src="${cleanImage}"
+                        alt="${escapedMake}"
+                        onerror="this.onerror=null; this.src='${defaultImage}';"
+                        loading="lazy"
+                        width="32"
+                        height="32"
+                        style="display: block; min-width: 32px; min-height: 32px;" />
+                    <span class="text-xs font-normal text-gray-900 dark:text-white truncate" style="max-width: 150px;" title="${escapedMake} (${escapedYear})">${escapedMake} (${escapedYear})</span>
+                </div>`;
         },
 
         formatDate(dateString) {
-            if (!dateString) return Alpine.store('i18n').t('na');
-            return new Date(dateString).toLocaleDateString();
+            if (!dateString) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            const date = new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' });
+            return `<span class="text-sm font-normal text-gray-900 dark:text-white">${date}</span>`;
         },
 
         formatStatus(status) {
-            const statusClass = `status-${status}`;
-            const statusText = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'N/A';
-            return `<span class="status-badge ${statusClass}">${Alpine.store('i18n').t(status)}</span>`;
+            if (!status) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            
+            const statusColors = {
+                'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+                'active': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                'completed': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            };
+            
+            const statusClass = statusColors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            
+            return `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}">${Alpine.store('i18n').t(status) || status}</span>`;
         },
 
         formatText(text) {
-            return text || Alpine.store('i18n').t('na');
+            if (!text) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            return `<span class="text-sm font-normal text-gray-900 dark:text-white">${text}</span>`;
         },
 
         getActionButtons(contractId) {
             return `
-                        <div class="flex items-center gap-1">
-                            <button class="btn view-contract-btn btn-primary btn-sm" data-id="${contractId}">
-                                ${Alpine.store('i18n').t('view_details')}
-                            </button>
-                        </div>`;
+                <div class="flex items-center gap-1">
+                    <button class="view-contract-btn table-action-btn btn btn-primary btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${contractId}" title="${Alpine.store('i18n').t('view_details')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('view_details')}</span>
+                    </button>
+                </div>`;
         },
 
         async showContractDetails(contractId) {
@@ -275,8 +331,7 @@ document.addEventListener('alpine:init', () => {
                 try {
                     contractItems = JSON.parse(contract.contract_items || '[]');
                 } catch (e) {
-                    console.warn('Failed to parse contract items:', e);
-                }
+                    }
 
                 const contractItemsHtml = contractItems.length > 0 ? `
                             <div class="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
@@ -355,38 +410,211 @@ document.addEventListener('alpine:init', () => {
                             </div>
                         ` : '';
 
-                const detailsHtml = `
-                            <div class="space-y-6 text-base">
-                                <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                                    <h4 class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-300">${Alpine.store('i18n').t('contract_info')}</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('contract_id')}:</span>
-                                            <span class="font-medium text-blue-900 dark:text-white text-base">${contract.id || 'N/A'}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('created_at')}:</span>
-                                            <span class="font-medium text-blue-900 dark:text-white text-base">${new Date(contract.created_at).toLocaleDateString() || 'N/A'}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-blue-700 dark:text-blue-200 text-base">${Alpine.store('i18n').t('status')}:</span>
-                                            <span class="font-medium ${contract.status === 'active' ? 'text-green-600' : contract.status === 'pending' ? 'text-yellow-600' : 'text-blue-600'} text-base">
-                                                ${Alpine.store('i18n').t(contract.status)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ${contractItemsHtml}
-                                ${bookingDetailsHtml}
-                                ${ownerInfoHtml}
-                                ${renterInfoHtml}
+                // Hero Section
+                const car = contract.booking?.car;
+                const heroImage = car?.car_image && car.car_image.length > 0 ? car.car_image[0].image : '/assets/images/default-car.png';
+                const heroHtml = `
+                    <div class="relative h-32 w-full overflow-hidden rounded-t-xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent">
+                        <img src="${heroImage}" alt="${car?.make || 'Car'}" 
+                             class="h-full w-full object-cover opacity-30"
+                             onerror="this.src='/assets/images/default-car.png';">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <div class="text-center">
+                                <h2 class="text-lg font-bold text-white">${car?.make || 'Car'} ${car?.model ? `(${car.model.name || ''})` : ''}</h2>
+                                <p class="text-sm text-white/80">${car?.years?.year || 'N/A'}</p>
                             </div>
-                        `;
+                        </div>
+                    </div>
+                `;
 
-                document.getElementById('contractDetailsContent').innerHTML = detailsHtml;
-                document.getElementById('contractDetailsModal').classList.remove('hidden');
+                // Quick Stats
+                const quickStatsHtml = `
+                    <div class="grid grid-cols-2 gap-2 px-4 pt-4">
+                        <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-xs font-medium text-blue-600 dark:text-blue-400">${Alpine.store('i18n').t('status')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${Alpine.store('i18n').t(contract.status) || contract.status}</p>
+                        </div>
+                        <div class="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
+                            <div class="mb-1 flex items-center gap-2">
+                                <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-xs font-medium text-green-600 dark:text-green-400">${Alpine.store('i18n').t('created_at')}</span>
+                            </div>
+                            <p class="text-sm font-normal text-black dark:text-white">${new Date(contract.created_at).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Contract Info Card
+                const contractInfoCard = `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('contract_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('contract_id')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">#${contract.id || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('status')}</span>
+                                <span class="text-sm font-normal ${contract.status === 'active' ? 'text-green-600' : contract.status === 'pending' ? 'text-yellow-600' : 'text-blue-600'}">${Alpine.store('i18n').t(contract.status) || contract.status}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('created_at')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${new Date(contract.created_at).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Contract Terms Card
+                const contractTermsCard = contractItems.length > 0 ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('contract_terms')}</h3>
+                        </div>
+                        <div class="space-y-2">
+                            ${contractItems.map(item => `
+                                <div class="flex items-start gap-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                                    <svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-sm font-normal text-black dark:text-white">${item.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+                // Booking Details Card
+                const bookingDetailsCard = contract.booking ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('booking_details')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('date_from')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${new Date(contract.booking.date_from).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('date_to')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${new Date(contract.booking.date_end).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('with_driver')}</span>
+                                <span class="text-sm font-normal ${contract.booking.with_driver === '1' ? 'text-green-600' : 'text-red-600'}">${contract.booking.with_driver === '1' ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('total_price')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${parseFloat(contract.booking.total_price || 0).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'USD'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // Owner Info Card
+                const ownerInfoCard = contract.booking?.car?.owner ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('owner_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('name')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${contract.booking.car.owner.name || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('email')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white break-all">${contract.booking.car.owner.email || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('phone')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${contract.booking.car.owner.phone || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // Renter Info Card
+                const renterInfoCard = contract.booking?.user ? `
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="mb-4 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('renter_info')}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('name')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${contract.booking.user.name || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('email')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white break-all">${contract.booking.user.email || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('phone')}</span>
+                                <span class="text-sm font-normal text-black dark:text-white">${contract.booking.user.phone || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                const detailsHtml = `
+                    <div class="space-y-4">
+                        ${heroHtml}
+                        ${quickStatsHtml}
+                        <div class="grid grid-cols-1 gap-4 px-4">
+                            ${contractInfoCard}
+                            ${contractTermsCard}
+                            ${bookingDetailsCard}
+                            ${ownerInfoCard}
+                            ${renterInfoCard}
+                        </div>
+                    </div>
+                `;
+
+                const contractDetailsContent = document.getElementById('contractDetailsContent');
+                const contractDetailsModal = document.getElementById('contractDetailsModal');
+                
+                if (!contractDetailsContent || !contractDetailsModal) {
+                    throw new Error('Modal elements not found');
+                }
+
+                contractDetailsContent.innerHTML = detailsHtml;
+                contractDetailsModal.classList.remove('hidden');
             } catch (error) {
-                console.error('Error in showContractDetails:', error);
                 coloredToast('danger', Alpine.store('i18n').t('failed_to_load_details') + ': ' + error.message);
             } finally {
                 loadingIndicator.hide();
