@@ -170,35 +170,45 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatText(text) {
-            return text || 'N/A';
+            if (!text) return `<span class="text-sm text-gray-500 dark:text-gray-400">${Alpine.store('i18n').t('na')}</span>`;
+            return `<span class="text-sm font-normal text-gray-900 dark:text-white">${String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
         },
         formatActiveStatus(isActive) {
-            return isActive == 1
-                ? '<span class="badge bg-success">' + Alpine.store('i18n').t('active') + '</span>'
-                : '<span class="badge bg-danger">' + Alpine.store('i18n').t('inactive') + '</span>';
+            if (isActive == 1) {
+                return `<span class="badge badge-success">${Alpine.store('i18n').t('active')}</span>`;
+            } else {
+                return `<span class="badge badge-danger">${Alpine.store('i18n').t('inactive')}</span>`;
+            }
         },
 
         getActionButtons(planId, name, price, car_limite, count_day, isActive) {
             return `
-    <div class="flex items-center  gap-1">
-        <button class="btn update-btn btn-warning rounded-pill" 
-                data-id="${planId}"
-                data-name="${name}"
-                data-price="${price}"
-                data-car_limite="${car_limite}"
-                data-count_day="${count_day}">
-            ${Alpine.store('i18n').t('update')}
-        </button>
-        
-        
-        <button class="btn toggle-active-btn ${isActive == 1 ? 'btn-outline-warning' : 'btn-outline-success'} rounded-pill px-3" 
-                data-id="${planId}"
-                data-active="${isActive}"
-                title="${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}">
-            <i class="bi ${isActive == 1 ? 'bi-x-circle' : 'bi-check-circle'} me-1"></i> 
-            ${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}
-        </button>
-    </div>`;
+                <div class="flex items-center gap-1">
+                    <button class="update-btn table-action-btn btn btn-warning btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                            data-id="${planId}"
+                            data-name="${name}"
+                            data-price="${price}"
+                            data-car_limite="${car_limite}"
+                            data-count_day="${count_day}"
+                            title="${Alpine.store('i18n').t('update')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('update')}</span>
+                    </button>
+                    <button class="toggle-active-btn table-action-btn btn btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90 ${isActive == 1 ? 'btn-danger' : 'btn-success'}" 
+                            data-id="${planId}"
+                            data-active="${isActive}"
+                            title="${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            ${isActive == 1 
+                                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />'
+                                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />'
+                            }
+                        </svg>
+                        <span class="text-xs">${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}</span>
+                    </button>
+                </div>`;
         },
 
 

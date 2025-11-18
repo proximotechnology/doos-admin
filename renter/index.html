@@ -654,7 +654,46 @@
         <script src="components/Header/Header.js"></script>
         <script src="components/Sidebar/Sidebar.js"></script>
         <script src="components/ThemeCustomizer/ThemeCustomizer.js"></script>
-        <script src="components/BookingManagement/MainLayout.js"></script>
+        
+        <!-- Component Loader System -->
+        <script src="../assets/js/component-loader.js"></script>
+        <script src="../assets/js/component-registry.js"></script>
+        
+        <!-- Main Layout Loader -->
+        <script>
+            document.addEventListener('DOMContentLoaded', async function () {
+                async function waitForComponentLoader() {
+                    return new Promise((resolve) => {
+                        if (window.ComponentLoader && typeof window.ComponentLoader.loadStandardLayout === 'function') {
+                            resolve(window.ComponentLoader);
+                            return;
+                        }
+                        const checkInterval = setInterval(() => {
+                            if (window.ComponentLoader && typeof window.ComponentLoader.loadStandardLayout === 'function') {
+                                clearInterval(checkInterval);
+                                resolve(window.ComponentLoader);
+                            }
+                        }, 50);
+                        setTimeout(() => {
+                            clearInterval(checkInterval);
+                            resolve(null);
+                        }, 5000);
+                    });
+                }
+
+                const loader = await waitForComponentLoader();
+                
+                if (loader) {
+                    await loader.loadStandardLayout({
+                        header: { path: 'components/Header/Header.html', container: 'header-container' },
+                        sidebar: { path: 'components/Sidebar/Sidebar.html', container: 'sidebar-container' },
+                        themeCustomizer: { path: 'components/ThemeCustomizer/ThemeCustomizer.html', container: 'theme-customizer-container' }
+                    });
+                } else {
+                    console.error('ComponentLoader not available');
+                }
+            });
+        </script>
 
         <script>
             document.addEventListener('alpine:init', () => {
