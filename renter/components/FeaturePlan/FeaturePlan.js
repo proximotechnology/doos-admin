@@ -261,57 +261,37 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('Feature not found');
                 }
 
-                const { value: formValues } = await Swal.fire({
-                    title: Alpine.store('i18n').t('edit_feature'),
-                    html: `
-                        <div class="text-left">
-                            <label class="block mb-2 text-sm font-medium">${Alpine.store('i18n').t('plan')}</label>
-                            <select id="planId" class="swal2-select w-full p-2 border rounded mb-4" required>
-                                <option value="" disabled>${Alpine.store('i18n').t('select_plan')}</option>
-                                ${this.plans.map(plan => `
-                                    <option value="${plan.id}" ${plan.id == feature.plan_id ? 'selected' : ''}>${plan.name}</option>
-                                `).join('')}
-                            </select>
-                            <label class="block mb-2 text-sm font-medium">${Alpine.store('i18n').t('feature')}</label>
-                            <textarea id="featureText" class="swal2-textarea w-full p-2 border rounded" rows="4" placeholder="${Alpine.store('i18n').t('enter_feature_text')}">${feature.feature}</textarea>
-                        </div>
-                    `,
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    confirmButtonText: Alpine.store('i18n').t('save'),
-                    cancelButtonText: Alpine.store('i18n').t('cancel'),
-                    preConfirm: () => {
-                        const planId = document.getElementById('planId').value;
-                        const featureText = document.getElementById('featureText').value;
-                        if (!planId || !featureText.trim()) {
-                            Swal.showValidationMessage(Alpine.store('i18n').t('feature_and_plan_required'));
-                            return false;
+                const updateConfirmed = await new Promise((resolve) => {
+                    Alpine.store('updateModal').openModal(featureId, feature, this.plans, (id, formValues) => {
+                        if (formValues && formValues.plan_id && formValues.feature.trim()) {
+                            resolve(formValues);
+                        } else {
+                            resolve(null);
                         }
-                        return { plan_id: planId, feature: featureText.trim() };
-                    }
+                    });
                 });
 
-                if (formValues) {
-                    loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/update/${featureId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify(formValues)
-                    });
+                if (!updateConfirmed) return;
 
-                    const result = await response.json();
+                loadingIndicator.show();
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/update/${featureId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(updateConfirmed)
+                });
 
-                    if (response.ok && result.status) {
-                        coloredToast('success', Alpine.store('i18n').t('feature_updated_successfully'));
-                        await this.fetchFeatures(this.currentPage);
-                    } else {
-                        throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_feature'));
-                    }
+                const result = await response.json();
+
+                if (response.ok && result.status) {
+                    coloredToast('success', Alpine.store('i18n').t('feature_updated_successfully'));
+                    await this.fetchFeatures(this.currentPage);
+                } else {
+                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_feature'));
                 }
             } catch (error) {
                 coloredToast('danger', error.message);

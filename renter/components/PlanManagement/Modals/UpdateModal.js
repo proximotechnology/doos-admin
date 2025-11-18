@@ -1,8 +1,9 @@
 document.addEventListener('alpine:init', () => {
     Alpine.store('updateModal', {
-        apiBaseUrl: API_CONFIG.BASE_URL_Renter, // Ensure API_CONFIG is defined
+        apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         managerId: null,
         callback: null,
+        isOpen: false,
 
         openModal(id, callback) {
             this.managerId = id;
@@ -12,6 +13,8 @@ document.addEventListener('alpine:init', () => {
 
         closeModal() {
             this.isOpen = false;
+            this.managerId = null;
+            this.callback = null;
         },
 
         confirmUpdate() {
@@ -21,5 +24,4 @@ document.addEventListener('alpine:init', () => {
             this.closeModal();
         },
     });
-
 });

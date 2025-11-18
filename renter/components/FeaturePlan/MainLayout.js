@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             themeCustomizer: { path: 'components/ThemeCustomizer/ThemeCustomizer.html', container: 'theme-customizer-container' },
             main: { path: 'components/FeaturePlan/FeaturePlan.html', container: 'feature-plan-management-container', loadScript: false }
         });
+        
+        // Load modals
+        await loader.load('components/FeaturePlan/Modals/UpdateModal.html', 'update-modal-container', { loadScript: false });
+        await loader.load('components/FeaturePlan/Modals/DeleteModal.html', 'delete-modal-container', { loadScript: false });
     } else {
         // Fallback to old method
         console.error('ComponentLoader not available, using fallback');
