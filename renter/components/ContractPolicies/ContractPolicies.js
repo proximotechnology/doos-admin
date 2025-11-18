@@ -51,7 +51,6 @@ document.addEventListener('alpine:init', () => {
                         e.stopPropagation();
                         const btn = e.target.closest('.edit-policy-btn');
                         const policyId = btn.dataset.id;
-                        console.log('Edit policy clicked, policyId:', policyId);
                         if (policyId) {
                             this.editPolicy(policyId);
                         }
@@ -61,7 +60,6 @@ document.addEventListener('alpine:init', () => {
                         e.stopPropagation();
                         const btn = e.target.closest('.delete-policy-btn');
                         const policyId = btn.dataset.id;
-                        console.log('Delete policy clicked, policyId:', policyId);
                         if (policyId) {
                             this.deletePolicy(policyId);
                         }
@@ -89,19 +87,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/get_all`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_policies'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getContractPolicies();
                 if (data.status === 'success' && Array.isArray(data.data)) {
                     this.allTableData = data.data;
                     this.paginationMeta.total = this.allTableData.length;
@@ -215,18 +201,8 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ item: this.form.item })
-                });
-
-                const result = await response.json();
-                if (response.ok && result.status === 'success') {
+                const result = await ApiService.addContractPolicy({ item: this.form.item });
+                if (result.status === 'success') {
                     coloredToast('success', Alpine.store('i18n').t('policy_added_successfully'));
                     this.resetForm();
                     await this.fetchPolicies();
@@ -274,19 +250,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (item) {
                     loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/update/${policyId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ item })
-                    });
-
-                    const result = await response.json();
-                    if (response.ok && result.status === 'success') {
+                    const result = await ApiService.updateContractPolicy(policyId, { item });
+                    if (result.status === 'success') {
                         coloredToast('success', Alpine.store('i18n').t('policy_updated_successfully'));
                         await this.fetchPolicies();
                     } else {
@@ -330,17 +295,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (result.isConfirmed) {
                     loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/contract_polices/destroy/${policyId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        }
-                    });
-
-                    const data = await response.json();
-                    if (response.ok && data.status === 'success') {
+                    const data = await ApiService.deleteContractPolicy(policyId);
+                    if (data.status === 'success') {
                         coloredToast('success', Alpine.store('i18n').t('policy_deleted_successfully'));
                         await this.fetchPolicies();
                     } else {

@@ -250,7 +250,6 @@ function placeMarkerAndPanTo(latLng, map, marker, inputId) {
 function loadGoogleMapsAPI(mapElementId, editMapElementId, component, modalComponent) {
     // Check if API_CONFIG is available
     if (typeof API_CONFIG === 'undefined' || !API_CONFIG.GOOGLE_MAPS_API_KEY) {
-        console.error('Google Maps API key not found. Please check your configuration.');
         showMapError(mapElementId, editMapElementId);
         return;
     }
@@ -291,7 +290,6 @@ function loadGoogleMapsAPI(mapElementId, editMapElementId, component, modalCompo
         }, 100);
     };
     script.onerror = (error) => {
-        console.error('Failed to load Google Maps API:', error);
         showMapError(mapElementId, editMapElementId);
     };
     document.head.appendChild(script);
@@ -349,24 +347,11 @@ document.addEventListener('alpine:init', () => {
                 if (!modalComponent) return;
 
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/admin/black_location/update/${blackLocationId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        address: modalComponent.blackLocationData.address,
-                        lat: modalComponent.blackLocationData.lat,
-                        lang: modalComponent.blackLocationData.lang,
-                    }),
+                const data = await ApiService.updateBlackLocation(blackLocationId, {
+                    address: modalComponent.blackLocationData.address,
+                    lat: modalComponent.blackLocationData.lat,
+                    lang: modalComponent.blackLocationData.lang,
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || Alpine.store('i18n').t('failed_update_black_location'));
-                }
 
                 coloredToast('success', Alpine.store('i18n').t('black_location_updated_success'));
                 modalComponent.open = false;
@@ -437,29 +422,16 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/black_location/index?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_black_locations'));
-                }
-
-                const data = await response.json();
-                if (data.success && Array.isArray(data.data)) {
+                const data = await ApiService.getBlackLocations(page);
+                if (data.status && Array.isArray(data.data)) {
                     this.tableData = data.data;
                     this.paginationMeta = {
-                        current_page: data.pagination.current_page || 1,
-                        last_page: data.pagination.last_page || 1,
-                        per_page: data.pagination.per_page || 10,
-                        total: data.pagination.total || 0,
-                        from: data.pagination.from || 0,
-                        to: data.pagination.to || 0,
+                        current_page: data.pagination?.current_page || 1,
+                        last_page: data.pagination?.last_page || 1,
+                        per_page: data.pagination?.per_page || 10,
+                        total: data.pagination?.total || 0,
+                        from: data.pagination?.from || 0,
+                        to: data.pagination?.to || 0,
                         links: []
                     };
 
@@ -606,15 +578,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/black_location/delete/${blackLocationId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_black_location'));
+                await ApiService.deleteBlackLocation(blackLocationId);
 
                 coloredToast('success', Alpine.store('i18n').t('black_location_deleted_success'));
                 await this.fetchBlackLocations(this.currentPage);
@@ -677,25 +641,11 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_missing'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/black_location/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        address: this.address,
-                        lat: this.lat,
-                        lang: this.lang,
-                    }),
+                await ApiService.addBlackLocation({
+                    address: this.address,
+                    lat: this.lat,
+                    lang: this.lang,
                 });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    const errorMsg = result.message || Object.values(result.errors || {}).flat().join('\n') || Alpine.store('i18n').t('error_create_black_location');
-                    throw new Error(errorMsg);
-                }
 
                 this.address = '';
                 this.lat = '';

@@ -76,19 +76,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/all`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_admins'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getAdmins();
                 if (data.status && Array.isArray(data.data)) {
                     this.admins = data.data;
                     loadingIndicator.hideTableLoader();

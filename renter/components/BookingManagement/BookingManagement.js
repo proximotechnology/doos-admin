@@ -96,7 +96,6 @@ document.addEventListener('alpine:init', () => {
                         e.stopPropagation();
                         const btn = e.target.closest('.view-car-btn');
                         const bookingId = btn.dataset.id;
-                        console.log('View details clicked, bookingId:', bookingId);
                         if (bookingId) {
                             this.showCarDetails(bookingId);
                         }
@@ -150,27 +149,12 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                // Build query string from filters
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.status) queryParams.append('status', this.filters.status);
-                if (this.filters.date_from) queryParams.append('date_from', this.filters.date_from);
-                if (this.filters.date_to) queryParams.append('date_to', this.filters.date_to);
+                const filters = {};
+                if (this.filters.status) filters.status = this.filters.status;
+                if (this.filters.date_from) filters.date_from = this.filters.date_from;
+                if (this.filters.date_to) filters.date_to = this.filters.date_to;
 
-                const url = `${this.apiBaseUrl}/api/admin/cars/booking/get_all_filter?${queryParams.toString()}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_load'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getBookings(page, filters);
 
                 if (data.status && Array.isArray(data.data)) {
                     this.tableData = data.data;
@@ -411,23 +395,17 @@ document.addEventListener('alpine:init', () => {
 
         async showCarDetails(bookingId) {
             try {
-                console.log('showCarDetails called with bookingId:', bookingId, 'type:', typeof bookingId);
-                console.log('tableData length:', this.tableData.length);
-                
                 loadingIndicator.show();
 
                 // Convert bookingId to number for comparison
                 const id = parseInt(bookingId);
                 const booking = this.tableData.find(b => b.id === id || b.id == id);
-                console.log('Found booking:', booking);
                 
                 if (!booking) {
-                    console.error('Booking not found for id:', id);
                     throw new Error(Alpine.store('i18n').t('car_details_not_found'));
                 }
                 
                 if (!booking.car) {
-                    console.error('Car not found in booking:', booking);
                     throw new Error(Alpine.store('i18n').t('car_details_not_found'));
                 }
 
@@ -1253,21 +1231,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (status) {
                     loadingIndicator.show();
-
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/booking/change_status_admin/${bookingId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ status })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
+                    const result = await ApiService.changeBookingStatus(bookingId, status);
+                    if (result.status === 'success' || result.success) {
                         coloredToast('success', Alpine.store('i18n').t('booking_updated_successfully'));
                         await this.fetchBookings(this.currentPage);
                     } else {
@@ -1301,21 +1266,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (isPaid !== undefined) {
                     loadingIndicator.show();
-
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/booking/change_is_paid/${bookingId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ is_paid: isPaid })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
+                    const result = await ApiService.changeBookingPaymentStatus(bookingId, isPaid);
+                    if (result.status === 'success' || result.success) {
                         coloredToast('success', Alpine.store('i18n').t('booking_updated_successfully'));
                         await this.fetchBookings(this.currentPage);
                     } else {

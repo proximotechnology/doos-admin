@@ -84,14 +84,12 @@
                     }
                 }
                 
-                // Always log errors to console for debugging
-                console.group(`❌ API Error: ${method} ${endpoint}`);
-                console.error('Status:', response.status, response.statusText);
-                console.error('Request Data:', requestData);
-                console.error('Error Data:', errorData);
-                console.error('Field Errors:', errorData.errors || {});
-                console.error('Formatted Message:', errorMessage);
-                console.groupEnd();
+                // Log API errors
+                console.log(`[API Error] ${method} ${endpoint}:`, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    message: errorMessage
+                });
                 
                 throw new Error(errorMessage);
             }
@@ -114,6 +112,7 @@
                 }
             });
 
+            console.log(`[API] GET ${endpoint}`, params);
             const response = await fetch(url.toString(), {
                 method: 'GET',
                 headers: this.getHeaders(includeAuth),
@@ -129,20 +128,8 @@
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
             
-            // Always log request data for debugging
-            console.group(`📤 API Request: POST ${endpoint}`);
-            if (isFormData) {
-                console.log('FormData:', data);
-                // Log FormData entries
-                if (data instanceof FormData) {
-                    for (const [key, value] of data.entries()) {
-                        console.log(`  ${key}:`, value instanceof File ? `[File: ${value.name}, size: ${value.size} bytes]` : value);
-                    }
-                }
-            } else {
-                console.log('Request Data:', data);
-            }
-            console.groupEnd();
+            // Log API request
+            console.log(`[API] POST ${endpoint}`, isFormData ? '[FormData]' : data);
 
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 method: 'POST',
@@ -179,10 +166,8 @@
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
             
-            // Always log request data for debugging
-            console.group(`📤 API Request: PUT ${endpoint}`);
-            console.log('Request Data:', isFormData ? this._formDataToObject(data) : data);
-            console.groupEnd();
+            // Log API request
+            console.log(`[API] PUT ${endpoint}`, isFormData ? '[FormData]' : data);
 
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 method: 'PUT',
@@ -200,10 +185,8 @@
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
             
-            // Always log request data for debugging
-            console.group(`📤 API Request: PATCH ${endpoint}`);
-            console.log('Request Data:', isFormData ? this._formDataToObject(data) : data);
-            console.groupEnd();
+            // Log API request
+            console.log(`[API] PATCH ${endpoint}`, isFormData ? '[FormData]' : data);
 
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 method: 'PATCH',
@@ -218,10 +201,8 @@
          * Generic DELETE request
          */
         async delete(endpoint, includeAuth = true) {
-            // Always log request for debugging
-            console.group(`📤 API Request: DELETE ${endpoint}`);
-            console.log('Endpoint:', endpoint);
-            console.groupEnd();
+            // Log API request
+            console.log(`[API] DELETE ${endpoint}`);
 
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 method: 'DELETE',
@@ -528,11 +509,25 @@
         // ==================== Booking Management APIs ====================
 
         /**
-         * Get all bookings
+         * Get all bookings with filters
          */
         async getBookings(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/bookings/get_all_bookings', params);
+            return this.get('/api/admin/cars/booking/get_all_filter', params);
+        }
+
+        /**
+         * Change booking status
+         */
+        async changeBookingStatus(bookingId, status) {
+            return this.post(`/api/admin/booking/change_status_admin/${bookingId}`, { status });
+        }
+
+        /**
+         * Change booking payment status
+         */
+        async changeBookingPaymentStatus(bookingId, isPaid) {
+            return this.post(`/api/admin/booking/change_is_paid/${bookingId}`, { is_paid: isPaid });
         }
 
         // ==================== Discount Management APIs ====================
@@ -662,38 +657,38 @@
          */
         async getContracts(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/contracts/get_all_contracts', params);
+            return this.get('/api/admin/contract/get_all', params);
         }
 
         // ==================== Contract Policies APIs ====================
 
         /**
-         * Get all policies
+         * Get all contract policies
          */
-        async getPolicies(page = 1, filters = {}) {
+        async getContractPolicies(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/policies/get_all_policies', params);
+            return this.get('/api/admin/contract_polices/get_all', params);
         }
 
         /**
-         * Add policy
+         * Add contract policy
          */
-        async addPolicy(data) {
-            return this.post('/api/admin/policies/store', data);
+        async addContractPolicy(data) {
+            return this.post('/api/admin/contract_polices/store', data);
         }
 
         /**
-         * Update policy
+         * Update contract policy
          */
-        async updatePolicy(policyId, data) {
-            return this.post(`/api/admin/policies/update/${policyId}`, data);
+        async updateContractPolicy(policyId, data) {
+            return this.put(`/api/admin/contract_polices/update/${policyId}`, data);
         }
 
         /**
-         * Delete policy
+         * Delete contract policy
          */
-        async deletePolicy(policyId) {
-            return this.delete(`/api/admin/policies/delete/${policyId}`);
+        async deleteContractPolicy(policyId) {
+            return this.delete(`/api/admin/contract_polices/destroy/${policyId}`);
         }
 
         // ==================== Fees Management APIs ====================
@@ -727,6 +722,37 @@
             return this.delete(`/api/admin/fees/delete/${feeId}`);
         }
 
+        // ==================== Feature Plan APIs ====================
+
+        /**
+         * Get all feature plans
+         */
+        async getFeaturePlans(page = 1, filters = {}) {
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/feature_plan/get_all', params);
+        }
+
+        /**
+         * Add feature plan
+         */
+        async addFeaturePlan(data) {
+            return this.post('/api/admin/feature_plan/store', data);
+        }
+
+        /**
+         * Update feature plan
+         */
+        async updateFeaturePlan(featureId, data) {
+            return this.post(`/api/admin/feature_plan/update/${featureId}`, data);
+        }
+
+        /**
+         * Delete feature plan
+         */
+        async deleteFeaturePlan(featureId) {
+            return this.delete(`/api/admin/feature_plan/delete/${featureId}`);
+        }
+
         // ==================== User Management APIs ====================
 
         /**
@@ -734,7 +760,7 @@
          */
         async getUsers(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/users/get_all_users', params);
+            return this.get('/api/admin/user/get_all', params);
         }
 
         // ==================== Profile APIs ====================
@@ -743,14 +769,231 @@
          * Get user profile
          */
         async getProfile() {
-            return this.get('/api/user/profile');
+            return this.get('/api/Get_my_info');
         }
 
         /**
          * Update profile
          */
         async updateProfile(data) {
-            return this.post('/api/user/profile/update', data);
+            return this.post('/api/update_my_info', data);
+        }
+
+        // ==================== Admin Management APIs ====================
+
+        /**
+         * Get all admins
+         */
+        async getAdmins() {
+            return this.get('/api/admin/admins/all');
+        }
+
+        /**
+         * Add admin
+         */
+        async addAdmin(data) {
+            return this.post('/api/admin/admins/store', data);
+        }
+
+        /**
+         * Update admin
+         */
+        async updateAdmin(adminId, data) {
+            return this.post(`/api/admin/admins/update/${adminId}`, data);
+        }
+
+        /**
+         * Delete admin
+         */
+        async deleteAdmin(adminId) {
+            return this.delete(`/api/admin/admins/delete/${adminId}`);
+        }
+
+        // ==================== Testimonial Management APIs ====================
+
+        /**
+         * Get all testimonials with filters
+         */
+        async getTestimonials(page = 1, filters = {}) {
+            const params = { page, per_page: 15, ...filters };
+            return this.get('/api/admin/testimonial/filter', params);
+        }
+
+        // ==================== Fees Management APIs ====================
+
+        /**
+         * Get all fees (updated endpoint)
+         */
+        async getFees(page = 1, filters = {}) {
+            const params = { page, per_page: 15, ...filters };
+            return this.get('/api/admin/fees/index', params);
+        }
+
+        // ==================== Discount Management APIs ====================
+
+        /**
+         * Get all discounts (updated endpoint)
+         */
+        async getDiscounts(page = 1, filters = {}) {
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/discount/index', params);
+        }
+
+        // ==================== Coupon Management APIs ====================
+
+        /**
+         * Get all coupons (updated endpoint)
+         */
+        async getCoupons(page = 1, filters = {}) {
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/coupon/index', params);
+        }
+
+        // ==================== Ticket Management APIs ====================
+
+        /**
+         * Get all tickets (updated endpoint)
+         */
+        async getTickets(page = 1, filters = {}) {
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/support/tickets', params);
+        }
+
+        /**
+         * Get ticket statistics
+         */
+        async getTicketStatistics(period = 30, groupBy = 'day') {
+            return this.get('/api/admin/support/statistics', { period, group_by: groupBy });
+        }
+
+        // ==================== Wallet Management APIs ====================
+
+        /**
+         * Get withdrawals (updated endpoint)
+         */
+        async getWithdrawals(page = 1, filters = {}) {
+            const params = { page, ...filters };
+            return this.get('/api/admin/withdrawal-requests/index', params);
+        }
+
+        // ==================== Driver Price APIs ====================
+
+        /**
+         * Get driver price
+         */
+        async getDriverPrice() {
+            return this.get('/api/admin/driver_price/show');
+        }
+
+        /**
+         * Update driver price
+         */
+        async updateDriverPrice(price) {
+            return this.post('/api/admin/driver_price/update', { price });
+        }
+
+        // ==================== Subscription Management APIs ====================
+
+        /**
+         * Get all subscriptions
+         */
+        async getSubscriptions(page = 1, filters = {}) {
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/subscribe/index', params);
+        }
+
+        /**
+         * Update subscription
+         */
+        async updateSubscription(subscriptionId, data) {
+            return this.post(`/api/admin/subscribe/update/${subscriptionId}`, data);
+        }
+
+        /**
+         * Approve subscription
+         */
+        async approveSubscription(subscriptionId) {
+            return this.post(`/api/admin/subscribe/approve/${subscriptionId}`);
+        }
+
+        // ==================== Chat Management APIs ====================
+
+        /**
+         * Get current user online status
+         */
+        async getMyOnlineStatus() {
+            return this.get('/api/chat/my-online-status');
+        }
+
+        /**
+         * Get online users
+         */
+        async getOnlineUsers() {
+            return this.get('/api/chat/online-users');
+        }
+
+        /**
+         * Send message to user
+         */
+        async sendChatMessage(userId, message) {
+            return this.post(`/api/chat/SendTo/${userId}`, { message });
+        }
+
+        /**
+         * Mark messages as read
+         */
+        async markMessagesAsRead(userId, messageIds, conversationId) {
+            return this.post('/api/chat/mark-as-read', {
+                userId,
+                messageIds,
+                conversationId
+            });
+        }
+
+        /**
+         * Update last seen
+         */
+        async updateLastSeen() {
+            return this.post('/api/chat/update-last-seen');
+        }
+
+        /**
+         * Mark user as offline
+         */
+        async markOffline() {
+            return this.post('/api/chat/mark-offline');
+        }
+
+        /**
+         * Mark user as online
+         */
+        async markOnline() {
+            return this.post('/api/chat/mark-online');
+        }
+
+        /**
+         * Get conversation with user
+         */
+        async getConversation(userId, page = 1, perPage = 20) {
+            const params = { page, per_page: perPage };
+            return this.get(`/api/chat/getConversation/${userId}`, params);
+        }
+
+        // ==================== Review Management APIs ====================
+
+        /**
+         * Get all reviews
+         */
+        async getReviews(carId = null) {
+            const endpoint = carId ? `/api/review/by_car/${carId}` : '/api/review/all';
+            return this.get(endpoint);
+        }
+
+        /**
+         * Get all cars for reviews filter
+         */
+        async getCarsForReviews() {
+            return this.get('/api/get_all_mycars');
         }
 
         // ==================== Whitelist/Blacklist APIs ====================
@@ -760,21 +1003,28 @@
          */
         async getWhiteLocations(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/white_locations/get_all', params);
+            return this.get('/api/admin/white_location/index', params);
         }
 
         /**
          * Add white location
          */
         async addWhiteLocation(data) {
-            return this.post('/api/admin/white_locations/store', data);
+            return this.post('/api/admin/white_location/store', data);
         }
 
         /**
          * Update white location
          */
         async updateWhiteLocation(locationId, data) {
-            return this.post(`/api/admin/white_locations/update/${locationId}`, data);
+            return this.put(`/api/admin/white_location/update/${locationId}`, data);
+        }
+
+        /**
+         * Delete white location
+         */
+        async deleteWhiteLocation(locationId) {
+            return this.delete(`/api/admin/white_location/delete/${locationId}`);
         }
 
         /**
@@ -782,21 +1032,28 @@
          */
         async getBlackLocations(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/black_locations/get_all', params);
+            return this.get('/api/admin/black_location/get_all', params);
         }
 
         /**
          * Add black location
          */
         async addBlackLocation(data) {
-            return this.post('/api/admin/black_locations/store', data);
+            return this.post('/api/admin/black_location/store', data);
         }
 
         /**
          * Update black location
          */
         async updateBlackLocation(locationId, data) {
-            return this.post(`/api/admin/black_locations/update/${locationId}`, data);
+            return this.put(`/api/admin/black_location/update/${locationId}`, data);
+        }
+
+        /**
+         * Delete black location
+         */
+        async deleteBlackLocation(locationId) {
+            return this.delete(`/api/admin/black_location/delete/${locationId}`);
         }
     }
 

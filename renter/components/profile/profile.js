@@ -55,19 +55,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('no_auth_token'));
                 }
 
-                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/Get_my_info`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                // if (!response.ok) {
-                //     throw new Error(`HTTP error! status: ${response.status}`);
-                // }
-
-                const data = await response.json();
+                const data = await ApiService.getProfile();
 
                 if (data.status && data.user) {
                     this.user = data.user;
@@ -117,21 +105,7 @@ document.addEventListener('alpine:init', () => {
                     updateData.password_confirmation = this.formData.password_confirmation;
                 }
 
-                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/update_my_info`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(updateData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                }
+                const data = await ApiService.updateProfile(updateData);
 
                 if (data.status) {
                     // Update local user data

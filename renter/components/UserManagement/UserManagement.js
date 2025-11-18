@@ -84,20 +84,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_users'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getUsers(page);
                 if (data.status && data.data) {
                     this.users = data.data.data.filter(user => user.type === '0') || [];
                     this.paginationMeta = {

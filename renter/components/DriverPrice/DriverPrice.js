@@ -12,20 +12,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchCurrentPrice() {
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/driver_price/show`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_fetch_price'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getDriverPrice();
                 this.currentPrice = data.driver_price.price;
                 this.price = data.driver_price.price || '';
             } catch (error) {
@@ -36,25 +23,7 @@ document.addEventListener('alpine:init', () => {
         async updatePrice() {
             this.isLoading = true;
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/driver_price/update`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        price: this.price,
-                    }),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || Alpine.store('i18n').t('failed_to_update_price'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.updateDriverPrice(this.price);
                 this.currentPrice = data.price;
                 coloredToast('success', Alpine.store('i18n').t('price_updated_success'));
             } catch (error) {

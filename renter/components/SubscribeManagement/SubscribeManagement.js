@@ -85,25 +85,14 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                let url = `${this.apiBaseUrl}/api/admin/subscribe/index?page=${this.currentPage}&per_page=10`;
+                const filters = {};
+                if (this.filters.status) filters.status = this.filters.status;
+                if (this.filters.user_id) filters.user_id = this.filters.user_id;
+                if (this.filters.plan_id) filters.plan_id = this.filters.plan_id;
+                if (this.filters.start_date) filters.start_date = this.filters.start_date;
+                if (this.filters.end_date) filters.end_date = this.filters.end_date;
 
-                if (this.filters.status) url += `&status=${this.filters.status}`;
-                if (this.filters.user_id) url += `&user_id=${this.filters.user_id}`;
-                if (this.filters.plan_id) url += `&plan_id=${this.filters.plan_id}`;
-                if (this.filters.start_date) url += `&start_date=${this.filters.start_date}`;
-                if (this.filters.end_date) url += `&end_date=${this.filters.end_date}`;
-
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
+                const data = await ApiService.getSubscriptions(this.currentPage, filters);
                 this.subscriptions = data.data;
 
                 loadingIndicator.hideTableLoader();

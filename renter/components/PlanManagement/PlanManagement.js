@@ -216,33 +216,11 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
-                    loadingIndicator.hide();
-                    return;
-                }
-
                 const updateData = {
                     is_active: isActive ? 0 : 1,
                 };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/update/${planId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateData),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
+                const result = await ApiService.updatePlan(planId, updateData);
 
                 coloredToast('success', Alpine.store('i18n').t('plan_status_changed'));
                 await this.fetchPlans();
@@ -270,13 +248,6 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
-                    loadingIndicator.hide();
-                    return;
-                }
 
                 const updateData = {
                     name: Alpine.store('global').sharedData.name,
@@ -307,11 +278,6 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
                 await ApiService.deletePlan(planId);
                 coloredToast('success', Alpine.store('i18n').t('plan_deleted_success'));
 

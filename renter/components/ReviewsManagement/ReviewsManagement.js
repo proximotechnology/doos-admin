@@ -88,18 +88,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.showTableLoader();
 
-                const token = localStorage.getItem('authToken');
-                const url = this.selectedCar ? `${this.apiBaseUrl}/api/review/by_car/${this.selectedCar}` : `${this.apiBaseUrl}/api/review/all`;
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getReviews(this.selectedCar || null);
                 this.reviews = Array.isArray(data.data.data) ? data.data.data : Array.isArray(data.data) ? data.data : data.data.data;
 
                 this.populateTable();
@@ -117,16 +106,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchCars() {
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/get_all_mycars`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getCarsForReviews();
                 this.cars = data.data.data || [];
             } catch (error) {
                 }

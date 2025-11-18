@@ -97,19 +97,7 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getTickets();
 
                 if (data.status === 'success') {
                     this.tickets = data.tickets.map(ticket => ({

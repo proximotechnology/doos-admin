@@ -97,8 +97,7 @@ document.addEventListener('alpine:init', () => {
                     this.calculateUnreadCountFromStorage(data);
                 }
             } catch (error) {
-                console.error('Error loading chat data from storage:', error);
-            }
+                }
         },
 
         calculateUnreadCountFromStorage(data) {
@@ -149,8 +148,7 @@ document.addEventListener('alpine:init', () => {
                     }));
                 }
             } catch (error) {
-                console.error('Error saving chat data to storage:', error);
-            }
+                }
         },
 
         initializePusher() {
@@ -165,8 +163,7 @@ document.addEventListener('alpine:init', () => {
                 this.loadCurrentUserAndInitPusher();
 
             } catch (error) {
-                console.error('Error initializing Pusher in header:', error);
-            }
+                }
         },
 
         async loadCurrentUserAndInitPusher() {
@@ -187,18 +184,17 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             } catch (error) {
-                console.error('Error loading user for Pusher:', error);
-            }
+                }
         },
 
         initPusher(userId) {
             try {
-                this.pusher = new Pusher('0c6840048793ecd5b54f', {
-                    cluster: 'mt1',
+                this.pusher = new Pusher(API_CONFIG.PUSHER.APP_KEY, {
+                    cluster: API_CONFIG.PUSHER.CLUSTER,
                     encrypted: true
                 });
 
-                const channelName = `chat-private-channel-${userId}`;
+                const channelName = `${API_CONFIG.PUSHER.CHANNEL_PREFIX}-${userId}`;
                 this.channel = this.pusher.subscribe(channelName);
 
                 this.channel.bind("Private_chat", (data) => {
@@ -206,8 +202,7 @@ document.addEventListener('alpine:init', () => {
                 });
 
             } catch (error) {
-                console.error('Error initializing Pusher in header:', error);
-            }
+                }
         },
 
         handleNewMessage(data) {
@@ -411,7 +406,6 @@ document.addEventListener('alpine:init', () => {
 
                 if (!response.ok) {
                     if (response.status === 500) {
-                        console.warn('Server error 500 during logout - clearing token locally');
                         this.clearAuthData();
                         window.location.href = 'auth-boxed-signin.html';
                         return;
@@ -425,8 +419,6 @@ document.addEventListener('alpine:init', () => {
                 window.location.href = 'auth-boxed-signin.html';
 
             } catch (error) {
-                console.log('Logout error:', error);
-
                 this.clearAuthData();
                 window.location.href = 'auth-boxed-signin.html';
             }
@@ -438,8 +430,7 @@ document.addEventListener('alpine:init', () => {
             localStorage.removeItem('chatData');
             localStorage.removeItem('userData');
 
-            console.log('Auth data cleared successfully');
-        },
+            },
     }));
     Alpine.store('i18n', {
         locale: localStorage.getItem('language') || 'en',
@@ -458,7 +449,6 @@ document.addEventListener('alpine:init', () => {
                 localStorage.setItem('language', locale);
                 this.applyDirection(locale);
             } catch (error) {
-                console.error('Error loading translations:', error);
                 if (locale !== 'en') await this.loadTranslations('en');
             }
         },

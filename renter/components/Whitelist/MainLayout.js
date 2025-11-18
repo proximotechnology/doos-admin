@@ -12,5 +12,5 @@ async function loadComponent(url, containerId) {
         .then(data => {
             document.getElementById(containerId).innerHTML = data;
         })
-        .catch(error => console.error('Error loading component:', error));
+        .catch(error => {});
 }

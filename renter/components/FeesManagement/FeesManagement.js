@@ -79,20 +79,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 15 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/fees/index?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_fees'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getFees(page);
                 if (data.status && data.data) {
                     this.fees = data.data.data || [];
                     this.paginationMeta = {

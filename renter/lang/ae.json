@@ -653,6 +653,10 @@
     "failed_update_withdrawal": "فشل تحديث طلب السحب",
     "failed_complete_withdrawal": "فشل اكمال طلب السحب",
     "failed_to_load_withdrawal_details": "فشل تحميل تفاصيل السحب",
+    "failed_to_load_statistics": "فشل تحميل الإحصائيات",
+    "error_create_station": "خطأ في إنشاء المحطة",
+    "error_delete_station": "خطأ في حذف المحطة",
+    "digital_wallet": "محفظة رقمية",
 
     "loading": "جاري التحميل...",
 

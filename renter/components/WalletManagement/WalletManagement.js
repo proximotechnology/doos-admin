@@ -106,27 +106,11 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const queryParams = new URLSearchParams({ page });
-            if (this.filters.status) queryParams.append('status', this.filters.status);
-
-            const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/index?${queryParams}`;
+            const filters = {};
+            if (this.filters.status) filters.status = this.filters.status;
 
             try {
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_load'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getWithdrawals(page, filters);
 
                 if (data.status && Array.isArray(data.data.withdrawal_requests)) {
                     this.tableData = data.data.withdrawal_requests;

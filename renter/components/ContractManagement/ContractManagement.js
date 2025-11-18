@@ -76,7 +76,6 @@ document.addEventListener('alpine:init', () => {
                         e.stopPropagation();
                         const btn = e.target.closest('.view-contract-btn');
                         const contractId = btn.dataset.id;
-                        console.log('View contract clicked, contractId:', contractId);
                         if (contractId) {
                             this.showContractDetails(contractId);
                         }
@@ -104,26 +103,13 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.status) queryParams.append('status', this.filters.status);
-                if (this.filters.start_date) queryParams.append('start_date', this.filters.start_date);
-                if (this.filters.end_date) queryParams.append('end_date', this.filters.end_date);
-                if (this.filters.min_price) queryParams.append('min_price', this.filters.min_price);
+                const filters = {};
+                if (this.filters.status) filters.status = this.filters.status;
+                if (this.filters.start_date) filters.start_date = this.filters.start_date;
+                if (this.filters.end_date) filters.end_date = this.filters.end_date;
+                if (this.filters.min_price) filters.min_price = this.filters.min_price;
 
-                const url = `${this.apiBaseUrl}/api/admin/contract/get_all?${queryParams.toString()}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_contracts'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getContracts(page, filters);
 
                 if (data.status && Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;

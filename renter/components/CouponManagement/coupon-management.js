@@ -91,18 +91,10 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                if (this.filters.code) queryParams.append('code', this.filters.code);
+                const filters = {};
+                if (this.filters.code) filters.code = this.filters.code;
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/index?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getCoupons(page, filters);
 
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];

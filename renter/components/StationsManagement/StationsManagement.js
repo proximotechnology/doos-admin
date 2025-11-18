@@ -348,24 +348,11 @@ document.addEventListener('alpine:init', () => {
                 if (!modalComponent) return;
 
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${API_CONFIG.BASE_URL_Renter}/api/admin/stations/update/${stationId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name: modalComponent.stationData.name,
-                        lat: modalComponent.stationData.lat,
-                        lang: modalComponent.stationData.lang,
-                    }),
+                const data = await ApiService.updateStation(stationId, {
+                    name: modalComponent.stationData.name,
+                    lat: modalComponent.stationData.lat,
+                    lang: modalComponent.stationData.lang,
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || Alpine.store('i18n').t('failed_update_station'));
-                }
 
                 coloredToast('success', Alpine.store('i18n').t('station_updated_success'));
                 modalComponent.open = false;
@@ -430,20 +417,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/stations/get_all?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_stations'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getStations(page);
                 if (Array.isArray(data.data.data)) {
                     this.tableData = data.data.data;
                     this.paginationMeta = {
@@ -599,15 +573,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/stations/delete/${stationId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_station'));
+                await ApiService.deleteStation(stationId);
 
                 coloredToast('success', Alpine.store('i18n').t('station_deleted_success'));
                 await this.fetchStations(this.currentPage);
@@ -649,25 +615,11 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_missing'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/stations/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name: this.name,
-                        lat: this.lat,
-                        lang: this.lang,
-                    }),
+                await ApiService.addStation({
+                    name: this.name,
+                    lat: this.lat,
+                    lang: this.lang,
                 });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    const errorMsg = result.message || Object.values(result.errors || {}).flat().join('\n') || Alpine.store('i18n').t('error_create_station');
-                    throw new Error(errorMsg);
-                }
 
                 this.name = '';
                 this.lat = '';

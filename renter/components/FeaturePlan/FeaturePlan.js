@@ -72,15 +72,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getPlans();
                 if (data.success && data.data) {
                     this.plans = data.data;
                 } else {
@@ -96,22 +88,7 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.showTableLoader();
                 this.currentPage = page;
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    this.showError('Authentication token is missing. Please log in.');
-                    window.location.href = 'auth-boxed-signin.html';
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/index?page=${page}&per_page=10`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getFeaturePlans(page);
 
                 if (data.status && data.data) {
                     this.tableData = data.data.data || [];
@@ -218,27 +195,12 @@ document.addEventListener('alpine:init', () => {
         async addFeature() {
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        plan_id: this.form.plan_id,
-                        feature: this.form.feature
-                    }),
+                const result = await ApiService.addFeaturePlan({
+                    plan_id: this.form.plan_id,
+                    feature: this.form.feature
                 });
 
-                const result = await response.json();
-
-                if (response.ok && result.status) {
+                if (result.status) {
                     coloredToast('success', Alpine.store('i18n').t('feature_added_successfully'));
                     this.form.plan_id = '';
                     this.form.feature = '';
@@ -274,20 +236,9 @@ document.addEventListener('alpine:init', () => {
                 if (!updateConfirmed) return;
 
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/update/${featureId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateConfirmed)
-                });
+                const result = await ApiService.updateFeaturePlan(featureId, updateConfirmed);
 
-                const result = await response.json();
-
-                if (response.ok && result.status) {
+                if (result.status) {
                     coloredToast('success', Alpine.store('i18n').t('feature_updated_successfully'));
                     await this.fetchFeatures(this.currentPage);
                 } else {
@@ -312,17 +263,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (result.isConfirmed) {
                     loadingIndicator.show();
-                    const token = localStorage.getItem('authToken');
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/feature/delete/${featureId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            Accept: 'application/json',
-                            Authorization: `Bearer ${token}`,
-                        }
-                    });
-
-                    const data = await response.json();
-                    if (response.ok && data.status) {
+                    const data = await ApiService.deleteFeaturePlan(featureId);
+                    if (data.status) {
                         coloredToast('success', Alpine.store('i18n').t('feature_deleted_successfully'));
                         await this.fetchFeatures(this.currentPage);
                     } else {

@@ -86,20 +86,11 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 15 });
-                if (this.filters.name) queryParams.append('name', this.filters.name);
-                if (this.filters.rating) queryParams.append('rating', this.filters.rating);
+                const filters = {};
+                if (this.filters.name) filters.name = this.filters.name;
+                if (this.filters.rating) filters.rating = this.filters.rating;
 
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/filter?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
+                const data = await ApiService.getTestimonials(page, filters);
                 if (data.status && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {

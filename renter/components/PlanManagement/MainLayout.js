@@ -34,8 +34,5 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Load modals
         await loader.load('components/PlanManagement/Modals/UpdateModal.html', 'update-modal-container', { loadScript: false });
         await loader.load('components/PlanManagement/Modals/DeleteModal.html', 'delete-modal-container', { loadScript: false });
-    } else {
-        // Fallback to old method
-        console.error('ComponentLoader not available, using fallback');
     }
 });
