@@ -262,7 +262,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const updateConfirmed = await new Promise((resolve) => {
-                    Alpine.store('updateModal').openModal(featureId, feature, this.plans, (id, formValues) => {
+                    Alpine.store('featureUpdateModal').openModal(featureId, feature, this.plans, (id, formValues) => {
                         if (formValues && formValues.plan_id && formValues.feature.trim()) {
                             resolve(formValues);
                         } else {

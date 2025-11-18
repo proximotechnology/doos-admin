@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.store('deleteModal', {
+    Alpine.store('featureDeleteModal', {
         isOpen: false,
         managerId: null,
         callback: null,

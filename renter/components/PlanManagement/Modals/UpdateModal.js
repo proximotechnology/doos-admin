@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.store('updateModal', {
+    Alpine.store('planUpdateModal', {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         managerId: null,
         callback: null,

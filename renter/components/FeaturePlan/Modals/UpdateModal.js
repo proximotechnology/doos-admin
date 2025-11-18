@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.store('updateModal', {
+    Alpine.store('featureUpdateModal', {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         featureId: null,
         callback: null,

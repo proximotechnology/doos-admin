@@ -8,13 +8,13 @@
     <body>
         <div
             x-data
-            x-show="$store.updateModal.isOpen"
+            x-show="$store.planUpdateModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
             style="display: none"
             x-cloak
-            @click.self="$store.updateModal.closeModal()"
-            x-init="$watch('$store.updateModal.isOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
+            @click.self="$store.planUpdateModal.closeModal()"
+            x-init="$watch('$store.planUpdateModal.isOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
         >
             <div class="flex min-h-screen items-start justify-center px-4 py-8">
                 <div
@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                             <button 
-                                @click="$store.updateModal.closeModal()" 
+                                @click="$store.planUpdateModal.closeModal()" 
                                 class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                             >
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,7 +121,7 @@
                                 <!-- Action Buttons -->
                                 <div class="mt-8 flex items-center justify-end gap-3">
                                     <button 
-                                        @click="$store.updateModal.closeModal()" 
+                                        @click="$store.planUpdateModal.closeModal()" 
                                         class="btn btn-outline-danger flex items-center gap-2"
                                     >
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,7 +131,7 @@
                                     </button>
                                     <button 
                                         type="submit" 
-                                        @click="$store.updateModal.confirmUpdate()" 
+                                        @click="$store.planUpdateModal.confirmUpdate()" 
                                         class="btn btn-primary flex items-center gap-2"
                                     >
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

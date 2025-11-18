@@ -261,7 +261,7 @@ document.addEventListener('alpine:init', () => {
             Alpine.store('global').sharedData.count_day = btn.dataset.count_day;
 
             const updateConfirmed = await new Promise((resolve) => {
-                Alpine.store('updateModal').openModal(planId, () => {
+                Alpine.store('planUpdateModal').openModal(planId, () => {
                     resolve(true);
                 });
             });
