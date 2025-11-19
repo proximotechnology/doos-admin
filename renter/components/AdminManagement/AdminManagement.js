@@ -7,22 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('tableContent')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const adminsTableContainer = document.getElementById('adminsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (adminsTableContainer) adminsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-        },
-        showContent: function () {
-            document.getElementById('tableContent')?.classList.remove('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const adminsTableContainer = document.getElementById('adminsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (adminsTableContainer) adminsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('tableContent')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const adminsTableContainer = document.getElementById('adminsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (adminsTableContainer) adminsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -79,9 +83,8 @@ document.addEventListener('alpine:init', () => {
                 const data = await ApiService.getAdmins();
                 if (data.status && Array.isArray(data.data)) {
                     this.admins = data.data;
-                    loadingIndicator.hideTableLoader();
                     if (this.admins.length > 0) {
-                        loadingIndicator.showContent();
+                        loadingIndicator.hideTableLoader();
                     } else {
                         loadingIndicator.showEmptyState();
                     }
@@ -106,55 +109,50 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            // Set shared data for the modal
-            Alpine.store('global').sharedData.role_id = admin.role_id || '';
-            Alpine.store('global').sharedData.name = admin.name;
-            Alpine.store('global').sharedData.email = admin.email;
-            Alpine.store('global').sharedData.phone = admin.phone;
-            Alpine.store('global').sharedData.country = admin.country;
-
-            // Fetch roles for the dropdown
-            await Alpine.store('editModal').fetchRoles();
-
-            Alpine.store('editModal').openModal(adminId);
+            // Open modal with admin data - it will handle loading roles
+            await Alpine.store('editModal').openModal(adminId, {
+                role_id: admin.role_id || '',
+                name: admin.name,
+                email: admin.email,
+                phone: admin.phone,
+                country: admin.country
+            });
         },
 
         async deleteAdmin(adminId) {
-            const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(adminId, () => {
-                    resolve(true);
+            return new Promise((resolve) => {
+                Alpine.store('deleteModal').openModal(adminId, async () => {
+                    try {
+                        loadingIndicator.show();
+                        const token = localStorage.getItem('authToken');
+                        if (!token) {
+                            throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                        }
+
+                        const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/delete/${adminId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                Accept: 'application/json',
+                                Authorization: `Bearer ${token}`,
+                            },
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.message || Alpine.store('i18n').t('failed_to_delete_admin'));
+                        }
+
+                        coloredToast('success', Alpine.store('i18n').t('admin_deleted_success'));
+                        await this.fetchAdmins();
+                        resolve(true);
+                    } catch (error) {
+                        coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_delete_admin'));
+                        resolve(false);
+                    } finally {
+                        loadingIndicator.hide();
+                    }
                 });
             });
-
-            if (!deleteConfirmed) return;
-
-            try {
-                loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/delete/${adminId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_delete_admin'));
-                }
-
-                coloredToast('success', Alpine.store('i18n').t('admin_deleted_success'));
-                await this.fetchAdmins();
-            } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_delete_admin'));
-            } finally {
-                loadingIndicator.hide();
-            }
         }
     }));
 

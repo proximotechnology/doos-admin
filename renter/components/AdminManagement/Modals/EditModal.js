@@ -13,17 +13,38 @@ document.addEventListener('alpine:init', () => {
         adminId: null,
         roles: [],
         isOpen: false,
+        isLoadingRoles: false,
+        isUpdating: false,
 
-        async openModal(adminId) {
+        async openModal(adminId, adminData) {
             this.adminId = adminId;
-            await this.fetchRoles();
             this.isOpen = true;
+            this.isLoadingRoles = true;
+            
+            // Set admin data immediately
+            if (adminData) {
+                Alpine.store('global').sharedData = {
+                    role_id: adminData.role_id || '',
+                    name: adminData.name || '',
+                    email: adminData.email || '',
+                    phone: adminData.phone || '',
+                    country: adminData.country || ''
+                };
+            }
+            
+            try {
+                await this.fetchRoles();
+            } finally {
+                this.isLoadingRoles = false;
+            }
         },
 
         closeModal() {
             this.isOpen = false;
             this.adminId = null;
             this.roles = [];
+            this.isLoadingRoles = false;
+            this.isUpdating = false;
             Alpine.store('global').sharedData = {};
         },
 
@@ -59,9 +80,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         async updateAdmin() {
-            const modal = Alpine.$data(document.querySelector('[x-data="{ isUpdating: false }"]'));
             try {
-                modal.isUpdating = true;
+                this.isUpdating = true;
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -93,8 +113,8 @@ document.addEventListener('alpine:init', () => {
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_update_admin'));
             } finally {
+                this.isUpdating = false;
                 loadingIndicator.hide();
-                modal.isUpdating = false;
             }
         }
     });
