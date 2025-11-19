@@ -16,9 +16,20 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('tableLoading').classList.add('hidden');
         },
         showContent: function () {
-            document.getElementById('tableContent').classList.remove('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableContent = document.getElementById('tableContent');
+            const tableLoading = document.getElementById('tableLoading');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            
+            if (tableContent) {
+                tableContent.classList.remove('hidden');
+                tableContent.style.display = '';
+            }
+            if (tableLoading) {
+                tableLoading.classList.add('hidden');
+            }
+            if (tableEmptyState) {
+                tableEmptyState.classList.add('hidden');
+            }
         },
         showEmptyState: function () {
             document.getElementById('tableEmptyState').classList.remove('hidden');
@@ -125,6 +136,13 @@ document.addEventListener('alpine:init', () => {
                 this.datatable.destroy();
             }
 
+            // Ensure table container is visible
+            const tableContent = document.getElementById('tableContent');
+            if (tableContent) {
+                tableContent.style.display = '';
+                tableContent.classList.remove('hidden');
+            }
+
             const mappedData = this.reviews.map((review, index) => [
                 index + 1,
                 review.user_id,
@@ -136,31 +154,34 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(review.id),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#reviewsTable', {
-                data: {
-                    headings: [
-                        Alpine.store('i18n').t('id'),
-                        Alpine.store('i18n').t('user_id'),
-                        Alpine.store('i18n').t('car_id'),
-                        Alpine.store('i18n').t('rating'),
-                        Alpine.store('i18n').t('comment'),
-                        Alpine.store('i18n').t('status'),
-                        Alpine.store('i18n').t('date'),
-                        Alpine.store('i18n').t('action')
-                    ],
-                    data: mappedData,
-                },
-                searchable: true,
-                perPage: 10,
-                perPageSelect: [10, 20, 30, 50, 100],
-                columns: [{ select: 0, sort: 'asc' }],
-                firstLast: true,
-                labels: { perPage: '{select}' },
-                layout: {
-                    top: '{search}',
-                    bottom: '{info}{select}{pager}',
-                },
-            });
+            // Wait a bit for DOM to be ready
+            setTimeout(() => {
+                this.datatable = new simpleDatatables.DataTable('#reviewsTable', {
+                    data: {
+                        headings: [
+                            Alpine.store('i18n').t('id'),
+                            Alpine.store('i18n').t('user_id'),
+                            Alpine.store('i18n').t('car_id'),
+                            Alpine.store('i18n').t('rating'),
+                            Alpine.store('i18n').t('comment'),
+                            Alpine.store('i18n').t('status'),
+                            Alpine.store('i18n').t('date'),
+                            Alpine.store('i18n').t('action')
+                        ],
+                        data: mappedData,
+                    },
+                    searchable: true,
+                    perPage: 10,
+                    perPageSelect: [10, 20, 30, 50, 100],
+                    columns: [{ select: 0, sort: 'asc' }],
+                    firstLast: true,
+                    labels: { perPage: '{select}' },
+                    layout: {
+                        top: '{search}',
+                        bottom: '{info}{select}{pager}',
+                    },
+                });
+            }, 100);
         },
 
         formatText(text) {

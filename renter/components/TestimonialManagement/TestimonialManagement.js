@@ -8,16 +8,31 @@ document.addEventListener('alpine:init', () => {
         },
         showTableLoader: function () {
             document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('testimonialTable')?.classList.add('hidden');
+            document.getElementById('tableContainer')?.classList.add('hidden');
             document.getElementById('tableEmptyState')?.classList.add('hidden');
         },
         hideTableLoader: function () {
             document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('testimonialTable')?.classList.remove('hidden');
+        },
+        showContent: function () {
+            const tableContainer = document.getElementById('tableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            
+            if (tableContainer) {
+                tableContainer.classList.remove('hidden');
+                tableContainer.style.display = '';
+            }
+            if (tableLoading) {
+                tableLoading.classList.add('hidden');
+            }
+            if (tableEmptyState) {
+                tableEmptyState.classList.add('hidden');
+            }
         },
         showEmptyState: function () {
             document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('testimonialTable')?.classList.add('hidden');
+            document.getElementById('tableContainer')?.classList.add('hidden');
             document.getElementById('tableLoading')?.classList.add('hidden');
         }
     };
@@ -111,13 +126,12 @@ document.addEventListener('alpine:init', () => {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();
-                        loadingIndicator.hideTableLoader();
+                        loadingIndicator.showContent();
                     }
                 } else {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
-                loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_testimonials'));
             }
@@ -139,6 +153,13 @@ document.addEventListener('alpine:init', () => {
                 this.datatable.destroy();
             }
 
+            // Ensure table container is visible
+            const tableContainer = document.getElementById('tableContainer');
+            if (tableContainer) {
+                tableContainer.style.display = '';
+                tableContainer.classList.remove('hidden');
+            }
+
             const mappedData = this.tableData.map((testimonial, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatName(testimonial.name, testimonial.image, index),
@@ -147,35 +168,38 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(testimonial.id, testimonial.name, testimonial.image, testimonial.rating, testimonial.comment),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#testimonialTable', {
-                data: {
-                    headings: [
-                        Alpine.store('i18n').t('id'),
-                        Alpine.store('i18n').t('name'),
-                        Alpine.store('i18n').t('rating'),
-                        Alpine.store('i18n').t('comment'),
-                        `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
+            // Wait a bit for DOM to be ready
+            setTimeout(() => {
+                this.datatable = new simpleDatatables.DataTable('#testimonialTable', {
+                    data: {
+                        headings: [
+                            Alpine.store('i18n').t('id'),
+                            Alpine.store('i18n').t('name'),
+                            Alpine.store('i18n').t('rating'),
+                            Alpine.store('i18n').t('comment'),
+                            `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
+                        ],
+                        data: mappedData,
+                    },
+                    searchable: false,
+                    perPage: 15,
+                    perPageSelect: false,
+                    columns: [
+                        { select: 0, sort: 'asc' },
+                        { select: [1], render: (data) => data } // Allow HTML rendering for name column
                     ],
-                    data: mappedData,
-                },
-                searchable: false,
-                perPage: 15,
-                perPageSelect: false,
-                columns: [
-                    { select: 0, sort: 'asc' },
-                    { select: [1], render: (data) => data } // Allow HTML rendering for name column
-                ],
-                firstLast: true,
-                firstText: this.getPaginationIcon('first'),
-                lastText: this.getPaginationIcon('last'),
-                prevText: this.getPaginationIcon('prev'),
-                nextText: this.getPaginationIcon('next'),
-                labels: { perPage: '{select}' },
-                layout: {
-                    top: '{search}',
-                    bottom: this.generatePaginationHTML() + '{info}{pager}',
-                },
-            });
+                    firstLast: true,
+                    firstText: this.getPaginationIcon('first'),
+                    lastText: this.getPaginationIcon('last'),
+                    prevText: this.getPaginationIcon('prev'),
+                    nextText: this.getPaginationIcon('next'),
+                    labels: { perPage: '{select}' },
+                    layout: {
+                        top: '{search}',
+                        bottom: this.generatePaginationHTML() + '{info}{pager}',
+                    },
+                });
+            }, 100);
         },
 
         generatePaginationHTML() {
