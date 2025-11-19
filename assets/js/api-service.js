@@ -390,7 +390,7 @@
          * Update station
          */
         async updateStation(stationId, data) {
-            return this.post(`/api/admin/stations/update/${stationId}`, data);
+            return this.put(`/api/admin/stations/update/${stationId}`, data);
         }
 
         /**
@@ -1046,7 +1046,7 @@
          */
         async getBlackLocations(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/black_location/get_all', params);
+            return this.get('/api/admin/black_location/index', params);
         }
 
         /**

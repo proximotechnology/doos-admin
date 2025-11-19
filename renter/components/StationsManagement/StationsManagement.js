@@ -43,10 +43,10 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
             if (mapElement) {
                 mapInitialized = true;
                 // Ensure map element has proper dimensions
-                if (mapElement.offsetHeight === 0 || mapElement.offsetWidth === 0) {
-                    mapElement.style.height = '500px';
-                    mapElement.style.width = '100%';
-                }
+                mapElement.style.height = '500px';
+                mapElement.style.width = '100%';
+                mapElement.style.minHeight = '500px';
+                
                 map = new google.maps.Map(mapElement, {
                     center: defaultCenter,
                     zoom: 10,
@@ -59,7 +59,7 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
                         google.maps.event.trigger(map, 'resize');
                         map.setCenter(defaultCenter);
                     }
-                }, 100);
+                }, 200);
 
                 marker = new google.maps.Marker({
                     map: map,
@@ -128,10 +128,11 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
             if (editMapElement) {
                 editMapInitialized = true;
                 // Ensure map element has proper dimensions
-                if (editMapElement.offsetHeight === 0 || editMapElement.offsetWidth === 0) {
-                    editMapElement.style.height = '500px';
-                    editMapElement.style.width = '100%';
-                }
+                editMapElement.style.height = '300px';
+                editMapElement.style.width = '100%';
+                editMapElement.style.minHeight = '300px';
+                editMapElement.style.maxHeight = '300px';
+                
                 editMap = new google.maps.Map(editMapElement, {
                     center: defaultCenter,
                     zoom: 10,
@@ -144,7 +145,7 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
                         google.maps.event.trigger(editMap, 'resize');
                         editMap.setCenter(defaultCenter);
                     }
-                }, 100);
+                }, 200);
 
                 editMarker = new google.maps.Marker({
                     map: editMap,
@@ -301,18 +302,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('stationsDataTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const stationsTableContainer = document.getElementById('stationsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (stationsTableContainer) stationsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('stationsDataTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const stationsTableContainer = document.getElementById('stationsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (stationsTableContainer) stationsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('stationsDataTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const stationsTableContainer = document.getElementById('stationsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (stationsTableContainer) stationsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -324,28 +333,146 @@ document.addEventListener('alpine:init', () => {
             }
         },
         openEditModal: function (station) {
-            const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, stationData: {} }"]'));
-            if (modalComponent) {
+            try {
+                const modalElement = document.getElementById('editStationModal');
+                if (!modalElement) {
+                    console.error('Edit modal element not found');
+                    return;
+                }
+                
+                const modalComponent = Alpine.$data(modalElement);
+                if (!modalComponent) {
+                    console.error('Modal component not found');
+                    return;
+                }
+                
                 modalComponent.stationData = { ...station };
                 modalComponent.open = true;
+                
+                // Initialize edit map when modal opens
                 setTimeout(() => {
-                    if (station.lat && station.lang && editMap && editMarker) {
-                        const position = new google.maps.LatLng(parseFloat(station.lat), parseFloat(station.lang));
-                        placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
-                        geocoder.geocode({ 'location': position }, (results, status) => {
-                            if (status === 'OK' && results[0]) {
-                                document.getElementById('edit-pac-input').value = results[0].formatted_address;
+                    const editMapElement = document.getElementById('edit-map');
+                    if (editMapElement) {
+                        // Ensure map element has proper dimensions
+                        editMapElement.style.height = '300px';
+                        editMapElement.style.width = '100%';
+                        editMapElement.style.minHeight = '300px';
+                        editMapElement.style.maxHeight = '300px';
+                        
+                        // Initialize edit map if not already initialized
+                        if (!editMapInitialized && typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                            editMapInitialized = true;
+                            const defaultCenter = { lat: 24.7136, lng: 46.6753 };
+                            
+                            editMap = new google.maps.Map(editMapElement, {
+                                center: defaultCenter,
+                                zoom: 10,
+                                mapTypeControl: false,
+                                streetViewControl: false
+                            });
+                            
+                            editMarker = new google.maps.Marker({
+                                map: editMap,
+                                draggable: true,
+                                animation: google.maps.Animation.DROP,
+                                visible: false,
+                            });
+                            
+                            const editInput = document.getElementById('edit-pac-input');
+                            if (editInput) {
+                                editAutocomplete = new google.maps.places.Autocomplete(editInput);
+                                editAutocomplete.bindTo('bounds', editMap);
+                                
+                                editAutocomplete.addListener('place_changed', () => {
+                                    const place = editAutocomplete.getPlace();
+                                    if (!place.geometry) return;
+                                    
+                                    if (place.geometry.viewport) {
+                                        editMap.fitBounds(place.geometry.viewport);
+                                    } else {
+                                        editMap.setCenter(place.geometry.location);
+                                        editMap.setZoom(17);
+                                    }
+                                    
+                                    editMarker.setPosition(place.geometry.location);
+                                    editMarker.setVisible(true);
+                                    
+                                    if (modalComponent && modalComponent.stationData) {
+                                        modalComponent.stationData.lat = place.geometry.location.lat();
+                                        modalComponent.stationData.lang = place.geometry.location.lng();
+                                    }
+                                });
                             }
-                        });
+                            
+                            editMap.addListener('click', (e) => {
+                                if (editMarker) {
+                                    editMarker.setVisible(true);
+                                    editMarker.setPosition(e.latLng);
+                                    editMap.panTo(e.latLng);
+                                }
+                                placeMarkerAndPanTo(e.latLng, editMap, editMarker, 'edit-pac-input');
+                                if (modalComponent && modalComponent.stationData) {
+                                    modalComponent.stationData.lat = e.latLng.lat();
+                                    modalComponent.stationData.lang = e.latLng.lng();
+                                }
+                            });
+                            
+                            editMarker.addListener('dragend', () => {
+                                const position = editMarker.getPosition();
+                                if (modalComponent && modalComponent.stationData) {
+                                    modalComponent.stationData.lat = position.lat();
+                                    modalComponent.stationData.lang = position.lng();
+                                }
+                                placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                            });
+                            
+                            setTimeout(() => {
+                                if (editMap) {
+                                    google.maps.event.trigger(editMap, 'resize');
+                                }
+                            }, 200);
+                        }
+                        
+                        // Wait for map to be ready and set station location
+                        setTimeout(() => {
+                            if (station.lat && station.lang && editMap && editMarker) {
+                                const position = new google.maps.LatLng(parseFloat(station.lat), parseFloat(station.lang));
+                                placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                                if (geocoder) {
+                                    geocoder.geocode({ 'location': position }, (results, status) => {
+                                        if (status === 'OK' && results[0]) {
+                                            const editInput = document.getElementById('edit-pac-input');
+                                            if (editInput) {
+                                                editInput.value = results[0].formatted_address;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }, 500);
                     }
-                }, 300);
+                }, 200);
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+                coloredToast('danger', 'Failed to open edit modal');
             }
         },
         updateStation: async function (stationId) {
             try {
+                const modalElement = document.getElementById('editStationModal');
+                if (!modalElement) {
+                    coloredToast('danger', 'Modal not found');
+                    return;
+                }
+                
+                const modalComponent = Alpine.$data(modalElement);
+                if (!modalComponent) {
+                    coloredToast('danger', 'Modal component not found');
+                    return;
+                }
+
+                modalComponent.isUpdating = true;
                 loadingIndicator.show();
-                const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, stationData: {} }"]'));
-                if (!modalComponent) return;
 
                 const token = localStorage.getItem('authToken');
                 const data = await ApiService.updateStation(stationId, {
@@ -361,6 +488,31 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
+                const modalElement = document.getElementById('editStationModal');
+                if (modalElement) {
+                    const modalComponent = Alpine.$data(modalElement);
+                    if (modalComponent) {
+                        modalComponent.isUpdating = false;
+                    }
+                }
+            }
+        },
+        confirmDeleteStation: async function (stationId) {
+            try {
+                const tableComponent = Alpine.$data(document.querySelector('[x-data="stationsTable"]'));
+                if (tableComponent && tableComponent.confirmDeleteStation) {
+                    await tableComponent.confirmDeleteStation(stationId);
+                } else {
+                    // Fallback: delete directly from store
+                    loadingIndicator.show();
+                    await ApiService.deleteStation(stationId);
+                    coloredToast('success', Alpine.store('i18n').t('station_deleted_success'));
+                    await this.refreshTable();
+                    loadingIndicator.hide();
+                }
+            } catch (error) {
+                loadingIndicator.hide();
+                coloredToast('danger', error.message || Alpine.store('i18n').t('error_delete_station'));
             }
         }
     });
@@ -381,10 +533,18 @@ document.addEventListener('alpine:init', () => {
         currentPage: 1,
 
         async init() {
-            const addStationComponent = Alpine.$data(document.querySelector('[x-data="Add_Station"]'));
-            const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, stationData: {} }"]'));
-            loadGoogleMapsAPI('map', 'edit-map', addStationComponent, modalComponent);
-            await this.fetchStations(1);
+            try {
+                const addStationElement = document.querySelector('[x-data="Add_Station"]');
+                const addStationComponent = addStationElement ? Alpine.$data(addStationElement) : null;
+                
+                const modalElement = document.getElementById('editStationModal');
+                const modalComponent = modalElement ? Alpine.$data(modalElement) : null;
+                
+                loadGoogleMapsAPI('map', 'edit-map', addStationComponent, modalComponent);
+                await this.fetchStations(1);
+            } catch (error) {
+                console.error('Error initializing stations table:', error);
+            }
 
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
@@ -490,7 +650,13 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(station.id),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#stationsDataTable', {
+            const tableElement = document.getElementById('stationsDataTable');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
+            }
+            this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
@@ -540,41 +706,72 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(stationId) {
             return `
-                <div class="flex items-center justify-center gap-1">
-                    <button class="btn update-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${stationId}">
-                        ${Alpine.store('i18n').t('edit')}
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1" data-id="${stationId}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <div class="flex items-center justify-center gap-2">
+                    <button 
+                        class="update-btn flex items-center gap-1.5 rounded-lg bg-warning/10 px-3 py-1.5 text-warning transition-all hover:bg-warning/20 hover:shadow-md" 
+                        data-id="${stationId}"
+                        title="${Alpine.store('i18n').t('edit_station')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
+                        <span class="text-xs font-medium">${Alpine.store('i18n').t('edit')}</span>
+                    </button>
+                    <button 
+                        class="delete-btn flex items-center gap-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-danger transition-all hover:bg-danger/20 hover:shadow-md" 
+                        data-id="${stationId}"
+                        title="${Alpine.store('i18n').t('delete_station')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="text-xs font-medium">${Alpine.store('i18n').t('delete')}</span>
                     </button>
                 </div>`;
         },
 
         async deleteStation(stationId) {
-            const deleteConfirmed = await Swal.fire({
-                title: Alpine.store('i18n').t('delete_confirm_title'),
-                text: Alpine.store('i18n').t('delete_confirm_text'),
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: Alpine.store('i18n').t('delete_confirm_button'),
-                cancelButtonText: Alpine.store('i18n').t('cancel')
-            });
+            try {
+                const station = this.tableData.find(s => s.id == stationId);
+                if (!station) return;
 
-            if (!deleteConfirmed.isConfirmed) return;
+                // Open delete modal
+                const deleteModalElement = document.getElementById('deleteStationModal');
+                if (deleteModalElement) {
+                    const modalData = Alpine.$data(deleteModalElement);
+                    if (modalData) {
+                        modalData.stationId = stationId;
+                        modalData.stationName = station.name || '';
+                        modalData.open = true;
+                    }
+                } else {
+                    console.error('Delete modal element not found');
+                    // Fallback to SweetAlert2 if modal not found
+                    const deleteConfirmed = await Swal.fire({
+                        title: Alpine.store('i18n').t('delete_confirm_title'),
+                        text: Alpine.store('i18n').t('delete_confirm_text'),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Alpine.store('i18n').t('delete_confirm_button'),
+                        cancelButtonText: Alpine.store('i18n').t('cancel')
+                    });
 
+                    if (deleteConfirmed.isConfirmed) {
+                        await this.confirmDeleteStation(stationId);
+                    }
+                }
+            } catch (error) {
+                console.error('Error opening delete modal:', error);
+                coloredToast('danger', 'Failed to open delete modal');
+            }
+        },
+        
+        async confirmDeleteStation(stationId) {
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
                 await ApiService.deleteStation(stationId);
-
                 coloredToast('success', Alpine.store('i18n').t('station_deleted_success'));
                 await this.fetchStations(this.currentPage);
             } catch (error) {

@@ -112,6 +112,18 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
                     if (component) {
                         component.lat = e.latLng.lat();
                         component.lang = e.latLng.lng();
+                        // Update address from geocoder
+                        if (geocoder) {
+                            geocoder.geocode({ 'location': e.latLng }, (results, status) => {
+                                if (status === 'OK' && results[0] && component) {
+                                    component.address = results[0].formatted_address;
+                                    const input = document.getElementById('pac-input');
+                                    if (input) {
+                                        input.value = results[0].formatted_address;
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
 
@@ -120,6 +132,18 @@ function initMap(mapElementId, editMapElementId, component, modalComponent) {
                     if (component) {
                         component.lat = position.lat();
                         component.lang = position.lng();
+                        // Update address from geocoder
+                        if (geocoder) {
+                            geocoder.geocode({ 'location': position }, (results, status) => {
+                                if (status === 'OK' && results[0] && component) {
+                                    component.address = results[0].formatted_address;
+                                    const input = document.getElementById('pac-input');
+                                    if (input) {
+                                        input.value = results[0].formatted_address;
+                                    }
+                                }
+                            });
+                        }
                     }
                     placeMarkerAndPanTo(position, map, marker, 'pac-input');
                 });
@@ -305,18 +329,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('whiteLocationsDataTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const whiteLocationsTableContainer = document.getElementById('whiteLocationsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (whiteLocationsTableContainer) whiteLocationsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('whiteLocationsDataTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const whiteLocationsTableContainer = document.getElementById('whiteLocationsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (whiteLocationsTableContainer) whiteLocationsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('whiteLocationsDataTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const whiteLocationsTableContainer = document.getElementById('whiteLocationsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (whiteLocationsTableContainer) whiteLocationsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -328,24 +360,147 @@ document.addEventListener('alpine:init', () => {
             }
         },
         openEditModal: function (whiteLocation) {
-            const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
-            if (modalComponent) {
+            try {
+                const modalElement = document.getElementById('editWhiteLocationModal');
+                if (!modalElement) {
+                    console.error('Edit modal element not found');
+                    return;
+                }
+                
+                const modalComponent = Alpine.$data(modalElement);
+                if (!modalComponent) {
+                    console.error('Modal component not found');
+                    return;
+                }
+                
                 modalComponent.whiteLocationData = { ...whiteLocation };
                 modalComponent.open = true;
+                
+                // Initialize edit map when modal opens
                 setTimeout(() => {
-                    document.getElementById('edit-pac-input').value = whiteLocation.address;
-                    if (whiteLocation.lat && whiteLocation.lang && editMap && editMarker) {
-                        const position = new google.maps.LatLng(parseFloat(whiteLocation.lat), parseFloat(whiteLocation.lang));
-                        placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                    const editMapElement = document.getElementById('edit-map');
+                    if (editMapElement) {
+                        // Ensure map element has proper dimensions
+                        editMapElement.style.height = '300px';
+                        editMapElement.style.width = '100%';
+                        editMapElement.style.minHeight = '300px';
+                        editMapElement.style.maxHeight = '300px';
+                        
+                        // Initialize edit map if not already initialized
+                        if (!editMapInitialized && typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+                            editMapInitialized = true;
+                            const defaultCenter = { lat: 24.7136, lng: 46.6753 };
+                            
+                            editMap = new google.maps.Map(editMapElement, {
+                                center: defaultCenter,
+                                zoom: 10,
+                                mapTypeControl: false,
+                                streetViewControl: false
+                            });
+                            
+                            editMarker = new google.maps.Marker({
+                                map: editMap,
+                                draggable: true,
+                                animation: google.maps.Animation.DROP,
+                                visible: false,
+                            });
+                            
+                            const editInput = document.getElementById('edit-pac-input');
+                            if (editInput) {
+                                editAutocomplete = new google.maps.places.Autocomplete(editInput);
+                                editAutocomplete.bindTo('bounds', editMap);
+                                
+                                editAutocomplete.addListener('place_changed', () => {
+                                    const place = editAutocomplete.getPlace();
+                                    if (!place.geometry) return;
+                                    
+                                    if (place.geometry.viewport) {
+                                        editMap.fitBounds(place.geometry.viewport);
+                                    } else {
+                                        editMap.setCenter(place.geometry.location);
+                                        editMap.setZoom(17);
+                                    }
+                                    
+                                    editMarker.setPosition(place.geometry.location);
+                                    editMarker.setVisible(true);
+                                    
+                                    if (modalComponent && modalComponent.whiteLocationData) {
+                                        modalComponent.whiteLocationData.lat = place.geometry.location.lat();
+                                        modalComponent.whiteLocationData.lang = place.geometry.location.lng();
+                                        modalComponent.whiteLocationData.address = place.formatted_address || editInput.value;
+                                    }
+                                });
+                            }
+                            
+                            editMap.addListener('click', (e) => {
+                                if (editMarker) {
+                                    editMarker.setVisible(true);
+                                    editMarker.setPosition(e.latLng);
+                                    editMap.panTo(e.latLng);
+                                }
+                                placeMarkerAndPanTo(e.latLng, editMap, editMarker, 'edit-pac-input');
+                                if (modalComponent && modalComponent.whiteLocationData) {
+                                    modalComponent.whiteLocationData.lat = e.latLng.lat();
+                                    modalComponent.whiteLocationData.lang = e.latLng.lng();
+                                }
+                            });
+                            
+                            editMarker.addListener('dragend', () => {
+                                const position = editMarker.getPosition();
+                                if (modalComponent && modalComponent.whiteLocationData) {
+                                    modalComponent.whiteLocationData.lat = position.lat();
+                                    modalComponent.whiteLocationData.lang = position.lng();
+                                }
+                                placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                            });
+                            
+                            setTimeout(() => {
+                                if (editMap) {
+                                    google.maps.event.trigger(editMap, 'resize');
+                                }
+                            }, 200);
+                        }
+                        
+                        // Wait for map to be ready and set location
+                        setTimeout(() => {
+                            if (whiteLocation.lat && whiteLocation.lang && editMap && editMarker) {
+                                const position = new google.maps.LatLng(parseFloat(whiteLocation.lat), parseFloat(whiteLocation.lang));
+                                placeMarkerAndPanTo(position, editMap, editMarker, 'edit-pac-input');
+                                if (geocoder) {
+                                    geocoder.geocode({ 'location': position }, (results, status) => {
+                                        if (status === 'OK' && results[0]) {
+                                            const editInput = document.getElementById('edit-pac-input');
+                                            if (editInput) {
+                                                editInput.value = results[0].formatted_address;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }, 500);
                     }
-                }, 300);
+                }, 200);
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+                coloredToast('danger', 'Failed to open edit modal');
             }
         },
         updateWhiteLocation: async function (whiteLocationId) {
             try {
+                const modalElement = document.getElementById('editWhiteLocationModal');
+                if (!modalElement) {
+                    coloredToast('danger', 'Modal not found');
+                    return;
+                }
+                
+                const modalComponent = Alpine.$data(modalElement);
+                if (!modalComponent) {
+                    coloredToast('danger', 'Modal component not found');
+                    return;
+                }
+
+                modalComponent.isUpdating = true;
                 loadingIndicator.show();
-                const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
-                if (!modalComponent) return;
 
                 const token = localStorage.getItem('authToken');
                 const data = await ApiService.updateWhiteLocation(whiteLocationId, {
@@ -361,6 +516,31 @@ document.addEventListener('alpine:init', () => {
                 coloredToast('danger', error.message);
             } finally {
                 loadingIndicator.hide();
+                const modalElement = document.getElementById('editWhiteLocationModal');
+                if (modalElement) {
+                    const modalComponent = Alpine.$data(modalElement);
+                    if (modalComponent) {
+                        modalComponent.isUpdating = false;
+                    }
+                }
+            }
+        },
+        confirmDeleteWhiteLocation: async function (whiteLocationId) {
+            try {
+                const tableComponent = Alpine.$data(document.querySelector('[x-data="whiteLocationsTable"]'));
+                if (tableComponent && tableComponent.confirmDeleteWhiteLocation) {
+                    await tableComponent.confirmDeleteWhiteLocation(whiteLocationId);
+                } else {
+                    // Fallback: delete directly from store
+                    loadingIndicator.show();
+                    await ApiService.deleteWhiteLocation(whiteLocationId);
+                    coloredToast('success', Alpine.store('i18n').t('white_location_deleted_success'));
+                    await this.refreshTable();
+                    loadingIndicator.hide();
+                }
+            } catch (error) {
+                loadingIndicator.hide();
+                coloredToast('danger', error.message || Alpine.store('i18n').t('error_delete_white_location'));
             }
         }
     });
@@ -385,10 +565,18 @@ document.addEventListener('alpine:init', () => {
             
             // Wait for component to be loaded before initializing maps
             setTimeout(() => {
-                const addWhiteLocationComponent = Alpine.$data(document.querySelector('[x-data="Add_White_Location"]'));
-                const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
-                if (addWhiteLocationComponent) {
-                    loadGoogleMapsAPI('map', 'edit-map', addWhiteLocationComponent, modalComponent);
+                try {
+                    const addWhiteLocationElement = document.querySelector('[x-data="Add_White_Location"]');
+                    const addWhiteLocationComponent = addWhiteLocationElement ? Alpine.$data(addWhiteLocationElement) : null;
+                    
+                    const modalElement = document.getElementById('editWhiteLocationModal');
+                    const modalComponent = modalElement ? Alpine.$data(modalElement) : null;
+                    
+                    if (addWhiteLocationComponent) {
+                        loadGoogleMapsAPI('map', 'edit-map', addWhiteLocationComponent, modalComponent);
+                    }
+                } catch (error) {
+                    console.error('Error initializing maps in table init:', error);
                 }
             }, 500);
 
@@ -424,7 +612,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await ApiService.getWhiteLocations(page);
-                if (data.status && Array.isArray(data.data)) {
+                if (data.success && Array.isArray(data.data)) {
                     this.tableData = data.data;
                     this.paginationMeta = {
                         current_page: data.pagination?.current_page || 1,
@@ -496,7 +684,13 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(whiteLocation.id),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#whiteLocationsDataTable', {
+            const tableElement = document.getElementById('whiteLocationsDataTable');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
+            }
+            this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
@@ -546,41 +740,72 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(whiteLocationId) {
             return `
-                <div class="flex items-center justify-center gap-1">
-                    <button class="btn update-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${whiteLocationId}">
-                        ${Alpine.store('i18n').t('edit')}
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1" data-id="${whiteLocationId}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <div class="flex items-center justify-center gap-2">
+                    <button 
+                        class="update-btn flex items-center gap-1.5 rounded-lg bg-warning/10 px-3 py-1.5 text-warning transition-all hover:bg-warning/20 hover:shadow-md" 
+                        data-id="${whiteLocationId}"
+                        title="${Alpine.store('i18n').t('edit_white_location')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
+                        <span class="text-xs font-medium">${Alpine.store('i18n').t('edit')}</span>
+                    </button>
+                    <button 
+                        class="delete-btn flex items-center gap-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-danger transition-all hover:bg-danger/20 hover:shadow-md" 
+                        data-id="${whiteLocationId}"
+                        title="${Alpine.store('i18n').t('delete_white_location')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="text-xs font-medium">${Alpine.store('i18n').t('delete')}</span>
                     </button>
                 </div>`;
         },
 
         async deleteWhiteLocation(whiteLocationId) {
-            const deleteConfirmed = await Swal.fire({
-                title: Alpine.store('i18n').t('delete_confirm_title'),
-                text: Alpine.store('i18n').t('delete_confirm_text'),
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: Alpine.store('i18n').t('delete_confirm_button'),
-                cancelButtonText: Alpine.store('i18n').t('cancel')
-            });
+            try {
+                const whiteLocation = this.tableData.find(s => s.id == whiteLocationId);
+                if (!whiteLocation) return;
 
-            if (!deleteConfirmed.isConfirmed) return;
+                // Open delete modal
+                const deleteModalElement = document.getElementById('deleteWhiteLocationModal');
+                if (deleteModalElement) {
+                    const modalData = Alpine.$data(deleteModalElement);
+                    if (modalData) {
+                        modalData.whiteLocationId = whiteLocationId;
+                        modalData.whiteLocationAddress = whiteLocation.address || '';
+                        modalData.open = true;
+                    }
+                } else {
+                    console.error('Delete modal element not found');
+                    // Fallback to SweetAlert2 if modal not found
+                    const deleteConfirmed = await Swal.fire({
+                        title: Alpine.store('i18n').t('delete_confirm_title'),
+                        text: Alpine.store('i18n').t('delete_confirm_text'),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Alpine.store('i18n').t('delete_confirm_button'),
+                        cancelButtonText: Alpine.store('i18n').t('cancel')
+                    });
 
+                    if (deleteConfirmed.isConfirmed) {
+                        await this.confirmDeleteWhiteLocation(whiteLocationId);
+                    }
+                }
+            } catch (error) {
+                console.error('Error opening delete modal:', error);
+                coloredToast('danger', 'Failed to open delete modal');
+            }
+        },
+        
+        async confirmDeleteWhiteLocation(whiteLocationId) {
             try {
                 loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
                 await ApiService.deleteWhiteLocation(whiteLocationId);
-
                 coloredToast('success', Alpine.store('i18n').t('white_location_deleted_success'));
                 await this.fetchWhiteLocations(this.currentPage);
             } catch (error) {
@@ -622,10 +847,20 @@ document.addEventListener('alpine:init', () => {
                 const checkAndInit = () => {
                     const mapElement = document.getElementById('map');
                     if (mapElement && typeof API_CONFIG !== 'undefined' && API_CONFIG.GOOGLE_MAPS_API_KEY) {
-                        const component = Alpine.$data(document.querySelector('[x-data="Add_White_Location"]'));
-                        const modalComponent = Alpine.$data(document.querySelector('[x-data="{ open: false, whiteLocationData: {} }"]'));
-                        if (component) {
-                            loadGoogleMapsAPI('map', 'edit-map', component, modalComponent);
+                        try {
+                            const addWhiteLocationElement = document.querySelector('[x-data="Add_White_Location"]');
+                            const component = addWhiteLocationElement ? Alpine.$data(addWhiteLocationElement) : null;
+                            
+                            const modalElement = document.getElementById('editWhiteLocationModal');
+                            const modalComponent = modalElement ? Alpine.$data(modalElement) : null;
+                            
+                            if (component) {
+                                loadGoogleMapsAPI('map', 'edit-map', component, modalComponent);
+                            }
+                        } catch (error) {
+                            console.error('Error initializing map:', error);
+                            // Retry after a short delay
+                            setTimeout(checkAndInit, 200);
                         }
                     } else {
                         // Retry after a short delay
