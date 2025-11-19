@@ -27,6 +27,7 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         discountId: null,
         isOpen: false,
+        isUpdating: false,
         callback: null,
         discountData: null,
         brands: [],
@@ -129,27 +130,36 @@ document.addEventListener('alpine:init', () => {
             Alpine.store('global').sharedData.model_id = '';
         },
 
-        updateDiscount() {
-            if (this.callback) {
-                const updatedData = {
-                    title: Alpine.store('global').sharedData.title,
-                    type: Alpine.store('global').sharedData.type,
-                    value: parseFloat(Alpine.store('global').sharedData.value),
-                    date_from: Alpine.store('global').sharedData.date_from,
-                    date_end: Alpine.store('global').sharedData.date_end
-                };
+        async updateDiscount() {
+            this.isUpdating = true;
+            loadingIndicator.show();
+            try {
+                if (this.callback) {
+                    const updatedData = {
+                        title: Alpine.store('global').sharedData.title,
+                        type: Alpine.store('global').sharedData.type,
+                        value: parseFloat(Alpine.store('global').sharedData.value),
+                        date_from: Alpine.store('global').sharedData.date_from,
+                        date_end: Alpine.store('global').sharedData.date_end
+                    };
 
-                if (updatedData.title === 'brand' && Alpine.store('global').sharedData.brand_id) {
-                    updatedData.brands = [parseInt(Alpine.store('global').sharedData.brand_id)];
+                    if (updatedData.title === 'brand' && Alpine.store('global').sharedData.brand_id) {
+                        updatedData.brands = [parseInt(Alpine.store('global').sharedData.brand_id)];
+                    }
+
+                    if (updatedData.title === 'model' && Alpine.store('global').sharedData.model_id) {
+                        updatedData.models = [parseInt(Alpine.store('global').sharedData.model_id)];
+                    }
+
+                    await this.callback(updatedData);
                 }
-
-                if (updatedData.title === 'model' && Alpine.store('global').sharedData.model_id) {
-                    updatedData.models = [parseInt(Alpine.store('global').sharedData.model_id)];
-                }
-
-                this.callback(updatedData);
+                this.closeModal();
+            } catch (error) {
+                console.error('Error updating discount:', error);
+            } finally {
+                this.isUpdating = false;
+                loadingIndicator.hide();
             }
-            this.closeModal();
         },
     });
 });

@@ -858,7 +858,12 @@
     "delete_year_confirmation": "هل أنت متأكد من أنك تريد حذف هذه السنة؟ لا يمكن التراجع عن هذا الإجراء.",
     "discount_management": "إدارة الخصومات",
     "coupons": "الكوبونات",
+    "discounts": "الخصومات",
     "add_discount": "إضافة خصم",
+    "create_new_discount": "إنشاء خصم جديد",
+    "manage_discounts": "إدارة جميع الخصومات",
+    "update_discount": "تحديث الخصم",
+    "update_discount_information": "تحديث معلومات الخصم",
     "discount_scope": "نطاق الخصم",
     "select_scope": "اختر النطاق",
     "by_brand": "حسب الماركة",
@@ -896,10 +901,12 @@
 
     "add_coupon": "إضافة كوبون",
     "update_coupon": "تحديث الكوبون",
+    "update_coupon_information": "تحديث معلومات الكوبون",
     "coupons_list": "قائمة الكوبونات",
-
     "coupon_code": "كود الكوبون",
     "enter_coupon_code": "أدخل كود الكوبون",
+    "create_new_coupon": "إنشاء كود كوبون جديد",
+    "manage_coupons": "إدارة جميع أكواد الكوبونات",
 
     "code": "الكود",
 

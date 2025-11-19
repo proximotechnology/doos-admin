@@ -924,9 +924,13 @@
     "delete_year_confirmation": "Are you sure you want to delete this year? This action cannot be undone.",
     "discount_management": "Discount Management",
     "coupons": "Coupons",
-
+    "discounts": "Discounts",
     "add_discount": "Add Discount",
     "create_coupon": "Create Coupon",
+    "create_new_discount": "Create a new discount",
+    "manage_discounts": "Manage all discounts",
+    "update_discount": "Update Discount",
+    "update_discount_information": "Update discount information",
     "discount_scope": "Discount Scope",
     "select_scope": "Select Scope",
     "by_brand": "By Brand",
@@ -984,9 +988,12 @@
 
     "add_coupon": "Add Coupon",
     "update_coupon": "Update Coupon",
+    "update_coupon_information": "Update coupon information",
     "coupons_list": "Coupons List",
     "coupon_code": "Coupon Code",
     "enter_coupon_code": "Enter coupon code",
+    "create_new_coupon": "Create a new coupon code",
+    "manage_coupons": "Manage all coupon codes",
 
     "code": "Code",
 

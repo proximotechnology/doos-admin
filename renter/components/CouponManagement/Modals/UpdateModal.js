@@ -27,6 +27,7 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         couponId: null,
         isOpen: false,
+        isUpdating: false,
         callback: null,
         couponData: null,
 
@@ -67,20 +68,29 @@ document.addEventListener('alpine:init', () => {
             return new Date(dateString).toISOString().split('T')[0];
         },
 
-        updateCoupon() {
-            if (this.callback) {
-                const updatedData = {
-                    code: Alpine.store('global').sharedData.code,
-                    type: Alpine.store('global').sharedData.type,
-                    value: parseFloat(Alpine.store('global').sharedData.value),
-                    status: Alpine.store('global').sharedData.status,
-                    date_from: Alpine.store('global').sharedData.date_from,
-                    date_end: Alpine.store('global').sharedData.date_end
-                };
+        async updateCoupon() {
+            this.isUpdating = true;
+            loadingIndicator.show();
+            try {
+                if (this.callback) {
+                    const updatedData = {
+                        code: Alpine.store('global').sharedData.code,
+                        type: Alpine.store('global').sharedData.type,
+                        value: parseFloat(Alpine.store('global').sharedData.value),
+                        status: Alpine.store('global').sharedData.status,
+                        date_from: Alpine.store('global').sharedData.date_from,
+                        date_end: Alpine.store('global').sharedData.date_end
+                    };
 
-                this.callback(updatedData);
+                    await this.callback(updatedData);
+                }
+                this.closeModal();
+            } catch (error) {
+                console.error('Error updating coupon:', error);
+            } finally {
+                this.isUpdating = false;
+                loadingIndicator.hide();
             }
-            this.closeModal();
         },
     });
 });
