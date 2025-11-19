@@ -309,19 +309,9 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/update/${couponId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateConfirmed),
-                });
+                const result = await ApiService.updateCoupon(couponId, updateConfirmed);
 
-                const result = await response.json();
-
-                if (!response.ok) {
+                if (!result.status) {
                     let errorMessage = Alpine.store('i18n').t('failed_update_coupon');
 
                     if (result.errors) {
@@ -372,19 +362,9 @@ document.addEventListener('alpine:init', () => {
                     date_end: coupon.date_end
                 };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/update/${couponId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateData),
-                });
+                const result = await ApiService.updateCoupon(couponId, updateData);
 
-                const result = await response.json();
-
-                if (!response.ok) {
+                if (!result.status) {
                     let errorMessage = Alpine.store('i18n').t('failed_update_coupon');
 
                     if (result.errors) {
@@ -497,18 +477,9 @@ document.addEventListener('alpine:init', () => {
                     status: this.status
                 };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/coupon/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(payload),
-                });
+                const result = await ApiService.addCoupon(payload);
 
-                const result = await response.json();
-
-                if (!response.ok) {
+                if (!result.status) {
                     const errorMsg =
                         result.message ||
                         Object.values(result.errors || {})

@@ -39,17 +39,7 @@ document.addEventListener('alpine:init', () => {
         },
         async fetchUsers() {
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all?per_page=999`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_fetch_users'));
-                const data = await response.json();
+                const data = await ApiService.getUsers(1, { per_page: 999 });
                 
                 this.users = data.data.data.filter((u) => u.type === '0');
             } catch (error) {
@@ -58,17 +48,7 @@ document.addEventListener('alpine:init', () => {
         },
         async fetchPlans() {
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/plan/index`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_to_fetch_plans'));
-                const data = await response.json();
+                const data = await ApiService.getPlans();
                 this.plans = data.data;
             } catch (error) {
                 coloredToast('error', error.message);
@@ -200,18 +180,7 @@ document.addEventListener('alpine:init', () => {
 
                 if (!isConfirmed.isConfirmed) return;
 
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribe/mark_as_paid/${subscriptionId}`, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_approve_subscription'));
-                }
+                await ApiService.markSubscriptionAsPaid(subscriptionId);
 
                 await this.fetchSubscriptions();
                 Swal.fire(Alpine.store('i18n').t('approved'),

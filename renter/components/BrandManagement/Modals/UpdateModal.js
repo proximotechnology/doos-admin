@@ -80,16 +80,8 @@ document.addEventListener('alpine:init', () => {
                     formData.append('image', Alpine.store('global').sharedData.imageFile);
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/update`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
+                const result = await ApiService.updateBrand(this.brandId, formData);
+                if (!result.status) {
                     const errorMsg = result.message ||
                         (result.errors ? Object.values(result.errors).flat().join(', ') : '') ||
                         Alpine.store('i18n').t('failed_update_brand');

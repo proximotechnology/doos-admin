@@ -50,25 +50,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchRoles() {
             try {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_roles'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getRoles();
                 if (data.status && Array.isArray(data.data)) {
                     this.roles = data.data;
                 } else {
@@ -92,18 +74,8 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('all_fields_required'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/edit/${this.adminId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(Alpine.store('global').sharedData),
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
+                const result = await ApiService.updateAdmin(this.adminId, Alpine.store('global').sharedData);
+                if (!result.status) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_update_admin'));
                 }
 

@@ -129,18 +129,7 @@ document.addEventListener('alpine:init', () => {
                             throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                         }
 
-                        const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/delete/${adminId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                Accept: 'application/json',
-                                Authorization: `Bearer ${token}`,
-                            },
-                        });
-
-                        const result = await response.json();
-                        if (!response.ok) {
-                            throw new Error(result.message || Alpine.store('i18n').t('failed_to_delete_admin'));
-                        }
+                        await ApiService.deleteAdmin(adminId);
 
                         coloredToast('success', Alpine.store('i18n').t('admin_deleted_success'));
                         await this.fetchAdmins();
@@ -178,19 +167,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/roles`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_roles'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getRoles();
                 if (data.status && Array.isArray(data.data)) {
                     this.roles = data.data;
                 } else {
@@ -213,24 +190,15 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/admins/create`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        role_id: this.role_id,
-                        name: this.name,
-                        email: this.email,
-                        phone: this.phone,
-                        country: this.country
-                    }),
+                const result = await ApiService.addAdmin({
+                    role_id: this.role_id,
+                    name: this.name,
+                    email: this.email,
+                    phone: this.phone,
+                    country: this.country
                 });
 
-                const result = await response.json();
-                if (!response.ok) {
+                if (!result.status) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_admin'));
                 }
 

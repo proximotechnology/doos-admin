@@ -307,6 +307,36 @@
             return this.delete(`/api/admin/model_car/delete/${modelId}`);
         }
 
+        /**
+         * Get model details
+         */
+        async getModelDetails(modelId) {
+            return this.get(`/api/admin/model_car/show/${modelId}`);
+        }
+
+        /**
+         * Add year to model
+         */
+        async addYear(data) {
+            const isFormData = data instanceof FormData;
+            return this.post('/api/admin/year_model/store', data, isFormData);
+        }
+
+        /**
+         * Update year
+         */
+        async updateYear(yearId, data) {
+            const isFormData = data instanceof FormData;
+            return this.post(`/api/admin/year_model/update/${yearId}`, data, isFormData);
+        }
+
+        /**
+         * Delete year
+         */
+        async deleteYear(yearId) {
+            return this.delete(`/api/admin/year_model/delete/${yearId}`);
+        }
+
         // ==================== Plan Management APIs ====================
 
         /**
@@ -544,14 +574,14 @@
          * Add discount
          */
         async addDiscount(data) {
-            return this.post('/api/admin/discounts/store', data);
+            return this.post('/api/admin/discount/store', data);
         }
 
         /**
          * Update discount
          */
         async updateDiscount(discountId, data) {
-            return this.post(`/api/admin/discounts/update/${discountId}`, data);
+            return this.put(`/api/admin/discount/update/${discountId}`, data);
         }
 
         /**
@@ -575,14 +605,14 @@
          * Add coupon
          */
         async addCoupon(data) {
-            return this.post('/api/admin/coupons/store', data);
+            return this.post('/api/admin/coupon/store', data);
         }
 
         /**
          * Update coupon
          */
         async updateCoupon(couponId, data) {
-            return this.post(`/api/admin/coupons/update/${couponId}`, data);
+            return this.put(`/api/admin/coupon/update/${couponId}`, data);
         }
 
         /**
@@ -606,21 +636,49 @@
          * Get ticket details
          */
         async getTicketDetails(ticketId) {
-            return this.get(`/api/admin/tickets/${ticketId}`);
+            return this.get(`/api/admin/support/tickets/${ticketId}`);
         }
 
         /**
          * Send ticket reply
          */
         async sendTicketReply(ticketId, data) {
-            return this.post(`/api/admin/tickets/${ticketId}/reply`, data);
+            return this.post(`/api/admin/support/tickets/${ticketId}/reply`, data);
+        }
+
+        /**
+         * Add internal note to ticket
+         */
+        async addTicketInternalNote(ticketId, data) {
+            return this.post(`/api/admin/support/tickets/${ticketId}/internal-note`, data);
         }
 
         /**
          * Update ticket status
          */
-        async updateTicketStatus(ticketId, status) {
-            return this.post(`/api/admin/tickets/${ticketId}/status`, { status });
+        async updateTicketStatus(ticketId, data) {
+            return this.put(`/api/admin/support/tickets/${ticketId}/status`, data);
+        }
+
+        /**
+         * Update ticket priority
+         */
+        async updateTicketPriority(ticketId, data) {
+            return this.put(`/api/admin/support/tickets/${ticketId}/priority`, data);
+        }
+
+        /**
+         * Close ticket
+         */
+        async closeTicket(ticketId, data) {
+            return this.post(`/api/admin/support/tickets/${ticketId}/close`, data);
+        }
+
+        /**
+         * Reopen ticket
+         */
+        async reopenTicket(ticketId, data) {
+            return this.post(`/api/admin/support/tickets/${ticketId}/reopen`, data);
         }
 
         // ==================== Wallet Management APIs ====================
@@ -648,6 +706,13 @@
          */
         async deleteReview(reviewId) {
             return this.delete(`/api/admin/reviews/delete/${reviewId}`);
+        }
+
+        /**
+         * Delete review (admin endpoint)
+         */
+        async deleteReviewAdmin(reviewId) {
+            return this.delete(`/api/admin/review/delete_admin/${reviewId}`);
         }
 
         // ==================== Contract Management APIs ====================
@@ -763,6 +828,13 @@
             return this.get('/api/admin/user/get_all', params);
         }
 
+        /**
+         * Delete user
+         */
+        async deleteUser(userId) {
+            return this.delete(`/api/admin/user/delete/${userId}`);
+        }
+
         // ==================== Profile APIs ====================
 
         /**
@@ -799,7 +871,7 @@
          * Update admin
          */
         async updateAdmin(adminId, data) {
-            return this.post(`/api/admin/admins/update/${adminId}`, data);
+            return this.put(`/api/admin/admins/update/${adminId}`, data);
         }
 
         /**
@@ -890,6 +962,34 @@
             return this.get('/api/admin/withdrawal-requests/index', params);
         }
 
+        /**
+         * Get withdrawal statistics
+         */
+        async getWithdrawalStatistics() {
+            return this.get('/api/admin/withdrawal-requests/statistics/overview');
+        }
+
+        /**
+         * Get withdrawal details
+         */
+        async getWithdrawalDetails(withdrawalId) {
+            return this.get(`/api/admin/withdrawal-requests/${withdrawalId}`);
+        }
+
+        /**
+         * Process withdrawal (approve/reject)
+         */
+        async processWithdrawal(withdrawalId, data) {
+            return this.post(`/api/admin/withdrawal-requests/${withdrawalId}/process`, data);
+        }
+
+        /**
+         * Complete withdrawal
+         */
+        async completeWithdrawal(withdrawalId) {
+            return this.post(`/api/admin/withdrawal-requests/${withdrawalId}/complete`);
+        }
+
         // ==================== Driver Price APIs ====================
 
         /**
@@ -928,6 +1028,27 @@
          */
         async approveSubscription(subscriptionId) {
             return this.post(`/api/admin/subscribe/approve/${subscriptionId}`);
+        }
+
+        /**
+         * Mark subscription as paid
+         */
+        async markSubscriptionAsPaid(subscriptionId) {
+            return this.post(`/api/admin/subscribe/mark_as_paid/${subscriptionId}`);
+        }
+
+        /**
+         * Get subscribers (alias for getSubscriptions)
+         */
+        async getSubscribers(page = 1, filters = {}) {
+            return this.getSubscriptions(page, filters);
+        }
+
+        /**
+         * Delete subscriber
+         */
+        async deleteSubscriber(subscriberId) {
+            return this.delete(`/api/admin/subscribers/delete/${subscriberId}`);
         }
 
         // ==================== Chat Management APIs ====================

@@ -280,18 +280,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/delete/${testimonialId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_delete_testimonial'));
-                }
+                await ApiService.deleteTestimonial(testimonialId);
 
                 coloredToast('success', Alpine.store('i18n').t('delete_testimonial_successful'));
                 await this.fetchTestimonials(this.currentPage);
@@ -338,24 +327,7 @@ document.addEventListener('alpine:init', () => {
                 formData.append('rating', this.rating);
                 formData.append('image', this.$refs.image.files[0]);
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/store`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                    const errorMsg =
-                        result.message ||
-                        Object.values(result.errors || {})
-                            .flat()
-                            .join(', ') ||
-                        Alpine.store('i18n').t('failed_to_add_testimonial');
-                    throw new Error(errorMsg);
-                }
+                const result = await ApiService.addTestimonial(formData);
 
                 this.name = '';
                 this.comment = '';

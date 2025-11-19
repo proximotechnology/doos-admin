@@ -50,24 +50,47 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/show/${this.modelId}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const data = await ApiService.getModelDetails(this.modelId);
 
-                const data = await response.json();
+                // Debug: Log the response structure
+                console.log('Model Details API Response:', data);
 
-                if (!response.ok) {
-                    throw new Error(data.message || 'فشل في جلب تفاصيل الموديل');
+                // Handle different response structures
+                if (data && (data.status === true || data.status === 'success' || data.success === true)) {
+                    // Response structure: { status: true, data: {...} }
+                    if (data.data) {
+                        this.model = data.data;
+                    } else if (data.model) {
+                        // Alternative structure: { status: true, model: {...} }
+                        this.model = data.model;
+                    } else {
+                        // Direct data structure: { status: true, name: ..., brand: ..., ... }
+                        // Remove status and other metadata, keep only model data
+                        const { status, success, message, ...modelData } = data;
+                        this.model = modelData;
+                    }
+                } else if (data && data.data && (data.data.name || data.data.id)) {
+                    // Response structure: { data: {...} } without status
+                    this.model = data.data;
+                } else if (data && (data.name || data.id)) {
+                    // Direct model data: { name: ..., brand: ..., ... }
+                    this.model = data;
+                } else {
+                    throw new Error(data?.message || data?.error || 'فشل في جلب تفاصيل الموديل');
                 }
 
-                this.model = data.data;
+                // Debug: Log the assigned model
+                console.log('Assigned Model:', this.model);
+
+                // Ensure model has required structure
+                if (!this.model || (!this.model.name && !this.model.id)) {
+                    throw new Error('Invalid model data structure');
+                }
+
+                coloredToast('success', Alpine.store('i18n').t('model_loaded_successfully') || 'تم جلب الموديل بنجاح');
             } catch (error) {
                 coloredToast('danger', error.message || 'فشل في جلب تفاصيل الموديل');
-                } finally {
+            } finally {
                 loadingIndicator.hide();
             }
         },
@@ -92,16 +115,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
 
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/year_model/delete/${yearId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error(Alpine.store('i18n').t('failed_delete_year'));
+                await ApiService.deleteYear(yearId);
 
                 coloredToast('success', Alpine.store('i18n').t('year_deleted_successfully'));
                 await this.fetchModelDetails();
@@ -196,19 +210,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('لم يتم تعريف عنوان API');
                 }
 
-                const response = await fetch(`${apiBaseUrl}/api/admin/year_model/store`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_add_year'));
-                }
+                const result = await ApiService.addYear(formData);
 
                 coloredToast('success', Alpine.store('i18n').t('year_added_successfully'));
 
@@ -298,19 +300,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('لم يتم تعريف عنوان API');
                 }
 
-                const response = await fetch(`${apiBaseUrl}/api/admin/year_model/update/${this.yearId}`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_update_year'));
-                }
+                const result = await ApiService.updateYear(this.yearId, formData);
 
                 coloredToast('success', Alpine.store('i18n').t('year_updated_successfully'));
 

@@ -329,19 +329,9 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/update/${discountId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateConfirmed),
-                });
+                const result = await ApiService.updateDiscount(discountId, updateConfirmed);
 
-                const result = await response.json();
-
-                if (!response.ok) {
+                if (!result.status) {
                     const errorMsg = result.message ||
                         (result.errors ? Object.values(result.errors).flat().join(', ') : Alpine.store('i18n').t('failed_update_discount'));
                     throw new Error(errorMsg);
@@ -378,27 +368,14 @@ document.addEventListener('alpine:init', () => {
 
                 const updateData = { status };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/update/${discountId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(updateData),
-                });
+                const result = await ApiService.updateDiscount(discountId, updateData);
 
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-
-                    const errorMsg = errorData.message ||
-                        (errorData.errors ? Object.values(errorData.errors).flat().join(', ') :
+                if (!result.status) {
+                    const errorMsg = result.message ||
+                        (result.errors ? Object.values(result.errors).flat().join(', ') :
                             Alpine.store('i18n').t('failed_update_discount'));
                     throw new Error(errorMsg);
                 }
-
-                const result = await response.json();
 
                 coloredToast('success',
                     status === 'active' ?
@@ -484,23 +461,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchBrands() {
             try {
-                const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_brands'));
-                }
-
+                const result = await ApiService.getBrands(1, { per_page: 1000 });
                 this.brands = result.data.data;
             } catch (error) {
                 coloredToast('danger', error.message);
@@ -509,23 +470,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchModels() {
             try {
-                const token = localStorage.getItem('authToken');
-                if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
-
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || Alpine.store('i18n').t('failed_to_load_models'));
-                }
-
+                const result = await ApiService.getModels(1, { per_page: 1000 });
                 this.models = result.data.data;
             } catch (error) {
                 coloredToast('danger', error.message);
@@ -567,16 +512,7 @@ document.addEventListener('alpine:init', () => {
                     payload.models = [parseInt(this.model_id)];
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/discount/store`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(payload),
-                });
-
-                const result = await response.json();
+                const result = await ApiService.addDiscount(payload);
 
                 if (!response.ok) {
                     const errorMsg =

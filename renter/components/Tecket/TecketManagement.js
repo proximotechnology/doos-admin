@@ -114,23 +114,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         async loadStatistics() {
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/statistics?period=30&group_by=day`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        this.statistics = data.statistics;
-                    }
+                const data = await ApiService.getTicketStatistics(30, 'day');
+                if (data.status === 'success') {
+                    this.statistics = data.statistics;
                 }
             } catch (error) {
                 }
@@ -180,24 +167,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         async loadTicketDetails(ticketId) {
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${ticketId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getTicketDetails(ticketId);
 
                 if (data.status === 'success') {
                     this.selectedTicket = data.ticket;
@@ -222,30 +194,13 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/reply`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        message: this.replyMessage.trim(),
-                        is_internal_note: false,
-                        attachments: []
-                    })
+                const data = await ApiService.sendTicketReply(this.selectedTicket.id, {
+                    message: this.replyMessage.trim(),
+                    is_internal_note: false,
+                    attachments: []
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
 
                 if (data.status === 'success') {
                     // Add message to conversation
@@ -286,29 +241,12 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/internal-note`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        message: this.replyMessage.trim(),
-                        is_internal_note: true
-                    })
+                const data = await ApiService.addTicketInternalNote(this.selectedTicket.id, {
+                    message: this.replyMessage.trim(),
+                    is_internal_note: true
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
 
                 if (data.status === 'success') {
                     // Add internal note to conversation
@@ -343,29 +281,12 @@ document.addEventListener('alpine:init', () => {
         async updateStatus(status) {
             if (!this.selectedTicket) return;
 
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        status: status,
-                        admin_notes: `${this.t('status_changed_to').replace('{status}', this.getStatusLabel(status))}`
-                    })
+                const data = await ApiService.updateTicketStatus(this.selectedTicket.id, {
+                    status: status,
+                    admin_notes: `${this.t('status_changed_to').replace('{status}', this.getStatusLabel(status))}`
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
 
                 if (data.status === 'success') {
                     this.selectedTicket.status = status;
@@ -389,29 +310,12 @@ document.addEventListener('alpine:init', () => {
         async updatePriority(priority) {
             if (!this.selectedTicket) return;
 
-            const token = localStorage.getItem('authToken');
-            if (!token) return;
-
             try {
                 loadingIndicator.show();
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/priority`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        priority: priority,
-                        admin_notes: `${this.t('priority_changed_to').replace('{priority}', this.getPriorityLabel(priority))}`
-                    })
+                const data = await ApiService.updateTicketPriority(this.selectedTicket.id, {
+                    priority: priority,
+                    admin_notes: `${this.t('priority_changed_to').replace('{priority}', this.getPriorityLabel(priority))}`
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
 
                 if (data.status === 'success') {
                     this.selectedTicket.priority = priority;
@@ -463,24 +367,10 @@ document.addEventListener('alpine:init', () => {
 
                 if (formValues) {
                     loadingIndicator.show();
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/close`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            resolution: formValues.resolution,
-                            admin_notes: formValues.admin_notes
-                        })
+                    const data = await ApiService.closeTicket(this.selectedTicket.id, {
+                        resolution: formValues.resolution,
+                        admin_notes: formValues.admin_notes
                     });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
 
                     if (data.status === 'success') {
                         this.selectedTicket.status = 'closed';
@@ -534,24 +424,10 @@ document.addEventListener('alpine:init', () => {
 
                 if (formValues) {
                     loadingIndicator.show();
-                    const response = await fetch(`${this.apiBaseUrl}/api/admin/support/tickets/${this.selectedTicket.id}/reopen`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            reason: formValues.reason,
-                            admin_notes: formValues.admin_notes
-                        })
+                    const data = await ApiService.reopenTicket(this.selectedTicket.id, {
+                        reason: formValues.reason,
+                        admin_notes: formValues.admin_notes
                     });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
 
                     if (data.status === 'success') {
                         this.selectedTicket.status = 'open';

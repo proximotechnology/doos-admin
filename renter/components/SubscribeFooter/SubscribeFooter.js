@@ -77,20 +77,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const queryParams = new URLSearchParams({ page, per_page: 10 });
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribers/index?${queryParams.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_fetch_subscribers'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getSubscribers(page, { per_page: 10 });
                 if (data.status && data.data) {
                     this.subscribers = data.data || [];
                     this.paginationMeta = {
@@ -221,18 +208,7 @@ document.addEventListener('alpine:init', () => {
 
                 if (!isConfirmed.isConfirmed) return;
 
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/subscribers/delete/${subscriberId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_delete_subscriber'));
-                }
+                await ApiService.deleteSubscriber(subscriberId);
 
                 coloredToast('success', Alpine.store('i18n').t('subscriber_deleted_success'));
                 await this.fetchSubscribers(this.currentPage);

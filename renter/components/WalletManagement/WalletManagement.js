@@ -152,21 +152,7 @@ document.addEventListener('alpine:init', () => {
 
         async fetchStatistics() {
             try {
-                const token = localStorage.getItem('authToken');
-                const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/statistics/overview`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_load_statistics'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getWithdrawalStatistics();
 
                 if (data.status && data.data.statistics) {
                     this.meta = data.data.statistics;
@@ -372,21 +358,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
 
-                const token = localStorage.getItem('authToken');
-                const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/${withdrawalId}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_to_load'));
-                }
-
-                const data = await response.json();
+                const data = await ApiService.getWithdrawalDetails(withdrawalId);
                 if (data.status && data.data.withdrawal_request) {
                     const withdrawal = data.data.withdrawal_request;
                     
@@ -602,21 +574,7 @@ document.addEventListener('alpine:init', () => {
 
                 loadingIndicator.show();
 
-                const token = localStorage.getItem('authToken');
-                const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/${withdrawalId}/process`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(await response.text() || Alpine.store('i18n').t('failed_update_withdrawal'));
-                }
+                await ApiService.processWithdrawal(withdrawalId, payload);
 
                 coloredToast('success', Alpine.store('i18n').t('withdrawal_updated_successfully'));
                 await this.fetchWithdrawals(this.currentPage);
@@ -745,19 +703,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 loadingIndicator.show();
 
-                const token = localStorage.getItem('authToken');
-                const url = `${this.apiBaseUrl}/api/admin/withdrawal-requests/${withdrawalId}/complete`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(await response.text() || Alpine.store('i18n').t('failed_complete_withdrawal'));
-                }
+                await ApiService.completeWithdrawal(withdrawalId);
 
                 coloredToast('success', Alpine.store('i18n').t('withdrawal_completed_successfully'));
                 await this.fetchWithdrawals(this.currentPage);

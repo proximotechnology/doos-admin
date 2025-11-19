@@ -54,17 +54,9 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/testimonial/update/${this.testimonialId}`, {
-                    method: 'POST', // Using POST with _method=PUT for Laravel
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                    body: formData,
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
+                const result = await ApiService.updateTestimonial(this.testimonialId, formData);
+                
+                if (!result.status) {
                     const errorMsg =
                         result.message ||
                         Object.values(result.errors || {})

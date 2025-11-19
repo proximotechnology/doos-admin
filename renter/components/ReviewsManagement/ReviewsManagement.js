@@ -202,18 +202,7 @@ document.addEventListener('alpine:init', () => {
             if (!deleteConfirmed) return;
 
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/review/delete_admin/${reviewId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_delete_review'));
-                }
+                await ApiService.deleteReviewAdmin(reviewId);
 
                 coloredToast('success', Alpine.store('i18n').t('review_deleted_success'));
                 await this.fetchReviews();

@@ -241,18 +241,7 @@ document.addEventListener('alpine:init', () => {
 
                 if (!isConfirmed.isConfirmed) return;
 
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/user/delete/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(Alpine.store('i18n').t('failed_delete_user'));
-                }
+                await ApiService.deleteUser(userId);
 
                 coloredToast('success', Alpine.store('i18n').t('user_deleted_success'));
                 await this.fetchUsers(this.currentPage);

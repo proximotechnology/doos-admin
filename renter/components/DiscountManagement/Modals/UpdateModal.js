@@ -79,16 +79,8 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/brand_car/get_all?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-                if (response.ok && result.data) {
+                const result = await ApiService.getBrands(1, { per_page: 1000 });
+                if (result.data) {
                     this.brands = result.data.data;
                 }
             } catch (error) {
@@ -100,16 +92,8 @@ document.addEventListener('alpine:init', () => {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error(Alpine.store('i18n').t('auth_token_not_found'));
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/model_car/get_all_models?per_page=1000`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const result = await response.json();
-                if (response.ok && result.data) {
+                const result = await ApiService.getModels(1, { per_page: 1000 });
+                if (result.data) {
                     this.models = result.data.data;
                 }
             } catch (error) {

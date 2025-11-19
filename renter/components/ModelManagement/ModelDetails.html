@@ -39,12 +39,12 @@
 
                             <div class="msl-row">
                                 <span class="msl-label" x-text="$store.i18n.t('brand')"></span>
-                                <span class="msl-value" x-text="model.brand.name"></span>
+                                <span class="msl-value" x-text="model.brand ? model.brand.name : (model.brand_name || $store.i18n.t('na'))"></span>
                             </div>
 
                             <div class="msl-row">
                                 <span class="msl-label" x-text="$store.i18n.t('country')"></span>
-                                <span class="msl-value" x-text="model.brand.country"></span>
+                                <span class="msl-value" x-text="model.brand ? model.brand.country : (model.brand_country || $store.i18n.t('na'))"></span>
                             </div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                             <button class="msl-btn-primary" @click="addYear()">+ <span x-text="$store.i18n.t('add_year')"></span></button>
                         </div>
 
-                        <div class="msl-years-container" x-html="formatYears(model.years)"></div>
+                        <div class="msl-years-container" x-html="formatYears(model.years || model.year_models || [])"></div>
                     </div>
                 </div>
             </template>
