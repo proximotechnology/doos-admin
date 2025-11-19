@@ -16,12 +16,13 @@ document.addEventListener('alpine:init', () => {
     };
 
     Alpine.data('subscriptionsTable', () => ({
-        subscriptions: {},
+        subscriptions: { data: [], total: 0, current_page: 1, last_page: 1, per_page: 10, from: 0, to: 0 },
         currentFilter: 'pending',
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
         users: [],
         plans: [],
+        isLoading: false,
         filters: {
             status: '',
             user_id: '',
@@ -76,6 +77,7 @@ document.addEventListener('alpine:init', () => {
         },
         async fetchSubscriptions() {
             try {
+                this.isLoading = true;
                 loadingIndicator.showTableLoader();
 
                 const token = localStorage.getItem('authToken');
@@ -93,11 +95,13 @@ document.addEventListener('alpine:init', () => {
                 if (this.filters.end_date) filters.end_date = this.filters.end_date;
 
                 const data = await ApiService.getSubscriptions(this.currentPage, filters);
-                this.subscriptions = data.data;
-
-                loadingIndicator.hideTableLoader();
+                this.subscriptions = data.data || { data: [], total: 0, current_page: 1, last_page: 1, per_page: 10, from: 0, to: 0 };
             } catch (error) {
                 coloredToast('error', error.message || Alpine.store('i18n').t('failed_to_fetch_subscriptions'));
+                this.subscriptions = { data: [], total: 0, current_page: 1, last_page: 1, per_page: 10, from: 0, to: 0 };
+            } finally {
+                this.isLoading = false;
+                loadingIndicator.hideTableLoader();
             }
         },
         changeFilter(filter) {
@@ -124,6 +128,19 @@ document.addEventListener('alpine:init', () => {
             if (!dateString) return Alpine.store('i18n').t('not_available');
             const date = new Date(dateString);
             return date.toLocaleDateString();
+        },
+
+        getStatusCount(status) {
+            if (!this.subscriptions || !this.subscriptions.data) return 0;
+            return this.subscriptions.data.filter(s => s.status === status).length;
+        },
+
+        isTableLoading() {
+            return this.isLoading;
+        },
+
+        hasSubscriptions() {
+            return this.subscriptions && this.subscriptions.data && this.subscriptions.data.length > 0;
         },
 
         async markAsPaid(subscriptionId) {

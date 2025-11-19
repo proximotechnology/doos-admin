@@ -204,6 +204,7 @@
     "failed_fetch_users_try_again": "Failed to fetch users. Please try again later.",
     "delete_warning": "You won't be able to revert this!",
     "yes_delete": "Yes, delete it!",
+    "this_action_cannot_be_undone": "This action cannot be undone.",
     "failed_delete_user": "Failed to delete user",
     "deleted": "Deleted!",
     "user_deleted_success": "The user has been deleted.",
@@ -958,8 +959,10 @@
     "scope_brand": "Specific Brand",
     "scope_model": "Specific Model",
     "discount": "Discount",
+    "discount_deleted_successfully": "Discount deleted successfully",
 
     "coupon_management": "Coupon Management",
+    "coupon": "Coupon",
 
     "search_by_code": "Search by code",
 
@@ -976,7 +979,10 @@
     "coupon_updated_successfully": "Coupon updated successfully",
     "coupon_activated_successfully": "Coupon activated successfully",
     "coupon_deactivated_successfully": "Coupon deactivated successfully",
+    "coupon_deleted_successfully": "Coupon deleted successfully",
+    "delete_coupon_successful": "Coupon deleted successfully",
     "failed_update_coupon": "Failed to update coupon",
+    "failed_delete_coupon": "Failed to delete coupon",
     "error_create_coupon": "Error creating coupon",
     "model_image": "Model Image",
     "model_years": "Model Years",

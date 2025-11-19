@@ -73,6 +73,10 @@ document.addEventListener('alpine:init', () => {
                     const discountId = e.target.closest('.deactivate-btn').dataset.id;
                     this.toggleDiscountStatus(discountId, 'inactive');
                 }
+                if (e.target.closest('.delete-btn')) {
+                    const discountId = e.target.closest('.delete-btn').dataset.id;
+                    this.deleteDiscount(discountId);
+                }
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
                     this.fetchDiscounts(page);
@@ -275,6 +279,9 @@ document.addEventListener('alpine:init', () => {
                     ${Alpine.store('i18n').t('activate')}
                 </button>`
                 }
+            <button class="btn delete-btn btn-danger btn-sm" data-id="${discountId}">
+                ${Alpine.store('i18n').t('delete')}
+            </button>
         </div>`;
         },
 
@@ -387,6 +394,47 @@ document.addEventListener('alpine:init', () => {
                 await this.fetchDiscounts(this.currentPage);
             } catch (error) {
                 coloredToast('danger', error.message);
+            } finally {
+                loadingIndicator.hide();
+            }
+        },
+
+        async deleteDiscount(discountId) {
+            try {
+                const discount = this.tableData.find((d) => d.id == discountId);
+                const discountTitle = discount ? this.formatTitle(discount.title) : '';
+
+                const result = await Swal.fire({
+                    title: Alpine.store('i18n').t('delete_confirmation') || 'Delete Confirmation',
+                    html: `
+                        <div class="text-center">
+                            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                                <svg class="h-8 w-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <p class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">${Alpine.store('i18n').t('are_you_sure') || 'Are you sure?'}</p>
+                            ${discountTitle ? `<p class="mb-4 text-sm text-gray-600 dark:text-gray-400">${Alpine.store('i18n').t('discount') || 'Discount'}: <span class="font-semibold">${discountTitle}</span></p>` : ''}
+                            <p class="text-sm text-red-600 dark:text-red-400">${Alpine.store('i18n').t('this_action_cannot_be_undone') || 'This action cannot be undone.'}</p>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: Alpine.store('i18n').t('yes_delete') || Alpine.store('i18n').t('delete') || 'Delete',
+                    cancelButtonText: Alpine.store('i18n').t('cancel') || 'Cancel',
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    reverseButtons: true
+                });
+
+                if (!result.isConfirmed) return;
+
+                loadingIndicator.show();
+                await ApiService.deleteDiscount(discountId);
+                coloredToast('success', Alpine.store('i18n').t('delete_discount_successful') || Alpine.store('i18n').t('discount_deleted_successfully') || 'Discount deleted successfully');
+                await this.fetchDiscounts(this.currentPage);
+            } catch (error) {
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_discount') || Alpine.store('i18n').t('failed_to_delete') || 'Failed to delete discount');
             } finally {
                 loadingIndicator.hide();
             }

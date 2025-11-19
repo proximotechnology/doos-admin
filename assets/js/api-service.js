@@ -839,6 +839,13 @@
             return this.get('/api/admin/discount/index', params);
         }
 
+        /**
+         * Delete discount
+         */
+        async deleteDiscount(discountId) {
+            return this.delete(`/api/admin/discount/delete/${discountId}`);
+        }
+
         // ==================== Coupon Management APIs ====================
 
         /**
@@ -847,6 +854,13 @@
         async getCoupons(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
             return this.get('/api/admin/coupon/index', params);
+        }
+
+        /**
+         * Delete coupon
+         */
+        async deleteCoupon(couponId) {
+            return this.delete(`/api/admin/coupon/delete/${couponId}`);
         }
 
         // ==================== Ticket Management APIs ====================

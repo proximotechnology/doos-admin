@@ -205,6 +205,7 @@
     "failed_fetch_users_try_again": "فشل في جلب المستخدمين. يرجى المحاولة مرة أخرى لاحقًا.",
     "delete_warning": "لن تتمكن من التراجع عن هذا الإجراء!",
     "yes_delete": "نعم، احذفه!",
+    "this_action_cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
     "failed_delete_user": "فشل في حذف المستخدم",
     "deleted": "تم الحذف!",
     "user_deleted_success": "تم حذف المستخدم بنجاح.",
@@ -865,6 +866,7 @@
     "discount_activated_successfully": "تم تفعيل الخصم بنجاح",
     "discount_deactivated_successfully": "تم إلغاء تفعيل الخصم بنجاح",
     "delete_discount_successful": "تم حذف الخصم بنجاح",
+    "discount_deleted_successfully": "تم حذف الخصم بنجاح",
     "failed_update_discount": "فشل في تحديث الخصم",
     "failed_delete_discount": "فشل في حذف الخصم",
     "error_create_discount": "خطأ في إنشاء الخصم",
@@ -872,6 +874,7 @@
     "discount": "الخصومات",
 
     "coupon_management": "إدارة الكوبونات",
+    "coupon": "الكوبون",
 
     "search_by_code": "البحث بالكود",
 
@@ -890,8 +893,11 @@
     "coupon_updated_successfully": "تم تحديث الكوبون بنجاح",
     "coupon_activated_successfully": "تم تفعيل الكوبون بنجاح",
     "coupon_deactivated_successfully": "تم إلغاء تفعيل الكوبون بنجاح",
+    "coupon_deleted_successfully": "تم حذف الكوبون بنجاح",
+    "delete_coupon_successful": "تم حذف الكوبون بنجاح",
 
     "failed_update_coupon": "فشل تحديث الكوبون",
+    "failed_delete_coupon": "فشل في حذف الكوبون",
     "error_create_coupon": "خطأ في إنشاء الكوبون",
     "model_image": "صورة الموديل",
     "model_years": "سنوات الموديل",
