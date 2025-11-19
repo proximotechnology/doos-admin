@@ -92,8 +92,12 @@ document.addEventListener('alpine:init', () => {
             date_from: '',
             date_to: ''
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             loadGoogleMapsAPI(() => { });
 
             // Event Delegation for buttons

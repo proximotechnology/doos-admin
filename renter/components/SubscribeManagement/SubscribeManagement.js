@@ -31,9 +31,13 @@ document.addEventListener('alpine:init', () => {
             end_date: '',
         },
 
-        async init() {
-                        await this.fetchSubscriptions();
+        _initialized: false,
 
+        async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
+            await this.fetchSubscriptions();
             await this.fetchUsers();
             await this.fetchPlans();
         },

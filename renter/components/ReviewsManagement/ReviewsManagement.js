@@ -73,8 +73,12 @@ document.addEventListener('alpine:init', () => {
         cars: [],
         selectedCar: '',
         datatable: null,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             // Initialize event listeners
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {

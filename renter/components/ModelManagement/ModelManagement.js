@@ -39,8 +39,12 @@ document.addEventListener('alpine:init', () => {
         filters: {
             name: ''
         },
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchManagers(1);
 
             document.addEventListener('click', (e) => {

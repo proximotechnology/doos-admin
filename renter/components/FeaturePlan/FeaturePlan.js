@@ -50,8 +50,12 @@ document.addEventListener('alpine:init', () => {
             plan_id: '',
             feature: ''
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await Promise.all([this.fetchPlans(), this.fetchFeatures(1)]);
 
             // Event Delegation for Buttons

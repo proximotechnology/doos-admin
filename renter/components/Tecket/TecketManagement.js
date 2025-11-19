@@ -83,10 +83,12 @@ document.addEventListener('alpine:init', () => {
                 text: Alpine.store('i18n').t('quick_reply_templates_follow_up') + '. ' + Alpine.store('i18n').t('quick_replies_text_follow_up')
             }
         ],
-
-
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.loadTickets();
             await this.loadStatistics();
         },

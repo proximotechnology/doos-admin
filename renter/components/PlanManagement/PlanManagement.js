@@ -45,8 +45,12 @@ document.addEventListener('alpine:init', () => {
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchPlans(1);
 
             // Event Delegation for Delete Buttons

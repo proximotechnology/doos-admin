@@ -72,8 +72,12 @@ document.addEventListener('alpine:init', () => {
             end_date: '',
             min_price: ''
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchContracts(1);
 
             // Event Delegation for buttons

@@ -75,8 +75,12 @@ document.addEventListener('alpine:init', () => {
         filters: {
             status: '',
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.approve-btn')) {
                     const withdrawalId = e.target.closest('.approve-btn').dataset.id;

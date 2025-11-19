@@ -55,8 +55,12 @@ document.addEventListener('alpine:init', () => {
             name: '',
             rating: ''
         },
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
                     const testimonialId = e.target.closest('.delete-btn').dataset.id;

@@ -435,8 +435,12 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('i18n', {
         locale: localStorage.getItem('language') || 'en',
         translations: {},
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.loadTranslations(this.locale);
         },
 

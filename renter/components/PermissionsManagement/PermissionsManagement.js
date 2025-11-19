@@ -34,8 +34,12 @@ document.addEventListener('alpine:init', () => {
         tableData: [],
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchPermissions();
         },
 

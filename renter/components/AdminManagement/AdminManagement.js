@@ -54,8 +54,12 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('adminsTable', () => ({
         admins: [],
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchAdmins();
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {

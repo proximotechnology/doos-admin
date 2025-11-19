@@ -63,8 +63,12 @@ document.addEventListener('alpine:init', () => {
         filters: {
             code: ''
         },
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchCoupons(1);
 
             document.addEventListener('click', (e) => {

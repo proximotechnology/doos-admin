@@ -531,8 +531,12 @@ document.addEventListener('alpine:init', () => {
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             try {
                 const addStationElement = document.querySelector('[x-data="Add_Station"]');
                 const addStationComponent = addStationElement ? Alpine.$data(addStationElement) : null;

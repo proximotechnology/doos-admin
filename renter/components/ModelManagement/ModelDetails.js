@@ -25,8 +25,12 @@ document.addEventListener('alpine:init', () => {
         model: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         modelId: null,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             const urlParams = new URLSearchParams(window.location.search);
             this.modelId = urlParams.get('id');
 

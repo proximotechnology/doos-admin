@@ -56,8 +56,12 @@ document.addEventListener('alpine:init', () => {
         datatable: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             // Event delegation for buttons
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.pagination-btn')) {

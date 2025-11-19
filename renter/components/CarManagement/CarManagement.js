@@ -123,8 +123,12 @@
             min_price: '',
             max_price: ''
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             loadGoogleMapsAPI(() => { });
 
             document.addEventListener('click', (e) => {

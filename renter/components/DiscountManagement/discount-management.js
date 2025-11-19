@@ -63,8 +63,12 @@ document.addEventListener('alpine:init', () => {
         filters: {
             title: ''
         },
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchDiscounts(1);
 
             document.addEventListener('click', (e) => {

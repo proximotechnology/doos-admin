@@ -64,8 +64,12 @@ document.addEventListener('alpine:init', () => {
         filters: {
             name: ''
         },
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) {
                     const brandId = e.target.closest('.delete-btn').dataset.id;

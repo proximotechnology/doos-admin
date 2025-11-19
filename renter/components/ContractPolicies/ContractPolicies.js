@@ -48,8 +48,12 @@ document.addEventListener('alpine:init', () => {
         form: {
             item: ''
         },
+        _initialized: false,
 
         async initComponent() {
+            if (this._initialized) return;
+            this._initialized = true;
+
             await this.fetchPolicies();
             
             if (!this._listenersAttached) {
