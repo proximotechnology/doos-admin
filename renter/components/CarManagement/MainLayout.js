@@ -27,13 +27,13 @@ function waitForComponentLoader(maxAttempts = 50, interval = 50) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // Try to use ComponentLoader, fallback to old method if not available
     waitForComponentLoader()
-        .then(loader => {
+        .then(async loader => {
             // Use ComponentLoader to load standard layout + CarManagement component
             // Note: Component scripts are already loaded in Car.html, so we only load HTML
-            return loader.loadStandardLayout([
+            await loader.loadStandardLayout([
                 { 
                     url: 'components/CarManagement/CarManagement.html', 
                     containerId: 'car-management-container',
@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             ]);
+            
+            // Load modals
+            await loader.load('components/CarManagement/Modals/EditFeaturesModal.html', 'edit-features-modal-container', { loadScript: false });
+            await loader.load('components/CarManagement/Modals/ChangeStatusModal.html', 'change-status-modal-container', { loadScript: false });
         })
         .catch(error => {
             // Fallback to old method
@@ -49,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponentFallback('components/Sidebar/Sidebar.html', 'sidebar-container');
             loadComponentFallback('components/ThemeCustomizer/ThemeCustomizer.html', 'theme-customizer-container');
             loadComponentFallback('components/CarManagement/CarManagement.html', 'car-management-container');
+            loadComponentFallback('components/CarManagement/Modals/EditFeaturesModal.html', 'edit-features-modal-container');
+            loadComponentFallback('components/CarManagement/Modals/ChangeStatusModal.html', 'change-status-modal-container');
         });
 });
 

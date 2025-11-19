@@ -37,10 +37,10 @@
         </nav>
 
         <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
-            <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
-                <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+            <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
             </div>
         </div>
 
@@ -135,22 +135,25 @@
                     </div>
 
                     <div class="p-6">
+                        <!-- Loading State -->
+                        <div id="tableLoading" class="flex hidden items-center justify-center py-12">
+                            <div class="flex flex-col items-center">
+                                <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                            </div>
+                        </div>
+
                         <!-- Table Container -->
-                        <div class="table-container">
-                            <!-- Loading State -->
-                            <div id="tableLoading" class="table-loading hidden">
-                                <div class="table-loading-spinner"></div>
-                                <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
-                            </div>
-
-                            <!-- Table Wrapper -->
+                        <div class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" id="myTable1Container" style="display: none;">
                             <div class="table-wrapper">
-                                <table id="myTable1" class="whitespace-nowrap"></table>
+                                <table id="myTable1" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap"></table>
                             </div>
+                        </div>
 
-                            <!-- Empty State -->
-                            <div id="tableEmptyState" class="empty-state hidden">
-                                <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <!-- Empty State -->
+                        <div id="tableEmptyState" class="flex hidden flex-col items-center justify-center py-16">
+                            <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
@@ -158,9 +161,9 @@
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                     />
                                 </svg>
-                                <h3 class="empty-state-title" x-text="$store.i18n.t('no_plans')"></h3>
-                                <p class="empty-state-description" x-text="$store.i18n.t('start_adding_plan')"></p>
                             </div>
+                            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white" x-text="$store.i18n.t('no_plans')"></h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('start_adding_plan')"></p>
                         </div>
                     </div>
                 </div>

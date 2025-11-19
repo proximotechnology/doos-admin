@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('discountsTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const discountsTableContainer = document.getElementById('discountsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (discountsTableContainer) discountsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('discountsTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const discountsTableContainer = document.getElementById('discountsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (discountsTableContainer) discountsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('discountsTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const discountsTableContainer = document.getElementById('discountsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (discountsTableContainer) discountsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -104,15 +112,15 @@ document.addEventListener('alpine:init', () => {
                 if (data.success && data.data) {
                     this.tableData = data.data.discounts || [];
                     this.paginationMeta = {
-                        current_page: data.data.pagination.current_page,
-                        last_page: data.data.pagination.last_page,
-                        per_page: data.data.pagination.per_page,
-                        total: data.data.pagination.total,
-                        from: data.data.pagination.from,
-                        to: data.data.pagination.to
+                        current_page: data.data.pagination?.current_page || 1,
+                        last_page: data.data.pagination?.last_page || 1,
+                        per_page: data.data.pagination?.per_page || 10,
+                        total: data.data.pagination?.total || 0,
+                        from: data.data.pagination?.from || 0,
+                        to: data.data.pagination?.to || 0
                     };
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

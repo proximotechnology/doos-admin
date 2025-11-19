@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('rolesTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const rolesTableContainer = document.getElementById('rolesTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (rolesTableContainer) rolesTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('rolesTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const rolesTableContainer = document.getElementById('rolesTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (rolesTableContainer) rolesTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('rolesTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const rolesTableContainer = document.getElementById('rolesTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (rolesTableContainer) rolesTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -60,10 +68,10 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.showTableLoader();
 
                 const data = await ApiService.getRoles();
-                if (data.status && Array.isArray(data.data)) {
-                    this.tableData = data.data;
+                if (data.status && data.data && Array.isArray(data.data)) {
+                    this.tableData = data.data || [];
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

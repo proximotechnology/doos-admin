@@ -103,15 +103,15 @@ document.addEventListener('alpine:init', () => {
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {
-                        current_page: data.data.current_page,
-                        last_page: data.data.last_page,
-                        per_page: data.data.per_page,
-                        total: data.data.total,
-                        from: data.data.from,
-                        to: data.data.to
+                        current_page: data.data.current_page || 1,
+                        last_page: data.data.last_page || 1,
+                        per_page: data.data.per_page || 10,
+                        total: data.data.total || 0,
+                        from: data.data.from || 0,
+                        to: data.data.to || 0
                     };
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

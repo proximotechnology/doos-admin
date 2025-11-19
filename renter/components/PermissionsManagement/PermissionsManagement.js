@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('permissionsTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const permissionsTableContainer = document.getElementById('permissionsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (permissionsTableContainer) permissionsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('permissionsTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const permissionsTableContainer = document.getElementById('permissionsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (permissionsTableContainer) permissionsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('permissionsTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const permissionsTableContainer = document.getElementById('permissionsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (permissionsTableContainer) permissionsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -36,10 +44,10 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.showTableLoader();
 
                 const data = await ApiService.getPermissions();
-                if (data.status && Array.isArray(data.data)) {
-                    this.tableData = data.data;
+                if (data.status && data.data && Array.isArray(data.data)) {
+                    this.tableData = data.data || [];
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

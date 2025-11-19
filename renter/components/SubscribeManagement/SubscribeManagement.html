@@ -182,7 +182,10 @@
                                         <span x-text="$store.i18n.t('payment')"></span>
                                     </th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                        <span x-text="$store.i18n.t('renewal_data')"></span>
+                                        <span x-text="$store.i18n.t('last_renewed') || 'Last Renewed'"></span>
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                                        <span x-text="$store.i18n.t('next_renewal') || 'Next Renewal'"></span>
                                     </th>
                                     <th scope="col" class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                         <span x-text="$store.i18n.t('action')"></span>
@@ -248,10 +251,18 @@
                                             ></span>
                                         </td>
                                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                            <template x-if="subscription.renewal_data">
-                                                <span class="font-medium" x-text="subscription.renewal_data"></span>
+                                            <template x-if="parseRenewalData(subscription.renewal_data).last_renewed">
+                                                <span class="font-medium" x-text="formatRenewalDate(parseRenewalData(subscription.renewal_data).last_renewed)"></span>
                                             </template>
-                                            <template x-if="!subscription.renewal_data">
+                                            <template x-if="!parseRenewalData(subscription.renewal_data).last_renewed">
+                                                <span class="text-gray-400 dark:text-gray-500">-</span>
+                                            </template>
+                                        </td>
+                                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                            <template x-if="parseRenewalData(subscription.renewal_data).next_renewal">
+                                                <span class="font-medium" x-text="formatRenewalDate(parseRenewalData(subscription.renewal_data).next_renewal)"></span>
+                                            </template>
+                                            <template x-if="!parseRenewalData(subscription.renewal_data).next_renewal">
                                                 <span class="text-gray-400 dark:text-gray-500">-</span>
                                             </template>
                                         </td>

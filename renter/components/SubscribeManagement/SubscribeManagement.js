@@ -39,7 +39,6 @@ document.addEventListener('alpine:init', () => {
         },
         async fetchUsers() {
             try {
-
                 const token = localStorage.getItem('authToken');
                 const response = await fetch(`${this.apiBaseUrl}/api/admin/user/get_all?per_page=999`, {
                     method: 'GET',
@@ -141,6 +140,50 @@ document.addEventListener('alpine:init', () => {
 
         hasSubscriptions() {
             return this.subscriptions && this.subscriptions.data && this.subscriptions.data.length > 0;
+        },
+
+        parseRenewalData(renewalData) {
+            if (!renewalData) return { last_renewed: null, next_renewal: null };
+            
+            try {
+                // If it's already an object
+                if (typeof renewalData === 'object') {
+                    return {
+                        last_renewed: renewalData.last_renewed || null,
+                        next_renewal: renewalData.next_renewal || null
+                    };
+                }
+                
+                // If it's a string, try to parse it
+                if (typeof renewalData === 'string') {
+                    const parsed = JSON.parse(renewalData);
+                    return {
+                        last_renewed: parsed.last_renewed || null,
+                        next_renewal: parsed.next_renewal || null
+                    };
+                }
+                
+                return { last_renewed: null, next_renewal: null };
+            } catch (e) {
+                return { last_renewed: null, next_renewal: null };
+            }
+        },
+
+        formatRenewalDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                // Check if it's a valid date string
+                const date = new Date(dateString);
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    // If not a valid date, return as is (might be phone number or other text)
+                    return dateString;
+                }
+                return date.toLocaleDateString();
+            } catch (e) {
+                // If parsing fails, return as is
+                return dateString;
+            }
         },
 
         async markAsPaid(subscriptionId) {

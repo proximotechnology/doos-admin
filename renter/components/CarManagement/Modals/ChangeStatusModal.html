@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <div
+            x-data
+            x-show="$store.changeStatusModal.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            style="display: none"
+            x-cloak
+            @click.self="$store.changeStatusModal.closeModal()"
+            x-init="$watch('$store.changeStatusModal.isOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
+        >
+            <div class="flex min-h-screen items-start justify-center px-4 py-8">
+                <div
+                    class="modal-container animate__animated w-full max-w-2xl overflow-hidden rounded-lg border-0 shadow-2xl bg-white dark:bg-[#0e1726]"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                    @click.stop
+                >
+                    <!-- Modal Header - Sticky -->
+                    <div class="modal-header sticky top-0 z-10 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10 border-b border-white-light/40 dark:border-[#191e3a]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white">
+                                        <span x-text="$store.i18n.t('change_status')"></span>
+                                    </h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('select_status')"></p>
+                                </div>
+                            </div>
+                            <button 
+                                @click="$store.changeStatusModal.closeModal()" 
+                                class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            >
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Scrollable -->
+                    <div class="modal-body max-h-[calc(90vh-140px)] overflow-y-auto bg-white dark:bg-[#0e1726]">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <form @submit.prevent="$store.changeStatusModal.updateStatus()">
+                                <!-- Status Selection -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('select_status')"></span>
+                                    </label>
+                                    <select
+                                        id="statusSelect"
+                                        x-model="$store.changeStatusModal.selectedStatus"
+                                        class="form-select"
+                                    >
+                                        <template x-for="option in $store.changeStatusModal.statusOptions" :key="option.value">
+                                            <option :value="option.value" x-text="option.label"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Rejection Reasons Section -->
+                                <div
+                                    x-show="$store.changeStatusModal.selectedStatus === 'rejected'"
+                                    x-transition
+                                    class="form-section mt-6"
+                                >
+                                    <div class="mb-5 flex items-center gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-danger/20 text-danger">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <label class="form-label block" x-text="$store.i18n.t('rejection_reasons')"></label>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">يرجى إضافة سبب واحد على الأقل للرفض</p>
+                                        </div>
+                                    </div>
+                                    <div id="rejectionReasonsContainer" class="space-y-3 mb-4">
+                                        <!-- Dynamic rejection reasons will be inserted here -->
+                                    </div>
+                                    <button
+                                        type="button"
+                                        @click="$store.changeStatusModal.addReason()"
+                                        class="btn btn-outline-danger w-full flex items-center justify-center gap-2"
+                                    >
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('add_new_reason')"></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer - Sticky -->
+                    <div class="modal-footer sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-xl border-t border-white-light/40 bg-gray-50/50 px-6 py-4 dark:border-[#191e3a] dark:bg-[#1a2941]/30">
+                        <button 
+                            @click="$store.changeStatusModal.closeModal()" 
+                            class="btn btn-outline-danger flex items-center gap-2"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span x-text="$store.i18n.t('cancel')"></span>
+                        </button>
+                        <button 
+                            type="submit" 
+                            @click="$store.changeStatusModal.updateStatus()" 
+                            class="btn btn-primary flex items-center gap-2"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span x-text="$store.i18n.t('save')"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

@@ -4,7 +4,7 @@
  * Handles authentication, error handling, and response formatting
  */
 
-(function() {
+(function () {
     'use strict';
 
     class ApiService {
@@ -53,7 +53,7 @@
                 } catch {
                     errorData = { message: errorText || 'Request failed' };
                 }
-                
+
                 // Log error details for debugging
                 const errorDetails = {
                     endpoint: endpoint,
@@ -65,7 +65,7 @@
                     errors: errorData.errors || {},
                     message: errorData.message || 'Request failed'
                 };
-                
+
                 // Format error message with field names
                 let errorMessage = errorData.message || 'Request failed';
                 if (errorData.errors && typeof errorData.errors === 'object') {
@@ -83,14 +83,14 @@
                         errorMessage = errorFields.join('\n');
                     }
                 }
-                
+
                 // Log API errors
                 console.log(`[API Error] ${method} ${endpoint}:`, {
                     status: response.status,
                     statusText: response.statusText,
                     message: errorMessage
                 });
-                
+
                 throw new Error(errorMessage);
             }
 
@@ -127,7 +127,7 @@
         async post(endpoint, data = {}, isFormData = false, includeAuth = true) {
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
-            
+
             // Log API request
             console.log(`[API] POST ${endpoint}`, isFormData ? '[FormData]' : data);
 
@@ -139,7 +139,7 @@
 
             return this.handleResponse(response, endpoint, 'POST', isFormData ? this._formDataToObject(data) : data);
         }
-        
+
         /**
          * Convert FormData to object for logging
          * @private
@@ -165,7 +165,7 @@
         async put(endpoint, data = {}, isFormData = false, includeAuth = true) {
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
-            
+
             // Log API request
             console.log(`[API] PUT ${endpoint}`, isFormData ? '[FormData]' : data);
 
@@ -184,7 +184,7 @@
         async patch(endpoint, data = {}, isFormData = false, includeAuth = true) {
             const contentType = isFormData ? 'multipart/form-data' : 'application/json';
             const body = isFormData ? data : JSON.stringify(data);
-            
+
             // Log API request
             console.log(`[API] PATCH ${endpoint}`, isFormData ? '[FormData]' : data);
 
@@ -729,28 +729,28 @@
          */
         async getFeaturePlans(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/feature_plan/get_all', params);
+            return this.get('/api/admin/feature/index', params);
         }
 
         /**
          * Add feature plan
          */
         async addFeaturePlan(data) {
-            return this.post('/api/admin/feature_plan/store', data);
+            return this.post('/api/admin/feature/store', data);
         }
 
         /**
          * Update feature plan
          */
         async updateFeaturePlan(featureId, data) {
-            return this.post(`/api/admin/feature_plan/update/${featureId}`, data);
+            return this.post(`/api/admin/feature/update/${featureId}`, data);
         }
 
         /**
          * Delete feature plan
          */
         async deleteFeaturePlan(featureId) {
-            return this.delete(`/api/admin/feature_plan/delete/${featureId}`);
+            return this.delete(`/api/admin/feature/delete/${featureId}`);
         }
 
         // ==================== User Management APIs ====================

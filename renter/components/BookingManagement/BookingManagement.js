@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator').classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const myTable1Container = document.getElementById('myTable1Container');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('myTable1').classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const myTable1Container = document.getElementById('myTable1Container');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const myTable1Container = document.getElementById('myTable1Container');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
     function loadGoogleMapsAPI(callback) {
@@ -156,8 +164,8 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await ApiService.getBookings(page, filters);
 
-                if (data.status && Array.isArray(data.data)) {
-                    this.tableData = data.data;
+                if (data.status && data.data && Array.isArray(data.data)) {
+                    this.tableData = data.data || [];
                     this.meta = data.meta || {
                         total: 0,
                         confirm: 0,
@@ -178,7 +186,7 @@ document.addEventListener('alpine:init', () => {
                         links: []
                     };
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

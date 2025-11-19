@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator').classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('featuresTable').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const featuresTable = document.getElementById('featuresTable');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (featuresTable) featuresTable.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('featuresTable').classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const featuresTable = document.getElementById('featuresTable');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (featuresTable) featuresTable.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('featuresTable').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const featuresTable = document.getElementById('featuresTable');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (featuresTable) featuresTable.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 

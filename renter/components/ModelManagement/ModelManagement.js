@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator').classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const myTable1Container = document.getElementById('myTable1Container');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('myTable1').classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const myTable1Container = document.getElementById('myTable1Container');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const myTable1Container = document.getElementById('myTable1Container');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (myTable1Container) myTable1Container.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -98,16 +106,16 @@ document.addEventListener('alpine:init', () => {
                 if (data.success && data.data) {
                     this.tableData = data.data.data || [];
                     this.paginationMeta = {
-                        current_page: data.data.current_page,
-                        last_page: data.data.last_page,
-                        per_page: data.data.per_page,
-                        total: data.data.total,
-                        from: data.data.from,
-                        to: data.data.to,
-                        links: data.data.links
+                        current_page: data.data.current_page || 1,
+                        last_page: data.data.last_page || 1,
+                        per_page: data.data.per_page || 10,
+                        total: data.data.total || 0,
+                        from: data.data.from || 0,
+                        to: data.data.to || 0,
+                        links: data.data.links || []
                     };
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();

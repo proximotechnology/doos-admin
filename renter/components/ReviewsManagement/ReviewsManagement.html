@@ -29,17 +29,19 @@
 
             <div class="pt-5">
                 <!-- Loading Indicator -->
-                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div class="flex flex-col items-center rounded-lg bg-white p-6 dark:bg-gray-800">
-                        <div class="mb-3 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                        <p class="text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+                    <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                        <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                        <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
                     </div>
                 </div>
 
-                <!-- Table Loader -->
-                <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                    <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                    <span class="mr-2" x-text="$store.i18n.t('loading_data')"></span>
+                <!-- Loading State -->
+                <div id="tableLoading" class="flex hidden items-center justify-center py-12">
+                    <div class="flex flex-col items-center">
+                        <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                    </div>
                 </div>
 
                 <!-- Table Content -->
@@ -63,8 +65,9 @@
                 </div>
 
                 <!-- Empty State -->
-                <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div id="tableEmptyState" class="flex hidden flex-col items-center justify-center py-16">
+                    <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                        <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"

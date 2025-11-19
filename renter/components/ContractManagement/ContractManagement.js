@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator').classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('contractsTable').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const contractsTableContainer = document.getElementById('contractsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (contractsTableContainer) contractsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('contractsTable').classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const contractsTableContainer = document.getElementById('contractsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (contractsTableContainer) contractsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('contractsTable').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const contractsTableContainer = document.getElementById('contractsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (contractsTableContainer) contractsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -111,25 +119,25 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await ApiService.getContracts(page, filters);
 
-                if (data.status && Array.isArray(data.data.data)) {
-                    this.tableData = data.data.data;
+                if (data.status && data.data && Array.isArray(data.data.data)) {
+                    this.tableData = data.data.data || [];
                     this.paginationMeta = {
                         current_page: data.data.current_page || 1,
                         last_page: data.data.last_page || 1,
                         per_page: data.data.per_page || 10,
-                        total: data.data.total || this.tableData.length,
-                        from: data.data.data.from || 1,
-                        to: data.to || this.tableData.length,
+                        total: data.data.total || (this.tableData ? this.tableData.length : 0),
+                        from: data.data.from || 1,
+                        to: data.data.to || (this.tableData ? this.tableData.length : 0),
                         links: data.data.links || []
                     };
                     this.meta = {
                         total: this.paginationMeta.total,
-                        pending: this.tableData.filter(contract => contract.status === 'pending').length,
-                        active: this.tableData.filter(contract => contract.status === 'active').length,
-                        completed: this.tableData.filter(contract => contract.status === 'completed').length
+                        pending: (this.tableData || []).filter(contract => contract.status === 'pending').length,
+                        active: (this.tableData || []).filter(contract => contract.status === 'active').length,
+                        completed: (this.tableData || []).filter(contract => contract.status === 'completed').length
                     };
 
-                    if (this.tableData.length === 0) {
+                    if (!this.tableData || this.tableData.length === 0) {
                         loadingIndicator.showEmptyState();
                     } else {
                         this.populateTable();
