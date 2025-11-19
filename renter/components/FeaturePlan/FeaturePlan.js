@@ -98,79 +98,216 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await ApiService.getFeaturePlans(page);
 
-                if (data.status && data.data) {
-                    this.tableData = data.data.data || [];
+                // Initialize defaults first
+                this.tableData = [];
+                this.paginationMeta = {
+                    current_page: 1,
+                    last_page: 1,
+                    per_page: 10,
+                    total: 0,
+                    from: 0,
+                    to: 0,
+                    links: []
+                };
+
+                // Handle API response structure:
+                // {
+                //     "status": true,
+                //     "data": {
+                //         "current_page": 1,
+                //         "data": [...],
+                //         "per_page": 2,
+                //         "total": 1,
+                //         "links": [...],
+                //         ...
+                //     }
+                // }
+                if (data && data.status === true && data.data) {
+                    const responseData = data.data;
+                    
+                    // Extract features array from data.data.data
+                    if (responseData.data && Array.isArray(responseData.data)) {
+                        this.tableData = responseData.data;
+                    } else {
+                        this.tableData = [];
+                    }
+                    
+                    // Extract pagination metadata
                     this.paginationMeta = {
-                        current_page: data.data.current_page,
-                        last_page: data.data.last_page,
-                        per_page: data.data.per_page,
-                        total: data.data.total,
-                        from: data.data.from,
-                        to: data.data.to,
-                        links: data.data.links
+                        current_page: responseData.current_page || 1,
+                        last_page: responseData.last_page || 1,
+                        per_page: responseData.per_page || 10,
+                        total: responseData.total || 0,
+                        from: responseData.from || 0,
+                        to: responseData.to || 0,
+                        links: Array.isArray(responseData.links) ? responseData.links : []
                     };
 
-                    if (this.tableData.length === 0) {
-                        loadingIndicator.showEmptyState();
-                    } else {
+                    // Check if we have data
+                    if (Array.isArray(this.tableData) && this.tableData.length > 0) {
                         this.populateTable();
                         loadingIndicator.hideTableLoader();
+                    } else {
+                        loadingIndicator.showEmptyState();
                     }
                 } else {
-                    throw new Error(data.message || Alpine.store('i18n').t('failed_to_load_features'));
+                    // No valid response
+                    this.tableData = [];
+                    throw new Error(data?.message || data?.error || Alpine.store('i18n').t('failed_to_load_features'));
                 }
             } catch (error) {
+                // Ensure tableData is initialized even on error
+                if (!Array.isArray(this.tableData)) {
+                    this.tableData = [];
+                }
+                if (!this.paginationMeta || typeof this.paginationMeta !== 'object') {
+                    this.paginationMeta = {
+                        current_page: 1,
+                        last_page: 1,
+                        per_page: 10,
+                        total: 0,
+                        from: 0,
+                        to: 0,
+                        links: []
+                    };
+                }
                 loadingIndicator.hideTableLoader();
                 loadingIndicator.showEmptyState();
-                coloredToast('danger', Alpine.store('i18n').t('failed_to_load_features') + ': ' + error.message);
+                const errorMessage = error?.message || error?.toString() || Alpine.store('i18n').t('failed_to_load_features');
+                coloredToast('danger', Alpine.store('i18n').t('failed_to_load_features') + ': ' + errorMessage);
             }
         },
 
         populateTable() {
-            if (this.datatable) {
-                this.datatable.destroy();
+            try {
+                // Check if table element exists
+                const tableContainer = document.getElementById('featuresTable');
+                if (!tableContainer) {
+                    console.error('populateTable: featuresTable container not found');
+                    loadingIndicator.showEmptyState();
+                    return;
+                }
+
+                // Find or create the table element inside the container
+                let tableElement = tableContainer.querySelector('table');
+                if (!tableElement) {
+                    tableElement = document.createElement('table');
+                    tableElement.className = 'min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap';
+                    tableContainer.appendChild(tableElement);
+                }
+
+                if (this.datatable) {
+                    try {
+                        this.datatable.destroy();
+                    } catch (e) {
+                        console.warn('Error destroying datatable:', e);
+                    }
+                }
+
+                // Ensure tableData is an array before mapping
+                if (!this.tableData || !Array.isArray(this.tableData) || this.tableData.length === 0) {
+                    console.warn('populateTable: tableData is empty or not an array');
+                    loadingIndicator.showEmptyState();
+                    return;
+                }
+
+                // Ensure paginationMeta exists and has required properties
+                if (!this.paginationMeta || typeof this.paginationMeta !== 'object') {
+                    this.paginationMeta = {
+                        current_page: 1,
+                        last_page: 1,
+                        per_page: 10,
+                        total: 0,
+                        from: 0,
+                        to: 0,
+                        links: []
+                    };
+                }
+
+                // Map data and ensure all values are valid
+                const mappedData = this.tableData.map((feature, index) => {
+                    if (!feature || typeof feature !== 'object') {
+                        return ['', '', '', '', '', ''];
+                    }
+                    return [
+                        this.formatText((this.currentPage - 1) * (this.paginationMeta.per_page || 10) + index + 1) || '',
+                        this.formatText(feature?.feature) || '',
+                        this.formatText(feature?.plan?.name) || '',
+                        this.formatDate(feature?.created_at) || '',
+                        this.formatDate(feature?.updated_at) || '',
+                        this.getActionButtons(feature?.id) || '',
+                    ];
+                }).filter(row => row && Array.isArray(row) && row.length > 0);
+
+                // Ensure mappedData is valid
+                if (!mappedData || !Array.isArray(mappedData) || mappedData.length === 0) {
+                    console.warn('populateTable: mappedData is empty or invalid');
+                    loadingIndicator.showEmptyState();
+                    return;
+                }
+
+                // Define headings
+                const headings = [
+                    Alpine.store('i18n').t('id') || 'ID',
+                    Alpine.store('i18n').t('feature') || 'Feature',
+                    Alpine.store('i18n').t('plan') || 'Plan',
+                    Alpine.store('i18n').t('created_at') || 'Created At',
+                    Alpine.store('i18n').t('updated_at') || 'Updated At',
+                    `<div class="text-center">${Alpine.store('i18n').t('action') || 'Action'}</div>`
+                ];
+
+                // Ensure headings and data rows have the same length
+                const expectedColumns = 6;
+                if (headings.length !== expectedColumns) {
+                    console.error('populateTable: headings length mismatch', headings.length, expectedColumns);
+                    loadingIndicator.showEmptyState();
+                    return;
+                }
+
+                // Validate each row has correct number of columns
+                const validMappedData = mappedData.filter(row => {
+                    if (!Array.isArray(row) || row.length !== expectedColumns) {
+                        console.warn('populateTable: invalid row length', row);
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (validMappedData.length === 0) {
+                    console.warn('populateTable: no valid rows after filtering');
+                    loadingIndicator.showEmptyState();
+                    return;
+                }
+
+                // Use the table element directly instead of selector
+                this.datatable = new simpleDatatables.DataTable(tableElement, {
+                    data: {
+                        headings: headings,
+                        data: validMappedData,
+                    },
+                    searchable: true,
+                    perPage: this.paginationMeta.per_page || 10,
+                    perPageSelect: [10, 20, 30, 50, 100],
+                    columns: [{ select: 0, sort: 'asc' }],
+                    firstLast: true,
+                    firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
+                    lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
+                    prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
+                    nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
+                    labels: { perPage: '{select}' },
+                    layout: {
+                        top: '{search}',
+                        bottom: this.generatePaginationHTML() + '{info}{pager}',
+                    },
+                });
+            } catch (error) {
+                console.error('Error populating table:', error);
+                loadingIndicator.showEmptyState();
             }
-
-            const mappedData = this.tableData.map((feature, index) => [
-                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
-                this.formatText(feature.feature),
-                this.formatText(feature.plan?.name),
-                this.formatDate(feature.created_at),
-                this.formatDate(feature.updated_at),
-                this.getActionButtons(feature.id),
-            ]);
-
-            this.datatable = new simpleDatatables.DataTable('#featuresTable', {
-                data: {
-                    headings: [
-                        Alpine.store('i18n').t('id'),
-                        Alpine.store('i18n').t('feature'),
-                        Alpine.store('i18n').t('plan'),
-                        Alpine.store('i18n').t('created_at'),
-                        Alpine.store('i18n').t('updated_at'),
-                        `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
-                    ],
-                    data: mappedData,
-                },
-                searchable: true,
-                perPage: this.paginationMeta.per_page || 10,
-                perPageSelect: [10, 20, 30, 50, 100],
-                columns: [{ select: 0, sort: 'asc' }],
-                firstLast: true,
-                firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
-                lastText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>',
-                prevText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>',
-                nextText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>',
-                labels: { perPage: '{select}' },
-                layout: {
-                    top: '{search}',
-                    bottom: this.generatePaginationHTML() + '{info}{pager}',
-                },
-            });
         },
 
         generatePaginationHTML() {
-            if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
+            if (!this.paginationMeta || typeof this.paginationMeta !== 'object' || !this.paginationMeta.last_page || this.paginationMeta.last_page <= 1) return '';
 
             let paginationHTML = '<div class="pagination-container flex justify-center my-4">';
             paginationHTML += '<nav class="flex items-center space-x-2">';
@@ -226,7 +363,10 @@ document.addEventListener('alpine:init', () => {
 
         async editFeature(featureId) {
             try {
-                const feature = this.tableData.find(f => f.id == featureId);
+                if (!this.tableData || !Array.isArray(this.tableData)) {
+                    throw new Error('Table data is not available');
+                }
+                const feature = this.tableData.find(f => f && f.id == featureId);
                 if (!feature) {
                     throw new Error('Feature not found');
                 }
@@ -334,7 +474,6 @@ document.addEventListener('alpine:init', () => {
             showConfirmButton: false,
             timer: 3000,
             showCloseButton: true,
-            animation: false,
             customClass: {
                 popup: `color-${color}`,
             },

@@ -7,83 +7,157 @@
     </head>
     <body>
         <div
-            x-data="{
-                feeData: { id: null, type: '', is_active: false, description: '' },
-                resetForm() {
-                    this.feeData = { id: null, type: '', is_active: false, description: '' };
-                }
-            }"
+            x-data
             x-show="$store.feesTable.isEditModalOpen"
             x-transition
-            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4"
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
             style="display: none"
             x-cloak
+            @click.self="$store.feesTable.closeEditModal()"
+            x-init="$watch('$store.feesTable.isEditModalOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
         >
-            <div class="flex min-h-screen items-start justify-center px-4" @click.self="$store.feesTable.closeEditModal()">
+            <div class="flex min-h-screen items-start justify-center px-4 py-8">
                 <div
-                    class="panel animate__animated my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 bg-white p-0 shadow-lg dark:bg-gray-800"
+                    class="modal-container animate__animated w-full max-w-2xl overflow-hidden rounded-lg border-0 shadow-2xl bg-white dark:bg-[#0e1726]"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                    @click.stop
                 >
-                    <div class="modal-header flex items-center justify-between bg-[#fbfbfb] px-5 py-4 dark:bg-[#121c2c]">
-                        <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('edit_fee')"></h5>
-                        <button
-                            @click="$store.feesTable.closeEditModal()"
-                            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    <!-- Modal Header - Sticky -->
+                    <div class="modal-header sticky top-0 z-10 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10 border-b border-white-light/40 dark:border-[#191e3a]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white">
+                                        <span x-text="$store.i18n.t('edit_fee')"></span>
+                                    </h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('update_fee_information') || 'Update fee information'"></p>
+                                </div>
+                            </div>
+                            <button 
+                                @click="$store.feesTable.closeEditModal()" 
+                                class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            >
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Scrollable -->
+                    <div class="modal-body max-h-[calc(90vh-140px)] overflow-y-auto bg-white dark:bg-[#0e1726]">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <form @submit.prevent="$store.feesTable.updateFee($store.feesTable.feeData)">
+                                <div class="p-6 space-y-5">
+                                    <!-- Type Field -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('type')"></span>
+                                        </label>
+                                        <select
+                                            class="form-select"
+                                            x-model="$store.feesTable.feeData.type"
+                                            required
+                                        >
+                                            <option value="fixed" x-text="$store.i18n.t('fixed')"></option>
+                                            <option value="percentage" x-text="$store.i18n.t('percentage')"></option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Is Active Field -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('is_active')"></span>
+                                        </label>
+                                        <div class="flex items-center gap-3">
+                                            <label class="flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-checkbox rounded border-gray-300 dark:border-gray-600"
+                                                    x-model="$store.feesTable.feeData.is_active"
+                                                />
+                                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300" x-text="$store.feesTable.feeData.is_active ? $store.i18n.t('yes') : $store.i18n.t('no')"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description Field -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('description')"></span>
+                                        </label>
+                                        <textarea
+                                            class="form-input min-h-[100px] resize-none"
+                                            rows="4"
+                                            x-model="$store.feesTable.feeData.description"
+                                            :placeholder="$store.i18n.t('enter_description') || 'Enter description'"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer - Sticky -->
+                    <div class="modal-footer sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-xl border-t border-white-light/40 bg-gray-50/50 px-6 py-4 dark:border-[#191e3a] dark:bg-[#1a2941]/30">
+                        <button 
+                            @click="$store.feesTable.closeEditModal()" 
+                            class="btn btn-outline-danger flex items-center gap-2"
                         >
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
+                            <span x-text="$store.i18n.t('cancel')"></span>
                         </button>
-                    </div>
-                    <div class="p-5">
-                        <form @submit.prevent="$store.feesTable.updateFee(feeData)">
-                            <div class="grid grid-cols-1 gap-5">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('type')"></label>
-                                    <select
-                                        class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="feeData.type"
-                                        required
-                                    >
-                                        <option value="fixed" x-text="$store.i18n.t('fixed')"></option>
-                                        <option value="percentage" x-text="$store.i18n.t('percentage')"></option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('is_active')"></label>
-                                    <input
-                                        type="checkbox"
-                                        class="form-checkbox rounded border-gray-300 dark:border-gray-600"
-                                        x-model="feeData.is_active"
-                                    />
-                                    <span class="ml-2" x-text="feeData.is_active ? $store.i18n.t('yes') : $store.i18n.t('no')"></span>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('description')"></label>
-                                    <textarea
-                                        class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="feeData.description"
-                                        rows="4"
-                                    ></textarea>
-                                </div>
-                            </div>
-                            <div class="mt-6 flex items-center justify-end gap-4">
-                                <button
-                                    type="button"
-                                    @click="$store.feesTable.closeEditModal()"
-                                    class="btn btn-outline-danger rounded-md px-4 py-2 text-sm hover:bg-red-50"
-                                    x-text="$store.i18n.t('cancel')"
-                                ></button>
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary rounded-md px-4 py-2 text-sm"
-                                    x-text="$store.i18n.t('update')"
-                                ></button>
-                            </div>
-                        </form>
+                        <button 
+                            type="submit" 
+                            @click="$store.feesTable.updateFee($store.feesTable.feeData)" 
+                            class="btn btn-primary flex items-center gap-2"
+                            :disabled="$store.feesTable.isUpdating"
+                        >
+                            <svg 
+                                x-show="!$store.feesTable.isUpdating"
+                                class="h-4 w-4" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <svg
+                                x-show="$store.feesTable.isUpdating"
+                                class="h-4 w-4 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                            </svg>
+                            <span x-show="!$store.feesTable.isUpdating" x-text="$store.i18n.t('update')"></span>
+                            <span x-show="$store.feesTable.isUpdating" x-text="$store.i18n.t('processing') || 'Processing...'"></span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        
     </body>
 </html>

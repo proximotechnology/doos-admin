@@ -712,7 +712,7 @@
          * Update fee
          */
         async updateFee(feeId, data) {
-            return this.post(`/api/admin/fees/update/${feeId}`, data);
+            return this.put(`/api/admin/fees/update/${feeId}`, data);
         }
 
         /**
@@ -729,28 +729,28 @@
          */
         async getFeaturePlans(page = 1, filters = {}) {
             const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/feature/index', params);
+            return this.get('/api/admin/plan/feature/index', params);
         }
 
         /**
          * Add feature plan
          */
         async addFeaturePlan(data) {
-            return this.post('/api/admin/feature/store', data);
+            return this.post('/api/admin/plan/feature/store', data);
         }
 
         /**
          * Update feature plan
          */
         async updateFeaturePlan(featureId, data) {
-            return this.post(`/api/admin/feature/update/${featureId}`, data);
+            return this.post(`/api/admin/plan/feature/update/${featureId}`, data);
         }
 
         /**
          * Delete feature plan
          */
         async deleteFeaturePlan(featureId) {
-            return this.delete(`/api/admin/feature/delete/${featureId}`);
+            return this.delete(`/api/admin/plan/feature/delete/${featureId}`);
         }
 
         // ==================== User Management APIs ====================

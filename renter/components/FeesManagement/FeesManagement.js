@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('myTable1')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const feesTableContainer = document.getElementById('feesTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (feesTableContainer) feesTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('myTable1')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const feesTableContainer = document.getElementById('feesTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (feesTableContainer) feesTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('myTable1')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const feesTableContainer = document.getElementById('feesTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (feesTableContainer) feesTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -50,16 +58,34 @@ document.addEventListener('alpine:init', () => {
         currentPage: 1,
 
         async init() {
+            // Event delegation for buttons
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.pagination-btn')) {
                     const page = e.target.closest('.pagination-btn').dataset.page;
                     this.fetchFees(page);
                 }
                 if (e.target.closest('.edit-btn')) {
-                    const feeId = e.target.closest('.edit-btn').dataset.id;
-                    const fee = this.fees.find(f => f.id == feeId);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const btn = e.target.closest('.edit-btn');
+                    if (!btn) return;
+                    
+                    const feeId = btn.getAttribute('data-id') || btn.dataset.id;
+                    if (!feeId) {
+                        console.error('No fee ID found on edit button');
+                        return;
+                    }
+                    
+                    const fee = this.fees.find(f => {
+                        const id = f.id;
+                        return id == feeId || id === parseInt(feeId) || String(id) === String(feeId);
+                    });
+                    
                     if (fee) {
                         Alpine.store('feesTable').openEditModal(fee);
+                    } else {
+                        console.error('Fee not found for id:', feeId, 'Available fees:', this.fees.map(f => ({ id: f.id, label: f.label })));
+                        coloredToast('danger', Alpine.store('i18n').t('fee_not_found') || 'Fee not found');
                     }
                 }
             });
@@ -110,21 +136,38 @@ document.addEventListener('alpine:init', () => {
 
         populateTable() {
             if (this.datatable) {
-                this.datatable.destroy();
+                try {
+                    this.datatable.destroy();
+                } catch (e) {
+                    console.warn('Error destroying datatable:', e);
+                }
+            }
+
+            // Ensure fees is an array
+            if (!this.fees || !Array.isArray(this.fees) || this.fees.length === 0) {
+                loadingIndicator.showEmptyState();
+                return;
+            }
+
+            const tableElement = document.getElementById('myTable1');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
             }
 
             const mappedData = this.fees.map((fee, index) => [
-                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
+                this.formatText((this.currentPage - 1) * (this.paginationMeta.per_page || 10) + index + 1),
                 this.formatText(fee.label),
                 this.formatText(fee.type),
                 this.formatText(fee.price),
                 this.formatActive(fee.is_active),
                 this.formatText(fee.description),
                 this.formatDate(fee.created_at),
-                `<button class="edit-btn btn btn-sm btn-outline-primary rounded-md px-2 py-1" data-id="${fee.id}">${Alpine.store('i18n').t('edit')}</button>`
+                this.getActionButtons(fee.id)
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#myTable1', {
+            this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
@@ -202,9 +245,29 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatActive(isActive) {
-            return `<span class="${isActive ? 'text-success' : 'text-danger'}">
-                ${isActive ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
+            // Handle null, undefined, or empty values
+            if (isActive === null || isActive === undefined || isActive === '') {
+                return `<span class="badge badge-danger text-black dark:text-white">
+                    ${Alpine.store('i18n').t('no')}
+                </span>`;
+            }
+            
+            const isActiveValue = isActive === true || isActive === 1 || isActive === '1' || isActive === 1;
+            return `<span class="badge ${isActiveValue ? 'badge-success' : 'badge-danger'} text-black dark:text-white">
+                ${isActiveValue ? Alpine.store('i18n').t('yes') : Alpine.store('i18n').t('no')}
             </span>`;
+        },
+
+        getActionButtons(feeId) {
+            return `
+                <div class="flex items-center gap-1">
+                    <button class="edit-btn table-action-btn btn btn-warning btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${feeId}" title="${Alpine.store('i18n').t('edit')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('edit')}</span>
+                    </button>
+                </div>`;
         }
     }));
 });

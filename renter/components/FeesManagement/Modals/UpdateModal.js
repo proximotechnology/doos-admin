@@ -34,78 +34,87 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('feesTable', {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         isEditModalOpen: false,
+        isUpdating: false,
+        feeData: {
+            id: null,
+            type: '',
+            is_active: false,
+            description: ''
+        },
         refreshTable: async function () {
             const tableComponent = Alpine.$data(document.querySelector('[x-data="feesTable"]'));
             if (tableComponent && tableComponent.fetchFees) {
                 await tableComponent.fetchFees(tableComponent.currentPage);
-            } else {
-                }
+            }
         },
         openEditModal(fee) {
+            if (!fee || !fee.id) {
+                console.error('Invalid fee data:', fee);
+                coloredToast('danger', Alpine.store('i18n').t('invalid_fee_data') || 'Invalid fee data');
+                return;
+            }
+            
+            this.feeData = {
+                id: fee.id,
+                type: fee.type || 'fixed',
+                is_active: fee.is_active === true || fee.is_active === 1 || fee.is_active === '1' || fee.is_active === 1,
+                description: fee.description || ''
+            };
             this.isEditModalOpen = true;
-            const modalData = Alpine.$data(document.querySelector('[x-data][x-show="$store.feesTable.isEditModalOpen"]'));
-            if (modalData) {
-                modalData.feeData = {
-                    id: fee.id,
-                    type: fee.type,
-                    is_active: fee.is_active,
-                    description: fee.description || ''
-                };
-            } else {
+            
+            // Force Alpine to update and show modal
+            setTimeout(() => {
+                const modal = document.querySelector('[x-show="$store.feesTable.isEditModalOpen"]');
+                if (modal) {
+                    modal.style.display = 'flex';
                 }
+            }, 10);
         },
         closeEditModal() {
             this.isEditModalOpen = false;
-            const modalData = Alpine.$data(document.querySelector('[x-data][x-show="$store.feesTable.isEditModalOpen"]'));
-            if (modalData) {
-                modalData.resetForm();
-            } else {
-                }
+            this.feeData = {
+                id: null,
+                type: '',
+                is_active: false,
+                description: ''
+            };
         },
         async updateFee(feeData) {
-            try {
-                loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
+            if (!feeData || !feeData.id) {
+                coloredToast('danger', Alpine.store('i18n').t('invalid_fee_data') || 'Invalid fee data');
+                return;
+            }
 
+            this.isUpdating = true;
+            loadingIndicator.show();
+            try {
                 const payload = {
-                    type: feeData.type || '',
-                    is_active: feeData.is_active ? 1 : 0,
+                    type: feeData.type || 'fixed',
+                    is_active: feeData.is_active === true || feeData.is_active === 1 ? 1 : 0,
                     description: feeData.description || ''
                 };
 
-                const response = await fetch(`${this.apiBaseUrl}/api/admin/fees/update/${feeData.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    },
-                    body: JSON.stringify(payload)
-                });
+                const data = await ApiService.updateFee(feeData.id, payload);
 
-                const result = await response.json();
-
-
-                if (!response.ok) {
-                    const errorMsg =
-                        result.message ||
-                        Object.values(result.errors || {})
-                            .flat()
-                            .join(', ') ||
+                if (data.status || data.success) {
+                    coloredToast('success', Alpine.store('i18n').t('fee_updated_successfully'));
+                    await this.refreshTable();
+                    this.closeEditModal();
+                } else {
+                    const errorMsg = data.message || 
+                        (data.errors ? Object.values(data.errors).flat().join(', ') : '') ||
                         Alpine.store('i18n').t('failed_update_fee');
                     throw new Error(errorMsg);
                 }
-
-                coloredToast('success', Alpine.store('i18n').t('fee_updated_successfully'));
-                await this.refreshTable();
-                this.closeEditModal();
             } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_fee'));
+                console.error('Error updating fee:', error);
+                const errorMessage = error.message || 
+                    (error.response?.data?.message) ||
+                    (error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : '') ||
+                    Alpine.store('i18n').t('failed_update_fee');
+                coloredToast('danger', errorMessage);
             } finally {
+                this.isUpdating = false;
                 loadingIndicator.hide();
             }
         }

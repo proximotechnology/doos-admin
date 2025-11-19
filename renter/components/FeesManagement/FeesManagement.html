@@ -4,57 +4,81 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title x-text="$store.i18n.t('fees_management')"></title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            .modal-header {
-                position: sticky;
-                top: 0;
-                z-index: 10;
-                background: inherit;
-                border-bottom: 1px solid #e5e7eb;
-            }
-        </style>
     </head>
-    <body class="bg-gray-100 font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
-        <div class="container mx-auto p-6">
-            <ul class="flex space-x-2 text-sm text-gray-600 dark:text-gray-400 rtl:space-x-reverse">
+    <body>
+        <!-- Breadcrumb -->
+        <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse">
                 <li>
-                    <a href="javascript:;" class="text-primary hover:underline" x-text="$store.i18n.t('dashboard')"></a>
+                    <a href="javascript:;" class="flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                        <svg class="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
                 </li>
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('plan_subscriptions')"></span>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('plan_subscriptions')"></span>
+                    </div>
                 </li>
-                <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                    <span x-text="$store.i18n.t('fees_management')"></span>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('fees_management')"></span>
+                    </div>
                 </li>
-            </ul>
+            </ol>
+        </nav>
 
-            <div class="pt-5">
-                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
-                    <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
-                        <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
-                        <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+            <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div class="pt-5" x-data="feesTable" x-init="init()">
+            <!-- Fees Table -->
+            <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="mb-5 flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('fees_management')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('fees_management_description') || 'Manage system fees and charges'"></p>
+                        </div>
                     </div>
                 </div>
 
-                <div x-data="feesTable" x-init="init()">
-                    <div class="panel mt-6">
-                        <div class="mb-5 flex items-center justify-between">
-                            <h5 class="text-lg font-semibold dark:text-white-light" x-text="$store.i18n.t('fees_management')"></h5>
+                <div class="p-6">
+                    <!-- Loading State -->
+                    <div id="tableLoading" class="flex hidden items-center justify-center py-12">
+                        <div class="flex flex-col items-center">
+                            <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
                         </div>
+                    </div>
 
-                        <div id="tableLoading" class="flex hidden items-center justify-center py-8">
-                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            <span class="ltr:ml-2 rtl:mr-2" x-text="$store.i18n.t('loading_data')"></span>
-                        </div>
+                    <!-- Table Container -->
+                    <div id="feesTableContainer" class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" style="display: none;">
+                        <table id="myTable1" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap"></table>
+                    </div>
 
-                        <table id="myTable1" class="whitespace-nowrap"></table>
-
-                        <div id="tableEmptyState" class="hidden px-4 py-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- Empty State -->
+                    <div id="tableEmptyState" class="flex hidden flex-col items-center justify-center py-16">
+                        <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                            <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -62,9 +86,9 @@
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white" x-text="$store.i18n.t('no_fees')"></h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_fees_description')"></p>
                         </div>
+                        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white" x-text="$store.i18n.t('no_fees')"></h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_fees_description') || 'No fees found'"></p>
                     </div>
                 </div>
             </div>

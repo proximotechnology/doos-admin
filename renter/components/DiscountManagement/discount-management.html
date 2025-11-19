@@ -5,45 +5,76 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </head>
-    <body class="bg-gray-100 dark:bg-gray-900">
-        <div id="header-container"></div>
-        <div class="flex">
-            <div id="sidebar-container"></div>
-            <div class="container mx-auto p-4">
-                <!-- Breadcrumb -->
-                <ul class="mb-6 flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <a href="javascript:;" class="text-primary hover:underline">
-                            <span x-text="$store.i18n.t('dashboard')"></span>
-                        </a>
-                    </li>
-                    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                        <span x-text="$store.i18n.t('discount_management')"></span>
-                    </li>
-                    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                        <span x-text="$store.i18n.t('coupons')"></span>
-                    </li>
-                </ul>
+    <body>
+        <!-- Breadcrumb -->
+        <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                        <svg class="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('discount_management')"></span>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('discounts')"></span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
 
-                <!-- Loading Indicator -->
-                <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
-                    <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
-                        <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
-                        <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+            <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div class="pt-5">
+            <!-- Add Discount Form -->
+            <div class="panel mb-6 overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('add_discount')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('create_new_discount') || 'Create a new discount'"></p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Add Discount Form -->
-                <div class="mb-6">
-                    <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('add_discount')"></h5>
-                        <form x-data="Add_Discount" x-init="init" @submit.prevent="addDiscount">
-                            <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                <!-- Title Selection -->
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('discount_scope')"></label>
+                <div class="p-6">
+                    <form x-data="Add_Discount" x-init="init" @submit.prevent="addDiscount" class="space-y-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <!-- Title Selection -->
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('discount_scope')"></span>
+                                </label>
+                                <div class="relative">
                                     <select
-                                        class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        class="form-select pr-10"
                                         x-model="title"
                                         required
                                         @change="onTitleChange"
@@ -53,13 +84,25 @@
                                         <option value="brand" x-text="$store.i18n.t('by_brand')"></option>
                                         <option value="model" x-text="$store.i18n.t('by_model')"></option>
                                     </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Brand Selection (Conditional) -->
-                                <div x-show="title === 'brand'">
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('select_brand')"></label>
+                            <!-- Brand Selection (Conditional) -->
+                            <div class="form-group" x-show="title === 'brand'">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('select_brand')"></span>
+                                </label>
+                                <div class="relative">
                                     <select
-                                        class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        class="form-select pr-10"
                                         x-model="brand_id"
                                         :required="title === 'brand'"
                                     >
@@ -68,13 +111,25 @@
                                             <option :value="brand.id" x-text="brand.name"></option>
                                         </template>
                                     </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Model Selection (Conditional) -->
-                                <div x-show="title === 'model'">
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('select_model')"></label>
+                            <!-- Model Selection (Conditional) -->
+                            <div class="form-group" x-show="title === 'model'">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('select_model')"></span>
+                                </label>
+                                <div class="relative">
                                     <select
-                                        class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        class="form-select pr-10"
                                         x-model="model_id"
                                         :required="title === 'model'"
                                     >
@@ -83,13 +138,25 @@
                                             <option :value="model.id" x-text="model.name"></option>
                                         </template>
                                     </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Type Selection -->
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('discount_type')"></label>
+                            <!-- Type Selection -->
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('discount_type')"></span>
+                                </label>
+                                <div class="relative">
                                     <select
-                                        class="form-select w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        class="form-select pr-10"
                                         x-model="type"
                                         required
                                     >
@@ -97,75 +164,138 @@
                                         <option value="percentage" x-text="$store.i18n.t('percentage')"></option>
                                         <option value="fixed" x-text="$store.i18n.t('fixed_amount')"></option>
                                     </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Value -->
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('discount_value')"></label>
+                            <!-- Value -->
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('discount_value')"></span>
+                                </label>
+                                <div class="relative">
                                     <input
                                         type="number"
                                         step="0.01"
-                                        class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                        class="form-input pr-10"
                                         :placeholder="type === 'percentage' ? $store.i18n.t('enter_percentage') : $store.i18n.t('enter_amount')"
                                         x-model="value"
                                         required
                                     />
-                                </div>
-
-                                <!-- Start Date -->
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('start_date')"></label>
-                                    <input
-                                        type="date"
-                                        class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="date_from"
-                                        required
-                                    />
-                                </div>
-
-                                <!-- End Date -->
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium dark:text-white" x-text="$store.i18n.t('end_date')"></label>
-                                    <input
-                                        type="date"
-                                        class="form-input w-full rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="date_end"
-                                        required
-                                    />
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <span class="text-sm text-gray-500" x-text="type === 'percentage' ? '%' : '$'"></span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
-                                <span x-text="$store.i18n.t('create_coupon')"></span>
+                            <!-- Start Date -->
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('start_date')"></span>
+                                </label>
+                                <input
+                                    type="date"
+                                    class="form-input"
+                                    x-model="date_from"
+                                    required
+                                />
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="form-group">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('end_date')"></span>
+                                </label>
+                                <input
+                                    type="date"
+                                    class="form-input"
+                                    x-model="date_end"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn btn-primary flex items-center gap-2">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span x-text="$store.i18n.t('create_discount')"></span>
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
+            </div>
 
-                <!-- Discounts Table -->
-                <div x-data="discountTable" >
-                    <div class="panel rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-                        <h5 class="mb-5 text-lg font-semibold dark:text-white" x-text="$store.i18n.t('discuont_list')"></h5>
+            <!-- Discounts Table -->
+            <div x-data="discountTable">
+                <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                    <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('discuont_list')"></h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('manage_discounts') || 'Manage all discounts'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- Filters -->
-                        <div class="mb-5">
-                            <form @submit.prevent="applyFilters">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                                    <input
-                                        type="text"
-                                        class="form-input rounded-md border p-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        x-model="filters.title"
-                                        :placeholder="$store.i18n.t('search_by_title')"
-                                    />
-                                    <button type="submit" class="btn btn-primary rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                                        <span x-text="$store.i18n.t('filter')"></span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-secondary rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                                        @click="resetFilters"
-                                        x-text="$store.i18n.t('reset_filters')"
-                                    ></button>
+                    <div class="p-6">
+                        <!-- Filters Section -->
+                        <div class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+                            <form @submit.prevent="applyFilters" class="space-y-4">
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('search_by_title')"></span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-input"
+                                            x-model="filters.title"
+                                            :placeholder="$store.i18n.t('search_by_title')"
+                                        />
+                                    </div>
+                                    <div class="flex items-end gap-2">
+                                        <button type="submit" class="btn btn-primary flex items-center gap-2">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('filter')"></span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-danger flex items-center gap-2"
+                                            @click="resetFilters"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('reset_filters')"></span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -179,14 +309,14 @@
                         </div>
 
                         <!-- Table Container -->
-                        <div class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" id="discountsTableContainer" style="display: none;">
-                            <table id="discountsTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 w-full whitespace-nowrap"></table>
+                        <div id="discountsTableContainer" class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" style="display: none;">
+                            <table id="discountsTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap"></table>
                         </div>
 
                         <!-- Empty State -->
                         <div id="tableEmptyState" class="flex hidden flex-col items-center justify-center py-16">
-                            <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                                <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
@@ -196,16 +326,15 @@
                                 </svg>
                             </div>
                             <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white" x-text="$store.i18n.t('no_coupons')"></h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_data_available') || 'No data available'"></p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_data_available') || 'No discounts found'"></p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Modals -->
-                <div id="update-modal-container"></div>
-                <div id="delete-modal-container"></div>
             </div>
         </div>
-        <div id="theme-customizer-container"></div>
+
+        <!-- Modals -->
+        <div id="update-modal-container"></div>
+        <div id="delete-modal-container"></div>
     </body>
 </html>

@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator').classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableEmptyState').classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const walletTableContainer = document.getElementById('walletTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (walletTableContainer) walletTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading').classList.add('hidden');
-            document.getElementById('myTable1').classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const walletTableContainer = document.getElementById('walletTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (walletTableContainer) walletTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState').classList.remove('hidden');
-            document.getElementById('myTable1').classList.add('hidden');
-            document.getElementById('tableLoading').classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const walletTableContainer = document.getElementById('walletTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (walletTableContainer) walletTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -175,6 +183,15 @@ document.addEventListener('alpine:init', () => {
             this.fetchWithdrawals(1);
         },
 
+        resetFilters() {
+            this.filters.status = '';
+            this.applyFilters();
+        },
+
+        hasActiveFilters() {
+            return !!(this.filters.status);
+        },
+
         generatePaginationHTML() {
             if (!this.paginationMeta || this.paginationMeta.last_page <= 1) return '';
 
@@ -208,11 +225,28 @@ document.addEventListener('alpine:init', () => {
 
         populateTable() {
             if (this.datatable1) {
-                this.datatable1.destroy();
+                try {
+                    this.datatable1.destroy();
+                } catch (e) {
+                    console.warn('Error destroying datatable:', e);
+                }
+            }
+
+            // Ensure tableData is an array
+            if (!this.tableData || !Array.isArray(this.tableData) || this.tableData.length === 0) {
+                loadingIndicator.showEmptyState();
+                return;
+            }
+
+            const tableElement = document.getElementById('myTable1');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
             }
 
             const mappedData = this.tableData.map((withdrawal, index) => [
-                this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
+                this.formatText((this.currentPage - 1) * (this.paginationMeta.per_page || 10) + index + 1),
                 this.formatUserInfo(withdrawal.user),
                 this.formatAmount(withdrawal.amount),
                 this.formatStatus(withdrawal.status, withdrawal.id),
@@ -220,7 +254,7 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(withdrawal.id, withdrawal.status)
             ]);
 
-            this.datatable1 = new simpleDatatables.DataTable('#myTable1', {
+            this.datatable1 = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
@@ -258,8 +292,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatStatus(status, withdrawalId) {
-            const statusClass = `status-${status.toLowerCase()}`;
-            return `<span class="status-badge ${statusClass} px-3 py-1 rounded-md">${Alpine.store('i18n').t(status.toLowerCase())}</span>`;
+            if (!status) return `<span class="badge badge-danger text-black dark:text-white">${Alpine.store('i18n').t('na')}</span>`;
+            
+            const statusLower = status.toLowerCase();
+            let badgeClass = 'badge-danger';
+            if (statusLower === 'approved') badgeClass = 'badge-success';
+            else if (statusLower === 'pending') badgeClass = 'badge-warning';
+            else if (statusLower === 'completed') badgeClass = 'badge-info';
+            else if (statusLower === 'rejected') badgeClass = 'badge-danger';
+            
+            return `<span class="badge ${badgeClass} text-black dark:text-white">${Alpine.store('i18n').t(statusLower)}</span>`;
         },
 
         formatDate(dateString) {
@@ -272,19 +314,56 @@ document.addEventListener('alpine:init', () => {
         },
 
         getActionButtons(withdrawalId, status) {
+            const statusLower = (status || '').toLowerCase();
+            const isApproved = statusLower === 'approved';
+            const isCompleted = statusLower === 'completed';
+            const isRejected = statusLower === 'rejected';
+            
             return `
-                <div class="flex items-center gap-1 justify-center">
-                    <button class="approve-btn btn btn-success btn-sm rounded-md px-3 py-1" data-id="${withdrawalId}" ${status === 'approved' || status === 'completed' ? 'disabled' : ''}>
-                        ${Alpine.store('i18n').t('approve')}
+                <div class="flex items-center gap-1 justify-center flex-wrap">
+                    <button 
+                        class="approve-btn btn btn-success btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        data-id="${withdrawalId}" 
+                        ${isApproved || isCompleted ? 'disabled' : ''}
+                        title="${Alpine.store('i18n').t('approve')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('approve')}</span>
                     </button>
-                    <button class="reject-btn btn btn-danger btn-sm rounded-md px-3 py-1" data-id="${withdrawalId}" ${status === 'rejected' || status === 'completed' ? 'disabled' : ''}>
-                        ${Alpine.store('i18n').t('reject')}
+                    <button 
+                        class="reject-btn btn btn-danger btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        data-id="${withdrawalId}" 
+                        ${isRejected || isCompleted ? 'disabled' : ''}
+                        title="${Alpine.store('i18n').t('reject')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('reject')}</span>
                     </button>
-                    <button class="complete-btn btn btn-info btn-sm rounded-md px-3 py-1" data-id="${withdrawalId}" ${status !== 'approved' ? 'disabled' : ''}>
-                        ${Alpine.store('i18n').t('complete')}
+                    <button 
+                        class="complete-btn btn btn-info btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        data-id="${withdrawalId}" 
+                        ${!isApproved ? 'disabled' : ''}
+                        title="${Alpine.store('i18n').t('complete')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('complete')}</span>
                     </button>
-                    <button class="view-details-btn btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${withdrawalId}">
-                        ${Alpine.store('i18n').t('view_details')}
+                    <button 
+                        class="view-details-btn btn btn-primary btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        data-id="${withdrawalId}"
+                        title="${Alpine.store('i18n').t('view_details')}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span class="text-xs">${Alpine.store('i18n').t('view_details')}</span>
                     </button>
                 </div>`;
         },
@@ -310,6 +389,7 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
                 if (data.status && data.data.withdrawal_request) {
                     const withdrawal = data.data.withdrawal_request;
+                    
                     const detailsHtml = `
                         <div class="space-y-6 text-base">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -420,7 +500,17 @@ document.addEventListener('alpine:init', () => {
                     `;
 
                     document.getElementById('withdrawalDetailsContent').innerHTML = detailsHtml;
-                    document.getElementById('withdrawalDetailsModal').classList.remove('hidden');
+                    
+                    // Show modal
+                    const withdrawalModal = document.getElementById('withdrawalDetailsModal');
+                    if (withdrawalModal) {
+                        const modalData = Alpine.$data(withdrawalModal);
+                        if (modalData) {
+                            modalData.isOpen = true;
+                        }
+                        withdrawalModal.classList.remove('hidden');
+                        withdrawalModal.style.display = 'flex';
+                    }
                 } else {
                     throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
                 }

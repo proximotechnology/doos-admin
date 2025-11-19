@@ -161,7 +161,13 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(discount.id, discount.status),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#discountsTable', {
+            const tableElement = document.getElementById('discountsTable');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
+            }
+            this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),

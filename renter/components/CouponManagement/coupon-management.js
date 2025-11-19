@@ -7,18 +7,26 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('loadingIndicator')?.classList.add('hidden');
         },
         showTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.remove('hidden');
-            document.getElementById('couponsTable')?.classList.add('hidden');
-            document.getElementById('tableEmptyState')?.classList.add('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const couponsTableContainer = document.getElementById('couponsTableContainer');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            if (tableLoading) tableLoading.classList.remove('hidden');
+            if (couponsTableContainer) couponsTableContainer.style.display = 'none';
+            if (tableEmptyState) tableEmptyState.classList.add('hidden');
         },
         hideTableLoader: function () {
-            document.getElementById('tableLoading')?.classList.add('hidden');
-            document.getElementById('couponsTable')?.classList.remove('hidden');
+            const tableLoading = document.getElementById('tableLoading');
+            const couponsTableContainer = document.getElementById('couponsTableContainer');
+            if (tableLoading) tableLoading.classList.add('hidden');
+            if (couponsTableContainer) couponsTableContainer.style.display = 'block';
         },
         showEmptyState: function () {
-            document.getElementById('tableEmptyState')?.classList.remove('hidden');
-            document.getElementById('couponsTable')?.classList.add('hidden');
-            document.getElementById('tableLoading')?.classList.add('hidden');
+            const tableEmptyState = document.getElementById('tableEmptyState');
+            const couponsTableContainer = document.getElementById('couponsTableContainer');
+            const tableLoading = document.getElementById('tableLoading');
+            if (tableEmptyState) tableEmptyState.classList.remove('hidden');
+            if (couponsTableContainer) couponsTableContainer.style.display = 'none';
+            if (tableLoading) tableLoading.classList.add('hidden');
         }
     };
 
@@ -152,7 +160,13 @@ document.addEventListener('alpine:init', () => {
                 this.getActionButtons(coupon.id, coupon.status),
             ]);
 
-            this.datatable = new simpleDatatables.DataTable('#couponsTable', {
+            const tableElement = document.getElementById('couponsTable');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
+            }
+            this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
                         Alpine.store('i18n').t('id'),
