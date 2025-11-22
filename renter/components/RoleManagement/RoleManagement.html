@@ -40,7 +40,8 @@
                 </div>
                 <div class="p-6">
                     <form x-data="Add_Role" @submit.prevent="addRole">
-                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        
+                        <div class="grid grid-cols-1 gap-6">
                             <div class="form-group">
                                 <label class="form-label flex items-center gap-2">
                                     <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -56,6 +57,8 @@
                                     required 
                                 />
                             </div>
+                            <!-- Guard Name Field - Hidden for future use -->
+                            <!--
                             <div class="form-group">
                                 <label class="form-label flex items-center gap-2">
                                     <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,6 +77,7 @@
                                     </div>
                                 </div>
                             </div>
+                            -->
                         </div>
                         <div class="mt-6 flex justify-end">
                             <button type="submit" class="btn btn-primary flex items-center gap-2">

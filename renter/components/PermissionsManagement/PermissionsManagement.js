@@ -82,7 +82,8 @@ document.addEventListener('alpine:init', () => {
                     </div>
                     <span class="text-sm font-medium text-gray-900 dark:text-white">${this.formatText(permission.name)}</span>
                 </div>`,
-                `<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">${this.formatText(permission.guard_name)}</span>`,
+                // Guard Name column - Hidden for future use
+                // `<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">${this.formatText(permission.guard_name)}</span>`,
                 `<span class="text-sm text-gray-600 dark:text-gray-400">${this.formatDate(permission.created_at)}</span>`,
             ]);
 
@@ -91,7 +92,8 @@ document.addEventListener('alpine:init', () => {
                     headings: [
                         Alpine.store('i18n').t('id'),
                         Alpine.store('i18n').t('permission_name'),
-                        Alpine.store('i18n').t('guard_name'),
+                        // Guard Name column - Hidden for future use
+                        // Alpine.store('i18n').t('guard_name'),
                         Alpine.store('i18n').t('created_at'),
                     ],
                     data: mappedData,
