@@ -560,6 +560,7 @@
     "no_users_description": "لم يتم العثور على مستخدمين",
     "no_subscribers": "لا توجد مشتركين",
     "no_subscribers_description": "لم يتم العثور على مشتركين",
+    "manage_all_subscribers": "إدارة جميع مشتركي النشرة الإخبارية",
     "failed_fetch_subscribers": "فشل جلب بيانات المشتركين",
     "failed_fetch_subscribers_try_again": "فشل جلب بيانات المشتركين، حاول مرة أخرى",
     "delete_subscriber_warning": "لن تتمكن من استعادة هذا المشترك!",

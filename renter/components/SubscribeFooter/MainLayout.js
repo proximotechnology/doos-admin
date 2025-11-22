@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             themeCustomizer: { path: 'components/ThemeCustomizer/ThemeCustomizer.html', container: 'theme-customizer-container' },
             main: { path: 'components/SubscribeFooter/SubscribeFooter.html', container: 'footer-management-container', loadScript: false }
         });
+        
+        // Load delete modal
+        await loader.load('components/SubscribeFooter/Modals/DeleteModal.html', 'delete-modal-container', { loadScript: false });
     } else {
         // Fallback to old method
         console.error('ComponentLoader not available, using fallback');

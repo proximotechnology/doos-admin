@@ -1038,10 +1038,11 @@
         }
 
         /**
-         * Get subscribers (alias for getSubscriptions)
+         * Get subscribers
          */
         async getSubscribers(page = 1, filters = {}) {
-            return this.getSubscriptions(page, filters);
+            const params = { page, per_page: 10, ...filters };
+            return this.get('/api/admin/subscribers/index', params);
         }
 
         /**

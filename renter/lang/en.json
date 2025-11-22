@@ -552,6 +552,8 @@
     "no_users_description": "No users found",
     "no_subscribers": "No Subscribers",
     "no_subscribers_description": "No subscribers found",
+    "manage_all_subscribers": "Manage all newsletter subscribers",
+    "failed_fetch_subscribers_try_again": "Failed to fetch subscribers. Please try again later.",
     "delete_subscriber_warning": "You won't be able to revert this subscriber!",
     "failed_delete_subscriber": "Failed to delete subscriber",
     "subscriber_deleted_success": "Subscriber deleted successfully",

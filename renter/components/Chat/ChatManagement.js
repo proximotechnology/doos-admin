@@ -63,12 +63,8 @@
         },
 
         setupPageVisibilityHandlers() {
-            window.addEventListener('beforeunload', async () => {
-                if (this.onlineStatus) {
-                    await this.markOffline();
-                }
-            });
-
+            // Use visibilitychange and pagehide instead of beforeunload
+            // beforeunload is blocked by Permissions Policy in some browsers
             document.addEventListener('visibilitychange', async () => {
                 if (document.hidden) {
                     if (this.onlineStatus) {
@@ -82,6 +78,8 @@
                 }
             });
 
+            // pagehide is more reliable than beforeunload and doesn't require permissions
+            // It works better with navigation caching and doesn't trigger policy violations
             window.addEventListener('pagehide', async () => {
                 if (this.onlineStatus) {
                     await this.markOffline();
