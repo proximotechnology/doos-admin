@@ -36,6 +36,7 @@
             if (this._initialized) return;
             this._initialized = true;
 
+            this.isLoading = true;
             await this.loadCurrentUser();
             this.onlineStatus = this.loginUser.is_online;
             await this.loadAllUsers();
@@ -45,6 +46,7 @@
             this.startLastSeenUpdates();
             this.setupPageVisibilityHandlers();
             this.notifyHeaderUpdate();
+            this.isLoading = false;
         },
 
         notifyHeaderUpdate() {
@@ -107,10 +109,12 @@
         async loadAllUsers() {
             const token = localStorage.getItem('authToken');
             if (!token) {
+                this.isLoading = false;
                 return;
             }
 
             try {
+                this.isLoading = true;
                 const data = await ApiService.getUsers(1, { per_page: 100 });
 
                 if (data.status && data.data) {
@@ -137,7 +141,9 @@
                     this.mergeUsers();
                 }
             } catch (error) {
-                }
+                } finally {
+                this.isLoading = false;
+            }
         },
 
         mergeUsers() {
@@ -263,6 +269,10 @@
             }
 
             try {
+                // Only show loading on initial load
+                if (this.allUsers.length === 0) {
+                    this.isLoading = true;
+                }
                 const data = await ApiService.getOnlineUsers();
                 if (data.status === 'success') {
                     this.contactList = data.online_users
@@ -284,7 +294,9 @@
                     this.mergeUsers();
                 }
             } catch (error) {
-                }
+                } finally {
+                this.isLoading = false;
+            }
         },
 
         startOnlineUsersPolling() {

@@ -12,27 +12,37 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         testimonialId: null,
         isOpen: false,
+        isUpdating: false,
 
         openModal(id) {
             this.testimonialId = id;
             this.isOpen = true;
+            this.isUpdating = false;
         },
 
         closeModal() {
             this.isOpen = false;
             this.testimonialId = null;
-            Alpine.store('global').sharedData.name = '';
-            Alpine.store('global').sharedData.comment = '';
-            Alpine.store('global').sharedData.rating = '';
-            Alpine.store('global').sharedData.image = '';
+            this.isUpdating = false;
+            if (Alpine.store('global').sharedData) {
+                Alpine.store('global').sharedData.name = '';
+                Alpine.store('global').sharedData.comment = '';
+                Alpine.store('global').sharedData.rating = '';
+                Alpine.store('global').sharedData.image = '';
+            }
         },
 
         async updateTestimonial() {
             try {
+                this.isUpdating = true;
                 loadingIndicator.show();
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                }
+
+                if (!Alpine.store('global').sharedData.name?.trim() || !Alpine.store('global').sharedData.comment?.trim() || !Alpine.store('global').sharedData.rating) {
+                    throw new Error(Alpine.store('i18n').t('all_fields_required'));
                 }
 
                 const formData = new FormData();
@@ -41,11 +51,7 @@ document.addEventListener('alpine:init', () => {
                 formData.append('rating', Alpine.store('global').sharedData.rating || '');
 
                 const imageInput = document.querySelector('input[type="file"][x-ref="image"]');
-                if (!imageInput) {
-                    throw new Error(Alpine.store('i18n').t('image_input_missing'));
-                }
-
-                if (imageInput.files && imageInput.files[0]) {
+                if (imageInput && imageInput.files && imageInput.files[0]) {
                     formData.append('image', imageInput.files[0]);
                 } else {
                     const currentImage = Alpine.store('global').sharedData.image || '';
@@ -70,12 +76,13 @@ document.addEventListener('alpine:init', () => {
                     Alpine.store('global').sharedData.image = result.data.image;
                 }
 
-                coloredToast('success', Alpine.store('i18n').t('testimonial_updated_successfully'));
+                coloredToast('success', Alpine.store('i18n').t('testimonial_updated_successfully') || Alpine.store('i18n').t('update_testimonial_success'));
                 await Alpine.store('testimonialTable').refreshTable();
                 this.closeModal();
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_update_testimonial'));
             } finally {
+                this.isUpdating = false;
                 loadingIndicator.hide();
             }
         }

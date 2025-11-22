@@ -293,30 +293,30 @@ document.addEventListener('alpine:init', () => {
         },
 
         async deleteTestimonial(testimonialId) {
-
-            const deleteConfirmed = await new Promise((resolve) => {
-                Alpine.store('deleteModal').openModal(testimonialId, () => {
-                    resolve(true);
-                });
-            });
-
-            if (!deleteConfirmed) return;
-            try {
-                loadingIndicator.show();
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    throw new Error(Alpine.store('i18n').t('auth_token_missing'));
-                }
-
-                await ApiService.deleteTestimonial(testimonialId);
-
-                coloredToast('success', Alpine.store('i18n').t('delete_testimonial_successful'));
-                await this.fetchTestimonials(this.currentPage);
-            } catch (error) {
-                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_testimonial'));
-            } finally {
-                loadingIndicator.hide();
+            const testimonial = this.tableData.find((t) => t.id == testimonialId);
+            if (!testimonial) {
+                coloredToast('danger', Alpine.store('i18n').t('testimonial_not_found'));
+                return;
             }
+
+            Alpine.store('deleteModal').openModal(testimonialId, async () => {
+                try {
+                    loadingIndicator.show();
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        throw new Error(Alpine.store('i18n').t('auth_token_missing'));
+                    }
+
+                    await ApiService.deleteTestimonial(testimonialId);
+
+                    coloredToast('success', Alpine.store('i18n').t('delete_testimonial_successful') || Alpine.store('i18n').t('testimonial_deleted_successfully'));
+                    await this.fetchTestimonials(this.currentPage);
+                } catch (error) {
+                    coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_testimonial'));
+                } finally {
+                    loadingIndicator.hide();
+                }
+            });
         },
 
         getPaginationIcon(type) {

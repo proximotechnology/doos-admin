@@ -599,6 +599,8 @@
     "testimonial_not_found": "الشهادة غير موجودة",
     "image_input_missing": "حقل الصورة غير موجود. الرجاء التحقق من النموذج.",
     "failed_fetch_testimonials": "فشل جلب الشهادات",
+    "delete_testimonial_warning": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف الشهادة نهائياً من النظام.",
+    "testimonial": "الشهادة",
     "apply": "تطبيق",
     "reset": "إعادة تعيين",
     "no_data": "لا توجد بيانات",

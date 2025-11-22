@@ -34,7 +34,19 @@
                         class="chat-users perfect-scrollbar relative h-full min-h-[100px] space-y-0.5 overflow-y-auto pr-3.5"
                         style="max-height: calc(100vh - 200px)"
                     >
-                        <template x-for="person in searchUsers()" :key="person.userId">
+                        <!-- Loading State -->
+                        <template x-if="isLoading">
+                            <div class="flex h-full min-h-[200px] items-center justify-center py-12">
+                                <div class="flex flex-col items-center">
+                                    <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_messages') || 'Loading messages...'"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Users List -->
+                        <template x-if="!isLoading">
+                            <template x-for="person in searchUsers()" :key="person.userId">
                             <button
                                 type="button"
                                 class="flex w-full items-center justify-between rounded-md p-4 hover:bg-gray-100 hover:text-primary dark:hover:bg-[#050b14] dark:hover:text-primary"
@@ -67,9 +79,10 @@
                                     </div>
                                 </div>
                             </button>
+                            </template>
                         </template>
 
-                        <template x-if="searchUsers().length === 0">
+                        <template x-if="!isLoading && searchUsers().length === 0">
                             <div class="flex h-full items-center justify-center p-4">
                                 <div class="text-center text-gray-500 dark:text-gray-400">
                                     <svg class="mx-auto mb-3 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
