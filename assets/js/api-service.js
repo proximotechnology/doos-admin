@@ -44,6 +44,9 @@
         /**
          * Handle API response
          */
+        /**
+     * Handle API response
+     */
         async handleResponse(response, endpoint, method, requestData = null) {
             if (!response.ok) {
                 const errorText = await response.text();
@@ -95,10 +98,31 @@
             }
 
             const contentType = response.headers.get('content-type');
+            let result;
+
             if (contentType && contentType.includes('application/json')) {
-                return await response.json();
+                result = await response.json();
+
+                // طباعة الردود الناجحة - ضع console.log قبل return
+                console.log(`[API Response] ${method} ${endpoint}:`, {
+                    status: response.status,
+                    data: result,
+                    requestData: requestData
+                });
+
+                return result;
+            } else {
+                result = await response.text();
+
+                // طباعة الردود النصية أيضاً
+                console.log(`[API Response] ${method} ${endpoint}:`, {
+                    status: response.status,
+                    data: result,
+                    requestData: requestData
+                });
+
+                return result;
             }
-            return await response.text();
         }
 
         /**
