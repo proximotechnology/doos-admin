@@ -4,52 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <style>
-            .map-container {
-                height: 500px;
-                min-height: 500px;
-                width: 100%;
-                border-radius: 8px;
-                overflow: hidden;
-                margin-top: 1rem;
-                border: 1px solid #e5e7eb;
-                position: relative;
-            }
-            #map, #edit-map {
-                height: 100% !important;
-                width: 100% !important;
-            }
-            .marker-info {
-                background: white;
-                padding: 10px;
-                border-radius: 4px;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                font-size: 14px;
-                margin-top: 10px;
-            }
-            .coordinates-display {
-                background-color: #f9fafb;
-                padding: 0.5rem;
-                border-radius: 4px;
-                margin-top: 0.5rem;
-                font-family: monospace;
-            }
-            .search-box-container {
-                margin-bottom: 1rem;
-            }
-            .search-box {
-                box-sizing: border-box;
-                border: 1px solid transparent;
-                width: 100%;
-                height: 40px;
-                padding: 0 12px;
-                border-radius: 8px;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                font-size: 14px;
-                outline: none;
-                text-overflow: ellipses;
-            }
-        </style>
+        <link rel="stylesheet" href="../../../assets/css/pages.css" />
     </head>
     <body>
         <!-- Breadcrumb -->
@@ -121,8 +76,8 @@
                             <div class="search-box-container">
                                 <input id="pac-input" class="search-box" type="text" :placeholder="$store.i18n.t('search_address')" x-model="address" required />
                             </div>
-                            <div id="map" class="map-container" style="position: relative;">
-                                <div class="absolute top-2 left-2 z-10 rounded bg-white px-3 py-1 text-sm shadow-md dark:bg-gray-800 dark:text-white" style="pointer-events: none;">
+                            <div id="map" class="map-container">
+                                <div class="map-info-overlay">
                                     <span x-text="$store.i18n.t('click_on_map_to_select_location') || 'انقر على الخريطة لتحديد الموقع'"></span>
                                 </div>
                             </div>
@@ -173,7 +128,7 @@
                         </div>
 
                         <!-- Table Container -->
-                        <div id="blackLocationsTableContainer" class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" style="display: none;">
+                        <div id="blackLocationsTableContainer" class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 table-container-hidden">
                             <table id="blackLocationsDataTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap"></table>
                         </div>
 
@@ -204,7 +159,7 @@
             x-show="open"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            style="display: none"
+            class="modal-hidden"
             x-cloak
             @click.self="open = false"
             x-init="$watch('open', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
@@ -251,8 +206,8 @@
                                 <div class="search-box-container">
                                     <input id="edit-pac-input" class="search-box" type="text" :placeholder="$store.i18n.t('search_address')" x-model="blackLocationData.address" required />
                                 </div>
-                                <div id="edit-map" class="map-container" style="position: relative; height: 300px; min-height: 300px; max-height: 300px;">
-                                    <div class="absolute top-2 left-2 z-10 rounded bg-white px-3 py-1 text-sm shadow-md dark:bg-gray-800 dark:text-white" style="pointer-events: none;">
+                                <div id="edit-map" class="map-container edit-map-container">
+                                    <div class="map-info-overlay">
                                         <span x-text="$store.i18n.t('click_on_map_to_select_location') || 'انقر على الخريطة لتحديد الموقع'"></span>
                                     </div>
                                 </div>
@@ -302,7 +257,7 @@
             x-show="open"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            style="display: none"
+            class="modal-hidden"
             x-cloak
             @click.self="open = false"
             x-init="$watch('open', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"

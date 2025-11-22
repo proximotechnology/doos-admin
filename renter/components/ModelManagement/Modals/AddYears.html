@@ -11,7 +11,7 @@
             x-show="$store.addYearModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-            style="display: none"
+            class="modal-hidden"
             x-cloak
             @click.self="$store.addYearModal.closeModal()"
         >
@@ -119,7 +119,7 @@
             x-show="$store.updateYearModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-            style="display: none"
+            class="modal-hidden"
             x-cloak
             @click.self="$store.updateYearModal.closeModal()"
         >
@@ -227,7 +227,7 @@
             x-show="$store.deleteYearModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-            style="display: none"
+            class="modal-hidden"
             x-cloak
             @click.self="$store.deleteYearModal.closeModal()"
         >
