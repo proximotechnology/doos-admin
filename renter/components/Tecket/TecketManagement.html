@@ -2,7 +2,136 @@
 <html :lang="$store.i18n.getLocale()" :dir="$store.i18n.getLocale() === 'ar' ? 'rtl' : 'ltr'">
     <head>
         <title x-text="$store.i18n.t('tickets')">Support Tickets Management</title>
-        <link rel="stylesheet" href="../../../assets/css/pages.css" />
+        <style>
+            .color-success {
+                background-color: #d1fae5;
+                color: #065f46;
+            }
+            .color-danger {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+            .color-warning {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            .color-primary {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+
+            .dropdown-menu {
+                position: fixed;
+                z-index: 99999;
+                margin-top: 0.5rem;
+                width: auto;
+                min-width: 220px;
+                max-width: 280px;
+                border-radius: 0.75rem;
+                background-color: white;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+                border: 1px solid #e5e7eb;
+                overflow: hidden;
+                animation: dropdownFadeIn 0.2s ease-out;
+                backdrop-filter: blur(10px);
+                pointer-events: auto;
+            }
+
+            @keyframes dropdownFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-8px) scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            .dark .dropdown-menu {
+                background-color: #1f2937;
+                border-color: #4b5563;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            }
+
+            .dropdown-item {
+                display: flex;
+                align-items: center;
+                gap: 0.875rem;
+                width: 100%;
+                padding: 0.875rem 1.25rem;
+                text-align: left;
+                border: none;
+                background: none;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                font-size: 0.875rem;
+                font-weight: 500;
+                border-bottom: 1px solid #f3f4f6;
+                position: relative;
+            }
+
+            .dark .dropdown-item {
+                border-bottom-color: #374151;
+            }
+
+            .dropdown-item:first-child {
+                border-top-left-radius: 0.75rem;
+                border-top-right-radius: 0.75rem;
+            }
+
+            .dropdown-item:last-child {
+                border-bottom: none;
+                border-bottom-left-radius: 0.75rem;
+                border-bottom-right-radius: 0.75rem;
+            }
+
+            .dropdown-item::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 3px;
+                background: linear-gradient(to bottom, transparent, currentColor, transparent);
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+
+            .dropdown-item:hover {
+                background: linear-gradient(to right, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.03));
+                transform: translateX(2px);
+                padding-left: 1.5rem;
+            }
+
+            .dropdown-item:hover::before {
+                opacity: 1;
+            }
+
+            .dark .dropdown-item:hover {
+                background: linear-gradient(to right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+            }
+
+            .dropdown-item .status-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+            }
+
+            .dark .dropdown-item .status-dot {
+                box-shadow: 0 0 0 2px rgba(31, 41, 55, 0.8);
+            }
+
+            .quick-reply-btn {
+                transition: all 0.2s ease-in-out;
+            }
+
+            .quick-reply-btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        </style>
     </head>
     <body class="p-6">
         <!-- Loading Indicator -->
@@ -128,7 +257,8 @@
                     <!-- Tickets List -->
                     <div class="!mt-0">
                         <div
-                            class="tickets-list perfect-scrollbar relative h-full min-h-[100px] space-y-0.5 overflow-y-auto pr-3.5 ticket-list-container"
+                            class="tickets-list perfect-scrollbar relative h-full min-h-[100px] space-y-0.5 overflow-y-auto pr-3.5"
+                            style="max-height: calc(100vh - 200px)"
                         >
                             <template x-for="ticket in filteredTickets()" :key="ticket.id">
                                 <button
@@ -297,7 +427,7 @@
                                         <div 
                                             x-show="statusOpen"
                                             x-cloak
-                                            class="modal-z-index"
+                                            style="z-index: 999999; position: fixed;"
                                             x-transition:enter="transition ease-out duration-200"
                                             x-transition:enter-start="opacity-0"
                                             x-transition:enter-end="opacity-100"
@@ -309,7 +439,7 @@
                                         >
                                             <div 
                                                 class="relative z-[999999] w-full max-w-xs rounded-xl bg-white shadow-2xl dark:bg-gray-800"
-                                                class="modal-z-index"
+                                                style="z-index: 999999;"
                                                 @click.stop
                                                 x-transition:enter="transition ease-out duration-200"
                                                 x-transition:enter-start="opacity-0 scale-95"
@@ -385,7 +515,7 @@
                                         <div 
                                             x-show="priorityOpen"
                                             x-cloak
-                                            class="modal-z-index"
+                                            style="z-index: 999999; position: fixed;"
                                             x-transition:enter="transition ease-out duration-200"
                                             x-transition:enter-start="opacity-0"
                                             x-transition:enter-end="opacity-100"
@@ -397,7 +527,7 @@
                                         >
                                             <div 
                                                 class="relative z-[999999] w-full max-w-xs rounded-xl border-2 border-primary/20 bg-white shadow-2xl dark:border-primary/30 dark:bg-gray-800"
-                                                class="modal-z-index"
+                                                style="z-index: 999999;"
                                                 @click.stop
                                                 x-transition:enter="transition ease-out duration-200"
                                                 x-transition:enter-start="opacity-0 scale-95"

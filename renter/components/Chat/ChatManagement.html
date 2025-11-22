@@ -32,7 +32,7 @@
                 <div class="!mt-0">
                     <div
                         class="chat-users perfect-scrollbar relative h-full min-h-[100px] space-y-0.5 overflow-y-auto pr-3.5"
-                        class="chat-users-container"
+                        style="max-height: calc(100vh - 200px)"
                     >
                         <!-- Loading State -->
                         <template x-if="isLoading">
@@ -343,7 +343,7 @@
                         </div>
                         <div class="h-px w-full border-b border-[#e0e6ed] dark:border-[#1b2e4b]"></div>
 
-                        <div class="perfect-scrollbar relative h-full overflow-y-auto chat-messages-container">
+                        <div class="perfect-scrollbar relative h-full overflow-y-auto" style="max-height: calc(100vh - 290px)">
                             <div class="chat-conversation-box min-h-[400px] space-y-5 p-4 pb-[68px] sm:min-h-[300px] sm:pb-0">
                                 <template x-if="selectedUser && Array.isArray(selectedUser.messages) && selectedUser.messages.length > 0">
                                     <template x-for="message in selectedUser.messages" :key="message.id">

@@ -11,7 +11,7 @@
             x-show="$store.editModal.isOpen"
             x-transition
             class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            class="modal-hidden"
+            style="display: none"
             x-cloak
             @click.self="$store.editModal.closeModal()"
             x-init="$watch('$store.editModal.isOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
