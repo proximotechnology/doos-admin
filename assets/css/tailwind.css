@@ -205,6 +205,82 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply hidden;
     }
 
+    /* Collapsible mode - Show icons only, hide all text */
+    .collapsible-vertical .sidebar .nav-item > button > div > span,
+    .collapsible-vertical .sidebar .nav-item > a > div > span,
+    .collapsible-vertical .sidebar ul.sub-menu li a span,
+    .collapsible-vertical .sidebar .nav-item > button > div:last-child {
+        @apply lg:hidden;
+    }
+    
+    /* Collapsible mode - Ensure first SVG (icon) in nav-item is always visible */
+    .collapsible-vertical .sidebar .nav-item > button > div:first-child > svg:first-child,
+    .collapsible-vertical .sidebar .nav-item > a > div:first-child > svg:first-child {
+        @apply lg:block !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    .collapsible-vertical .sidebar:hover .nav-item > button > div > span,
+    .collapsible-vertical .sidebar:hover .nav-item > a > div > span,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > button > div > span,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > a > div > span,
+    .collapsible-vertical .sidebar:hover ul.sub-menu li a span,
+    .collapsible-vertical.toggle-sidebar .sidebar ul.sub-menu li a span,
+    .collapsible-vertical .sidebar:hover .nav-item > button > div:last-child,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > button > div:last-child {
+        @apply lg:block;
+    }
+
+    /* Collapsible mode - Ensure icons are always visible - Override any hidden rules */
+    .collapsible-vertical .sidebar .nav-item svg,
+    .collapsible-vertical .sidebar ul.sub-menu li a svg,
+    .collapsible-vertical .sidebar .nav-item button svg,
+    .collapsible-vertical .sidebar .nav-item button > div > svg:first-child,
+    .collapsible-vertical .sidebar .nav-item > button > div:first-child > svg,
+    .collapsible-vertical .sidebar .nav-item > a > div:first-child > svg,
+    .collapsible-vertical .sidebar ul.sub-menu li a > svg,
+    .collapsible-vertical .sidebar h2 svg {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Hide arrow icon when collapsed */
+    .collapsible-vertical .sidebar .nav-item > button > div:last-child > svg {
+        @apply lg:hidden;
+    }
+    .collapsible-vertical .sidebar:hover .nav-item > button > div:last-child > svg,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > button > div:last-child > svg {
+        @apply lg:block;
+    }
+
+    /* Collapsible mode - Center icons when collapsed */
+    .collapsible-vertical .sidebar .nav-item > button,
+    .collapsible-vertical .sidebar .nav-item > a {
+        @apply lg:justify-center;
+    }
+    .collapsible-vertical .sidebar:hover .nav-item > button,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > button,
+    .collapsible-vertical .sidebar:hover .nav-item > a,
+    .collapsible-vertical.toggle-sidebar .sidebar .nav-item > a {
+        @apply lg:justify-between;
+    }
+
+    /* Collapsible mode - Center sub-menu items when collapsed */
+    .collapsible-vertical .sidebar ul.sub-menu li a {
+        @apply lg:justify-center lg:px-3;
+    }
+    .collapsible-vertical .sidebar:hover ul.sub-menu li a,
+    .collapsible-vertical.toggle-sidebar .sidebar ul.sub-menu li a {
+        @apply lg:justify-start lg:px-9;
+    }
+
+    /* Collapsible mode - Show sub-menu always (with icons only when collapsed) */
+    .collapsible-vertical .sidebar .sub-menu {
+        @apply lg:block;
+    }
+
     /* boxed-layout */
     .boxed-layout {
         @apply mx-auto max-w-[1400px];
