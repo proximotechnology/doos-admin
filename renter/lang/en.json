@@ -966,6 +966,15 @@
     "quick_replies_text_follow_up": "We are following up on your ticket. Is there anything else we can help you with?",
 
     "in_progress_tickets": "In Progress Tickets",
+    "select_new_status": "Select a new status for this ticket",
+    "select_new_priority": "Select a new priority for this ticket",
+    "ticket_is_open": "Ticket is currently open and awaiting response",
+    "ticket_in_progress": "Ticket is being worked on",
+    "ticket_resolved": "Ticket has been resolved",
+    "low_priority_desc": "Low priority - can be handled later",
+    "medium_priority_desc": "Medium priority - normal handling",
+    "high_priority_desc": "High priority - requires attention",
+    "urgent_priority_desc": "Urgent - requires immediate attention",
 
     "category": "Category",
     "chat_management": "Chat Management",
