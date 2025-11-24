@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="p-6">
-                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                                 <!-- Status Filter -->
                                 <div class="form-group">
                                     <label class="form-label flex items-center gap-2">
@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Year Filter -->
+                                <!-- Year From Filter -->
                                 <div class="form-group">
                                     <label class="form-label flex items-center gap-2">
                                         <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,14 +100,48 @@
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                             />
                                         </svg>
-                                        <span x-text="$store.i18n.t('year')"></span>
+                                        <span x-text="$store.i18n.t('year_from') || 'من السنة'"></span>
                                     </label>
                                     <div class="relative">
                                         <input
                                             type="number"
                                             class="form-input pr-10"
-                                            x-model="filters.year"
-                                            :placeholder="$store.i18n.t('year') || 'السنة'"
+                                            x-model="filters.year_from"
+                                            :placeholder="$store.i18n.t('year_from') || 'من السنة'"
+                                            @input="applyFilters()"
+                                        />
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Year To Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('year_to') || 'إلى السنة'"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <input
+                                            type="number"
+                                            class="form-input pr-10"
+                                            x-model="filters.year_to"
+                                            :placeholder="$store.i18n.t('year_to') || 'إلى السنة'"
                                             @input="applyFilters()"
                                         />
                                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -198,10 +232,20 @@
                                         </button>
                                     </span>
                                 </template>
-                                <template x-if="filters.year">
+                                <template x-if="filters.year_from">
                                     <span class="badge badge-info flex items-center gap-1">
-                                        <span x-text="$store.i18n.t('year') + ': ' + filters.year"></span>
-                                        <button @click="filters.year = ''; applyFilters()" class="ml-1 hover:text-white">
+                                        <span x-text="($store.i18n.t('year_from') || 'من السنة') + ': ' + filters.year_from"></span>
+                                        <button @click="filters.year_from = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="filters.year_to">
+                                    <span class="badge badge-info flex items-center gap-1">
+                                        <span x-text="($store.i18n.t('year_to') || 'إلى السنة') + ': ' + filters.year_to"></span>
+                                        <button @click="filters.year_to = ''; applyFilters()" class="ml-1 hover:text-white">
                                             <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>

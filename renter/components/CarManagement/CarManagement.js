@@ -119,7 +119,8 @@
         currentPage: 1,
         filters: {
             status: '',
-            year: '',
+            year_from: '',
+            year_to: '',
             min_price: '',
             max_price: ''
         },
@@ -174,12 +175,12 @@
                     ...this.filters
                 };
                 
-                // Convert year filter to years_id if needed
-                if (filters.year && !filters.years_id) {
-                    // If year is provided, we might need to convert it to years_id
-                    // For now, keep both to ensure compatibility
-                    filters.years_id = filters.year;
-                }
+                // Remove empty filters
+                Object.keys(filters).forEach(key => {
+                    if (filters[key] === '' || filters[key] === null || filters[key] === undefined) {
+                        delete filters[key];
+                    }
+                });
 
                 const data = await ApiService.getCars(page, filters);
 
@@ -228,7 +229,8 @@
         resetFilters() {
             this.filters = {
                 status: '',
-                year: '',
+                year_from: '',
+                year_to: '',
                 min_price: '',
                 max_price: ''
             };
@@ -236,7 +238,7 @@
         },
 
         hasActiveFilters() {
-            return !!(this.filters.status || this.filters.year || this.filters.min_price || this.filters.max_price);
+            return !!(this.filters.status || this.filters.year_from || this.filters.year_to || this.filters.min_price || this.filters.max_price);
         },
 
         generatePaginationHTML() {

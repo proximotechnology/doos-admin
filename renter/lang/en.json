@@ -321,6 +321,8 @@
     "delete_failed": "Failed to delete booking",
     "make": "Make",
     "year": "Year",
+    "year_from": "Year From",
+    "year_to": "Year To",
     "description": "Description",
     "address": "Address",
     "vin": "VIN",
