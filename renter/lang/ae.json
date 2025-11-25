@@ -1068,5 +1068,18 @@
     "confirm_toggle_status": "هل أنت متأكد أنك تريد",
     "this_season": "هذا الموسم",
     "cannot_update_active_season": "لا يمكن تحديث الاسم، النوع، القيمة، أو تاريخ البداية للموسم النشط. يرجى إلغاء التفعيل أولاً.",
-    "updating": "جاري التحديث"
+    "updating": "جاري التحديث",
+    "total_users": "إجمالي المستخدمين",
+    "total_cars": "إجمالي السيارات",
+    "total_bookings": "إجمالي الحجوزات",
+    "total_revenue": "إجمالي الإيرادات",
+    "users_statistics": "إحصائيات المستخدمين",
+    "cars_statistics": "إحصائيات السيارات",
+    "active_users": "المستخدمون النشطون",
+    "inactive_users": "المستخدمون غير النشطين",
+    "active_cars": "السيارات النشطة",
+    "pending_cars": "السيارات المعلقة",
+    "rejected_cars": "السيارات المرفوضة",
+    "pending": "معلق",
+    "rejected": "مرفوض"
 }

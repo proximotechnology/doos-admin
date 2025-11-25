@@ -1144,5 +1144,18 @@
     "confirm_toggle_status": "Are you sure you want to",
     "this_season": "this season",
     "cannot_update_active_season": "Cannot update title, type, value, or date_from for active season. Please deactivate it first.",
-    "updating": "Updating"
+    "updating": "Updating",
+    "total_users": "Total Users",
+    "total_cars": "Total Cars",
+    "total_bookings": "Total Bookings",
+    "total_revenue": "Total Revenue",
+    "users_statistics": "Users Statistics",
+    "cars_statistics": "Cars Statistics",
+    "active_users": "Active Users",
+    "inactive_users": "Inactive Users",
+    "active_cars": "Active Cars",
+    "pending_cars": "Pending Cars",
+    "rejected_cars": "Rejected Cars",
+    "pending": "Pending",
+    "rejected": "Rejected"
 }

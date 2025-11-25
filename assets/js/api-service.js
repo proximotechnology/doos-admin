@@ -1187,6 +1187,15 @@
             return this.get('/api/get_all_mycars');
         }
 
+        // ==================== Home Stats API ====================
+
+        /**
+         * Get home statistics
+         */
+        async getHomeStats() {
+            return this.get('/api/admin/home-stats');
+        }
+
         // ==================== Whitelist/Blacklist APIs ====================
 
         /**
