@@ -1,0 +1,52 @@
+<div x-data="sendNotificationModal" x-show="isOpen" x-cloak class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 p-4" @click.away="closeModal" @keydown.escape.window="closeModal">
+    <div class="panel w-full max-w-lg" @click.stop>
+        <div class="mb-5 flex items-center justify-between">
+            <h5 class="text-lg font-semibold dark:text-white-light" x-text="getModalTitle()"></h5>
+            <button type="button" @click="closeModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-500">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form @submit.prevent="submitNotification" class="space-y-5">
+            <!-- User Selection (only for sendToUser) -->
+            <template x-if="modalType === 'sendToUser'">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('select_user')"></label>
+                    <select x-model="selectedUserId" class="form-select" required>
+                        <option value="" x-text="$store.i18n.t('select_user')"></option>
+                        <template x-for="user in users" :key="user.id">
+                            <option :value="user.id" x-text="user.name + ' (' + user.email + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+            </template>
+
+            <!-- Message Input -->
+            <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('message')"></label>
+                <textarea 
+                    x-model="message" 
+                    rows="5" 
+                    class="form-textarea" 
+                    :placeholder="$store.i18n.t('enter_notification_message')"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-3">
+                <button type="button" @click="closeModal" class="btn btn-outline-danger" x-text="$store.i18n.t('cancel')"></button>
+                <button type="submit" :disabled="isSubmitting" class="btn btn-primary" :class="{'opacity-50 cursor-not-allowed': isSubmitting}">
+                    <span x-show="!isSubmitting" x-text="$store.i18n.t('send')"></span>
+                    <span x-show="isSubmitting" class="flex items-center gap-2">
+                        <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
+                        <span x-text="$store.i18n.t('sending')"></span>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

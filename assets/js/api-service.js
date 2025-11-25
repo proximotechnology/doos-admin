@@ -890,6 +890,14 @@
             return this.delete(`/api/admin/user/delete/${userId}`);
         }
 
+        /**
+         * Toggle user block status
+         * @param {number} userId - User ID
+         */
+        async toggleUserBlock(userId) {
+            return this.patch(`/api/admin/users/toggle-block/${userId}`);
+        }
+
         // ==================== Profile APIs ====================
 
         /**
@@ -1194,6 +1202,55 @@
          */
         async getHomeStats() {
             return this.get('/api/admin/home-stats');
+        }
+
+        // ==================== Notifications API ====================
+
+        /**
+         * Get user notifications
+         * @param {number} page - Page number (default: 1)
+         */
+        async getUserNotifications(page = 1) {
+            return this.get(`/api/admin/notification/getUserNotifications?page=${page}`);
+        }
+
+        /**
+         * Get unread notifications count
+         */
+        async getUnreadNotificationsCount() {
+            return this.get('/api/admin/notification/getUnreadCount');
+        }
+
+        /**
+         * Send notification to all users
+         * @param {string} message - Notification message
+         */
+        async sendNotificationToAll(message) {
+            return this.post('/api/admin/notification/sendToAll', { message });
+        }
+
+        /**
+         * Send notification to admins only
+         * @param {string} message - Notification message
+         */
+        async sendNotificationToAdmins(message) {
+            return this.post('/api/admin/notification/sendToAdmins', { message });
+        }
+
+        /**
+         * Send notification to specific user
+         * @param {number} userId - User ID
+         * @param {string} message - Notification message
+         */
+        async sendNotificationToUser(userId, message) {
+            return this.post('/api/admin/notification/sendToUser', { user_id: userId, message });
+        }
+
+        /**
+         * Mark all notifications as read
+         */
+        async markAllNotificationsAsRead() {
+            return this.get('/api/admin/notification/markAllAsRead');
         }
 
         // ==================== Whitelist/Blacklist APIs ====================

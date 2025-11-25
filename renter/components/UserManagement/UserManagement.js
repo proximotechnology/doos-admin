@@ -61,6 +61,14 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
+    // Make toggleBlock function globally accessible
+    window.toggleUserBlock = async function(userId) {
+        const tableComponent = Alpine.$data(document.querySelector('[x-data="usersTable"]'));
+        if (tableComponent && tableComponent.toggleBlock) {
+            await tableComponent.toggleBlock(userId);
+        }
+    };
+
     Alpine.data('usersTable', () => ({
         users: [],
         paginationMeta: {},
@@ -126,8 +134,14 @@ document.addEventListener('alpine:init', () => {
         },
 
         populateTable() {
+            // Destroy existing datatable if it exists
             if (this.datatable) {
-                this.datatable.destroy();
+                try {
+                    this.datatable.destroy();
+                } catch (e) {
+                    console.warn('Error destroying datatable:', e);
+                }
+                this.datatable = null;
             }
 
             const mappedData = this.users.map((user, index) => [
@@ -138,7 +152,9 @@ document.addEventListener('alpine:init', () => {
                 this.formatText(user.country),
                 this.formatVerified(user.email_verified_at),
                 this.formatLicense(user.has_license),
+                this.formatBlocked(user.is_blocked),
                 this.formatDate(user.created_at),
+                this.formatActions(user.id, user.is_blocked),
             ]);
 
             const tableElement = document.getElementById('myTable1');
@@ -157,7 +173,9 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('country'),
                         Alpine.store('i18n').t('email_verified'),
                         Alpine.store('i18n').t('has_license'),
+                        Alpine.store('i18n').t('status'),
                         Alpine.store('i18n').t('registration_date'),
+                        Alpine.store('i18n').t('actions'),
                     ],
                     data: mappedData,
                 },
@@ -230,6 +248,41 @@ document.addEventListener('alpine:init', () => {
             </span>`;
         },
 
+        formatBlocked(isBlocked) {
+            const blocked = isBlocked === true || isBlocked === 1 || isBlocked === '1';
+            return `<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                blocked 
+                    ? 'bg-danger/20 text-danger border border-danger/30' 
+                    : 'bg-success/20 text-success border border-success/30'
+            }">
+                ${blocked ? Alpine.store('i18n').t('blocked') : Alpine.store('i18n').t('active')}
+            </span>`;
+        },
+
+        formatActions(userId, isBlocked) {
+            const blocked = isBlocked === true || isBlocked === 1 || isBlocked === '1';
+            const buttonClass = blocked 
+                ? 'btn btn-sm btn-success' 
+                : 'btn btn-sm btn-danger';
+            const buttonText = blocked 
+                ? Alpine.store('i18n').t('unblock') 
+                : Alpine.store('i18n').t('block');
+            const icon = blocked 
+                ? '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>'
+                : '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>';
+            
+            return `
+                <button 
+                    onclick="window.toggleUserBlock(${userId})" 
+                    class="${buttonClass} gap-1"
+                    title="${buttonText}"
+                >
+                    ${icon}
+                    <span>${buttonText}</span>
+                </button>
+            `;
+        },
+
 
         async deleteUser(userId) {
             try {
@@ -251,6 +304,33 @@ document.addEventListener('alpine:init', () => {
                 await this.fetchUsers(this.currentPage);
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_delete_user'));
+            }
+        },
+
+        async toggleBlock(userId) {
+            try {
+                const response = await ApiService.toggleUserBlock(userId);
+                
+                if (response.status) {
+                    const isBlocked = response.is_blocked === true || response.is_blocked === 1 || response.is_blocked === '1';
+                    const message = response.message || (isBlocked 
+                        ? Alpine.store('i18n').t('user_blocked_success') 
+                        : Alpine.store('i18n').t('user_unblocked_success'));
+                    
+                    // Show success toast for unblock (green), warning for block (orange/yellow)
+                    if (isBlocked) {
+                        coloredToast('warning', message);
+                    } else {
+                        coloredToast('success', message);
+                    }
+                    
+                    // Refresh the table data
+                    await this.fetchUsers(this.currentPage);
+                } else {
+                    throw new Error(response.message || Alpine.store('i18n').t('failed_to_toggle_block'));
+                }
+            } catch (error) {
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_toggle_block'));
             }
         }
     }));
