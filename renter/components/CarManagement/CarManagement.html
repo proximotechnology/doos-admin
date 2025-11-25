@@ -279,11 +279,19 @@
                     <div class="panel mt-6">
                         <div class="mb-5 flex items-center justify-between">
                             <h5 class="mb-3 text-lg font-semibold dark:text-white-light md:mb-0" x-text="$store.i18n.t('cars_management')"></h5>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="badge bg-primary" x-text="$store.i18n.t('total') + ': ' + meta.total"></span>
-                                <span class="badge bg-success" x-text="$store.i18n.t('active') + ': ' + meta.active"></span>
-                                <span class="badge bg-danger" x-text="$store.i18n.t('inactive') + ': ' + meta.inactive"></span>
-                                <span class="badge bg-warning" x-text="$store.i18n.t('rejected') + ': ' + meta.rejected"></span>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="badge bg-primary" x-text="$store.i18n.t('total') + ': ' + meta.total"></span>
+                                    <span class="badge bg-success" x-text="$store.i18n.t('active') + ': ' + meta.active"></span>
+                                    <span class="badge bg-danger" x-text="$store.i18n.t('inactive') + ': ' + meta.inactive"></span>
+                                    <span class="badge bg-warning" x-text="$store.i18n.t('rejected') + ': ' + meta.rejected"></span>
+                                </div>
+                                <a href="AddCar.html" class="btn btn-primary flex items-center gap-2">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('add_car')"></span>
+                                </a>
                             </div>
                         </div>
 

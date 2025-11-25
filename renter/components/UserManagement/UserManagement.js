@@ -31,13 +31,98 @@ document.addEventListener('alpine:init', () => {
     };
 
     function coloredToast(color, message) {
+        const iconMap = {
+            'success': 'success',
+            'warning': 'warning',
+            'danger': 'error',
+            'error': 'error',
+            'info': 'info'
+        };
+        
         const toast = window.Swal.mixin({
             toast: true,
             position: 'bottom-start',
             showConfirmButton: false,
             timer: 3000,
             showCloseButton: true,
-            customClass: { popup: `color-${color}` },
+            icon: iconMap[color] || 'info',
+            customClass: { 
+                popup: `color-${color} swal2-toast`
+            },
+            didOpen: (popup) => {
+                // Force consistent sizing for all toast types - use !important to override SweetAlert defaults
+                popup.style.setProperty('width', 'auto', 'important');
+                popup.style.setProperty('max-width', '350px', 'important');
+                popup.style.setProperty('min-width', '300px', 'important');
+                popup.style.setProperty('font-size', '14px', 'important');
+                popup.style.setProperty('padding', '0.75rem 1rem', 'important');
+                popup.style.setProperty('line-height', '1.5', 'important');
+                popup.style.setProperty('box-sizing', 'border-box', 'important');
+                
+                // Fix icon size if exists - make it much smaller and consistent
+                const iconElement = popup.querySelector('.swal2-icon');
+                if (iconElement) {
+                    iconElement.style.setProperty('width', '1.2em', 'important');
+                    iconElement.style.setProperty('height', '1.2em', 'important');
+                    iconElement.style.setProperty('min-width', '1.2em', 'important');
+                    iconElement.style.setProperty('min-height', '1.2em', 'important');
+                    iconElement.style.setProperty('max-width', '1.2em', 'important');
+                    iconElement.style.setProperty('max-height', '1.2em', 'important');
+                    iconElement.style.setProperty('margin', '0 0.5em 0 0', 'important');
+                    iconElement.style.setProperty('flex-shrink', '0', 'important');
+                    iconElement.style.setProperty('font-size', '0.875em', 'important');
+                    iconElement.style.setProperty('line-height', '1.2em', 'important');
+                    
+                    // Fix icon content size - make SVG much smaller
+                    const iconContent = iconElement.querySelector('svg');
+                    if (iconContent) {
+                        iconContent.style.setProperty('width', '0.875em', 'important');
+                        iconContent.style.setProperty('height', '0.875em', 'important');
+                        iconContent.style.setProperty('max-width', '0.875em', 'important');
+                        iconContent.style.setProperty('max-height', '0.875em', 'important');
+                    }
+                    
+                    // Fix icon text/characters if exists (for warning icon with !)
+                    const iconText = iconElement.querySelector('.swal2-icon-content');
+                    if (iconText) {
+                        iconText.style.setProperty('font-size', '0.875em', 'important');
+                        iconText.style.setProperty('line-height', '1', 'important');
+                        iconText.style.setProperty('width', '0.875em', 'important');
+                        iconText.style.setProperty('height', '0.875em', 'important');
+                    }
+                    
+                    // Fix warning ring if exists
+                    const warningRing = iconElement.querySelector('.swal2-warning-ring');
+                    if (warningRing) {
+                        warningRing.style.setProperty('width', '1.2em', 'important');
+                        warningRing.style.setProperty('height', '1.2em', 'important');
+                    }
+                }
+                
+                // Fix title size - make it consistent
+                const titleElement = popup.querySelector('.swal2-title');
+                if (titleElement) {
+                    titleElement.style.setProperty('font-size', '14px', 'important');
+                    titleElement.style.setProperty('padding', '0', 'important');
+                    titleElement.style.setProperty('margin', '0', 'important');
+                    titleElement.style.setProperty('line-height', '1.5', 'important');
+                    titleElement.style.setProperty('font-weight', '500', 'important');
+                }
+                
+                // Fix html container if exists
+                const htmlContainer = popup.querySelector('.swal2-html-container');
+                if (htmlContainer) {
+                    htmlContainer.style.setProperty('font-size', '14px', 'important');
+                    htmlContainer.style.setProperty('padding', '0', 'important');
+                    htmlContainer.style.setProperty('margin', '0', 'important');
+                }
+                
+                // Ensure flex layout is consistent
+                if (popup.style.display !== 'flex') {
+                    popup.style.setProperty('display', 'flex', 'important');
+                    popup.style.setProperty('align-items', 'center', 'important');
+                }
+            }
         });
         toast.fire({ title: message });
     }
@@ -63,9 +148,48 @@ document.addEventListener('alpine:init', () => {
 
     // Make toggleBlock function globally accessible
     window.toggleUserBlock = async function(userId) {
-        const tableComponent = Alpine.$data(document.querySelector('[x-data="usersTable"]'));
-        if (tableComponent && tableComponent.toggleBlock) {
-            await tableComponent.toggleBlock(userId);
+        try {
+            // Wait a bit for Alpine to be ready
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Try to get Alpine component
+            const element = document.querySelector('[x-data="usersTable"]');
+            if (element && typeof Alpine !== 'undefined') {
+                const tableComponent = Alpine.$data(element);
+                if (tableComponent && typeof tableComponent.toggleBlock === 'function') {
+                    await tableComponent.toggleBlock(userId);
+                    return;
+                }
+            }
+            
+            // Fallback: direct API call and refresh
+            if (typeof ApiService !== 'undefined') {
+                const response = await ApiService.toggleUserBlock(userId);
+                if (response.status) {
+                    const isBlocked = response.is_blocked === true || response.is_blocked === 1 || response.is_blocked === '1';
+                    const message = response.message || (isBlocked 
+                        ? (Alpine.store('i18n')?.t('user_blocked_success') || 'User blocked successfully')
+                        : (Alpine.store('i18n')?.t('user_unblocked_success') || 'User unblocked successfully'));
+                    
+                    if (isBlocked) {
+                        coloredToast('warning', message);
+                    } else {
+                        coloredToast('success', message);
+                    }
+                    
+                    // Refresh table via store
+                    const store = Alpine.store('usersTable');
+                    if (store && typeof store.refreshTable === 'function') {
+                        await store.refreshTable();
+                    } else {
+                        // Force page reload as last resort
+                        window.location.reload();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error in toggleUserBlock:', error);
+            coloredToast('danger', error.message || 'Failed to toggle block status');
         }
     };
 
@@ -105,17 +229,49 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const data = await ApiService.getUsers(page);
-                if (data.status && data.data) {
-                    this.users = data.data.data.filter(user => user.type === '0') || [];
-                    this.paginationMeta = {
-                        current_page: data.data.current_page,
-                        last_page: data.data.last_page,
-                        per_page: data.data.per_page,
-                        total: data.data.total,
-                        from: data.data.from,
-                        to: data.data.to,
-                        links: data.data.links
-                    };
+                
+                // Handle different response structures
+                let usersData = null;
+                let paginationData = null;
+                
+                if (data && data.data) {
+                    // Standard Laravel pagination structure
+                    usersData = data.data.data || data.data;
+                    paginationData = data.data;
+                } else if (data && Array.isArray(data)) {
+                    // Direct array response
+                    usersData = data;
+                } else if (data) {
+                    // Try to find data in response
+                    usersData = data.data || data.users || [];
+                    paginationData = data;
+                }
+                
+                if (usersData && Array.isArray(usersData)) {
+                    this.users = usersData.filter(user => user.type === '0') || [];
+                    
+                    if (paginationData) {
+                        this.paginationMeta = {
+                            current_page: paginationData.current_page || page,
+                            last_page: paginationData.last_page || 1,
+                            per_page: paginationData.per_page || 10,
+                            total: paginationData.total || this.users.length,
+                            from: paginationData.from || 1,
+                            to: paginationData.to || this.users.length,
+                            links: paginationData.links || []
+                        };
+                    } else {
+                        // Default pagination if not provided
+                        this.paginationMeta = {
+                            current_page: page,
+                            last_page: 1,
+                            per_page: 10,
+                            total: this.users.length,
+                            from: 1,
+                            to: this.users.length,
+                            links: []
+                        };
+                    }
 
                     if (this.users.length === 0) {
                         loadingIndicator.showEmptyState();
@@ -124,7 +280,7 @@ document.addEventListener('alpine:init', () => {
                         loadingIndicator.hideTableLoader();
                     }
                 } else {
-                    throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
+                    throw new Error(data?.message || Alpine.store('i18n').t('invalid_response_format'));
                 }
             } catch (error) {
                 loadingIndicator.hideTableLoader();
@@ -144,6 +300,17 @@ document.addEventListener('alpine:init', () => {
                 this.datatable = null;
             }
 
+            // Clear table content
+            const tableElement = document.getElementById('myTable1');
+            if (!tableElement) {
+                console.error('Table element not found');
+                loadingIndicator.showEmptyState();
+                return;
+            }
+            
+            // Clear table completely
+            tableElement.innerHTML = '';
+
             const mappedData = this.users.map((user, index) => [
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatText(user.name),
@@ -157,12 +324,6 @@ document.addEventListener('alpine:init', () => {
                 this.formatActions(user.id, user.is_blocked),
             ]);
 
-            const tableElement = document.getElementById('myTable1');
-            if (!tableElement) {
-                console.error('Table element not found');
-                loadingIndicator.showEmptyState();
-                return;
-            }
             this.datatable = new simpleDatatables.DataTable(tableElement, {
                 data: {
                     headings: [
@@ -309,9 +470,11 @@ document.addEventListener('alpine:init', () => {
 
         async toggleBlock(userId) {
             try {
+                loadingIndicator.show();
                 const response = await ApiService.toggleUserBlock(userId);
                 
-                if (response.status) {
+                // Check if response is successful (has is_blocked property or message)
+                if (response && (response.is_blocked !== undefined || response.message)) {
                     const isBlocked = response.is_blocked === true || response.is_blocked === 1 || response.is_blocked === '1';
                     const message = response.message || (isBlocked 
                         ? Alpine.store('i18n').t('user_blocked_success') 
@@ -324,13 +487,19 @@ document.addEventListener('alpine:init', () => {
                         coloredToast('success', message);
                     }
                     
-                    // Refresh the table data
+                    // Force refresh the table data - destroy and rebuild
+                    this.currentPage = this.currentPage || 1;
+                    // Small delay to ensure API has updated
+                    await new Promise(resolve => setTimeout(resolve, 300));
                     await this.fetchUsers(this.currentPage);
                 } else {
-                    throw new Error(response.message || Alpine.store('i18n').t('failed_to_toggle_block'));
+                    throw new Error(response?.message || Alpine.store('i18n').t('failed_to_toggle_block'));
                 }
             } catch (error) {
+                console.error('Error toggling block:', error);
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_toggle_block'));
+            } finally {
+                loadingIndicator.hide();
             }
         }
     }));

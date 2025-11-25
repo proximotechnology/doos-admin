@@ -267,6 +267,13 @@
             return this.delete(`/api/deleteCar/${carId}`);
         }
 
+        /**
+         * Store new car
+         */
+        async storeCar(formData) {
+            return this.post('/api/admin/cars/storeCar', formData, true);
+        }
+
         // ==================== Brand Management APIs ====================
 
         /**

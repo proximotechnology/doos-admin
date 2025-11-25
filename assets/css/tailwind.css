@@ -624,6 +624,52 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
 
 .swal2-container .swal2-popup.swal2-toast.color-warning {
     @apply bg-warning;
+    width: auto !important;
+    max-width: 350px !important;
+    min-width: 300px !important;
+    font-size: 14px !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-icon {
+    width: 1.2em !important;
+    height: 1.2em !important;
+    min-width: 1.2em !important;
+    min-height: 1.2em !important;
+    margin: 0 0.5em 0 0 !important;
+    font-size: 0.875em !important;
+    line-height: 1.2em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-icon.swal2-warning {
+    border-color: transparent !important;
+    font-size: 0.875em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-icon svg {
+    width: 0.875em !important;
+    height: 0.875em !important;
+    max-width: 0.875em !important;
+    max-height: 0.875em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-icon .swal2-icon-content {
+    font-size: 0.875em !important;
+    line-height: 1 !important;
+    width: 0.875em !important;
+    height: 0.875em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-icon .swal2-warning-ring {
+    width: 1.2em !important;
+    height: 1.2em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-warning .swal2-title {
+    font-size: 14px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;
 }
 .swal2-container .swal2-popup.swal2-toast.color-info {
     @apply bg-info;
@@ -633,6 +679,39 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
 }
 .swal2-container .swal2-popup.swal2-toast.color-success {
     @apply bg-success;
+    width: auto !important;
+    max-width: 350px !important;
+    min-width: 300px !important;
+    font-size: 14px !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-success .swal2-icon {
+    width: 1.5em !important;
+    height: 1.5em !important;
+    min-width: 1.5em !important;
+    min-height: 1.5em !important;
+    margin: 0 0.5em 0 0 !important;
+    font-size: 1em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-success .swal2-icon svg {
+    width: 1em !important;
+    height: 1em !important;
+    max-width: 1em !important;
+    max-height: 1em !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-success .swal2-icon .swal2-icon-content {
+    font-size: 1em !important;
+    line-height: 1 !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast.color-success .swal2-title {
+    font-size: 14px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;
 }
 
 /* apex chart */
