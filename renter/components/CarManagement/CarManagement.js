@@ -290,7 +290,7 @@
                 this.formatText((this.currentPage - 1) * this.paginationMeta.per_page + index + 1),
                 this.formatCarInfo(car),
                 this.formatText(car.years?.year || 'N/A'),
-                this.formatPrice(car.price),
+                this.formatPrice(car.price, car),
                 this.formatStatus(car.status),
                 this.formatDate(car.created_at),
                 this.getActionButtons(car.id),
@@ -446,8 +446,15 @@
             return new Date(dateString).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' });
         },
 
-        formatPrice(price) {
+        formatPrice(price, car = null) {
             if (!price) return Alpine.store('i18n').t('na');
+            
+            // Check if car has seasonal pricing - show final price only
+            if (car && car.season_pricing_info && car.season_pricing_info.has_season_pricing) {
+                const finalPrice = parseFloat(car.season_pricing_info.final_price || price);
+                return `${finalPrice.toFixed(2)} ${Alpine.store('i18n').t('currency')}`;
+            }
+            
             return `${parseFloat(price).toFixed(2)} ${Alpine.store('i18n').t('currency')}`;
         },
 
@@ -983,8 +990,65 @@
                                     <div class="space-y-4">
                                         <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl">
                                             <span class="text-gray-700 dark:text-gray-300 font-medium">${Alpine.store('i18n').t('price')}</span>
-                                            <span class="text-lg font-normal text-black dark:text-white">${this.formatPrice(car.price)} <span class="text-sm text-gray-500">/${Alpine.store('i18n').t('day')}</span></span>
+                                            <div class="text-right">
+                                                ${car.season_pricing_info && car.season_pricing_info.has_season_pricing ? `
+                                                    <div class="flex flex-col items-end gap-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-lg font-normal text-black dark:text-white line-through text-gray-400">${parseFloat(car.season_pricing_info.original_price || car.price).toFixed(2)} ${Alpine.store('i18n').t('currency')}</span>
+                                                            <span class="text-lg font-bold text-green-600 dark:text-green-400">${parseFloat(car.season_pricing_info.final_price || car.price).toFixed(2)} ${Alpine.store('i18n').t('currency')}</span>
+                                                        </div>
+                                                        <span class="text-xs text-gray-500">/${Alpine.store('i18n').t('day')}</span>
+                                                        <span class="badge bg-orange-500/20 text-orange-600 dark:text-orange-400 text-xs px-2 py-0.5 rounded mt-1">
+                                                            ${Alpine.store('i18n').t('seasonal_pricing')}
+                                                        </span>
+                                                    </div>
+                                                ` : `
+                                                    <span class="text-lg font-normal text-black dark:text-white">${this.formatPrice(car.price)} <span class="text-sm text-gray-500">/${Alpine.store('i18n').t('day')}</span></span>
+                                                `}
+                                            </div>
                                         </div>
+                                        ${car.season_pricing_info && car.season_pricing_info.has_season_pricing ? `
+                                            <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <svg class="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <h4 class="text-sm font-bold text-orange-900 dark:text-orange-100">${Alpine.store('i18n').t('seasonal_pricing')}</h4>
+                                                </div>
+                                                <div class="space-y-2 text-sm">
+                                                    ${car.season_pricing_info.season_pricing_data ? `
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-gray-600 dark:text-gray-400">${Alpine.store('i18n').t('season_name')}:</span>
+                                                            <span class="font-semibold text-gray-900 dark:text-white">${car.season_pricing_info.season_pricing_data.title || 'N/A'}</span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-gray-600 dark:text-gray-400">${Alpine.store('i18n').t('date_range')}:</span>
+                                                            <span class="font-semibold text-gray-900 dark:text-white">
+                                                                ${this.formatDate(car.season_pricing_info.season_pricing_data.date_from)} - ${this.formatDate(car.season_pricing_info.season_pricing_data.date_end)}
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-gray-600 dark:text-gray-400">${Alpine.store('i18n').t('increase_type')}:</span>
+                                                            <span class="font-semibold text-gray-900 dark:text-white">
+                                                                ${car.season_pricing_info.season_pricing_data.type === 'percentage' ? Alpine.store('i18n').t('percentage') : Alpine.store('i18n').t('fixed_amount')}
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-gray-600 dark:text-gray-400">${Alpine.store('i18n').t('increase_value')}:</span>
+                                                            <span class="font-semibold text-green-600 dark:text-green-400">
+                                                                ${car.season_pricing_info.season_pricing_data.type === 'percentage' ? `${car.season_pricing_info.season_pricing_data.value}%` : `${car.season_pricing_info.season_pricing_data.value} ${Alpine.store('i18n').t('currency')}`}
+                                                            </span>
+                                                        </div>
+                                                    ` : ''}
+                                                    <div class="flex items-center justify-between pt-2 border-t border-orange-200 dark:border-orange-800">
+                                                        <span class="text-gray-600 dark:text-gray-400 font-medium">${Alpine.store('i18n').t('price_adjustment')}:</span>
+                                                        <span class="font-bold text-orange-600 dark:text-orange-400">
+                                                            +${parseFloat(car.season_pricing_info.price_adjustment || 0).toFixed(2)} ${Alpine.store('i18n').t('currency')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ` : ''}
                                         <div class="grid grid-cols-2 gap-4">
                                             <div class="p-4 bg-white dark:bg-gray-800 rounded-xl">
                                                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">${Alpine.store('i18n').t('min_day_trip')}</p>

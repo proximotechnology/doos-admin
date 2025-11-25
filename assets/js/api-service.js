@@ -392,6 +392,37 @@
             return this.delete(`/api/admin/plan/delete/${planId}`);
         }
 
+        // ==================== Seasonal Pricing Management APIs ====================
+
+        /**
+         * Get seasonal pricing list
+         */
+        async getSeasonalPricing(page = 1, filters = {}) {
+            const params = { page, ...filters };
+            return this.get('/api/admin/seasonpricing/index', params);
+        }
+
+        /**
+         * Create seasonal pricing
+         */
+        async createSeasonalPricing(formData) {
+            return this.post('/api/admin/seasonpricing/store', formData);
+        }
+
+        /**
+         * Update seasonal pricing
+         */
+        async updateSeasonalPricing(seasonId, formData) {
+            return this.put(`/api/admin/seasonpricing/update/${seasonId}`, formData);
+        }
+
+        /**
+         * Delete seasonal pricing
+         */
+        async deleteSeasonalPricing(seasonId) {
+            return this.delete(`/api/admin/seasonpricing/delete/${seasonId}`);
+        }
+
         // ==================== Testimonial Management APIs ====================
 
         /**
