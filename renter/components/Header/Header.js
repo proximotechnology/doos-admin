@@ -36,6 +36,9 @@ document.addEventListener('alpine:init', () => {
                 }
             }
 
+            // Setup sub-menu positioning
+            this.setupSubMenuPositioning();
+
             this.loadChatData();
 
             this.setupChatDataListener();
@@ -43,6 +46,45 @@ document.addEventListener('alpine:init', () => {
             if (this.isInternalPage()) {
                 this.initializePusher();
             }
+        },
+        
+        setupSubMenuPositioning() {
+            const menuItems = document.querySelectorAll('.horizontal-menu > li.nav-item');
+            menuItems.forEach(item => {
+                const subMenu = item.querySelector('ul.sub-menu');
+                if (subMenu) {
+                    item.addEventListener('mouseenter', () => {
+                        setTimeout(() => {
+                            this.positionSubMenu(item, subMenu);
+                        }, 10);
+                    });
+                    // Reposition on scroll or resize
+                    window.addEventListener('scroll', () => {
+                        if (subMenu.style.display === 'block' || subMenu.style.visibility === 'visible') {
+                            this.positionSubMenu(item, subMenu);
+                        }
+                    });
+                    window.addEventListener('resize', () => {
+                        if (subMenu.style.display === 'block' || subMenu.style.visibility === 'visible') {
+                            this.positionSubMenu(item, subMenu);
+                        }
+                    });
+                }
+            });
+        },
+        
+        positionSubMenu(item, subMenu) {
+            const itemRect = item.getBoundingClientRect();
+            const header = document.querySelector('header');
+            const headerRect = header ? header.getBoundingClientRect() : { top: 0, bottom: 0 };
+            
+            // Position at the bottom of the header (below the menu item)
+            subMenu.style.position = 'fixed';
+            subMenu.style.left = itemRect.left + 'px';
+            subMenu.style.top = itemRect.bottom + 'px';
+            subMenu.style.bottom = 'auto';
+            subMenu.style.marginTop = '0';
+            subMenu.style.marginBottom = '0';
         },
 
         isInternalPage() {
@@ -483,3 +525,164 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('i18n').init();
 
 });
+
+// Horizontal Menu Scroll Functions
+function scrollHorizontalMenu(direction) {
+    const menu = document.getElementById('horizontalMenuList');
+    if (!menu) {
+        console.error('Menu element not found');
+        return;
+    }
+    
+    // Check if menu is scrollable
+    const isScrollable = menu.scrollWidth > menu.clientWidth;
+    if (!isScrollable) {
+        return;
+    }
+    
+    const scrollAmount = 300; // pixels to scroll
+    const currentScroll = menu.scrollLeft;
+    const maxScroll = menu.scrollWidth - menu.clientWidth;
+    
+    let newScroll;
+    
+    // Calculate new scroll position
+    if (direction === 'left') {
+        newScroll = Math.max(0, currentScroll - scrollAmount);
+    } else {
+        newScroll = Math.min(maxScroll, currentScroll + scrollAmount);
+    }
+    
+    // Try multiple methods to ensure scrolling works
+    if (menu.scrollTo) {
+        menu.scrollTo({
+            left: newScroll,
+            behavior: 'smooth'
+        });
+    } else if (menu.scrollBy) {
+        const delta = newScroll - currentScroll;
+        menu.scrollBy({
+            left: delta,
+            behavior: 'smooth'
+        });
+    } else {
+        // Fallback for older browsers
+        menu.scrollLeft = newScroll;
+    }
+    
+    // Check buttons after scroll
+    setTimeout(checkScrollButtons, 400);
+}
+
+// Make function globally available
+window.scrollHorizontalMenu = scrollHorizontalMenu;
+window.checkScrollButtons = checkScrollButtons;
+
+function checkScrollButtons() {
+    const menu = document.getElementById('horizontalMenuList');
+    const leftBtn = document.getElementById('scrollLeftBtn');
+    const rightBtn = document.getElementById('scrollRightBtn');
+    
+    if (!menu || !leftBtn || !rightBtn) return;
+    
+    const isScrollable = menu.scrollWidth > menu.clientWidth;
+    const isRTL = document.documentElement.dir === 'rtl' || 
+                  document.body.classList.contains('rtl') ||
+                  menu.classList.contains('rtl');
+    
+    let isAtStart, isAtEnd;
+    
+    if (isRTL) {
+        // In RTL, scrollLeft behavior is inverted
+        // When scrollLeft is 0, we're at the end (right side)
+        // When scrollLeft is max, we're at the start (left side)
+        const maxScroll = menu.scrollWidth - menu.clientWidth;
+        isAtStart = menu.scrollLeft >= maxScroll - 1;
+        isAtEnd = menu.scrollLeft <= 1;
+    } else {
+        // Normal LTR behavior
+        isAtStart = menu.scrollLeft <= 1;
+        isAtEnd = menu.scrollLeft >= menu.scrollWidth - menu.clientWidth - 1;
+    }
+    
+    // Show/hide buttons based on scroll position
+    if (isScrollable) {
+        leftBtn.style.display = isAtStart ? 'none' : 'flex';
+        rightBtn.style.display = isAtEnd ? 'none' : 'flex';
+    } else {
+        leftBtn.style.display = 'none';
+        rightBtn.style.display = 'none';
+    }
+}
+
+// Initialize scroll buttons on page load and resize
+function initHorizontalMenuScroll() {
+    const menu = document.getElementById('horizontalMenuList');
+    const leftBtn = document.getElementById('scrollLeftBtn');
+    const rightBtn = document.getElementById('scrollRightBtn');
+    
+    if (!menu || !leftBtn || !rightBtn) {
+        setTimeout(initHorizontalMenuScroll, 200);
+        return;
+    }
+    
+    // Use onclick for better compatibility
+    leftBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollHorizontalMenu('left');
+        return false;
+    };
+    
+    rightBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollHorizontalMenu('right');
+        return false;
+    };
+    
+    // Also add event listeners as backup
+    leftBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollHorizontalMenu('left');
+    }, { once: false });
+    
+    rightBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollHorizontalMenu('right');
+    }, { once: false });
+    
+    // Check buttons initially
+    checkScrollButtons();
+    
+    // Listen for scroll events
+    if (menu) {
+        menu.addEventListener('scroll', checkScrollButtons);
+        
+        // Listen for wheel events for better UX
+        menu.addEventListener('wheel', (e) => {
+            setTimeout(checkScrollButtons, 100);
+        });
+    }
+    
+    // Listen for resize
+    window.addEventListener('resize', () => {
+        setTimeout(checkScrollButtons, 100);
+    });
+    
+    // Check after delays to ensure menu is fully rendered
+    setTimeout(checkScrollButtons, 500);
+    setTimeout(checkScrollButtons, 1000);
+    setTimeout(checkScrollButtons, 2000);
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initHorizontalMenuScroll, 300);
+    });
+} else {
+    setTimeout(initHorizontalMenuScroll, 300);
+}

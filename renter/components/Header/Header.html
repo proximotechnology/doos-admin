@@ -9,10 +9,11 @@
 </head>
 
 <body>
-    <header class="z-40" :class="{'dark' : $store.app.semidark && $store.app.menu === 'horizontal'}">
-        <div class="shadow-sm">
+    <header class="z-40 relative" style="z-index: 1000 !important;" :class="{'dark' : $store.app.semidark && $store.app.menu === 'horizontal'}">
+        <div class="shadow-sm" style="overflow: visible !important;">
             <div
-                class="relative flex w-full items-center bg-gradient-to-r from-white via-white to-gray-50/50 px-5 py-3 dark:from-[#0e1726] dark:via-[#0e1726] dark:to-[#0a0f1e] border-b border-gray-200/50 dark:border-gray-800/50">
+                class="relative flex w-full items-center bg-gradient-to-r from-white via-white to-gray-50/50 px-5 py-3 dark:from-[#0e1726] dark:via-[#0e1726] dark:to-[#0a0f1e] border-b border-gray-200/50 dark:border-gray-800/50"
+                style="overflow: visible !important;">
                 <div class="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
                     <a href="index.html" class="main-logo flex shrink-0 items-center">
                         <span
@@ -184,13 +185,37 @@
             </div>
 
             <!-- horizontal menu -->
-            <ul
-                class="horizontal-menu hidden border-t border-gray-200/50 bg-gradient-to-b from-white to-gray-50/30 px-6 py-2 font-semibold text-black shadow-sm dark:border-gray-800/50 dark:from-[#0e1726] dark:to-[#0a0f1e] dark:text-white-dark lg:space-x-1.5 xl:space-x-8 rtl:space-x-reverse">
-                <li class="menu nav-item relative">
+            <div class="relative hidden lg:block" style="overflow: visible !important; clip-path: none !important; clip: unset !important;">
+                <!-- Scroll Left Button -->
+                <button
+                    id="scrollLeftBtn"
+                    type="button"
+                    class="absolute left-0 top-0 z-10 h-full w-10 items-center justify-center bg-gradient-to-r from-white via-white/80 to-transparent text-gray-600 transition-opacity hover:text-primary dark:from-[#0e1726] dark:via-[#0e1726]/80 dark:text-gray-400"
+                    style="display: none;">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <!-- Scroll Right Button -->
+                <button
+                    id="scrollRightBtn"
+                    type="button"
+                    class="absolute right-0 top-0 z-10 h-full w-10 items-center justify-center bg-gradient-to-l from-white via-white/80 to-transparent text-gray-600 transition-opacity hover:text-primary dark:from-[#0e1726] dark:via-[#0e1726]/80 dark:text-gray-400"
+                    style="display: none;">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <ul
+                    id="horizontalMenuList"
+                    class="horizontal-menu hidden border-t border-gray-200/50 bg-gradient-to-b from-white to-gray-50/30 px-4 py-2 font-semibold text-black shadow-sm dark:border-gray-800/50 dark:from-[#0e1726] dark:to-[#0a0f1e] dark:text-white-dark lg:flex lg:space-x-1 xl:space-x-2 2xl:space-x-3 rtl:space-x-reverse"
+                    style="overflow-x: auto; overflow-y: visible; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; clip-path: none !important; clip: unset !important;"
+                    onscroll="checkScrollButtons()">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link active group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link active group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" class="shrink-0 text-primary">
                                 <path opacity="0.5"
                                     d="M2 12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274C22 8.77128 22 9.91549 22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039Z"
@@ -199,7 +224,7 @@
                                     d="M9 17.25C8.58579 17.25 8.25 17.5858 8.25 18C8.25 18.4142 8.58579 18.75 9 18.75H15C15.4142 18.75 15.75 18.4142 15.75 18C15.75 17.5858 15.4142 17.25 15 17.25H9Z"
                                     fill="currentColor" />
                             </svg>
-                            <span class="px-1 font-medium" x-text="$store.i18n.t('dashboard')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('dashboard')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -222,17 +247,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('access_control')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('access_control')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -265,17 +290,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('car_management')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('car_management')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -350,17 +375,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('financial_management')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('financial_management')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -423,17 +448,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('user_management')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('user_management')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -466,11 +491,11 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -478,7 +503,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('location_management')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('location_management')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -511,17 +536,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('communication')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('communication')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -574,17 +599,17 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('reviews_testimonials')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('reviews_testimonials')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"
@@ -617,11 +642,11 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu nav-item relative">
+                <li class="menu nav-item relative flex-shrink-0">
                     <a href="javascript:;"
-                        class="nav-link group flex items-center gap-2 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        class="nav-link group flex items-center gap-1.5 rounded-lg px-2 py-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 lg:px-2 xl:px-2.5 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="shrink-0 text-gray-600 group-hover:text-primary dark:text-gray-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -629,7 +654,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <span class="font-medium" x-text="$store.i18n.t('administration')"></span>
+                            <span class="text-sm font-medium whitespace-nowrap" x-text="$store.i18n.t('administration')"></span>
                         </div>
                         <div class="right_arrow">
                             <svg class="h-4 w-4 rotate-90 transition-transform" width="16" height="16"

@@ -8,14 +8,16 @@
     <body>
         <div x-data="customizer">
             <div
-                class="fixed inset-0 z-[51] hidden bg-[black]/60 px-4 transition-[display]"
+                class="fixed inset-0 z-[10000] hidden bg-[black]/60 px-4 transition-[display]"
                 :class="{'!block': showCustomizer}"
                 @click="showCustomizer = false"
+                style="z-index: 10000 !important;"
             ></div>
 
             <nav
-                class="fixed bottom-0 top-0 z-[51] w-full max-w-[400px] bg-white p-4 shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-[right] duration-300 dark:bg-[#0e1726] ltr:-right-[400px] rtl:-left-[400px]"
+                class="fixed bottom-0 top-0 z-[10001] w-full max-w-[400px] bg-white p-4 shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-[right] duration-300 dark:bg-[#0e1726] ltr:-right-[400px] rtl:-left-[400px]"
                 :class="{'ltr:!right-0 rtl:!left-0' : showCustomizer}"
+                style="z-index: 10001 !important;"
             >
                 <a
                     href="javascript:;"

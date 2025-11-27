@@ -43,6 +43,14 @@
     }
 
     /* Sidebar */
+    .sidebar {
+        z-index: 999 !important;
+    }
+    
+    .collapsible-vertical .sidebar {
+        z-index: 999 !important;
+    }
+    
     .sidebar:hover .nav-item > a {
         @apply w-auto;
     }
@@ -82,7 +90,58 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
 
     /* Horizontal layouts */
     .horizontal .horizontal-menu {
-        @apply hidden shadow-md lg:flex;
+        @apply hidden shadow-md lg:flex lg:overflow-x-auto lg:scroll-smooth;
+    }
+    
+    /* Hide scrollbar for horizontal menu */
+    .horizontal-menu::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+    
+    .horizontal-menu {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+        scroll-behavior: smooth;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: nowrap;
+    }
+    
+    /* Hide scrollbar for all browsers */
+    .horizontal-menu {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    .horizontal-menu::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+    
+    /* Ensure menu items don't wrap */
+    .horizontal-menu > li {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    
+    /* Scroll buttons styling */
+    #scrollLeftBtn,
+    #scrollRightBtn {
+        transition: opacity 0.3s ease;
+        pointer-events: auto;
+    }
+    
+    #scrollLeftBtn:hover,
+    #scrollRightBtn:hover {
+        opacity: 1;
+    }
+    
+    /* Ensure buttons are clickable */
+    #scrollLeftBtn,
+    #scrollRightBtn {
+        z-index: 20;
+        cursor: pointer;
     }
     .horizontal .horizontal-logo {
         @apply flex;
@@ -115,7 +174,45 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
 
     .horizontal-menu ul.sub-menu {
-        @apply absolute top-full z-20 hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark;
+        @apply absolute z-20 min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark;
+        z-index: 1001 !important;
+        position: absolute !important;
+        overflow: visible !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: auto !important;
+        clip: unset !important;
+        clip-path: none !important;
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease, display 0s ease 0.2s !important;
+        transform-origin: top center !important;
+    }
+    
+    /* Position sub-menu below item - will be overridden by JavaScript */
+    .horizontal-menu > li.nav-item:hover > ul.sub-menu {
+        top: auto !important;
+        bottom: auto !important;
+    }
+    
+    /* Override any hidden class */
+    .horizontal-menu ul.sub-menu.hidden {
+        display: none !important;
+    }
+    
+    /* Ensure parent nav-item has proper positioning */
+    .horizontal-menu > li.nav-item,
+    .horizontal-menu > li.menu.nav-item {
+        position: relative !important;
+        overflow: visible !important;
+    }
+    
+    /* Ensure nav-item can show sub-menu on hover */
+    .horizontal-menu li.menu.nav-item:hover {
+        overflow: visible !important;
     }
 
     .horizontal-menu ul.sub-menu a {
@@ -126,9 +223,95 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply bg-gray-100 text-primary dark:bg-primary/10;
     }
 
+    /* Show sub-menu on hover for horizontal menu */
     .horizontal-menu > li.nav-item:hover > ul.sub-menu,
+    .horizontal-menu > li.nav-item:hover ul.sub-menu,
     .horizontal-menu > li.nav-item > ul.sub-menu > li:hover > ul {
-        @apply block;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1001 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Additional selectors to ensure sub-menu shows */
+    .horizontal-menu li.nav-item:hover .sub-menu,
+    .horizontal-menu .nav-item:hover .sub-menu,
+    .horizontal-menu li.menu.nav-item:hover ul.sub-menu,
+    .horizontal-menu li.menu.nav-item:hover .sub-menu,
+    .horizontal-menu > li:hover > ul.sub-menu,
+    .horizontal-menu > li.menu:hover > ul.sub-menu {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1001 !important;
+    }
+    
+    /* Force show on hover - most specific */
+    .horizontal-menu > li.menu.nav-item.relative.flex-shrink-0:hover > ul.sub-menu {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 1001 !important;
+    }
+    
+    /* Show right arrow in horizontal menu when sub-menu exists */
+    .horizontal-menu .right_arrow {
+        display: block !important;
+    }
+    
+    /* Ensure header and menu container have proper stacking context */
+    header {
+        position: relative;
+        z-index: 1000 !important;
+        overflow: visible !important;
+    }
+    
+    header > div {
+        overflow: visible !important;
+    }
+    
+    header > div > div {
+        overflow: visible !important;
+    }
+    
+    /* Ensure the menu container div doesn't clip sub-menus */
+    div.relative.hidden.lg\\:block,
+    .relative.hidden.lg\\:block {
+        overflow: visible !important;
+        clip-path: none !important;
+        clip: unset !important;
+        contain: none !important;
+    }
+    
+    /* Ensure all parent containers allow overflow */
+    header > div > div > div.relative {
+        overflow: visible !important;
+        clip-path: none !important;
+    }
+    
+    .horizontal-menu {
+        position: relative;
+        z-index: 1000 !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        clip-path: none !important;
+    }
+    
+    /* Ensure sub-menu can overflow parent containers */
+    .horizontal-menu > li.nav-item {
+        overflow: visible !important;
+    }
+    
+    /* Theme Customizer z-index - must be highest */
+    [x-data="customizer"] > div:first-child {
+        z-index: 10000 !important;
+    }
+    
+    [x-data="customizer"] > nav {
+        z-index: 10001 !important;
     }
 
     /* Vertical layouts */
