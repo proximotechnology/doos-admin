@@ -16,11 +16,16 @@ document.addEventListener('alpine:init', () => {
 
         pusher: null,
         channel: null,
+        notificationChannel: null,
         unreadCount: 0,
+        notifications: [],
+        unreadNotificationsCount: 0,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         chatData: null,
 
         init() {
+            // Store instance globally for access
+            window.headerInstance = this;
             const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
             if (selector) {
                 selector.classList.add('active');
@@ -44,7 +49,9 @@ document.addEventListener('alpine:init', () => {
             this.setupChatDataListener();
 
             if (this.isInternalPage()) {
+                this.fetchUserNotifications();
                 this.initializePusher();
+                this.initializeNotificationsPusher();
             }
         },
         
@@ -89,14 +96,16 @@ document.addEventListener('alpine:init', () => {
 
         isInternalPage() {
             const currentPath = window.location.pathname;
+            // Only exclude authentication pages and root index.html (not /renter/index.html)
             const excludedPages = [
                 '/auth-boxed-signin.html',
                 '/auth-boxed-signup.html',
                 '/auth-cover-login.html',
                 '/auth-cover-register.html',
-                '/index.html'
+                '/index.html' // Only root index.html
             ];
-            return !excludedPages.some(page => currentPath.includes(page));
+            // Check if path is exactly one of the excluded pages
+            return !excludedPages.includes(currentPath);
         },
 
         loadChatData() {
@@ -245,6 +254,305 @@ document.addEventListener('alpine:init', () => {
 
             } catch (error) {
                 }
+        },
+        
+        initializeNotificationsPusher() {
+            try {
+                if (typeof Pusher === 'undefined' || typeof API_CONFIG === 'undefined') {
+                    return;
+                }
+                
+                // Wait a bit to ensure Pusher is fully loaded
+                setTimeout(() => {
+                    try {
+                        // Initialize Pusher for notifications if not already initialized
+                        if (!this.pusher || !this.pusher.connection || this.pusher.connection.state !== 'connected') {
+                            this.pusher = new Pusher(API_CONFIG.PUSHER.APP_KEY, {
+                                cluster: API_CONFIG.PUSHER.CLUSTER,
+                                encrypted: true,
+                                enabledTransports: ['ws', 'wss'],
+                                forceTLS: true
+                            });
+                        }
+                        
+                        // Unsubscribe from previous channel if exists
+                        if (this.notificationChannel) {
+                            try {
+                                this.pusher.unsubscribe('active-car-channel');
+                            } catch (e) {
+                                // Ignore unsubscribe errors
+                            }
+                        }
+                        
+                        // Subscribe to active-car-channel
+                        this.notificationChannel = this.pusher.subscribe('active-car-channel');
+                        
+                        // Wait for subscription to be ready
+                        this.notificationChannel.bind('pusher:subscription_succeeded', () => {
+                            // Channel subscribed successfully - ready to receive notifications
+                        });
+                        
+                        // Bind to ActiveCarEvent
+                        this.notificationChannel.bind('ActiveCarEvent', (data) => {
+                            this.handleNotification(data);
+                        });
+                        
+                        // Handle connection state changes
+                        this.pusher.connection.bind('connected', () => {
+                            // Connected successfully
+                        });
+                        
+                        this.pusher.connection.bind('disconnected', () => {
+                            // Disconnected - will auto-reconnect
+                        });
+                        
+                        this.pusher.connection.bind('error', (err) => {
+                            // Connection error
+                        });
+                        
+                    } catch (error) {
+                        // Error initializing notifications Pusher
+                    }
+                }, 500);
+                
+            } catch (error) {
+                // Error initializing notifications Pusher
+            }
+        },
+        
+        async fetchUserNotifications() {
+            try {
+                // Check if ApiService is available
+                if (typeof ApiService === 'undefined') {
+                    return;
+                }
+                
+                const response = await ApiService.getUserNotifications(1);
+                
+                if (response && response.status && response.data) {
+                    let notificationsData = [];
+                    
+                    // Handle different response structures
+                    // Response structure: { status: true, data: [...], count: 20 }
+                    if (Array.isArray(response.data)) {
+                        notificationsData = response.data;
+                    } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+                        notificationsData = response.data.data;
+                    } else if (response.data && typeof response.data === 'object') {
+                        // Try to find array in response.data
+                        const dataKeys = Object.keys(response.data);
+                        const arrayKey = dataKeys.find(key => Array.isArray(response.data[key]));
+                        if (arrayKey) {
+                            notificationsData = response.data[arrayKey];
+                        }
+                    }
+                    
+                    if (notificationsData.length === 0) {
+                        return;
+                    }
+                    
+                    // Convert API notifications to our format
+                    const formattedNotifications = notificationsData.map(item => ({
+                        id: item.id,
+                        title: 'Notification',
+                        message: item.notify || item.message || 'New notification',
+                        type: 'info',
+                        time: new Date(item.created_at),
+                        isRead: item.is_read !== 'pending' && item.is_read !== '0' && item.is_read !== 0,
+                        data: item
+                    }));
+                    
+                    // Sort by time (newest first)
+                    formattedNotifications.sort((a, b) => b.time - a.time);
+                    
+                    // Update local array
+                    this.notifications = formattedNotifications;
+                    
+                    // Update store - create new array to trigger reactivity
+                    if (Alpine.store('notifications')) {
+                        Alpine.store('notifications').notifications = [...formattedNotifications];
+                        Alpine.store('notifications').updateUnreadCount();
+                    }
+                    
+                    // Update unread count
+                    this.updateUnreadCount();
+                    
+                    // Update notification indicator
+                    this.updateNotificationIndicator();
+                }
+            } catch (error) {
+                // Error fetching user notifications
+            }
+        },
+        
+        handleNotification(data) {
+            try {
+                // Add notification to array
+                const notification = {
+                    id: Date.now() + Math.random(), // Ensure unique ID
+                    title: data.title || 'New Notification',
+                    message: data.message || data.data?.message || JSON.stringify(data),
+                    type: data.type || 'info',
+                    time: new Date(),
+                    isRead: false,
+                    data: data
+                };
+                
+                // Add to local array
+                this.notifications.unshift(notification);
+                
+                // Add to store
+                if (Alpine.store('notifications')) {
+                    Alpine.store('notifications').addNotification(notification);
+                }
+                
+                // Limit notifications to last 50
+                if (this.notifications.length > 50) {
+                    this.notifications = this.notifications.slice(0, 50);
+                }
+                
+                // Update unread count based on unread notifications
+                this.updateUnreadCount();
+                
+                // Update notification indicator
+                this.updateNotificationIndicator();
+                
+                // Show browser notification if permission granted
+                this.showBrowserNotification(notification);
+                
+            } catch (error) {
+                // Error handling notification
+            }
+        },
+        
+        updateUnreadCount() {
+            this.unreadNotificationsCount = this.notifications.filter(n => !n.isRead).length;
+            // Sync with store
+            if (Alpine.store('notifications')) {
+                Alpine.store('notifications').unreadCount = this.unreadNotificationsCount;
+            }
+        },
+        
+        updateNotificationIndicator() {
+            this.updateUnreadCount();
+            const indicator = document.querySelector('.notification-indicator');
+            if (indicator) {
+                const unreadCount = Alpine.store('notifications')?.unreadCount || this.unreadNotificationsCount;
+                if (unreadCount > 0) {
+                    indicator.classList.remove('hidden');
+                    const badge = indicator.querySelector('.relative span');
+                    if (badge) {
+                        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    }
+                } else {
+                    indicator.classList.add('hidden');
+                }
+            }
+        },
+        
+        async showBrowserNotification(notification) {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    await Notification.requestPermission();
+                }
+                if (Notification.permission === 'granted') {
+                    new Notification(notification.title, {
+                        body: notification.message,
+                        icon: '/favicon.png',
+                        tag: 'notification-' + notification.id
+                    });
+                }
+            }
+        },
+        
+        async markNotificationsAsRead() {
+            try {
+                // Call API to mark all as read
+                if (typeof ApiService !== 'undefined') {
+                    await ApiService.markAllNotificationsAsRead();
+                }
+                
+                // Mark all notifications as read locally
+                this.notifications.forEach(notification => {
+                    notification.isRead = true;
+                });
+                
+                if (Alpine.store('notifications')) {
+                    Alpine.store('notifications').markAllAsRead();
+                }
+                
+                this.unreadNotificationsCount = 0;
+                this.updateNotificationIndicator();
+            } catch (error) {
+                // Error marking all notifications as read
+            }
+        },
+        
+        async markNotificationAsReadAndRedirect(notificationId) {
+            const notification = this.notifications.find(n => n.id === notificationId);
+            if (notification && !notification.isRead) {
+                // Mark as read locally
+                notification.isRead = true;
+                if (Alpine.store('notifications')) {
+                    Alpine.store('notifications').markAsRead(notificationId);
+                }
+                
+                // Update on server
+                try {
+                    if (typeof ApiService !== 'undefined' && ApiService.markNotificationAsRead) {
+                        await ApiService.markNotificationAsRead(notificationId);
+                    }
+                } catch (error) {
+                    // Silent fail - continue to redirect
+                }
+                
+                this.updateUnreadCount();
+                this.updateNotificationIndicator();
+                
+                // Redirect to notifications page
+                window.location.href = 'Notification.html';
+            } else if (notification) {
+                // If already read, just redirect
+                window.location.href = 'Notification.html';
+            }
+        },
+        
+        async markNotificationAsRead(notificationId) {
+            const notification = this.notifications.find(n => n.id === notificationId);
+            if (notification && !notification.isRead) {
+                notification.isRead = true;
+                if (Alpine.store('notifications')) {
+                    Alpine.store('notifications').markAsRead(notificationId);
+                }
+                
+                // Update on server if needed
+                try {
+                    if (typeof ApiService !== 'undefined' && ApiService.markNotificationAsRead) {
+                        await ApiService.markNotificationAsRead(notificationId);
+                    }
+                } catch (error) {
+                    // Silent fail
+                }
+                
+                this.updateUnreadCount();
+                this.updateNotificationIndicator();
+            }
+        },
+        
+        formatTime(date) {
+            if (!date) return '';
+            const now = new Date();
+            const diff = now - new Date(date);
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+            
+            return new Date(date).toLocaleDateString();
         },
 
         handleNewMessage(data) {
@@ -524,13 +832,56 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.store('i18n').init();
 
+    // Create a store for header notifications
+    Alpine.store('notifications', {
+        notifications: [],
+        unreadCount: 0,
+        
+        get unreadNotifications() {
+            return this.notifications.filter(n => !n.isRead);
+        },
+        
+        init() {
+            // Store initialized
+        },
+        
+        addNotification(notification) {
+            // Check if notification already exists
+            const exists = this.notifications.find(n => n.id === notification.id);
+            if (!exists) {
+                this.notifications.unshift(notification);
+                if (this.notifications.length > 50) {
+                    this.notifications = this.notifications.slice(0, 50);
+                }
+                this.updateUnreadCount();
+            }
+        },
+        
+        markAsRead(notificationId) {
+            const notification = this.notifications.find(n => n.id === notificationId);
+            if (notification && !notification.isRead) {
+                notification.isRead = true;
+                this.updateUnreadCount();
+            }
+        },
+        
+        markAllAsRead() {
+            this.notifications.forEach(n => n.isRead = true);
+            this.updateUnreadCount();
+        },
+        
+        updateUnreadCount() {
+            this.unreadCount = this.notifications.filter(n => !n.isRead).length;
+        }
+    });
+
 });
 
 // Horizontal Menu Scroll Functions
 function scrollHorizontalMenu(direction) {
     const menu = document.getElementById('horizontalMenuList');
     if (!menu) {
-        console.error('Menu element not found');
+        // Menu element not found
         return;
     }
     

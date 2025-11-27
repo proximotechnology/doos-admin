@@ -84,6 +84,116 @@
                         </a>
                     </div>
 
+                    <!-- Notifications Icon -->
+                    <div class="dropdown flex-shrink-0" x-data="dropdown" @click.outside="open = false">
+                        <a href="javascript:;" class="relative flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover:scale-105"
+                            :class="{
+                                'bg-danger/10 text-danger hover:bg-danger/20 dark:bg-danger/20 dark:hover:bg-danger/30': $store.notifications && $store.notifications.unreadCount > 0,
+                                'bg-white-light/40 text-gray-700 dark:text-gray-300 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60': !$store.notifications || $store.notifications.unreadCount === 0
+                            }"
+                            @click="toggle()">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-colors">
+                                <path opacity="0.5"
+                                    d="M18.7491 9.70957V9.00497C18.7491 5.13623 15.7274 2 11.9991 2C8.27086 2 5.24915 5.13623 5.24915 9.00497V9.70957C5.24915 10.5552 5.00936 11.3818 4.55746 12.0787L3.45036 13.8012C2.43882 15.3749 3.21105 17.5133 4.97036 18.0116C9.57274 19.3134 14.4275 19.3134 19.0299 18.0116C20.7892 17.5133 21.5614 15.3749 20.5499 13.8012L19.4428 12.0787C18.9909 11.3818 18.7491 10.5552 18.7491 9.70957Z"
+                                    stroke="currentColor" stroke-width="1.5" />
+                                <path
+                                    d="M7.5 19C8.15503 20.7478 9.92246 22 12 22C14.0775 22 15.845 20.7478 16.5 19"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span class="notification-indicator absolute -right-0.5 -top-0.5" 
+                                :class="{'hidden': !$store.notifications || $store.notifications.unreadCount === 0}">
+                                <span class="flex items-center justify-center">
+                                    <span
+                                        class="absolute inline-flex h-3.5 w-3.5 animate-ping rounded-full bg-danger opacity-75"></span>
+                                    <span
+                                        class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[10px] font-bold text-white shadow-lg"
+                                        x-text="$store.notifications?.unreadCount > 99 ? '99+' : ($store.notifications?.unreadCount || 0)"></span>
+                                </span>
+                            </span>
+                        </a>
+                        <ul x-cloak x-show="open" x-transition x-transition.duration.300ms
+                            class="absolute top-12 max-h-[450px] w-[380px] overflow-hidden !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90 ltr:right-0 rtl:left-0 bg-white dark:bg-[#0e1726] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-[1002]">
+                            <li class="sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-[#0e1726] dark:to-[#1a2941] backdrop-blur-sm">
+                                <div class="flex items-center justify-between px-5 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                        <h5 class="text-base font-bold text-gray-800 dark:text-white" x-text="$store.i18n.t('notifications') || 'Notifications'"></h5>
+                                    </div>
+                                    <span class="badge bg-danger/10 text-danger font-semibold px-2.5 py-1" x-text="$store.notifications?.unreadCount || 0" x-show="$store.notifications && $store.notifications.unreadCount > 0"></span>
+                                </div>
+                            </li>
+                            <div class="max-h-[320px] overflow-y-auto custom-scrollbar">
+                                <template x-if="!$store.notifications || !$store.notifications.notifications || $store.notifications.notifications.filter(n => !n.isRead).length === 0">
+                                    <li>
+                                        <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+                                            <div class="mb-4 h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                                <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                </svg>
+                                            </div>
+                                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('no_notifications') || 'No unread notifications'"></p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">All caught up!</p>
+                                        </div>
+                                    </li>
+                                </template>
+                                <template x-for="(notification, index) in ($store.notifications?.notifications || []).filter(n => !n.isRead).slice(0, 5)" :key="'notification-' + notification.id + '-' + index">
+                                    <li>
+                                        <a href="javascript:;" 
+                                            class="flex items-start gap-3 px-5 py-4 hover:bg-gray-50 dark:hover:bg-[#1a2941] transition-all duration-200 border-b border-gray-100 dark:border-gray-800 last:border-b-0 group"
+                                            :class="{
+                                                'bg-primary/5 dark:bg-primary/10 border-l-4 border-l-primary': !notification.isRead
+                                            }"
+                                            @click="if (window.headerInstance) { window.headerInstance.markNotificationAsReadAndRedirect(notification.id); }">
+                                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm"
+                                                :class="{
+                                                    'bg-primary/10 text-primary': notification.type === 'info' || !notification.type,
+                                                    'bg-success/10 text-success': notification.type === 'success',
+                                                    'bg-danger/10 text-danger': notification.type === 'error' || notification.type === 'danger',
+                                                    'bg-warning/10 text-warning': notification.type === 'warning'
+                                                }">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-start justify-between gap-2 mb-1">
+                                                    <p class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1" 
+                                                        x-text="notification.title || 'Notification'"></p>
+                                                    <span class="flex-shrink-0 h-2 w-2 rounded-full bg-danger mt-1.5" x-show="!notification.isRead"></span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mb-2 leading-relaxed" 
+                                                    x-text="notification.message"></p>
+                                                <p class="text-[10px] text-gray-400 dark:text-gray-500 font-medium" x-text="window.headerInstance?.formatTime(notification.time) || ''"></p>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </template>
+                            </div>
+                            <li class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#1a2941]" 
+                                x-show="$store.notifications && $store.notifications.notifications && $store.notifications.notifications.filter(n => !n.isRead).length > 5">
+                                <a href="Notification.html" class="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-semibold text-primary hover:text-primary-dark dark:hover:text-primary-light transition-colors">
+                                    <span x-text="$store.i18n.t('view_all') || 'View All'"></span>
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="border-t border-gray-200 dark:border-gray-700" 
+                                x-show="$store.notifications && $store.notifications.notifications && $store.notifications.notifications.filter(n => !n.isRead).length > 0 && $store.notifications.notifications.filter(n => !n.isRead).length <= 5">
+                                <a href="Notification.html" class="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-semibold text-primary hover:text-primary-dark dark:hover:text-primary-light transition-colors">
+                                    <span x-text="$store.i18n.t('view_all') || 'View All Notifications'"></span>
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <div class="dropdown flex-shrink-0" x-data="dropdown" @click.outside="open = false">
                         <a href="javascript:;" class="group relative" @click="toggle()">
                             <span><img class="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100"
@@ -698,14 +808,10 @@
                     </ul>
                 </li>
             </ul>
-        </div>
+        </div></div>
     </header>
 </body>
 
 </html>
 
-</header>
 
-</body>
-
-</html>

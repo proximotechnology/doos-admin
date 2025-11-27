@@ -897,6 +897,14 @@
         }
 
         /**
+         * Get user details by ID
+         * @param {number} userId - The ID of the user
+         */
+        async getUserDetails(userId) {
+            return this.get(`/api/admin/user/get_all?user_id=${userId}`);
+        }
+
+        /**
          * Delete user
          */
         async deleteUser(userId) {
@@ -1263,7 +1271,15 @@
          * Mark all notifications as read
          */
         async markAllNotificationsAsRead() {
-            return this.get('/api/admin/notification/markAllAsRead');
+            return this.post('/api/admin/notification/markAllAsRead', {});
+        }
+
+        /**
+         * Mark a single notification as read
+         * @param {number} notificationId - The ID of the notification to mark as read
+         */
+        async markNotificationAsRead(notificationId) {
+            return this.post(`/api/admin/notification/${notificationId}/markAsRead`, {});
         }
 
         // ==================== Whitelist/Blacklist APIs ====================

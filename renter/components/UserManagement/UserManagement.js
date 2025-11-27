@@ -146,6 +146,14 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
+    // Make functions globally accessible
+    window.showUserDetails = (userId) => {
+        const component = document.querySelector('[x-data="usersTable"]')?._x_dataStack?.[0];
+        if (component) {
+            component.showUserDetails(userId);
+        }
+    };
+
     // Make toggleBlock function globally accessible
     window.toggleUserBlock = async function(userId) {
         try {
@@ -200,6 +208,9 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
         _initialized: false,
+        showUserDetailsModal: false,
+        selectedUser: null,
+        isLoadingUserDetails: false,
 
         async init() {
             if (this._initialized) return;
@@ -317,9 +328,6 @@ document.addEventListener('alpine:init', () => {
                 this.formatText(user.email),
                 this.formatText(user.phone),
                 this.formatText(user.country),
-                this.formatVerified(user.email_verified_at),
-                this.formatLicense(user.has_license),
-                this.formatBlocked(user.is_blocked),
                 this.formatDate(user.created_at),
                 this.formatActions(user.id, user.is_blocked),
             ]);
@@ -332,9 +340,6 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('email'),
                         Alpine.store('i18n').t('phone'),
                         Alpine.store('i18n').t('country'),
-                        Alpine.store('i18n').t('email_verified'),
-                        Alpine.store('i18n').t('has_license'),
-                        Alpine.store('i18n').t('status'),
                         Alpine.store('i18n').t('registration_date'),
                         Alpine.store('i18n').t('actions'),
                     ],
@@ -433,15 +438,69 @@ document.addEventListener('alpine:init', () => {
                 : '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>';
             
             return `
-                <button 
-                    onclick="window.toggleUserBlock(${userId})" 
-                    class="${buttonClass} gap-1"
-                    title="${buttonText}"
-                >
-                    ${icon}
-                    <span>${buttonText}</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button 
+                        onclick="window.showUserDetails(${userId})" 
+                        class="btn btn-sm btn-primary gap-1"
+                        title="${Alpine.store('i18n').t('view_details') || 'View Details'}"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>${Alpine.store('i18n').t('view_details') || 'View'}</span>
+                    </button>
+                    <button 
+                        onclick="window.toggleUserBlock(${userId})" 
+                        class="${buttonClass} gap-1"
+                        title="${buttonText}"
+                    >
+                        ${icon}
+                        <span>${buttonText}</span>
+                    </button>
+                </div>
             `;
+        },
+
+        async showUserDetails(userId) {
+            this.isLoadingUserDetails = true;
+            this.showUserDetailsModal = true;
+            this.selectedUser = null;
+            
+            try {
+                const response = await ApiService.getUserDetails(userId);
+                
+                if (response && response.status && response.data) {
+                    // Find the user in the data array
+                    let userData = null;
+                    if (response.data.data && Array.isArray(response.data.data)) {
+                        userData = response.data.data.find(u => u.id === userId);
+                    } else if (Array.isArray(response.data)) {
+                        userData = response.data.find(u => u.id === userId);
+                    }
+                    
+                    if (userData) {
+                        this.selectedUser = userData;
+                    } else {
+                        coloredToast('danger', Alpine.store('i18n').t('user_not_found') || 'User not found');
+                        this.showUserDetailsModal = false;
+                    }
+                } else {
+                    coloredToast('danger', Alpine.store('i18n').t('failed_to_load_user_details') || 'Failed to load user details');
+                    this.showUserDetailsModal = false;
+                }
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+                coloredToast('danger', Alpine.store('i18n').t('error_loading_user_details') || 'Error loading user details');
+                this.showUserDetailsModal = false;
+            } finally {
+                this.isLoadingUserDetails = false;
+            }
+        },
+
+        closeUserDetailsModal() {
+            this.showUserDetailsModal = false;
+            this.selectedUser = null;
         },
 
 
