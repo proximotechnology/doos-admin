@@ -436,6 +436,24 @@
             return this.delete(`/api/admin/seasonpricing/delete/${seasonId}`);
         }
 
+        /**
+         * Add brands to seasonal pricing
+         * @param {number} seasonId - The ID of the seasonal pricing
+         * @param {Array<number>} brands - Array of brand IDs
+         */
+        async addBrandsToSeasonalPricing(seasonId, brands) {
+            return this.post(`/api/admin/seasonpricing/add-brands/${seasonId}`, { brands });
+        }
+
+        /**
+         * Remove brands from seasonal pricing
+         * @param {number} seasonId - The ID of the seasonal pricing
+         * @param {Array<number>} brands - Array of brand IDs
+         */
+        async removeBrandsFromSeasonalPricing(seasonId, brands) {
+            return this.post(`/api/admin/seasonpricing/remove-brands/${seasonId}`, { brands });
+        }
+
         // ==================== Testimonial Management APIs ====================
 
         /**

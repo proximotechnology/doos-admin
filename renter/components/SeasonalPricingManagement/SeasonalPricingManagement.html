@@ -111,6 +111,41 @@
                                 </label>
                                 <input type="number" :placeholder="$store.i18n.t('enter_increase_value')" class="form-input" x-model="value" required step="0.01" />
                             </div>
+                            <div class="form-group sm:col-span-2">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('is_brand') || 'Is Brand Specific'"></span>
+                                </label>
+                                <label class="mt-2 flex cursor-pointer items-center">
+                                    <input type="checkbox" class="form-checkbox" x-model="is_brand" />
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('apply_to_specific_brands') || 'Apply to specific brands'"></span>
+                                </label>
+                            </div>
+                            <div class="form-group sm:col-span-2" x-show="is_brand">
+                                <label class="form-label flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('select_brands') || 'Select Brands'"></span>
+                                </label>
+                                <div class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                                        <template x-for="brand in allBrands" :key="brand.id">
+                                            <label class="flex cursor-pointer items-center rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                                                   :class="isBrandSelected(brand.id) ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-gray-200 dark:border-gray-700'">
+                                                <input type="checkbox" 
+                                                       class="form-checkbox" 
+                                                       :checked="isBrandSelected(brand.id)"
+                                                       @change="toggleBrand(brand.id)" />
+                                                <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300" x-text="brand.name"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400" x-show="allBrands.length === 0" x-text="$store.i18n.t('no_brands_available') || 'No brands available'"></p>
+                                </div>
+                            </div>
                         </div>
                         <div class="mt-6 flex items-center gap-2">
                             <button type="submit" class="btn btn-primary flex items-center gap-2" :disabled="isSubmitting">
@@ -131,6 +166,107 @@
 
             <!-- Seasonal Pricing Table -->
             <div x-data="seasonalPricingTable" x-init="fetchSeasonalPricing()">
+                <!-- Manage Brands Modal -->
+                <template x-if="showManageBrandsModal">
+                    <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                         style="z-index: 999999 !important; position: fixed !important;"
+                         @click.self="closeManageBrandsModal()"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0">
+                    <div class="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-[#0e1726]"
+                         style="z-index: 999999 !important; position: relative !important;"
+                         x-transition:enter="transition ease-out duration-300 transform"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-200 transform"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95">
+                        <!-- Modal Header -->
+                        <div class="sticky top-0 z-10 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('manage_brands') || 'Manage Brands'"></h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('select_brands_for_seasonal_pricing') || 'Select brands for this seasonal pricing'"></p>
+                                    </div>
+                                </div>
+                                <button @click="closeManageBrandsModal()" class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal Content -->
+                        <div class="overflow-y-auto max-h-[calc(90vh-180px)] p-6">
+                            <!-- Loading State -->
+                            <div x-show="isLoadingBrands" class="flex items-center justify-center py-12">
+                                <div class="flex flex-col items-center">
+                                    <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                                </div>
+                            </div>
+
+                            <!-- Brands Selection -->
+                            <div x-show="!isLoadingBrands" class="space-y-4">
+                                <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+                                    <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('selected_brands_count') || 'Selected Brands'"></p>
+                                    <p class="text-2xl font-bold text-primary" x-text="selectedBrands.length"></p>
+                                </div>
+
+                                <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                                        <template x-for="brand in allBrands" :key="brand.id">
+                                            <label class="flex cursor-pointer items-center rounded-lg border p-3 transition-all hover:shadow-md"
+                                                   :class="isBrandSelected(brand.id) ? 'border-primary bg-primary/10 dark:bg-primary/20 shadow-md' : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'">
+                                                <input type="checkbox" 
+                                                       class="form-checkbox" 
+                                                       :checked="isBrandSelected(brand.id)"
+                                                       @change="toggleBrandSelection(brand.id)" />
+                                                <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300" x-text="brand.name"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400" x-show="allBrands.length === 0" x-text="$store.i18n.t('no_brands_available') || 'No brands available'"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="sticky bottom-0 border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/50">
+                            <div class="flex items-center justify-between gap-3">
+                                <button @click="closeManageBrandsModal()" class="btn btn-outline-danger">
+                                    <span x-text="$store.i18n.t('cancel') || 'Cancel'"></span>
+                                </button>
+                                <div class="flex gap-2">
+                                    <button @click="removeBrands()" class="btn btn-warning" :disabled="selectedBrands.length === 0">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('remove_selected') || 'Remove Selected'"></span>
+                                    </button>
+                                    <button @click="addBrands()" class="btn btn-primary" :disabled="selectedBrands.length === 0">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('add_selected') || 'Add Selected'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
                     <div class="mb-5 flex items-center justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
                         <div class="flex items-center gap-3">

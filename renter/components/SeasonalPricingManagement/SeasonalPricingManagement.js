@@ -59,7 +59,38 @@ document.addEventListener('alpine:init', () => {
         type: 'percentage',
         value: '',
         status: 'active',
+        is_brand: false,
+        brands: [],
+        allBrands: [],
         isSubmitting: false,
+
+        async init() {
+            await this.fetchBrands();
+        },
+
+        async fetchBrands() {
+            try {
+                const result = await ApiService.getBrands(1, { per_page: 1000 });
+                if (result.data && result.data.data) {
+                    this.allBrands = result.data.data;
+                }
+            } catch (error) {
+                // Error fetching brands
+            }
+        },
+
+        toggleBrand(brandId) {
+            const index = this.brands.indexOf(brandId);
+            if (index > -1) {
+                this.brands.splice(index, 1);
+            } else {
+                this.brands.push(brandId);
+            }
+        },
+
+        isBrandSelected(brandId) {
+            return this.brands.includes(brandId);
+        },
 
         async addSeasonalPricing() {
             try {
@@ -79,7 +110,8 @@ document.addEventListener('alpine:init', () => {
                     date_end: this.date_end,
                     type: this.type,
                     value: this.value,
-                    status: this.status
+                    is_brand: this.is_brand,
+                    brands: this.is_brand ? this.brands : []
                 };
 
                 const response = await ApiService.createSeasonalPricing(formData);
@@ -92,6 +124,8 @@ document.addEventListener('alpine:init', () => {
                     this.date_end = '';
                     this.type = 'percentage';
                     this.value = '';
+                    this.is_brand = false;
+                    this.brands = [];
                     // Refresh table
                     Alpine.store('seasonalPricingTable').refreshTable();
                 } else {
@@ -114,6 +148,11 @@ document.addEventListener('alpine:init', () => {
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
         _initialized: false,
+        showManageBrandsModal: false,
+        selectedSeasonId: null,
+        selectedBrands: [],
+        allBrands: [],
+        isLoadingBrands: false,
 
         async init() {
             if (this._initialized) return;
@@ -134,6 +173,12 @@ document.addEventListener('alpine:init', () => {
                 if (e.target.closest('.toggle-status-btn')) {
                     const seasonId = e.target.closest('.toggle-status-btn').dataset.id;
                     this.toggleSeasonStatus(seasonId);
+                }
+                if (e.target.closest('.manage-brands-btn')) {
+                    const btn = e.target.closest('.manage-brands-btn');
+                    const seasonId = btn.dataset.id;
+                    const brands = JSON.parse(btn.dataset.brands || '[]');
+                    this.openManageBrandsModal(seasonId, brands);
                 }
                 // Pagination event handling
                 if (e.target.closest('.pagination-btn')) {
@@ -197,6 +242,7 @@ document.addEventListener('alpine:init', () => {
                     ? `${season.value}%` 
                     : `$${season.value}`;
                 const statusBadge = this.getStatusBadge(season.status);
+                const brandsInfo = this.formatBrands(season.brand || []);
                 
                 return [
                     rowNumber,
@@ -204,8 +250,9 @@ document.addEventListener('alpine:init', () => {
                     `${dateFrom} - ${dateEnd}`,
                     Alpine.store('i18n').t(season.type === 'percentage' ? 'percentage' : 'fixed_amount'),
                     increaseType,
+                    brandsInfo,
                     statusBadge,
-                    this.getActionButtons(season.id, season.status)
+                    this.getActionButtons(season.id, season.status, season.is_brand, season.brand || [])
                 ];
             });
 
@@ -217,6 +264,7 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('date_range'),
                         Alpine.store('i18n').t('increase_type'),
                         Alpine.store('i18n').t('increase_value'),
+                        Alpine.store('i18n').t('brands') || 'Brands',
                         Alpine.store('i18n').t('status'),
                         `<div class="text-center">${Alpine.store('i18n').t('action')}</div>`
                     ],
@@ -280,6 +328,14 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        formatBrands(brands) {
+            if (!brands || brands.length === 0) {
+                return `<span class="text-gray-400">${Alpine.store('i18n').t('all_brands') || 'All Brands'}</span>`;
+            }
+            const brandNames = brands.map(b => b.brand?.name || `Brand ${b.brand_id}`).join(', ');
+            return `<span class="text-sm text-gray-700 dark:text-gray-300" title="${brandNames}">${brandNames.length > 30 ? brandNames.substring(0, 30) + '...' : brandNames}</span>`;
+        },
+
         getStatusBadge(status) {
             if (status === 'active') {
                 return `<span class="badge bg-success">${Alpine.store('i18n').t('active')}</span>`;
@@ -290,7 +346,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        getActionButtons(seasonId, status) {
+        getActionButtons(seasonId, status, isBrand, brands) {
             const isActive = status === 'active';
             
             // Only show deactivate button if status is active
@@ -300,11 +356,18 @@ document.addEventListener('alpine:init', () => {
                 </button>
             ` : '';
             
+            const manageBrandsButton = isBrand ? `
+                <button class="btn btn-sm btn-info manage-brands-btn rounded-md px-3 py-1" data-id="${seasonId}" data-brands='${JSON.stringify(brands)}'>
+                    ${Alpine.store('i18n').t('manage_brands') || 'Manage Brands'}
+                </button>
+            ` : '';
+            
             return `
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-2 flex-wrap">
                     <button class="btn btn-sm btn-primary update-btn rounded-md px-3 py-1" data-id="${seasonId}">
                         ${Alpine.store('i18n').t('edit')}
                     </button>
+                    ${manageBrandsButton}
                     ${toggleButton}
                     <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1" data-id="${seasonId}">
                         ${Alpine.store('i18n').t('delete')}
@@ -442,6 +505,98 @@ document.addEventListener('alpine:init', () => {
                     await this.fetchSeasonalPricing(this.currentPage);
                 }
             );
+        },
+
+        async openManageBrandsModal(seasonId, currentBrands) {
+            this.selectedSeasonId = seasonId;
+            // Extract brand IDs from the brands array
+            const brandIds = currentBrands.map(b => {
+                if (typeof b === 'object' && b !== null) {
+                    return b.brand_id || b.id || (b.brand && b.brand.id) || b;
+                }
+                return b;
+            });
+            this.selectedBrands = brandIds;
+            this.showManageBrandsModal = true;
+            this.isLoadingBrands = true;
+            
+            try {
+                const result = await ApiService.getBrands(1, { per_page: 1000 });
+                if (result.data && result.data.data) {
+                    this.allBrands = result.data.data;
+                }
+            } catch (error) {
+                coloredToast('danger', error.message || 'Failed to load brands');
+            } finally {
+                this.isLoadingBrands = false;
+            }
+        },
+
+        closeManageBrandsModal() {
+            this.showManageBrandsModal = false;
+            this.selectedSeasonId = null;
+            this.selectedBrands = [];
+        },
+
+        toggleBrandSelection(brandId) {
+            const index = this.selectedBrands.indexOf(brandId);
+            if (index > -1) {
+                this.selectedBrands.splice(index, 1);
+            } else {
+                this.selectedBrands.push(brandId);
+            }
+        },
+
+        isBrandSelected(brandId) {
+            return this.selectedBrands.includes(brandId);
+        },
+
+        async addBrands() {
+            if (this.selectedBrands.length === 0) {
+                coloredToast('warning', Alpine.store('i18n').t('please_select_brands') || 'Please select at least one brand');
+                return;
+            }
+
+            try {
+                loadingIndicator.show();
+                const response = await ApiService.addBrandsToSeasonalPricing(this.selectedSeasonId, this.selectedBrands);
+                
+                if (response.success) {
+                    coloredToast('success', Alpine.store('i18n').t('brands_added_successfully') || 'Brands added successfully');
+                    await this.fetchSeasonalPricing(this.currentPage);
+                    this.closeManageBrandsModal();
+                } else {
+                    throw new Error(response.message || 'Failed to add brands');
+                }
+            } catch (error) {
+                coloredToast('danger', error.message || 'Failed to add brands');
+            } finally {
+                loadingIndicator.hide();
+            }
+        },
+
+        async removeBrands() {
+            if (this.selectedBrands.length === 0) {
+                coloredToast('warning', Alpine.store('i18n').t('please_select_brands') || 'Please select at least one brand');
+                return;
+            }
+
+            try {
+                loadingIndicator.show();
+                const response = await ApiService.removeBrandsFromSeasonalPricing(this.selectedSeasonId, this.selectedBrands);
+                
+                if (response.success) {
+                    coloredToast('success', Alpine.store('i18n').t('brands_removed_successfully') || 'Brands removed successfully');
+                    await this.fetchSeasonalPricing(this.currentPage);
+                    this.closeManageBrandsModal();
+                } else {
+                    throw new Error(response.message || 'Failed to remove brands');
+                }
+            } catch (error) {
+                coloredToast('danger', error.message || 'Failed to remove brands');
+            } finally {
+                loadingIndicator.hide();
+            }
         }
     }));
 });
