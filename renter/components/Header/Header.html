@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <header class="z-40 relative" style="z-index: 1000 !important;" :class="{'dark' : $store.app.semidark && $store.app.menu === 'horizontal'}">
+    <header class="z-40 relative" style="z-index: 1000 !important;" :class="{'dark' : $store.app.semidark && ($store.app.menu === 'horizontal' || $store.app.menu === 'collapsible-vertical')}">
         <div class="shadow-sm" style="overflow: visible !important;">
             <div
                 class="relative flex w-full items-center bg-gradient-to-r from-white via-white to-gray-50/50 px-5 py-3 dark:from-[#0e1726] dark:via-[#0e1726] dark:to-[#0a0f1e] border-b border-gray-200/50 dark:border-gray-800/50"

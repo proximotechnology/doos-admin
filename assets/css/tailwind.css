@@ -47,8 +47,13 @@
         z-index: 999 !important;
     }
     
+    /* Collapsible sidebar should be above header */
     .collapsible-vertical .sidebar {
-        z-index: 999 !important;
+        z-index: 1001 !important;
+    }
+    
+    .collapsible-vertical.toggle-sidebar .sidebar {
+        z-index: 1001 !important;
     }
     
     .sidebar:hover .nav-item > a {
