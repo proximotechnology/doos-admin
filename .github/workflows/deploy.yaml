@@ -72,4 +72,16 @@ jobs:
                       cd /var/www/html/doosdoostest
                       unzip -o deploy.zip -d admin
                       rm -f deploy.zip
-                      systemctl reload apache2
+                      # Fix permissions
+                      chown -R www-data:www-data /var/www/html/doosdoostest/admin
+                      chmod -R 755 /var/www/html/doosdoostest/admin
+                      # Check Apache2 status and reload/restart accordingly
+                      if systemctl is-active --quiet apache2; then
+                          echo "Apache2 is running, reloading..."
+                          systemctl reload apache2 || systemctl restart apache2
+                      else
+                          echo "Apache2 is not running, starting..."
+                          systemctl start apache2 || systemctl restart apache2
+                      fi
+                      # Verify Apache2 is running
+                      systemctl status apache2 --no-pager || echo "Warning: Apache2 status check failed"
