@@ -1363,6 +1363,25 @@
         async deleteCookiesPolicy(id) {
             return this.delete(`/api/admin/cookie-policy/${id}`);
         }
+
+        /**
+         * Privacy Policy Management
+         */
+        async getPrivacyPolicy() {
+            return this.get('/api/admin/privacy-policy');
+        }
+
+        async createPrivacyPolicy(data) {
+            return this.post('/api/admin/privacy-policy', data);
+        }
+
+        async updatePrivacyPolicy(id, data) {
+            return this.put(`/api/admin/privacy-policy/${id}`, data);
+        }
+
+        async deletePrivacyPolicy(id) {
+            return this.delete(`/api/admin/privacy-policy/${id}`);
+        }
     }
 
     // Initialize and expose API service
