@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <div
+            x-data="updateTermsConditionsModal()"
+            x-show="isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            style="display: none"
+            x-cloak
+            @click.self="closeModal()"
+        >
+            <div class="flex min-h-screen items-start justify-center px-4 py-8">
+                <div
+                    class="modal-container animate__animated w-full max-w-3xl overflow-hidden rounded-lg border-2 border-primary/20 shadow-2xl bg-white dark:bg-gray-800"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                    @click.stop
+                >
+                    <!-- Modal Header -->
+                    <div class="modal-header bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('update_terms_conditions')"></h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('update_terms_conditions_description')"></p>
+                                </div>
+                            </div>
+                            <button 
+                                @click="closeModal()" 
+                                class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            >
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="modal-content bg-white p-6 dark:bg-[#0e1726]">
+                        <form @submit.prevent="submitUpdate()">
+                            <div class="space-y-5">
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('title')"></span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        :placeholder="$store.i18n.t('enter_title')"
+                                        class="form-input"
+                                        x-model="formData.title"
+                                        maxlength="255"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('content')"></span>
+                                    </label>
+                                    <textarea
+                                        :placeholder="$store.i18n.t('enter_content')"
+                                        class="form-textarea"
+                                        x-model="formData.content"
+                                        rows="4"
+                                        required
+                                    ></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('order')"></span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        :placeholder="$store.i18n.t('enter_order')"
+                                        class="form-input"
+                                        x-model="formData.order"
+                                        min="1"
+                                    />
+                                </div>
+
+                                <!-- Points Section -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2 mb-3">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('points')"></span>
+                                    </label>
+                                    <div class="space-y-3">
+                                        <template x-for="(point, pointIndex) in formData.points" :key="`point-${pointIndex}-${formData.points.length}`">
+                                            <div class="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    :placeholder="$store.i18n.t('enter_point_title')"
+                                                    class="form-input flex-1"
+                                                    x-model="point.title"
+                                                    required
+                                                />
+                                                <button
+                                                    type="button"
+                                                    @click="removePoint(pointIndex)"
+                                                    class="btn btn-danger flex-shrink-0"
+                                                    x-show="formData.points.length > 1"
+                                                >
+                                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <div class="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('add_new_point') || 'Add New Point'"></span>
+                                            <button type="button" @click="addPoint()" class="btn btn-outline-primary btn-sm">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                <span x-text="$store.i18n.t('add_point')"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('status')"></span>
+                                    </label>
+                                    <select class="form-select" x-model="formData.is_active" required>
+                                        <option value="1" x-text="$store.i18n.t('active')"></option>
+                                        <option value="0" x-text="$store.i18n.t('inactive')"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Modal Footer -->
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button type="button" @click="closeModal()" class="btn btn-outline-danger">
+                                    <span x-text="$store.i18n.t('cancel')"></span>
+                                </button>
+                                <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!isSubmitting">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" x-show="isSubmitting">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-show="!isSubmitting" x-text="$store.i18n.t('update')"></span>
+                                    <span x-show="isSubmitting" x-text="$store.i18n.t('updating')"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

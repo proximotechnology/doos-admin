@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <!-- Breadcrumb -->
+        <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse">
+                <li>
+                    <a href="javascript:;" class="flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
+                        <svg class="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span x-text="$store.i18n.t('dashboard')"></span>
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white rtl:mr-2 rtl:ml-0" x-text="$store.i18n.t('cookies_policy_management')"></span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+            <div class="flex flex-col items-center rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+                <div class="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                <p class="text-lg font-medium text-gray-700 dark:text-gray-300" x-text="$store.i18n.t('loading_data')"></p>
+            </div>
+        </div>
+
+        <div class="pt-5" x-data="cookiesPolicyTable" x-init="init()">
+            <!-- Add Cookies Policy Form -->
+            <div class="panel mb-6 overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('add_cookies_policy')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('create_new_cookies_policy') || 'Create a new cookies policy entry'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <form x-data="createCookiesPolicyForm()" @submit.prevent="submitCreate()" class="space-y-5">
+                        <div class="form-group">
+                            <label class="form-label flex items-center gap-2">
+                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                <span x-text="$store.i18n.t('title')"></span>
+                            </label>
+                            <input
+                                type="text"
+                                :placeholder="$store.i18n.t('enter_title')"
+                                class="form-input"
+                                x-model="formData.title"
+                                maxlength="255"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label flex items-center gap-2">
+                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                                </svg>
+                                <span x-text="$store.i18n.t('content')"></span>
+                            </label>
+                            <textarea
+                                :placeholder="$store.i18n.t('enter_content')"
+                                class="form-textarea"
+                                x-model="formData.content"
+                                rows="4"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label flex items-center gap-2">
+                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                </svg>
+                                <span x-text="$store.i18n.t('order')"></span>
+                            </label>
+                            <input
+                                type="number"
+                                :placeholder="$store.i18n.t('enter_order')"
+                                class="form-input"
+                                x-model="formData.order"
+                                min="1"
+                            />
+                        </div>
+
+                        <!-- Points Section -->
+                        <div class="form-group">
+                            <label class="form-label flex items-center gap-2 mb-3">
+                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                                <span x-text="$store.i18n.t('points')"></span>
+                            </label>
+                            <div class="space-y-3">
+                                <template x-for="(point, pointIndex) in formData.points" :key="pointIndex">
+                                    <div class="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            :placeholder="$store.i18n.t('enter_point_title')"
+                                            class="form-input flex-1"
+                                            x-model="formData.points[pointIndex].title"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            @click="removePoint(pointIndex)"
+                                            class="btn btn-danger flex-shrink-0"
+                                            x-show="formData.points.length > 1"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <button type="button" @click="addPoint()" class="btn btn-outline-primary btn-sm w-full sm:w-auto">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('add_point')"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="resetForm()" class="btn btn-outline-danger">
+                                <span x-text="$store.i18n.t('reset')"></span>
+                            </button>
+                            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!isSubmitting">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" x-show="isSubmitting">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span x-show="!isSubmitting" x-text="$store.i18n.t('add')"></span>
+                                <span x-show="isSubmitting" x-text="$store.i18n.t('adding')"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="panel overflow-hidden border-2 border-primary/20 shadow-lg">
+                <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('cookies_policy_list')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('manage_all_cookies_policy')"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <!-- Loading State -->
+                    <div id="tableLoading" class="flex hidden items-center justify-center py-12">
+                        <div class="flex flex-col items-center">
+                            <div class="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('loading_data')"></span>
+                        </div>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="table-responsive overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700" id="myTable1Container" style="display: none;">
+                        <div class="table-wrapper">
+                            <table id="myTable1" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap"></table>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="tableEmptyState" class="flex hidden flex-col items-center justify-center py-16">
+                        <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                            <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white" x-text="$store.i18n.t('no_cookies_policy')"></h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_cookies_policy_description')"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

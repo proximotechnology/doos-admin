@@ -88,7 +88,9 @@
                 }
 
                 // Log API errors
-                console.log(`[API Error] ${method} ${endpoint}:`, {
+                const fullUrl = `${this.baseUrl}${endpoint}`;
+                console.log(`[API Error] ${method} ${fullUrl}:`, {
+                    url: fullUrl,
                     status: response.status,
                     statusText: response.statusText,
                     message: errorMessage
@@ -103,8 +105,10 @@
             if (contentType && contentType.includes('application/json')) {
                 result = await response.json();
 
-                // طباعة الردود الناجحة - ضع console.log قبل return
-                console.log(`[API Response] ${method} ${endpoint}:`, {
+                // Log successful API responses
+                const fullUrl = `${this.baseUrl}${endpoint}`;
+                console.log(`[API Response] ${method} ${fullUrl}:`, {
+                    url: fullUrl,
                     status: response.status,
                     data: result,
                     requestData: requestData
@@ -114,8 +118,10 @@
             } else {
                 result = await response.text();
 
-                // طباعة الردود النصية أيضاً
-                console.log(`[API Response] ${method} ${endpoint}:`, {
+                // Log text responses
+                const fullUrl = `${this.baseUrl}${endpoint}`;
+                console.log(`[API Response] ${method} ${fullUrl}:`, {
+                    url: fullUrl,
                     status: response.status,
                     data: result,
                     requestData: requestData
@@ -1318,6 +1324,44 @@
          */
         async deleteBlackLocation(locationId) {
             return this.delete(`/api/admin/black_location/delete/${locationId}`);
+        }
+
+        /**
+         * Terms & Conditions Management
+         */
+        async getTermsConditions() {
+            return this.get('/api/admin/terms-conditions');
+        }
+
+        async createTermsConditions(data) {
+            return this.post('/api/admin/terms-conditions', data);
+        }
+
+        async updateTermsConditions(id, data) {
+            return this.put(`/api/admin/terms-conditions/${id}`, data);
+        }
+
+        async deleteTermsConditions(id) {
+            return this.delete(`/api/admin/terms-conditions/${id}`);
+        }
+
+        /**
+         * Cookies Policy Management
+         */
+        async getCookiesPolicy() {
+            return this.get('/api/admin/cookie-policy');
+        }
+
+        async createCookiesPolicy(data) {
+            return this.post('/api/admin/cookie-policy', data);
+        }
+
+        async updateCookiesPolicy(id, data) {
+            return this.put(`/api/admin/cookie-policy/${id}`, data);
+        }
+
+        async deleteCookiesPolicy(id) {
+            return this.delete(`/api/admin/cookie-policy/${id}`);
         }
     }
 
