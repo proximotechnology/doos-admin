@@ -1238,5 +1238,8 @@
     "enter_point_title": "أدخل عنوان النقطة",
     "enter_title": "أدخل العنوان",
     "enter_content": "أدخل المحتوى",
-    "enter_order": "أدخل الترتيب"
+    "enter_order": "أدخل الترتيب",
+    "answer_time": "وقت الإجابة",
+    "no_limit": "بدون حد",
+    "hour": "ساعة"
 }

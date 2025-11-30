@@ -468,6 +468,117 @@
             return text || Alpine.store('i18n').t('na');
         },
 
+        formatAnswerTime(timeAnswer) {
+            if (!timeAnswer && timeAnswer !== 0) return Alpine.store('i18n').t('na');
+            const time = parseFloat(timeAnswer);
+            if (isNaN(time)) return Alpine.store('i18n').t('na');
+            
+            if (time === 0) {
+                return `<span class="badge bg-gray-500 text-white">${Alpine.store('i18n').t('no_limit') || 'No Limit'}</span>`;
+            }
+            
+            // Format as hours or days
+            if (time < 24) {
+                return `<span class="text-sm font-medium text-gray-700 dark:text-gray-300">${time} ${time === 1 ? (Alpine.store('i18n').t('hour') || 'Hour') : (Alpine.store('i18n').t('hours') || 'Hours')}</span>`;
+            } else {
+                const days = Math.floor(time / 24);
+                return `<span class="text-sm font-medium text-gray-700 dark:text-gray-300">${days} ${days === 1 ? (Alpine.store('i18n').t('day') || 'Day') : (Alpine.store('i18n').t('days') || 'Days')}</span>`;
+            }
+        },
+
+        formatAnswerTimeForDetails(timeAnswer) {
+            if (!timeAnswer && timeAnswer !== 0) return 'N/A';
+            const time = parseFloat(timeAnswer);
+            if (isNaN(time)) return 'N/A';
+            
+            if (time === 0) {
+                return Alpine.store('i18n').t('no_limit') || 'No Limit';
+            }
+            
+            // Format as hours or days
+            if (time < 24) {
+                return `${time} ${time === 1 ? (Alpine.store('i18n').t('hour') || 'Hour') : (Alpine.store('i18n').t('hours') || 'Hours')}`;
+            } else {
+                const days = Math.floor(time / 24);
+                return `${days} ${days === 1 ? (Alpine.store('i18n').t('day') || 'Day') : (Alpine.store('i18n').t('days') || 'Days')}`;
+            }
+        },
+
+        formatDiscountInfo(discountInfo) {
+            if (!discountInfo || !discountInfo.has_discount) {
+                return '';
+            }
+
+            const discountAmount = discountInfo.discount_amount || 0;
+            const discountType = discountInfo.discount_type || 'fixed';
+            const originalPrice = discountInfo.original_price || 0;
+            const finalPrice = discountInfo.final_price || 0;
+            
+            const discountText = discountType === 'percentage' 
+                ? `${discountAmount}%`
+                : `${discountAmount} ${Alpine.store('i18n').t('currency') || 'AED'}`;
+
+            return `
+                <div class="mt-4 p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h4 class="text-lg font-bold text-green-900 dark:text-green-100">${Alpine.store('i18n').t('discount_info') || 'Discount Information'}</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">${Alpine.store('i18n').t('original_price') || 'Original Price'}</p>
+                            <p class="text-base font-semibold text-gray-900 dark:text-white">${parseFloat(originalPrice).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'AED'}</p>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">${Alpine.store('i18n').t('discount') || 'Discount'}</p>
+                            <p class="text-base font-semibold text-green-600 dark:text-green-400">-${discountText}</p>
+                        </div>
+                        <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border-2 border-green-300 dark:border-green-700">
+                            <p class="text-xs font-medium text-green-700 dark:text-green-300 uppercase mb-1">${Alpine.store('i18n').t('final_price') || 'Final Price'}</p>
+                            <p class="text-xl font-bold text-green-900 dark:text-green-100">${parseFloat(finalPrice).toFixed(2)} ${Alpine.store('i18n').t('currency') || 'AED'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        formatAnswerTimeInfo(timeAnswer) {
+            if (!timeAnswer && timeAnswer !== 0) {
+                return '';
+            }
+
+            const time = parseFloat(timeAnswer);
+            if (isNaN(time)) {
+                return '';
+            }
+
+            let timeText = '';
+            if (time === 0) {
+                timeText = Alpine.store('i18n').t('no_limit') || 'No Limit';
+            } else if (time < 24) {
+                timeText = `${time} ${time === 1 ? (Alpine.store('i18n').t('hour') || 'Hour') : (Alpine.store('i18n').t('hours') || 'Hours')}`;
+            } else {
+                const days = Math.floor(time / 24);
+                timeText = `${days} ${days === 1 ? (Alpine.store('i18n').t('day') || 'Day') : (Alpine.store('i18n').t('days') || 'Days')}`;
+            }
+
+            return `
+                <div class="mt-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h4 class="text-lg font-bold text-blue-900 dark:text-blue-100">${Alpine.store('i18n').t('answer_time') || 'Answer Time'}</h4>
+                    </div>
+                    <div class="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                        <p class="text-base font-semibold text-blue-900 dark:text-blue-100">${timeText}</p>
+                    </div>
+                </div>
+            `;
+        },
+
         getActionButtons(carId) {
             return `
                 <div class="flex items-center gap-1">
@@ -669,6 +780,10 @@
                                     </span>
                                 </div>
                             </div>
+                            
+                            ${this.formatDiscountInfo(car.discount_info)}
+                            
+                            ${this.formatAnswerTimeInfo(car.time_answer)}
                         </div>
                     </div>
                 ` : '';
@@ -1059,9 +1174,15 @@
                                                 <p class="text-sm font-normal text-black dark:text-white">${car.max_day_trip || 'N/A'} ${Alpine.store('i18n').t('days')}</p>
                                             </div>
                                         </div>
-                                        <div class="p-4 bg-white dark:bg-gray-800 rounded-xl">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">${Alpine.store('i18n').t('advanced_notice')}</p>
-                                            <p class="text-sm font-normal text-black dark:text-white">${car.advanced_notice || 'N/A'}</p>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="p-4 bg-white dark:bg-gray-800 rounded-xl">
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">${Alpine.store('i18n').t('advanced_notice')}</p>
+                                                <p class="text-sm font-normal text-black dark:text-white">${car.advanced_notice || 'N/A'}</p>
+                                            </div>
+                                            <div class="p-4 bg-white dark:bg-gray-800 rounded-xl">
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">${Alpine.store('i18n').t('answer_time') || 'Answer Time'}</p>
+                                                <p class="text-sm font-normal text-black dark:text-white">${this.formatAnswerTimeForDetails(car.time_answer)}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

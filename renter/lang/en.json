@@ -1319,5 +1319,8 @@
     "enter_point_title": "Enter point title",
     "enter_title": "Enter title",
     "enter_content": "Enter content",
-    "enter_order": "Enter order"
+    "enter_order": "Enter order",
+    "answer_time": "Answer Time",
+    "no_limit": "No Limit",
+    "hour": "Hour"
 }
