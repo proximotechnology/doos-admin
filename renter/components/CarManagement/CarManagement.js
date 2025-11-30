@@ -782,8 +782,6 @@
                             </div>
                             
                             ${this.formatDiscountInfo(car.discount_info)}
-                            
-                            ${this.formatAnswerTimeInfo(car.time_answer)}
                         </div>
                     </div>
                 ` : '';
