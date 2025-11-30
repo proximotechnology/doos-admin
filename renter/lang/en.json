@@ -1301,7 +1301,7 @@
     "update_privacy_policy_description": "Update privacy policy information",
     "privacy_policy_list": "Privacy Policy List",
     "manage_all_privacy_policy": "Manage all privacy policy",
-    "no_privacy_policy": "No Privacy Policy",
+    "no_privacy_policy": "No Privacy Policy", 
     "no_privacy_policy_description": "No privacy policy found. Start by adding a new entry.",
     "privacy_policy_created_success": "Privacy Policy created successfully",
     "privacy_policy_updated_success": "Privacy Policy updated successfully",
