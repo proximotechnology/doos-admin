@@ -262,6 +262,42 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
                 
+                // Load current user ID first
+                this.loadCurrentUserAndInitNotificationsPusher();
+                
+            } catch (error) {
+                // Error initializing notifications Pusher
+            }
+        },
+
+        async loadCurrentUserAndInitNotificationsPusher() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/api/chat/my-online-status`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'success' && data.user_id) {
+                        this.initNotificationsPusher(data.user_id);
+                    }
+                }
+            } catch (error) {
+                // Error loading current user
+            }
+        },
+
+        initNotificationsPusher(userId) {
+            try {
                 // Wait a bit to ensure Pusher is fully loaded
                 setTimeout(() => {
                     try {
@@ -271,43 +307,79 @@ document.addEventListener('alpine:init', () => {
                                 cluster: API_CONFIG.PUSHER.CLUSTER,
                                 encrypted: true,
                                 enabledTransports: ['ws', 'wss'],
-                                forceTLS: true
+                                forceTLS: true,
+                                authEndpoint: `${this.apiBaseUrl}/pusher/auth`,
+                                auth: {
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                                        'Accept': 'application/json'
+                                    }
+                                }
                             });
                         }
+                        
+                        const channelName = `notification-private-channel-${userId}`;
                         
                         // Unsubscribe from previous channel if exists
                         if (this.notificationChannel) {
                             try {
-                                this.pusher.unsubscribe('active-car-channel');
+                                this.pusher.unsubscribe(this.notificationChannel.name);
                             } catch (e) {
                                 // Ignore unsubscribe errors
                             }
                         }
                         
-                        // Subscribe to active-car-channel
-                        this.notificationChannel = this.pusher.subscribe('active-car-channel');
+                        // Subscribe to notification-private-channel-{userId}
+                        this.notificationChannel = this.pusher.subscribe(channelName);
                         
                         // Wait for subscription to be ready
                         this.notificationChannel.bind('pusher:subscription_succeeded', () => {
-                            // Channel subscribed successfully - ready to receive notifications
+                            console.log(`✅ Successfully subscribed to ${channelName}`);
+                        });
+
+                        this.notificationChannel.bind('pusher:subscription_error', (error) => {
+                            // Subscription error
                         });
                         
-                        // Bind to ActiveCarEvent
-                        this.notificationChannel.bind('ActiveCarEvent', (data) => {
+                        // Bind to Private_notify event
+                        this.notificationChannel.bind('Private_notify', (data) => {
+                            console.log('🔔 Real-time Notification Received:', data);
                             this.handleNotification(data);
                         });
                         
-                        // Handle connection state changes
-                        this.pusher.connection.bind('connected', () => {
-                            // Connected successfully
+                        // Also try binding to other possible event names
+                        this.notificationChannel.bind('notification', (data) => {
+                            console.log('🔔 Real-time Notification Received:', data);
+                            this.handleNotification(data);
                         });
                         
-                        this.pusher.connection.bind('disconnected', () => {
-                            // Disconnected - will auto-reconnect
+                        // Try all possible event names
+                        const possibleEventNames = [
+                            'Notification',
+                            'notify',
+                            'Notify',
+                            'message',
+                            'Message',
+                            'event',
+                            'Event'
+                        ];
+                        
+                        possibleEventNames.forEach(eventName => {
+                            this.notificationChannel.bind(eventName, (data) => {
+                                console.log('🔔 Real-time Notification Received:', data);
+                                this.handleNotification(data);
+                            });
                         });
                         
-                        this.pusher.connection.bind('error', (err) => {
-                            // Connection error
+                        // Log all events on the channel for debugging
+                        this.notificationChannel.bind_global((eventName, data) => {
+                            // If it's a notification event, handle it
+                            if (eventName.toLowerCase().includes('notif') || 
+                                eventName.toLowerCase().includes('notify') ||
+                                eventName.toLowerCase().includes('message')) {
+                                console.log('🔔 Real-time Notification Received:', data);
+                                this.handleNotification(data);
+                            }
                         });
                         
                     } catch (error) {
@@ -316,7 +388,7 @@ document.addEventListener('alpine:init', () => {
                 }, 500);
                 
             } catch (error) {
-                // Error initializing notifications Pusher
+                // Error in initNotificationsPusher
             }
         },
         
@@ -387,6 +459,14 @@ document.addEventListener('alpine:init', () => {
         
         handleNotification(data) {
             try {
+                console.log('📨 Processing Notification:', {
+                    rawData: data,
+                    timestamp: new Date().toISOString(),
+                    hasTitle: !!data.title,
+                    hasMessage: !!data.message,
+                    hasData: !!data.data
+                });
+                
                 // Add notification to array
                 const notification = {
                     id: Date.now() + Math.random(), // Ensure unique ID
@@ -397,6 +477,8 @@ document.addEventListener('alpine:init', () => {
                     isRead: false,
                     data: data
                 };
+                
+                console.log('✅ Notification Created:', notification);
                 
                 // Add to local array
                 this.notifications.unshift(notification);

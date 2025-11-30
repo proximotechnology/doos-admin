@@ -316,29 +316,47 @@
         },
 
         async sendMessage() {
-            if (this.textMessage.trim() && this.selectedUser) {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    return;
+            // Get the message value directly from the input
+            const messageInput = document.querySelector('[x-model="textMessage"]');
+            const messageText = messageInput ? messageInput.value.trim() : (this.textMessage || '').trim();
+            
+            if (!messageText || messageText.length === 0) {
+                this.showToast(this.t('please_enter_message') || 'Please enter a message', 'warning');
+                return;
+            }
+            
+            if (!this.selectedUser || !this.selectedUser.userId) {
+                this.showToast(this.t('please_select_user') || 'Please select a user', 'warning');
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                this.showToast(this.t('auth_token_missing') || 'Authentication required', 'error');
+                return;
+            }
+
+            try {
+                // Store message before clearing
+                const messageToSend = messageText;
+                
+                // Clear the input field immediately
+                this.textMessage = '';
+                if (messageInput) {
+                    messageInput.value = '';
                 }
+                
+                // Add message locally
+                this.addMessageLocally(messageToSend);
 
-                const url = `${this.apiBaseUrl}/api/chat/SendTo/${this.selectedUser.userId}`;
+                // Send message to API
+                await ApiService.sendChatMessage(this.selectedUser.userId, messageToSend);
+                await this.updateLastSeen();
 
-                const messageData = {
-                    message: this.textMessage.trim()
-                };
-
-                try {
-                    this.addMessageLocally(this.textMessage.trim());
-
-                    await ApiService.sendChatMessage(this.selectedUser.userId, this.textMessage.trim());
-                    await this.updateLastSeen();
-
-                    this.showToast(this.t('message_sent'), 'success');
-                } catch (error) {
-                    this.markMessageAsFailed();
-                    this.showToast(this.t('message_failed'), 'error');
-                }
+                this.showToast(this.t('message_sent') || 'Message sent', 'success');
+            } catch (error) {
+                this.markMessageAsFailed();
+                this.showToast(this.t('message_failed') || 'Failed to send message', 'error');
             }
         },
 
