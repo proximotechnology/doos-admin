@@ -257,6 +257,7 @@ document.addEventListener('alpine:init', () => {
         number_license: '',
         description_condition: '',
         advanced_notice: '',
+        time_answer: '',
         min_day_trip: '',
         max_day_trip: '',
         
@@ -500,6 +501,7 @@ document.addEventListener('alpine:init', () => {
                 formData.append('number_license', this.number_license);
                 if (this.description_condition) formData.append('description_condition', this.description_condition);
                 if (this.advanced_notice) formData.append('advanced_notice', this.advanced_notice);
+                if (this.time_answer) formData.append('time_answer', this.time_answer);
                 formData.append('min_day_trip', this.min_day_trip);
                 formData.append('max_day_trip', this.max_day_trip);
 

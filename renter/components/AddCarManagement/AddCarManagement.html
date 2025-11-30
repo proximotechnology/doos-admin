@@ -427,6 +427,29 @@
                                     ></textarea>
                                     <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('advanced_notice_max_10_characters') || 'Maximum 10 characters allowed'"></p>
                                 </div>
+
+                                <!-- Answer Time -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('answer_time') || 'Answer Time'"></span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        :placeholder="$store.i18n.t('enter_answer_time') || 'Enter Answer Time (hours, 0 for no limit)'"
+                                        class="form-input"
+                                        x-model="time_answer"
+                                        min="0"
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('answer_time_hint') || 'Enter time in hours (0 means no limit)'"></p>
+                                </div>
                             </div>
                         </div>
                     </div>

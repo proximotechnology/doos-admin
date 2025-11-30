@@ -1322,5 +1322,7 @@
     "enter_order": "Enter order",
     "answer_time": "Answer Time",
     "no_limit": "No Limit",
-    "hour": "Hour"
+    "hour": "Hour",
+    "enter_answer_time": "Enter Answer Time (hours, 0 for no limit)",
+    "answer_time_hint": "Enter time in hours (0 means no limit)"
 }
