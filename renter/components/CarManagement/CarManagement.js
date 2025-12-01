@@ -132,10 +132,29 @@
 
             loadGoogleMapsAPI(() => { });
 
+            // Check if car ID is in URL and show details
+            const urlParams = new URLSearchParams(window.location.search);
+            const carIdFromUrl = urlParams.get('carId') || urlParams.get('id');
+            if (carIdFromUrl) {
+                // Wait for data to load
+                await this.fetchCars(this.currentPage);
+                setTimeout(() => {
+                    this.showCarDetails(parseInt(carIdFromUrl));
+                }, 500);
+            }
+
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.view-car-btn')) {
                     const carId = e.target.closest('.view-car-btn').dataset.id;
                     this.showCarDetails(carId);
+                }
+                // Handle image click for full view
+                if (e.target.closest('.car-image-thumbnail')) {
+                    const imgElement = e.target.closest('.car-image-thumbnail');
+                    const imageUrl = imgElement.dataset.imageUrl;
+                    const imageIndex = parseInt(imgElement.dataset.imageIndex);
+                    const allImages = JSON.parse(imgElement.dataset.allImages || '[]');
+                    this.showFullImageModal(imageUrl, imageIndex, allImages);
                 }
                 if (e.target.closest('.edit-features-btn')) {
                     const carId = e.target.closest('.edit-features-btn').dataset.id;
@@ -700,6 +719,125 @@
             coloredToast('danger', errorMessage);
         },
 
+        showFullImageModal(imageUrl, currentIndex, allImages) {
+            // Create or get full image modal
+            let fullImageModal = document.getElementById('fullImageModal');
+            if (!fullImageModal) {
+                fullImageModal = document.createElement('div');
+                fullImageModal.id = 'fullImageModal';
+                fullImageModal.className = 'fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/90 px-4 overflow-y-auto';
+                fullImageModal.innerHTML = `
+                    <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-800 rounded-2xl border-2 border-primary/20 shadow-2xl overflow-hidden my-auto">
+                        <!-- Header with Close Button -->
+                        <div class="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:via-primary/10">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('car_image') || 'Car Image'}</h3>
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:bg-red-600 hover:scale-110 z-50" onclick="document.getElementById('fullImageModal').classList.add('hidden')" title="${Alpine.store('i18n').t('close') || 'Close'}">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        ${allImages.length > 1 ? `
+                            <button id="prevImageBtn" class="absolute left-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('previous') || 'Previous'}">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button id="nextImageBtn" class="absolute right-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('next') || 'Next'}">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                        <!-- Image Container - Scrollable and Centered -->
+                        <div class="flex-1 flex items-center justify-center overflow-auto p-4 min-h-0">
+                            <img id="fullImageDisplay" src="${imageUrl}" alt="Car Image" class="max-w-full max-h-full object-contain rounded-lg">
+                        </div>
+                        ${allImages.length > 1 ? `
+                            <!-- Footer with Thumbnails -->
+                            <div class="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
+                                <div class="flex justify-center gap-2 overflow-x-auto mb-2 pb-2">
+                                    ${allImages.map((img, idx) => `
+                                        <img src="${img}" 
+                                             alt="Thumbnail ${idx + 1}" 
+                                             class="thumbnail-image h-16 w-16 flex-shrink-0 object-cover rounded-lg border-2 cursor-pointer transition-all ${idx === currentIndex ? 'border-primary scale-110 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50'}"
+                                             data-index="${idx}"
+                                             onclick="window.currentImageIndex = ${idx}; document.getElementById('fullImageDisplay').src = '${img}'; document.querySelectorAll('.thumbnail-image').forEach((t, i) => { t.classList.toggle('border-primary', i === ${idx}); t.classList.toggle('scale-110', i === ${idx}); t.classList.toggle('shadow-lg', i === ${idx}); t.classList.toggle('border-gray-300', i !== ${idx}); t.classList.toggle('dark:border-gray-600', i !== ${idx}); });">
+                                    `).join('')}
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${currentIndex + 1} / ${allImages.length}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.body.appendChild(fullImageModal);
+                
+                // Add navigation handlers
+                if (allImages.length > 1) {
+                    window.currentImageIndex = currentIndex;
+                    const prevBtn = document.getElementById('prevImageBtn');
+                    const nextBtn = document.getElementById('nextImageBtn');
+                    
+                    prevBtn.addEventListener('click', () => {
+                        window.currentImageIndex = (window.currentImageIndex - 1 + allImages.length) % allImages.length;
+                        document.getElementById('fullImageDisplay').src = allImages[window.currentImageIndex];
+                        document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
+                            t.classList.toggle('border-primary', i === window.currentImageIndex);
+                            t.classList.toggle('scale-110', i === window.currentImageIndex);
+                            t.classList.toggle('shadow-lg', i === window.currentImageIndex);
+                            t.classList.toggle('border-gray-300', i !== window.currentImageIndex);
+                            t.classList.toggle('dark:border-gray-600', i !== window.currentImageIndex);
+                        });
+                    });
+                    
+                    nextBtn.addEventListener('click', () => {
+                        window.currentImageIndex = (window.currentImageIndex + 1) % allImages.length;
+                        document.getElementById('fullImageDisplay').src = allImages[window.currentImageIndex];
+                        document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
+                            t.classList.toggle('border-primary', i === window.currentImageIndex);
+                            t.classList.toggle('scale-110', i === window.currentImageIndex);
+                            t.classList.toggle('shadow-lg', i === window.currentImageIndex);
+                            t.classList.toggle('border-gray-300', i !== window.currentImageIndex);
+                            t.classList.toggle('dark:border-gray-600', i !== window.currentImageIndex);
+                        });
+                    });
+                    
+                    // Keyboard navigation
+                    const handleKeyPress = (e) => {
+                        if (fullImageModal.classList.contains('hidden')) return;
+                        if (e.key === 'ArrowLeft') prevBtn.click();
+                        if (e.key === 'ArrowRight') nextBtn.click();
+                        if (e.key === 'Escape') fullImageModal.classList.add('hidden');
+                    };
+                    document.addEventListener('keydown', handleKeyPress);
+                }
+                
+                // Close on background click
+                fullImageModal.addEventListener('click', (e) => {
+                    if (e.target === fullImageModal) {
+                        fullImageModal.classList.add('hidden');
+                    }
+                });
+            } else {
+                // Update existing modal
+                document.getElementById('fullImageDisplay').src = imageUrl;
+                if (allImages.length > 1) {
+                    window.currentImageIndex = currentIndex;
+                    document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
+                        t.classList.toggle('border-primary', i === currentIndex);
+                        t.classList.toggle('scale-110', i === currentIndex);
+                        t.classList.toggle('shadow-lg', i === currentIndex);
+                        t.classList.toggle('border-gray-300', i !== currentIndex);
+                        t.classList.toggle('dark:border-gray-600', i !== currentIndex);
+                    });
+                }
+            }
+            
+            fullImageModal.classList.remove('hidden');
+        },
+
         async showCarDetails(carId) {
             try {
                 loadingIndicator.show();
@@ -725,13 +863,16 @@
                             </div>
                             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                 ${car.car_image.map((img, index) => `
-                                    <div class="group relative overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300 hover:border-primary hover:shadow-xl hover:scale-105" onclick="this.querySelector('img').classList.toggle('scale-150'); setTimeout(() => this.querySelector('img').classList.toggle('scale-150'), 300);">
+                                    <div class="car-image-thumbnail group relative overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300 hover:border-primary hover:shadow-xl hover:scale-105" 
+                                         data-image-url="${img.image}" 
+                                         data-image-index="${index}" 
+                                         data-all-images='${JSON.stringify(car.car_image.map(i => i.image))}'>
                                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 z-10"></div>
                                         <img src="${img.image}" alt="Car Image ${index + 1}" 
                                              class="h-40 w-full object-cover transition-transform duration-500"
                                              loading="lazy">
                                         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <p class="text-white text-xs font-medium">${Alpine.store('i18n').t('image')} ${index + 1}</p>
+                                            <p class="text-white text-xs font-medium">${Alpine.store('i18n').t('image')} ${index + 1} - ${Alpine.store('i18n').t('click_to_view_full') || 'Click to view full size'}</p>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -992,11 +1133,16 @@
                 const heroSection = mainImage ? `
                     <div class="relative mb-4 overflow-hidden rounded-xl border border-primary/20 shadow-md">
                         <div class="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent z-10"></div>
-                        <img src="${mainImage}" alt="${car.make || 'Car'}" class="h-32 w-full object-cover">
+                        <img src="${mainImage}" 
+                             alt="${car.make || 'Car'}" 
+                             class="car-image-thumbnail h-32 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" 
+                             data-image-url="${mainImage}" 
+                             data-image-index="0" 
+                             data-all-images='${JSON.stringify(car.car_image && car.car_image.length > 0 ? car.car_image.map(i => i.image) : [mainImage])}'>
                         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 z-20">
                             <div class="flex items-center justify-between flex-wrap gap-2">
                                 <div>
-                                    <h2 class="text-lg font-bold text-white mb-0.5">${car.make || 'N/A'} ${car.model ? car.model.name : ''} ${car.years?.year || ''}</h2>
+                                    <h2 class="text-lg font-bold text-white mb-0.5">${car.make || car.brand?.name || 'N/A'} ${car.model ? car.model.name : ''} ${car.years?.year || ''}</h2>
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="badge ${car.status === 'active' ? 'bg-success' : car.status === 'rejected' ? 'bg-danger' : 'bg-warning'} text-white px-2 py-0.5 text-xs font-semibold">${Alpine.store('i18n').t(car.status)}</span>
                                         <span class="text-white/90 text-sm font-semibold">${this.formatPrice(car.price)} <span class="text-xs">/${Alpine.store('i18n').t('day')}</span></span>
@@ -1297,12 +1443,50 @@
                 carDetailsContent.innerHTML = detailsHtml;
                 carDetailsModal.classList.remove('hidden');
                 
+                // Update URL with car ID
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('carId', carId);
+                window.history.pushState({ carId: carId }, '', currentUrl.toString());
+                
+                // Function to close modal and remove ID from URL
+                const closeModalAndUpdateUrl = () => {
+                    carDetailsModal.classList.add('hidden');
+                    // Remove car ID from URL when closing
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('carId');
+                    window.history.pushState({}, '', url.toString());
+                };
+                
                 // Add click outside to close
-                carDetailsModal.addEventListener('click', function(e) {
+                const closeModalHandler = (e) => {
                     if (e.target === carDetailsModal) {
+                        closeModalAndUpdateUrl();
+                        carDetailsModal.removeEventListener('click', closeModalHandler);
+                    }
+                };
+                carDetailsModal.addEventListener('click', closeModalHandler);
+                
+                // Handle close button click
+                const closeButton = carDetailsModal.querySelector('.close-modal-btn');
+                if (closeButton) {
+                    // Remove existing onclick and add event listener
+                    closeButton.removeAttribute('onclick');
+                    closeButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        closeModalAndUpdateUrl();
+                    });
+                }
+                
+                // Handle browser back button
+                const popstateHandler = (e) => {
+                    if (!window.location.search.includes('carId')) {
                         carDetailsModal.classList.add('hidden');
                     }
-                });
+                };
+                window.addEventListener('popstate', popstateHandler);
+                
+                // Store handler for cleanup if needed
+                carDetailsModal._popstateHandler = popstateHandler;
 
                 if (!isNaN(lat) && !isNaN(lng)) {
                     loadGoogleMapsAPI(() => {

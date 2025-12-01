@@ -1335,5 +1335,10 @@
     "avg_rating": "Average Rating",
     "brand_country": "Brand Country",
     "make_id": "Make ID",
-    "model_image": "Model Image"
+    "model_image": "Model Image",
+    "click_to_view_full": "Click to view full size",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "car_image": "Car Image"
 }
