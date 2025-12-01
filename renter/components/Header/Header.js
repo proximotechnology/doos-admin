@@ -1053,10 +1053,12 @@ function checkScrollButtons() {
 // Initialize scroll buttons on page load and resize
 function initHorizontalMenuScroll() {
     const menu = document.getElementById('horizontalMenuList');
+    const leftContainer = document.getElementById('scrollLeftContainer');
+    const rightContainer = document.getElementById('scrollRightContainer');
     const leftBtn = document.getElementById('scrollLeftBtn');
     const rightBtn = document.getElementById('scrollRightBtn');
     
-    if (!menu || !leftBtn || !rightBtn) {
+    if (!menu || !leftContainer || !rightContainer || !leftBtn || !rightBtn) {
         setTimeout(initHorizontalMenuScroll, 200);
         return;
     }
