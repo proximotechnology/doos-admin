@@ -1243,5 +1243,16 @@
     "no_limit": "بدون حد",
     "hour": "ساعة",
     "enter_answer_time": "أدخل وقت الإجابة (بالساعات، 0 يعني بدون حد)",
-    "answer_time_hint": "أدخل الوقت بالساعات (0 يعني بدون حد)"
+    "answer_time_hint": "أدخل الوقت بالساعات (0 يعني بدون حد)",
+    "update_car": "تعديل سيارة",
+    "updating": "جاري التحديث...",
+    "car_updated_success": "تم تحديث السيارة بنجاح",
+    "failed_to_update_car": "فشل تحديث السيارة",
+    "car_id_required": "معرف السيارة مطلوب",
+    "car_not_found": "السيارة غير موجودة",
+    "failed_to_load_car_details": "فشل تحميل تفاصيل السيارة",
+    "avg_rating": "التقييم المتوسط",
+    "brand_country": "بلد العلامة التجارية",
+    "make_id": "معرف الصنع",
+    "model_image": "صورة الموديل"
 }

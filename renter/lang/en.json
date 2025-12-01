@@ -1324,5 +1324,16 @@
     "no_limit": "No Limit",
     "hour": "Hour",
     "enter_answer_time": "Enter Answer Time (hours, 0 for no limit)",
-    "answer_time_hint": "Enter time in hours (0 means no limit)"
+    "answer_time_hint": "Enter time in hours (0 means no limit)",
+    "update_car": "Update Car",
+    "updating": "Updating...",
+    "car_updated_success": "Car updated successfully",
+    "failed_to_update_car": "Failed to update car",
+    "car_id_required": "Car ID is required",
+    "car_not_found": "Car not found",
+    "failed_to_load_car_details": "Failed to load car details",
+    "avg_rating": "Average Rating",
+    "brand_country": "Brand Country",
+    "make_id": "Make ID",
+    "model_image": "Model Image"
 }

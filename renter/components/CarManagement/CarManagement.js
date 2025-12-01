@@ -585,6 +585,9 @@
                     <button class="btn view-car-btn btn-primary btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('view_details')}
                     </button>
+                    <a href="UpdateCar.html?id=${carId}" class="btn btn-success btn-sm rounded-md px-3 py-1">
+                        ${Alpine.store('i18n').t('update_car') || 'Update Car'}
+                    </a>
                     <button class="btn edit-features-btn btn-warning btn-sm rounded-md px-3 py-1" data-id="${carId}">
                         ${Alpine.store('i18n').t('edit_features')}
                     </button>
@@ -1009,7 +1012,7 @@
                         ${heroSection}
                         
                         <!-- Quick Stats -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                             <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
                                 <div class="flex items-center gap-1.5 mb-1">
                                     <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1017,7 +1020,7 @@
                                     </svg>
                                     <span class="text-xs font-medium text-gray-500">${Alpine.store('i18n').t('make')}</span>
                                 </div>
-                                <p class="text-sm font-normal text-black dark:text-white">${car.make || 'N/A'}</p>
+                                <p class="text-sm font-normal text-black dark:text-white">${car.make || car.brand?.name || 'N/A'}</p>
                             </div>
                             <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
                                 <div class="flex items-center gap-1.5 mb-1">
@@ -1046,6 +1049,28 @@
                                 </div>
                                 <p class="text-sm font-normal text-black dark:text-white">${this.formatPrice(car.price)}</p>
                             </div>
+                            ${car.available_fuel !== undefined && car.available_fuel !== null ? `
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                    </svg>
+                                    <span class="text-xs font-medium text-gray-500">${Alpine.store('i18n').t('available_fuel') || 'Available Fuel'}</span>
+                                </div>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(car.available_fuel).toFixed(2)}</p>
+                            </div>
+                            ` : ''}
+                            ${car.avg_rating !== undefined && car.avg_rating !== null ? `
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                    <span class="text-xs font-medium text-gray-500">${Alpine.store('i18n').t('avg_rating') || 'Rating'}</span>
+                                </div>
+                                <p class="text-sm font-normal text-black dark:text-white">${parseFloat(car.avg_rating).toFixed(1)} ⭐</p>
+                            </div>
+                            ` : ''}
                         </div>
 
                         <!-- Main Content Grid -->
@@ -1065,12 +1090,39 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div class="space-y-1">
                                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('make')}</p>
-                                            <p class="text-sm font-normal text-black dark:text-white">${car.make || 'N/A'}</p>
+                                            <p class="text-sm font-normal text-black dark:text-white">${car.make || car.brand?.name || 'N/A'}</p>
                                         </div>
                                         <div class="space-y-1">
                                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('model')}</p>
-                                            <p class="text-sm font-normal text-black dark:text-white">${car.model ? car.model.name : 'N/A'}</p>
+                                            <p class="text-sm font-normal text-black dark:text-white">${car.model?.name || 'N/A'}</p>
                                         </div>
+                                        ${car.brand ? `
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('brand')}</p>
+                                            <div class="flex items-center gap-2">
+                                                ${car.brand.image ? `<img src="${car.brand.image}" alt="${car.brand.name || 'Brand'}" class="h-6 w-6 object-contain rounded" />` : ''}
+                                                <p class="text-sm font-normal text-black dark:text-white">${car.brand.name || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                        ` : ''}
+                                        ${car.brand?.country ? `
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('brand_country') || 'Brand Country'}</p>
+                                            <p class="text-sm font-normal text-black dark:text-white">${car.brand.country}</p>
+                                        </div>
+                                        ` : ''}
+                                        ${car.brand?.make_id ? `
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('make_id') || 'Make ID'}</p>
+                                            <p class="text-sm font-normal text-black dark:text-white font-mono">${car.brand.make_id}</p>
+                                        </div>
+                                        ` : ''}
+                                        ${car.model?.image ? `
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('model_image') || 'Model Image'}</p>
+                                            <img src="${car.model.image}" alt="${car.model.name || 'Model'}" class="h-16 w-auto object-contain rounded border border-gray-200 dark:border-gray-700" />
+                                        </div>
+                                        ` : ''}
                                         <div class="space-y-1">
                                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">${Alpine.store('i18n').t('year')}</p>
                                             <p class="text-sm font-normal text-black dark:text-white">${car.years?.year || 'N/A'}</p>

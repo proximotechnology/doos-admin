@@ -280,6 +280,20 @@
             return this.post('/api/admin/cars/storeCar', formData, true);
         }
 
+        /**
+         * Get car details by ID
+         */
+        async getCarDetails(carId) {
+            return this.get(`/api/admin/cars/show/${carId}`);
+        }
+
+        /**
+         * Update car
+         */
+        async updateCar(carId, formData) {
+            return this.post(`/api/admin/cars/updateCar/${carId}`, formData, true);
+        }
+
         // ==================== Brand Management APIs ====================
 
         /**
