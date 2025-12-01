@@ -10,26 +10,26 @@ window.API_CONFIG = {
     ENDPOINTS: {
         LOGIN: window.ENV?.API_ENDPOINT_LOGIN || '/api/login',
     },
-    
+
     DEFAULT_HEADERS: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    
+
     // Pusher Configuration
     PUSHER: {
-        APP_KEY: window.ENV?.PUSHER_APP_KEY || '0c6840048793ecd5b54f',
+        APP_KEY: window.ENV?.PUSHER_APP_KEY || '300f5928f422763f16ed',
         CLUSTER: window.ENV?.PUSHER_CLUSTER || 'mt1',
         CHANNEL_PREFIX: window.ENV?.PUSHER_CHANNEL_PREFIX || 'chat-private-channel',
     },
-    
+
     // Google Maps
     GOOGLE_MAPS_API_KEY: window.ENV?.GOOGLE_MAPS_API_KEY || 'AIzaSyC5eqWELYeuHhL0gLu4BVHjbksnLlKA2uI',
-    
+
     // Site Configuration
     SITE_URL: window.ENV?.SITE_URL || 'https://admin.doosdoostest.com',
     SITE_NAME: window.ENV?.SITE_NAME || 'Doos Admin Dashboard',
-    
+
     // Environment
     ENV: window.ENV?.ENV || 'production',
     DEBUG: window.ENV?.DEBUG || false,

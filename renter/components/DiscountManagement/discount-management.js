@@ -31,18 +31,26 @@ document.addEventListener('alpine:init', () => {
     };
 
     function coloredToast(color, message) {
-        const icon = color === 'success' ? 'success' : 'error';
-        Swal.fire({
+        const iconMap = {
+            'success': 'success',
+            'warning': 'warning',
+            'danger': 'error',
+            'error': 'error',
+            'info': 'info'
+        };
+        
+        const toast = Swal.mixin({
             toast: true,
             position: 'bottom-start',
-            icon: icon,
-            title: message,
             showConfirmButton: false,
             timer: 3000,
-            customClass: {
-                popup: `color-${color}`,
-            },
+            showCloseButton: true,
+            icon: iconMap[color] || 'info',
+            customClass: { 
+                popup: `color-${color} swal2-toast`
+            }
         });
+        toast.fire({ title: message });
     }
 
     Alpine.store('discountTable', {
@@ -518,7 +526,9 @@ document.addEventListener('alpine:init', () => {
 
                 const result = await ApiService.addDiscount(payload);
 
-                if (!response.ok) {
+                // Check for errors - handle different response structures
+                // Only throw error if status is explicitly false or error field exists
+                if (result && (result.status === false || result.success === false)) {
                     const errorMsg =
                         result.message ||
                         Object.values(result.errors || {})
@@ -527,7 +537,13 @@ document.addEventListener('alpine:init', () => {
                         Alpine.store('i18n').t('error_create_discount');
                     throw new Error(errorMsg);
                 }
+                
+                // If no status field, check for errors in response
+                if (result && result.error && !result.status) {
+                    throw new Error(result.message || result.error || Alpine.store('i18n').t('error_create_discount'));
+                }
 
+                // Reset form
                 this.title = '';
                 this.type = '';
                 this.value = '';
@@ -536,10 +552,43 @@ document.addEventListener('alpine:init', () => {
                 this.brand_id = '';
                 this.model_id = '';
 
-                coloredToast('success', Alpine.store('i18n').t('add_discount_successful'));
-                const discountTable = Alpine.$data(document.querySelector('[x-data="discountTable"]'));
-                if (discountTable && discountTable.fetchDiscounts) {
-                    await discountTable.fetchDiscounts(1);
+                // Show success notification (green) - MUST be success color
+                coloredToast('success', Alpine.store('i18n').t('add_discount_successful') || 'Discount added successfully');
+                
+                // Refresh the discounts table - ensure it happens with multiple attempts
+                let refreshSuccess = false;
+                try {
+                    // Method 1: Try to get table component directly
+                    const discountTableElement = document.querySelector('[x-data="discountTable"]');
+                    if (discountTableElement) {
+                        const discountTable = Alpine.$data(discountTableElement);
+                        if (discountTable && typeof discountTable.fetchDiscounts === 'function') {
+                            await discountTable.fetchDiscounts(1);
+                            refreshSuccess = true;
+                        }
+                    }
+                } catch (refreshError) {
+                    // If direct method fails, try with delay
+                }
+                
+                // If refresh failed, try again with delay
+                if (!refreshSuccess) {
+                    setTimeout(async () => {
+                        try {
+                            const discountTableElement = document.querySelector('[x-data="discountTable"]');
+                            if (discountTableElement) {
+                                const discountTable = Alpine.$data(discountTableElement);
+                                if (discountTable && typeof discountTable.fetchDiscounts === 'function') {
+                                    await discountTable.fetchDiscounts(1);
+                                }
+                            }
+                        } catch (error) {
+                            // Final fallback: reload page after 1 second if all else fails
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    }, 300);
                 }
             } catch (error) {
                 coloredToast('danger', error.message);

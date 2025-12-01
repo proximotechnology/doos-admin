@@ -341,45 +341,9 @@ document.addEventListener('alpine:init', () => {
                             // Subscription error
                         });
                         
-                        // Bind to Private_notify event
+                        // Bind to Private_notify event (only this one, to avoid duplicates)
                         this.notificationChannel.bind('Private_notify', (data) => {
-                            console.log('🔔 Real-time Notification Received:', data);
                             this.handleNotification(data);
-                        });
-                        
-                        // Also try binding to other possible event names
-                        this.notificationChannel.bind('notification', (data) => {
-                            console.log('🔔 Real-time Notification Received:', data);
-                            this.handleNotification(data);
-                        });
-                        
-                        // Try all possible event names
-                        const possibleEventNames = [
-                            'Notification',
-                            'notify',
-                            'Notify',
-                            'message',
-                            'Message',
-                            'event',
-                            'Event'
-                        ];
-                        
-                        possibleEventNames.forEach(eventName => {
-                            this.notificationChannel.bind(eventName, (data) => {
-                                console.log('🔔 Real-time Notification Received:', data);
-                                this.handleNotification(data);
-                            });
-                        });
-                        
-                        // Log all events on the channel for debugging
-                        this.notificationChannel.bind_global((eventName, data) => {
-                            // If it's a notification event, handle it
-                            if (eventName.toLowerCase().includes('notif') || 
-                                eventName.toLowerCase().includes('notify') ||
-                                eventName.toLowerCase().includes('message')) {
-                                console.log('🔔 Real-time Notification Received:', data);
-                                this.handleNotification(data);
-                            }
                         });
                         
                     } catch (error) {
@@ -459,31 +423,94 @@ document.addEventListener('alpine:init', () => {
         
         handleNotification(data) {
             try {
-                console.log('📨 Processing Notification:', {
-                    rawData: data,
-                    timestamp: new Date().toISOString(),
-                    hasTitle: !!data.title,
-                    hasMessage: !!data.message,
-                    hasData: !!data.data
-                });
+                // Extract message from different possible structures
+                let messageText = '';
+                let notificationId = null;
+                let createdDate = null;
+                
+                // Handle structure: { message: { message: "...", notification_id: 258, user_id: 4, created_at: "...", ... } }
+                if (data.message && typeof data.message === 'object') {
+                    messageText = data.message.message || data.message.notify || data.message.text || '';
+                    notificationId = data.message.notification_id || data.message.id;
+                    createdDate = data.message.created_at;
+                } 
+                // Handle structure: { message: "text", ... }
+                else if (typeof data.message === 'string') {
+                    messageText = data.message;
+                }
+                // Handle structure: { notify: "...", ... }
+                else if (data.notify) {
+                    messageText = data.notify;
+                }
+                // Handle structure: { data: { message: "...", ... } }
+                else if (data.data && data.data.message) {
+                    messageText = data.data.message;
+                }
+                // Fallback: try to stringify if it's an object
+                else if (typeof data === 'object') {
+                    messageText = data.message?.message || data.notify || 'New notification';
+                }
+                // Final fallback
+                else {
+                    messageText = String(data) || 'New notification';
+                }
+                
+                // If still no message, use a default
+                if (!messageText || messageText.trim() === '') {
+                    messageText = 'New notification';
+                }
+                
+                // Extract notification ID from data if available
+                if (!notificationId) {
+                    notificationId = data.notification_id || data.id || data.message?.notification_id || data.message?.id;
+                }
+                
+                // Parse created date
+                let notificationTime = new Date();
+                if (createdDate) {
+                    notificationTime = new Date(createdDate);
+                } else if (data.created_at) {
+                    notificationTime = new Date(data.created_at);
+                } else if (data.message?.created_at) {
+                    notificationTime = new Date(data.message.created_at);
+                }
+                
+                // Check if notification already exists (to prevent duplicates)
+                // Check in local notifications array
+                const existingInLocal = this.notifications.find(n => 
+                    (notificationId && (n.id === notificationId || n.data?.message?.notification_id === notificationId)) ||
+                    (n.data?.message?.notification_id === data.message?.notification_id && data.message?.notification_id)
+                );
+                
+                // Check in store notifications array
+                let existingInStore = false;
+                if (Alpine.store('notifications')) {
+                    existingInStore = Alpine.store('notifications').notifications.find(n => 
+                        (notificationId && (n.id === notificationId || n.data?.message?.notification_id === notificationId)) ||
+                        (n.data?.message?.notification_id === data.message?.notification_id && data.message?.notification_id)
+                    );
+                }
+                
+                if (existingInLocal || existingInStore) {
+                    // Notification already exists, skip
+                    return;
+                }
                 
                 // Add notification to array
                 const notification = {
-                    id: Date.now() + Math.random(), // Ensure unique ID
+                    id: notificationId || (Date.now() + Math.random()), // Use real ID if available
                     title: data.title || 'New Notification',
-                    message: data.message || data.data?.message || JSON.stringify(data),
+                    message: messageText, // This is now a string, not an object
                     type: data.type || 'info',
-                    time: new Date(),
+                    time: notificationTime,
                     isRead: false,
                     data: data
                 };
                 
-                console.log('✅ Notification Created:', notification);
-                
                 // Add to local array
                 this.notifications.unshift(notification);
                 
-                // Add to store
+                // Add to store (it will check for duplicates internally)
                 if (Alpine.store('notifications')) {
                     Alpine.store('notifications').addNotification(notification);
                 }
@@ -508,10 +535,15 @@ document.addEventListener('alpine:init', () => {
         },
         
         updateUnreadCount() {
-            this.unreadNotificationsCount = this.notifications.filter(n => !n.isRead).length;
-            // Sync with store
+            // Always use store as the single source of truth
             if (Alpine.store('notifications')) {
-                Alpine.store('notifications').unreadCount = this.unreadNotificationsCount;
+                // Update store's unread count first
+                Alpine.store('notifications').updateUnreadCount();
+                // Then sync local count from store
+                this.unreadNotificationsCount = Alpine.store('notifications').unreadCount || 0;
+            } else {
+                // Fallback to local calculation if store not available
+                this.unreadNotificationsCount = this.notifications.filter(n => !n.isRead).length;
             }
         },
         
@@ -928,8 +960,15 @@ document.addEventListener('alpine:init', () => {
         },
         
         addNotification(notification) {
-            // Check if notification already exists
-            const exists = this.notifications.find(n => n.id === notification.id);
+            // Check if notification already exists (by ID or notification_id from data)
+            const notificationId = notification.id;
+            const dataNotificationId = notification.data?.message?.notification_id;
+            
+            const exists = this.notifications.find(n => 
+                n.id === notificationId ||
+                (dataNotificationId && (n.data?.message?.notification_id === dataNotificationId || n.id === dataNotificationId))
+            );
+            
             if (!exists) {
                 this.notifications.unshift(notification);
                 if (this.notifications.length > 50) {

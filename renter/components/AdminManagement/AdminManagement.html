@@ -128,7 +128,19 @@
                                     </svg>
                                     <span x-text="$store.i18n.t('country')"></span>
                                 </label>
-                                <input type="text" :placeholder="$store.i18n.t('country')" class="form-input" x-model="country" required />
+                                <div class="relative">
+                                    <select class="form-select pr-10" x-model="country" required>
+                                        <option value="" disabled x-text="$store.i18n.t('select_country') || 'Select Country'"></option>
+                                        <template x-for="countryItem in countries" :key="countryItem.id">
+                                            <option :value="countryItem.id.toString()" x-text="countryItem.name"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

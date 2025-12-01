@@ -977,10 +977,31 @@
         }
 
         /**
+         * Get countries
+         */
+        async getCountries() {
+            return this.get('/api/admin/admins/countries');
+        }
+
+        /**
+         * Verify email with OTP
+         */
+        async verifyEmail(data) {
+            return this.post('/api/register/verify', data);
+        }
+
+        /**
+         * Resend OTP
+         */
+        async resendOTP(data) {
+            return this.post('/api/register/resend_otp', data);
+        }
+
+        /**
          * Add admin
          */
         async addAdmin(data) {
-            return this.post('/api/admin/admins/store', data);
+            return this.post('/api/admin/admins/create', data);
         }
 
         /**

@@ -44,9 +44,27 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.store('adminsTable', {
         refreshTable: async function () {
-            const tableComponent = Alpine.$data(document.querySelector('[x-data="adminsTable"]'));
-            if (tableComponent && tableComponent.fetchAdmins) {
-                await tableComponent.fetchAdmins();
+            try {
+                const tableElement = document.querySelector('[x-data="adminsTable"]');
+                if (tableElement) {
+                    const tableComponent = Alpine.$data(tableElement);
+                    if (tableComponent && tableComponent.fetchAdmins) {
+                        await tableComponent.fetchAdmins();
+                    }
+                } else {
+                    // Fallback: try to find the component by waiting a bit
+                    setTimeout(async () => {
+                        const tableElement = document.querySelector('[x-data="adminsTable"]');
+                        if (tableElement) {
+                            const tableComponent = Alpine.$data(tableElement);
+                            if (tableComponent && tableComponent.fetchAdmins) {
+                                await tableComponent.fetchAdmins();
+                            }
+                        }
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error refreshing admins table:', error);
             }
         }
     });
@@ -152,6 +170,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('Add_Admin', () => ({
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         roles: [],
+        countries: [],
         role_id: '',
         name: '',
         email: '',
@@ -159,7 +178,7 @@ document.addEventListener('alpine:init', () => {
         country: '',
 
         async init() {
-            await this.fetchRoles();
+            await Promise.all([this.fetchRoles(), this.fetchCountries()]);
         },
 
         async fetchRoles() {
@@ -179,6 +198,26 @@ document.addEventListener('alpine:init', () => {
                 }
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_roles'));
+            }
+        },
+
+        async fetchCountries() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    coloredToast('danger', Alpine.store('i18n').t('auth_token_missing'));
+                    window.location.href = 'auth-boxed-signin.html';
+                    return;
+                }
+
+                const data = await ApiService.getCountries();
+                if (data.status && Array.isArray(data.data)) {
+                    this.countries = data.data;
+                } else {
+                    throw new Error(data.message || Alpine.store('i18n').t('invalid_response_format'));
+                }
+            } catch (error) {
+                coloredToast('danger', error.message || Alpine.store('i18n').t('failed_fetch_countries') || 'Failed to fetch countries');
             }
         },
 
@@ -202,17 +241,57 @@ document.addEventListener('alpine:init', () => {
                     country: this.country
                 });
 
-                if (!result.status) {
+                // Check if the request was successful
+                // API might return status: true or success: true
+                // Only throw error if status is explicitly false
+                if (result && result.status === false) {
                     throw new Error(result.message || Alpine.store('i18n').t('failed_to_add_admin'));
                 }
+                
+                // If no status field, check for errors in response
+                if (result && result.error) {
+                    throw new Error(result.message || result.error || Alpine.store('i18n').t('failed_to_add_admin'));
+                }
 
+                // Clear form fields first
                 this.role_id = '';
                 this.name = '';
                 this.email = '';
                 this.phone = '';
                 this.country = '';
-                coloredToast('success', Alpine.store('i18n').t('admin_added_success'));
-                await Alpine.store('adminsTable').refreshTable();
+                
+                // Show success notification (green) - MUST be success color
+                coloredToast('success', Alpine.store('i18n').t('admin_added_success') || 'Admin added successfully');
+                
+                // Refresh the admins table - ensure it happens with multiple attempts
+                let refreshSuccess = false;
+                try {
+                    await Alpine.store('adminsTable').refreshTable();
+                    refreshSuccess = true;
+                } catch (refreshError) {
+                    // If refresh fails, try direct fetch
+                    try {
+                        const tableElement = document.querySelector('[x-data="adminsTable"]');
+                        if (tableElement) {
+                            const tableComponent = Alpine.$data(tableElement);
+                            if (tableComponent && tableComponent.fetchAdmins) {
+                                await tableComponent.fetchAdmins();
+                                refreshSuccess = true;
+                            }
+                        }
+                    } catch (directError) {
+                        // Last resort: wait a bit and try again
+                        setTimeout(async () => {
+                            const tableElement = document.querySelector('[x-data="adminsTable"]');
+                            if (tableElement) {
+                                const tableComponent = Alpine.$data(tableElement);
+                                if (tableComponent && tableComponent.fetchAdmins) {
+                                    await tableComponent.fetchAdmins();
+                                }
+                            }
+                        }, 500);
+                    }
+                }
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_admin'));
             } finally {
