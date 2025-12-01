@@ -720,70 +720,116 @@
         },
 
         showFullImageModal(imageUrl, currentIndex, allImages) {
-            // Create or get full image modal
+            // Always recreate modal to ensure fresh content
             let fullImageModal = document.getElementById('fullImageModal');
-            if (!fullImageModal) {
-                fullImageModal = document.createElement('div');
-                fullImageModal.id = 'fullImageModal';
-                fullImageModal.className = 'fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/90 px-4 overflow-y-auto';
-                fullImageModal.innerHTML = `
-                    <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-800 rounded-2xl border-2 border-primary/20 shadow-2xl overflow-hidden my-auto">
-                        <!-- Header with Close Button -->
-                        <div class="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:via-primary/10">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('car_image') || 'Car Image'}</h3>
-                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:bg-red-600 hover:scale-110 z-50" onclick="document.getElementById('fullImageModal').classList.add('hidden')" title="${Alpine.store('i18n').t('close') || 'Close'}">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        ${allImages.length > 1 ? `
-                            <button id="prevImageBtn" class="absolute left-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('previous') || 'Previous'}">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <button id="nextImageBtn" class="absolute right-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('next') || 'Next'}">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        ` : ''}
-                        <!-- Image Container - Scrollable and Centered -->
-                        <div class="flex-1 flex items-center justify-center overflow-auto p-4 min-h-0">
-                            <img id="fullImageDisplay" src="${imageUrl}" alt="Car Image" class="max-w-full max-h-full object-contain rounded-lg">
-                        </div>
-                        ${allImages.length > 1 ? `
-                            <!-- Footer with Thumbnails -->
-                            <div class="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
-                                <div class="flex justify-center gap-2 overflow-x-auto mb-2 pb-2">
-                                    ${allImages.map((img, idx) => `
-                                        <img src="${img}" 
-                                             alt="Thumbnail ${idx + 1}" 
-                                             class="thumbnail-image h-16 w-16 flex-shrink-0 object-cover rounded-lg border-2 cursor-pointer transition-all ${idx === currentIndex ? 'border-primary scale-110 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50'}"
-                                             data-index="${idx}"
-                                             onclick="window.currentImageIndex = ${idx}; document.getElementById('fullImageDisplay').src = '${img}'; document.querySelectorAll('.thumbnail-image').forEach((t, i) => { t.classList.toggle('border-primary', i === ${idx}); t.classList.toggle('scale-110', i === ${idx}); t.classList.toggle('shadow-lg', i === ${idx}); t.classList.toggle('border-gray-300', i !== ${idx}); t.classList.toggle('dark:border-gray-600', i !== ${idx}); });">
-                                    `).join('')}
-                                </div>
-                                <div class="text-center">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${currentIndex + 1} / ${allImages.length}</span>
-                                </div>
-                            </div>
-                        ` : ''}
+            if (fullImageModal) {
+                // Remove old modal completely
+                fullImageModal.remove();
+            }
+            
+            // Create new modal with fresh content
+            fullImageModal = document.createElement('div');
+            fullImageModal.id = 'fullImageModal';
+            fullImageModal.className = 'fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/90 px-4 overflow-y-auto';
+            
+            fullImageModal.innerHTML = `
+                <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-800 rounded-2xl border-2 border-primary/20 shadow-2xl overflow-hidden my-auto">
+                    <!-- Header with Close Button -->
+                    <div class="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:via-primary/10">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">${Alpine.store('i18n').t('car_image') || 'Car Image'}</h3>
+                        <button class="close-full-image-btn flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:bg-red-600 hover:scale-110 z-50" title="${Alpine.store('i18n').t('close') || 'Close'}">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
-                `;
-                document.body.appendChild(fullImageModal);
+                    ${allImages.length > 1 ? `
+                        <button id="prevImageBtn" class="absolute left-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('previous') || 'Previous'}">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button id="nextImageBtn" class="absolute right-2 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 hover:border-primary" title="${Alpine.store('i18n').t('next') || 'Next'}">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    ` : ''}
+                    <!-- Image Container - Scrollable and Centered -->
+                    <div class="flex-1 flex items-center justify-center overflow-auto p-4 min-h-0">
+                        <img id="fullImageDisplay" src="${imageUrl}" alt="Car Image" class="max-w-full max-h-full object-contain rounded-lg">
+                    </div>
+                    ${allImages.length > 1 ? `
+                        <!-- Footer with Thumbnails -->
+                        <div class="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
+                            <div class="flex justify-center gap-2 overflow-x-auto mb-2 pb-2">
+                                ${allImages.map((img, idx) => `
+                                    <img src="${img}" 
+                                         alt="Thumbnail ${idx + 1}" 
+                                         class="thumbnail-image h-16 w-16 flex-shrink-0 object-cover rounded-lg border-2 cursor-pointer transition-all ${idx === currentIndex ? 'border-primary scale-110 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50'}"
+                                         data-index="${idx}"
+                                         data-image-url="${img}">
+                                `).join('')}
+                            </div>
+                            <div class="text-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" id="imageCounter">${currentIndex + 1} / ${allImages.length}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            document.body.appendChild(fullImageModal);
+            
+            // Store current images array for navigation
+            fullImageModal._allImages = allImages;
+            fullImageModal._currentIndex = currentIndex;
+            window.currentImageIndex = currentIndex;
+            
+            // Close button handler
+            const closeBtn = fullImageModal.querySelector('.close-full-image-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    fullImageModal.classList.add('hidden');
+                });
+            }
+            
+            // Close on background click
+            fullImageModal.addEventListener('click', (e) => {
+                if (e.target === fullImageModal) {
+                    fullImageModal.classList.add('hidden');
+                }
+            });
+            
+            // Thumbnail click handlers
+            if (allImages.length > 1) {
+                const thumbnails = fullImageModal.querySelectorAll('.thumbnail-image');
+                thumbnails.forEach((thumb, idx) => {
+                    thumb.addEventListener('click', () => {
+                        window.currentImageIndex = idx;
+                        fullImageModal._currentIndex = idx;
+                        document.getElementById('fullImageDisplay').src = allImages[idx];
+                        document.getElementById('imageCounter').textContent = `${idx + 1} / ${allImages.length}`;
+                        thumbnails.forEach((t, i) => {
+                            t.classList.toggle('border-primary', i === idx);
+                            t.classList.toggle('scale-110', i === idx);
+                            t.classList.toggle('shadow-lg', i === idx);
+                            t.classList.toggle('border-gray-300', i !== idx);
+                            t.classList.toggle('dark:border-gray-600', i !== idx);
+                        });
+                    });
+                });
                 
-                // Add navigation handlers
-                if (allImages.length > 1) {
-                    window.currentImageIndex = currentIndex;
-                    const prevBtn = document.getElementById('prevImageBtn');
-                    const nextBtn = document.getElementById('nextImageBtn');
-                    
+                // Navigation buttons
+                const prevBtn = fullImageModal.querySelector('#prevImageBtn');
+                const nextBtn = fullImageModal.querySelector('#nextImageBtn');
+                
+                if (prevBtn) {
                     prevBtn.addEventListener('click', () => {
                         window.currentImageIndex = (window.currentImageIndex - 1 + allImages.length) % allImages.length;
+                        fullImageModal._currentIndex = window.currentImageIndex;
                         document.getElementById('fullImageDisplay').src = allImages[window.currentImageIndex];
-                        document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
+                        document.getElementById('imageCounter').textContent = `${window.currentImageIndex + 1} / ${allImages.length}`;
+                        thumbnails.forEach((t, i) => {
                             t.classList.toggle('border-primary', i === window.currentImageIndex);
                             t.classList.toggle('scale-110', i === window.currentImageIndex);
                             t.classList.toggle('shadow-lg', i === window.currentImageIndex);
@@ -791,48 +837,33 @@
                             t.classList.toggle('dark:border-gray-600', i !== window.currentImageIndex);
                         });
                     });
-                    
-                    nextBtn.addEventListener('click', () => {
-                        window.currentImageIndex = (window.currentImageIndex + 1) % allImages.length;
-                        document.getElementById('fullImageDisplay').src = allImages[window.currentImageIndex];
-                        document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
-                            t.classList.toggle('border-primary', i === window.currentImageIndex);
-                            t.classList.toggle('scale-110', i === window.currentImageIndex);
-                            t.classList.toggle('shadow-lg', i === window.currentImageIndex);
-                            t.classList.toggle('border-gray-300', i !== window.currentImageIndex);
-                            t.classList.toggle('dark:border-gray-600', i !== window.currentImageIndex);
-                        });
-                    });
-                    
-                    // Keyboard navigation
-                    const handleKeyPress = (e) => {
-                        if (fullImageModal.classList.contains('hidden')) return;
-                        if (e.key === 'ArrowLeft') prevBtn.click();
-                        if (e.key === 'ArrowRight') nextBtn.click();
-                        if (e.key === 'Escape') fullImageModal.classList.add('hidden');
-                    };
-                    document.addEventListener('keydown', handleKeyPress);
                 }
                 
-                // Close on background click
-                fullImageModal.addEventListener('click', (e) => {
-                    if (e.target === fullImageModal) {
-                        fullImageModal.classList.add('hidden');
-                    }
-                });
-            } else {
-                // Update existing modal
-                document.getElementById('fullImageDisplay').src = imageUrl;
-                if (allImages.length > 1) {
-                    window.currentImageIndex = currentIndex;
-                    document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
-                        t.classList.toggle('border-primary', i === currentIndex);
-                        t.classList.toggle('scale-110', i === currentIndex);
-                        t.classList.toggle('shadow-lg', i === currentIndex);
-                        t.classList.toggle('border-gray-300', i !== currentIndex);
-                        t.classList.toggle('dark:border-gray-600', i !== currentIndex);
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        window.currentImageIndex = (window.currentImageIndex + 1) % allImages.length;
+                        fullImageModal._currentIndex = window.currentImageIndex;
+                        document.getElementById('fullImageDisplay').src = allImages[window.currentImageIndex];
+                        document.getElementById('imageCounter').textContent = `${window.currentImageIndex + 1} / ${allImages.length}`;
+                        thumbnails.forEach((t, i) => {
+                            t.classList.toggle('border-primary', i === window.currentImageIndex);
+                            t.classList.toggle('scale-110', i === window.currentImageIndex);
+                            t.classList.toggle('shadow-lg', i === window.currentImageIndex);
+                            t.classList.toggle('border-gray-300', i !== window.currentImageIndex);
+                            t.classList.toggle('dark:border-gray-600', i !== window.currentImageIndex);
+                        });
                     });
                 }
+                
+                // Keyboard navigation
+                const handleKeyPress = (e) => {
+                    if (fullImageModal.classList.contains('hidden')) return;
+                    if (e.key === 'ArrowLeft' && prevBtn) prevBtn.click();
+                    if (e.key === 'ArrowRight' && nextBtn) nextBtn.click();
+                    if (e.key === 'Escape') fullImageModal.classList.add('hidden');
+                };
+                document.addEventListener('keydown', handleKeyPress);
+                fullImageModal._keyHandler = handleKeyPress;
             }
             
             fullImageModal.classList.remove('hidden');
@@ -1441,6 +1472,30 @@
                 }
                 
                 carDetailsContent.innerHTML = detailsHtml;
+                
+                // Position modal in current viewport (where user is currently viewing)
+                const viewportHeight = window.innerHeight;
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const modalContainer = carDetailsModal.querySelector('.modal-container');
+                
+                // Calculate position to center in current viewport, but higher to show footer
+                const modalMaxHeight = Math.min(viewportHeight * 0.9, 800); // Max 90vh or 800px
+                const viewportCenter = scrollTop + (viewportHeight / 2);
+                const estimatedModalHeight = modalMaxHeight;
+                // Raise modal higher (subtract 20% of viewport height) to show footer clearly
+                const topPosition = viewportCenter - (estimatedModalHeight / 2) - (viewportHeight * 0.2);
+                
+                // Set modal container position - center in current viewport, higher to show footer
+                if (modalContainer) {
+                    modalContainer.style.position = 'absolute';
+                    modalContainer.style.top = `${Math.max(scrollTop + 20, topPosition)}px`; // At least 20px from current scroll position
+                    modalContainer.style.left = '50%';
+                    modalContainer.style.transform = 'translateX(-50%)';
+                    modalContainer.style.maxHeight = `${modalMaxHeight}px`;
+                    modalContainer.style.marginTop = '0';
+                    modalContainer.style.marginBottom = '0';
+                }
+                
                 carDetailsModal.classList.remove('hidden');
                 
                 // Update URL with car ID
@@ -1461,16 +1516,22 @@
                 const closeModalHandler = (e) => {
                     if (e.target === carDetailsModal) {
                         closeModalAndUpdateUrl();
-                        carDetailsModal.removeEventListener('click', closeModalHandler);
                     }
                 };
                 carDetailsModal.addEventListener('click', closeModalHandler);
                 
-                // Handle close button click
+                // Handle close button click - use event delegation to ensure it works
+                const handleCloseButton = (e) => {
+                    if (e.target.closest('.close-modal-btn')) {
+                        e.stopPropagation();
+                        closeModalAndUpdateUrl();
+                    }
+                };
+                carDetailsModal.addEventListener('click', handleCloseButton);
+                
+                // Also handle close button directly
                 const closeButton = carDetailsModal.querySelector('.close-modal-btn');
                 if (closeButton) {
-                    // Remove existing onclick and add event listener
-                    closeButton.removeAttribute('onclick');
                     closeButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         closeModalAndUpdateUrl();
