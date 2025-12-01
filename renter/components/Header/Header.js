@@ -1013,10 +1013,12 @@ window.checkScrollButtons = checkScrollButtons;
 
 function checkScrollButtons() {
     const menu = document.getElementById('horizontalMenuList');
+    const leftContainer = document.getElementById('scrollLeftContainer');
+    const rightContainer = document.getElementById('scrollRightContainer');
     const leftBtn = document.getElementById('scrollLeftBtn');
     const rightBtn = document.getElementById('scrollRightBtn');
     
-    if (!menu || !leftBtn || !rightBtn) return;
+    if (!menu || !leftContainer || !rightContainer || !leftBtn || !rightBtn) return;
     
     const isScrollable = menu.scrollWidth > menu.clientWidth;
     const isRTL = document.documentElement.dir === 'rtl' || 
@@ -1038,13 +1040,13 @@ function checkScrollButtons() {
         isAtEnd = menu.scrollLeft >= menu.scrollWidth - menu.clientWidth - 1;
     }
     
-    // Show/hide buttons based on scroll position
+    // Show/hide containers based on scroll position
     if (isScrollable) {
-        leftBtn.style.display = isAtStart ? 'none' : 'flex';
-        rightBtn.style.display = isAtEnd ? 'none' : 'flex';
+        leftContainer.style.display = isAtStart ? 'none' : 'block';
+        rightContainer.style.display = isAtEnd ? 'none' : 'block';
     } else {
-        leftBtn.style.display = 'none';
-        rightBtn.style.display = 'none';
+        leftContainer.style.display = 'none';
+        rightContainer.style.display = 'none';
     }
 }
 
