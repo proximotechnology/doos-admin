@@ -1478,14 +1478,15 @@
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 const modalContainer = carDetailsModal.querySelector('.modal-container');
                 
-                // Calculate position to center in current viewport, but higher to show footer
+                // Calculate position to center in current viewport
+                // We want the modal to appear in the middle of the current viewport
                 const modalMaxHeight = Math.min(viewportHeight * 0.9, 800); // Max 90vh or 800px
                 const viewportCenter = scrollTop + (viewportHeight / 2);
                 const estimatedModalHeight = modalMaxHeight;
-                // Raise modal higher (subtract 20% of viewport height) to show footer clearly
-                const topPosition = viewportCenter - (estimatedModalHeight / 2) - (viewportHeight * 0.2);
+                // Center the modal in the current viewport
+                const topPosition = viewportCenter - (estimatedModalHeight / 2);
                 
-                // Set modal container position - center in current viewport, higher to show footer
+                // Set modal container position - center in current viewport
                 if (modalContainer) {
                     modalContainer.style.position = 'absolute';
                     modalContainer.style.top = `${Math.max(scrollTop + 20, topPosition)}px`; // At least 20px from current scroll position
