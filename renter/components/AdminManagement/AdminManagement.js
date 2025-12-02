@@ -260,8 +260,10 @@ document.addEventListener('alpine:init', () => {
                 this.phone = '';
                 this.country = '';
                 
-                // Show success notification (green) - MUST be success color
-                coloredToast('success', Alpine.store('i18n').t('admin_added_success') || 'Admin added successfully');
+                // Show success notification with password and verification message
+                const successMessage = Alpine.store('i18n').t('admin_added_password_sent') || 
+                    'Password has been sent to the account. Please verify your email.';
+                coloredToast('success', successMessage);
                 
                 // Refresh the admins table - ensure it happens with multiple attempts
                 let refreshSuccess = false;

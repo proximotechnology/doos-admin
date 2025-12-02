@@ -544,6 +544,7 @@
     "failed_fetch_admins": "فشل جلب المسؤولين",
     "failed_to_add_admin": "فشل إضافة المسؤول",
     "admin_added_success": "تم إضافة المسؤول بنجاح",
+    "admin_added_password_sent": "تم إرسال كلمة المرور إلى الحساب. يرجى تأكيد حسابك.",
     "admin_updated_success": "تم تحديث المسؤول بنجاح",
     "failed_to_update_admin": "فشل تحديث المسؤول",
     "admin_deleted_success": "تم حذف المسؤول بنجاح",
@@ -1255,19 +1256,14 @@
     "enter_answer_time": "أدخل وقت الإجابة (بالساعات، 0 يعني بدون حد)",
     "answer_time_hint": "أدخل الوقت بالساعات (0 يعني بدون حد)",
     "update_car": "تعديل سيارة",
-    "updating": "جاري التحديث...",
     "car_updated_success": "تم تحديث السيارة بنجاح",
     "failed_to_update_car": "فشل تحديث السيارة",
     "car_id_required": "معرف السيارة مطلوب",
-    "car_not_found": "السيارة غير موجودة",
-    "failed_to_load_car_details": "فشل تحميل تفاصيل السيارة",
+
     "avg_rating": "التقييم المتوسط",
     "brand_country": "بلد العلامة التجارية",
     "make_id": "معرف الصنع",
-    "model_image": "صورة الموديل",
     "click_to_view_full": "انقر لعرض الصورة بحجم كامل",
-    "close": "إغلاق",
-    "previous": "السابق",
-    "next": "التالي",
+
     "car_image": "صورة السيارة"
 }

@@ -998,6 +998,20 @@
         }
 
         /**
+         * Send OTP for password reset (forget password)
+         */
+        async forgetPassword(data) {
+            return this.post('/api/forget-password', data);
+        }
+
+        /**
+         * Reset password
+         */
+        async resetPassword(data) {
+            return this.post('/api/reset-password', data);
+        }
+
+        /**
          * Add admin
          */
         async addAdmin(data) {

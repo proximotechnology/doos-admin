@@ -541,6 +541,7 @@
     "failed_fetch_roles": "Failed to fetch roles",
     "failed_to_add_admin": "Failed to add admin",
     "admin_added_success": "Admin added successfully",
+    "admin_added_password_sent": "Password has been sent to the account. Please verify your email.",
     "admin_updated_success": "Admin updated successfully",
     "failed_to_update_admin": "Failed to update admin",
     "admin_deleted_success": "Admin deleted successfully",
@@ -1336,19 +1337,13 @@
     "enter_answer_time": "Enter Answer Time (hours, 0 for no limit)",
     "answer_time_hint": "Enter time in hours (0 means no limit)",
     "update_car": "Update Car",
-    "updating": "Updating...",
     "car_updated_success": "Car updated successfully",
     "failed_to_update_car": "Failed to update car",
     "car_id_required": "Car ID is required",
-    "car_not_found": "Car not found",
-    "failed_to_load_car_details": "Failed to load car details",
+
     "avg_rating": "Average Rating",
     "brand_country": "Brand Country",
     "make_id": "Make ID",
-    "model_image": "Model Image",
     "click_to_view_full": "Click to view full size",
-    "close": "Close",
-    "previous": "Previous",
-    "next": "Next",
     "car_image": "Car Image"
 }
