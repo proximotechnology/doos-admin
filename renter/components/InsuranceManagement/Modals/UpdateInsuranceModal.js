@@ -31,52 +31,64 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
-    Alpine.data('UpdateInsuranceModal', () => ({
-        UpdateInsuranceModal_isOpen: false,
-        UpdateInsurance_isSubmitting: false,
-        UpdateInsurance_insuranceId: null,
-        UpdateInsurance_formData: {
+    Alpine.store('updateInsuranceModal', {
+        insuranceId: null,
+        currentName: '',
+        callback: null,
+        isOpen: false,
+        isSubmitting: false,
+        formData: {
             name: '',
             price: '',
             description: '',
             status: ''
         },
 
-        openUpdateInsuranceModal(insurance) {
-            this.UpdateInsurance_insuranceId = insurance.id;
-            this.UpdateInsurance_formData = {
+        openModal(insurance, callback) {
+            this.insuranceId = insurance.id;
+            this.currentName = insurance.name;
+            this.formData = {
                 name: insurance.name || '',
                 price: insurance.price || '',
                 description: insurance.description || '',
                 status: insurance.status || ''
             };
-            this.UpdateInsuranceModal_isOpen = true;
+            this.callback = callback;
+            this.isOpen = true;
         },
 
-        closeUpdateInsuranceModal() {
-            this.UpdateInsuranceModal_isOpen = false;
-            this.UpdateInsurance_insuranceId = null;
-            this.UpdateInsurance_formData = {
+        closeModal() {
+            this.isOpen = false;
+            this.insuranceId = null;
+            this.currentName = '';
+            this.formData = {
                 name: '',
                 price: '',
                 description: '',
                 status: ''
             };
+            this.callback = null;
+            this.isSubmitting = false;
         },
 
-        async handleUpdateInsurance() {
+        async confirmUpdate() {
+            if (!this.insuranceId) {
+                coloredToast('danger', Alpine.store('i18n').t('insurance_not_found') || 'Insurance not found');
+                return;
+            }
+
             try {
-                this.UpdateInsurance_isSubmitting = true;
+                this.isSubmitting = true;
                 loadingIndicator.show();
 
                 const updateData = {
-                    name: this.UpdateInsurance_formData.name,
-                    price: this.UpdateInsurance_formData.price,
-                    description: this.UpdateInsurance_formData.description,
-                    status: this.UpdateInsurance_formData.status
+                    name: this.formData.name,
+                    price: this.formData.price,
+                    description: this.formData.description,
+                    status: this.formData.status
                 };
 
-                const result = await ApiService.updateInsurance(this.UpdateInsurance_insuranceId, updateData);
+                const result = await ApiService.updateInsurance(this.insuranceId, updateData);
 
                 if (result.status === false || result.error) {
                     throw new Error(result.message || result.error || Alpine.store('i18n').t('failed_to_update'));
@@ -84,7 +96,7 @@ document.addEventListener('alpine:init', () => {
 
                 coloredToast('success', result.message || Alpine.store('i18n').t('insurance_updated_successfully'));
                 
-                this.closeUpdateInsuranceModal();
+                this.closeModal();
                 
                 // Refresh table
                 await Alpine.store('insuranceTable').refreshTable();
@@ -98,14 +110,19 @@ document.addEventListener('alpine:init', () => {
                     }
                 }, 500);
 
+                // Call callback if provided
+                if (this.callback && typeof this.callback === 'function') {
+                    this.callback();
+                }
+
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_update'));
             } finally {
-                this.UpdateInsurance_isSubmitting = false;
+                this.isSubmitting = false;
                 loadingIndicator.hide();
             }
         }
-    }));
+    });
 
     // Load modal HTML
     document.addEventListener('DOMContentLoaded', () => {
@@ -115,27 +132,8 @@ document.addEventListener('alpine:init', () => {
                 const modalContainer = document.getElementById('updateInsuranceModal');
                 if (modalContainer) {
                     modalContainer.innerHTML = html;
-                    // Wait for next tick before initializing Alpine
-                    setTimeout(() => {
-                        const modalElement = document.getElementById('update_insurance_modal');
-                        if (modalElement) {
-                            Alpine.initTree(modalElement);
-                        }
-                    }, 100);
                 }
             })
             .catch(error => console.error('Error loading update insurance modal:', error));
     });
 });
-
-// Global function to open modal
-window.openUpdateInsuranceModal = function(insurance) {
-    const modalElement = document.getElementById('update_insurance_modal');
-    if (modalElement) {
-        const alpineData = Alpine.$data(modalElement);
-        if (alpineData && alpineData.openUpdateInsuranceModal) {
-            alpineData.openUpdateInsuranceModal(insurance);
-        }
-    }
-};
-

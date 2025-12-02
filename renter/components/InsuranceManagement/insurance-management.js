@@ -269,19 +269,10 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             
-            // Wait for Alpine to be ready
-            this.$nextTick(() => {
-                const modalElement = document.getElementById('update_insurance_modal');
-                if (modalElement) {
-                    const alpineData = Alpine.$data(modalElement);
-                    if (alpineData && alpineData.openUpdateInsuranceModal) {
-                        alpineData.openUpdateInsuranceModal(insurance);
-                    } else {
-                        console.error('Modal Alpine data not found');
-                    }
-                } else {
-                    console.error('Modal element not found');
-                }
+            // Open modal using Alpine store (same as Model modal)
+            Alpine.store('updateInsuranceModal').openModal(insurance, () => {
+                // Callback after successful update
+                this.fetchInsurances(this.currentPage);
             });
         },
 
