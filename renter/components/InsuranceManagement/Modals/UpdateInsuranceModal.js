@@ -124,16 +124,27 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
-    // Load modal HTML
-    document.addEventListener('DOMContentLoaded', () => {
+});
+
+// Load modal HTML after MainLayout loads the insurance-management.html
+function loadInsuranceModal() {
+    const modalContainer = document.getElementById('updateInsuranceModal');
+    if (modalContainer) {
         fetch('components/InsuranceManagement/Modals/UpdateInsuranceModal.html')
             .then(response => response.text())
             .then(html => {
-                const modalContainer = document.getElementById('updateInsuranceModal');
-                if (modalContainer) {
-                    modalContainer.innerHTML = html;
-                }
+                modalContainer.innerHTML = html;
             })
-            .catch(error => console.error('Error loading update insurance modal:', error));
-    });
+            .catch(error => {
+                console.error('Error loading update insurance modal:', error);
+            });
+    } else {
+        // Retry after a short delay if container not ready yet
+        setTimeout(loadInsuranceModal, 200);
+    }
+}
+
+// Start loading after window loads
+window.addEventListener('load', () => {
+    setTimeout(loadInsuranceModal, 100);
 });

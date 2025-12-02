@@ -265,7 +265,12 @@ document.addEventListener('alpine:init', () => {
         updateInsurance(insuranceId) {
             const insurance = this.tableData.find(i => i.id == insuranceId);
             if (!insurance) {
-                console.error('Insurance not found:', insuranceId);
+                return;
+            }
+            
+            // Check if Alpine store is available
+            if (!Alpine.store('updateInsuranceModal')) {
+                coloredToast('danger', 'Modal system not ready. Please refresh the page.');
                 return;
             }
             
