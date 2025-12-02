@@ -321,8 +321,12 @@ document.addEventListener('alpine:init', () => {
         
         // State
         isSubmitting: false,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+            
             await Promise.all([
                 this.fetchBrands(),
                 this.fetchUsers()

@@ -16,28 +16,32 @@ function waitForComponentLoader(maxAttempts = 50, interval = 50) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
-    // Try to use ComponentLoader, fallback to old method if not available
-    waitForComponentLoader()
-        .then(async loader => {
-            // Use ComponentLoader to load standard layout + AddCarManagement component
-            await loader.loadStandardLayout([
-                { 
-                    url: 'components/AddCarManagement/AddCarManagement.html', 
-                    containerId: 'add-car-management-container',
-                    options: { 
-                        loadScript: false  // Script already loaded in AddCar.html
+// Wait for Alpine to be fully initialized before loading components
+document.addEventListener('alpine:initialized', async function () {
+    // Small delay to ensure all Alpine components are registered
+    setTimeout(async () => {
+        // Try to use ComponentLoader, fallback to old method if not available
+        waitForComponentLoader()
+            .then(async loader => {
+                // Use ComponentLoader to load standard layout + AddCarManagement component
+                await loader.loadStandardLayout([
+                    { 
+                        url: 'components/AddCarManagement/AddCarManagement.html', 
+                        containerId: 'add-car-management-container',
+                        options: { 
+                            loadScript: false  // Script already loaded in AddCar.html
+                        }
                     }
-                }
-            ]);
-        })
-        .catch(error => {
-            // Fallback to old method
-            loadComponentFallback('components/Header/Header.html', 'header-container');
-            loadComponentFallback('components/Sidebar/Sidebar.html', 'sidebar-container');
-            loadComponentFallback('components/ThemeCustomizer/ThemeCustomizer.html', 'theme-customizer-container');
-            loadComponentFallback('components/AddCarManagement/AddCarManagement.html', 'add-car-management-container');
-        });
+                ]);
+            })
+            .catch(error => {
+                // Fallback to old method
+                loadComponentFallback('components/Header/Header.html', 'header-container');
+                loadComponentFallback('components/Sidebar/Sidebar.html', 'sidebar-container');
+                loadComponentFallback('components/ThemeCustomizer/ThemeCustomizer.html', 'theme-customizer-container');
+                loadComponentFallback('components/AddCarManagement/AddCarManagement.html', 'add-car-management-container');
+            });
+    }, 100);
 });
 
 // Fallback function if ComponentLoader is not available

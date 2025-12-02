@@ -328,8 +328,12 @@ document.addEventListener('alpine:init', () => {
         // State
         isSubmitting: false,
         isLoading: true,
+        _initialized: false,
 
         async init() {
+            if (this._initialized) return;
+            this._initialized = true;
+            
             // Get car ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             const pathParts = window.location.pathname.split('/');
