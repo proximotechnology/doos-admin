@@ -1018,6 +1018,30 @@
             return this.post('/api/admin/admins/create', data);
         }
 
+        // ==================== Insurance Management ====================
+        
+        /**
+         * Get all insurances with filters
+         */
+        async getInsurances(page = 1, filters = {}) {
+            const params = { ...filters };
+            return this.get('/api/admin/insurance/index', params);
+        }
+
+        /**
+         * Add new insurance
+         */
+        async addInsurance(data) {
+            return this.post('/api/admin/insurance/store', data);
+        }
+
+        /**
+         * Update insurance
+         */
+        async updateInsurance(id, data) {
+            return this.post(`/api/admin/insurance/update/${id}`, data);
+        }
+
         /**
          * Update admin
          */

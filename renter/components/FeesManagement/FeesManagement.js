@@ -264,12 +264,11 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(feeId) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="edit-btn table-action-btn btn btn-warning btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${feeId}" title="${Alpine.store('i18n').t('edit')}">
+                <div class="flex items-center gap-2">
+                    <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${feeId}" title="${Alpine.store('i18n').t('edit')}">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('edit')}</span>
                     </button>
                 </div>`;
         }

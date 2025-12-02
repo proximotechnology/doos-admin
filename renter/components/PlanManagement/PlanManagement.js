@@ -195,8 +195,8 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(planId, name, price, car_limite, count_day, isActive) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="update-btn table-action-btn btn btn-warning btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                <div class="flex items-center gap-2">
+                    <button class="update-btn btn btn-sm btn-outline-primary" 
                             data-id="${planId}"
                             data-name="${name}"
                             data-price="${price}"
@@ -206,19 +206,17 @@ document.addEventListener('alpine:init', () => {
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('update')}</span>
                     </button>
-                    <button class="toggle-active-btn table-action-btn btn btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90 ${isActive == 1 ? 'btn-danger' : 'btn-success'}" 
+                    <button class="toggle-active-btn btn btn-sm ${isActive == 1 ? 'btn-outline-warning' : 'btn-outline-success'}" 
                             data-id="${planId}"
                             data-active="${isActive}"
                             title="${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             ${isActive == 1 
-                                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />'
-                                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />'
+                                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />'
+                                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
                             }
                         </svg>
-                        <span class="text-xs">${isActive == 1 ? Alpine.store('i18n').t('deactivate') : Alpine.store('i18n').t('activate')}</span>
                     </button>
                 </div>`;
         },

@@ -310,9 +310,9 @@ document.addEventListener('alpine:init', () => {
             const isRejected = statusLower === 'rejected';
             
             return `
-                <div class="flex items-center gap-1 justify-center flex-wrap">
+                <div class="flex items-center gap-2 flex-wrap">
                     <button 
-                        class="approve-btn btn btn-success btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        class="btn btn-sm btn-outline-success approve-btn" 
                         data-id="${withdrawalId}" 
                         ${isApproved || isCompleted ? 'disabled' : ''}
                         title="${Alpine.store('i18n').t('approve')}"
@@ -320,10 +320,9 @@ document.addEventListener('alpine:init', () => {
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('approve')}</span>
                     </button>
                     <button 
-                        class="reject-btn btn btn-danger btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        class="btn btn-sm btn-outline-danger reject-btn" 
                         data-id="${withdrawalId}" 
                         ${isRejected || isCompleted ? 'disabled' : ''}
                         title="${Alpine.store('i18n').t('reject')}"
@@ -331,10 +330,9 @@ document.addEventListener('alpine:init', () => {
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('reject')}</span>
                     </button>
                     <button 
-                        class="complete-btn btn btn-info btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        class="btn btn-sm btn-outline-info complete-btn" 
                         data-id="${withdrawalId}" 
                         ${!isApproved ? 'disabled' : ''}
                         title="${Alpine.store('i18n').t('complete')}"
@@ -342,10 +340,9 @@ document.addEventListener('alpine:init', () => {
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('complete')}</span>
                     </button>
                     <button 
-                        class="view-details-btn btn btn-primary btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" 
+                        class="btn btn-sm btn-outline-primary view-details-btn" 
                         data-id="${withdrawalId}"
                         title="${Alpine.store('i18n').t('view_details')}"
                     >
@@ -353,7 +350,6 @@ document.addEventListener('alpine:init', () => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('view_details')}</span>
                     </button>
                 </div>`;
         },

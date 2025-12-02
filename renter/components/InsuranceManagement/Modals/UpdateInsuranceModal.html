@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    
+<div
+    id="update_insurance_modal"
+    class="fixed inset-0 z-[999] hidden overflow-y-auto bg-[black]/60 px-4"
+    :class="UpdateInsuranceModal_isOpen && '!block'"
+>
+    <div class="flex min-h-screen items-center justify-center">
+        <div
+            class="panel my-8 w-full max-w-2xl overflow-hidden rounded-lg border-0 p-0 shadow-2xl"
+            @click.away="closeUpdateInsuranceModal"
+        >
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 dark:from-primary/20 dark:via-primary/10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-900 dark:text-white" x-text="$store.i18n.t('update_insurance')"></h5>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('modify_insurance_details') || 'Modify insurance details'"></p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
+                        @click="closeUpdateInsuranceModal"
+                    >
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <form @submit.prevent="handleUpdateInsurance" class="p-6">
+                <div class="space-y-6">
+                    <!-- Insurance Name -->
+                    <div class="form-group">
+                        <label class="form-label flex items-center gap-2">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span x-text="$store.i18n.t('insurance_name')"></span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            x-model="UpdateInsurance_formData.name"
+                            :placeholder="$store.i18n.t('enter_insurance_name')"
+                            required
+                        />
+                    </div>
+
+                    <!-- Price -->
+                    <div class="form-group">
+                        <label class="form-label flex items-center gap-2">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span x-text="$store.i18n.t('price')"></span>
+                        </label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            class="form-input"
+                            x-model="UpdateInsurance_formData.price"
+                            :placeholder="$store.i18n.t('enter_price')"
+                            required
+                            min="0"
+                        />
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group">
+                        <label class="form-label flex items-center gap-2">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span x-text="$store.i18n.t('status')"></span>
+                        </label>
+                        <select
+                            class="form-select"
+                            x-model="UpdateInsurance_formData.status"
+                            required
+                        >
+                            <option value="" disabled x-text="$store.i18n.t('select_status')"></option>
+                            <option value="active" x-text="$store.i18n.t('active')"></option>
+                            <option value="inactive" x-text="$store.i18n.t('inactive')"></option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="form-label flex items-center gap-2">
+                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                            </svg>
+                            <span x-text="$store.i18n.t('description')"></span>
+                        </label>
+                        <textarea
+                            class="form-textarea min-h-[100px]"
+                            x-model="UpdateInsurance_formData.description"
+                            :placeholder="$store.i18n.t('enter_description')"
+                            required
+                            rows="3"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="mt-8 flex items-center justify-end gap-4 border-t pt-6 dark:border-gray-700">
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger px-6 py-2.5"
+                        @click="closeUpdateInsuranceModal"
+                    >
+                        <span class="flex items-center gap-2">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span x-text="$store.i18n.t('cancel')"></span>
+                        </span>
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary group relative overflow-hidden px-6 py-2.5 shadow-lg transition-all duration-300 hover:shadow-xl"
+                        :disabled="UpdateInsurance_isSubmitting"
+                    >
+                        <span class="relative z-10 flex items-center gap-2">
+                            <svg class="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span x-text="UpdateInsurance_isSubmitting ? $store.i18n.t('updating') : $store.i18n.t('update')"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

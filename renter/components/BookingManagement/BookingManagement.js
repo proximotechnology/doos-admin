@@ -388,19 +388,17 @@ document.addEventListener('alpine:init', () => {
 
         getActionButtons(bookingId, status, isPaid) {
             return `
-                <div class="flex items-center gap-1">
-                    <button class="view-car-btn table-action-btn btn btn-primary btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${bookingId}" title="${Alpine.store('i18n').t('view_details')}">
+                <div class="flex items-center gap-2">
+                    <button class="btn btn-sm btn-outline-info view-car-btn" data-id="${bookingId}" title="${Alpine.store('i18n').t('view_details')}">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('view_details')}</span>
                     </button>
-                    <button class="change-payment-btn table-action-btn btn ${isPaid === '1' ? 'btn-success' : 'btn-danger'} btn-sm flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:opacity-90" data-id="${bookingId}" title="${Alpine.store('i18n').t('change_payment')}">
+                    <button class="btn btn-sm ${isPaid === '1' ? 'btn-outline-success' : 'btn-outline-danger'} change-payment-btn" data-id="${bookingId}" title="${Alpine.store('i18n').t('change_payment')}">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
-                        <span class="text-xs">${Alpine.store('i18n').t('change_payment')}</span>
                     </button>
                 </div>`;
         },
