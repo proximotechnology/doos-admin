@@ -23,5 +23,8 @@ async function initializePage() {
     ]);
 }
 
-document.addEventListener('DOMContentLoaded', initializePage);
+// Wait for Alpine to be fully initialized before loading components
+document.addEventListener('alpine:initialized', function () {
+    setTimeout(initializePage, 100);
+});
 

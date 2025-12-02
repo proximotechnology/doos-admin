@@ -1,0 +1,438 @@
+/* ===================================
+   Doos Doos Admin - Custom Improvements
+   Enhanced UI/UX & Performance Optimizations
+   =================================== */
+
+/* ===== Smooth Transitions ===== */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Table Improvements ===== */
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+}
+
+/* ===== Button Enhancements ===== */
+.btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-sm:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Modal Improvements ===== */
+.modal-container {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) translateX(-50%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(-50%);
+    }
+}
+
+/* ===== Form Input Enhancements ===== */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    transition: all 0.2s ease;
+}
+
+/* ===== Badge Improvements ===== */
+.badge {
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Card Hover Effects ===== */
+.panel {
+    transition: all 0.3s ease;
+}
+
+.panel:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Loading Animations ===== */
+@keyframes pulse-slow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-pulse {
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ===== Notification Badge ===== */
+.notification-badge {
+    animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+@keyframes bounce-subtle {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* ===== Scroll Improvements ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(67, 97, 238, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(67, 97, 238, 0.6);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(67, 97, 238, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(67, 97, 238, 0.7);
+}
+
+/* ===== Table Action Buttons ===== */
+.table-responsive {
+    position: relative;
+}
+
+.table-responsive table tbody tr td:last-child {
+    position: sticky;
+    right: 0;
+    background: inherit;
+}
+
+/* ===== Status Badge Glow Effect ===== */
+.badge-outline-success,
+.badge-success {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.badge-outline-danger,
+.badge-danger {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.badge-outline-warning,
+.badge-warning {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.badge-outline-info,
+.badge-info {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+/* ===== Focus Visible for Accessibility ===== */
+*:focus-visible {
+    outline: 2px solid rgba(67, 97, 238, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ===== Image Loading Optimization ===== */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+img[loading="lazy"].loaded,
+img:not([loading="lazy"]) {
+    opacity: 1;
+}
+
+/* ===== Skeleton Loading States ===== */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.dark .skeleton {
+    background: linear-gradient(90deg, #2d3748 25%, #1a202c 50%, #2d3748 75%);
+    background-size: 200% 100%;
+}
+
+/* ===== Page Transitions ===== */
+.page-transition {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Action Button Tooltips Enhancement ===== */
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 0.5rem;
+    pointer-events: none;
+}
+
+/* ===== Responsive Table Improvements ===== */
+@media (max-width: 768px) {
+    .table-responsive {
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* ===== Performance: Reduce Motion for Accessibility ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===== Gradient Backgrounds Enhancement ===== */
+.bg-gradient-to-r,
+.bg-gradient-to-br,
+.bg-gradient-to-l {
+    background-size: 200% 200%;
+    transition: background-position 0.5s ease;
+}
+
+.bg-gradient-to-r:hover,
+.bg-gradient-to-br:hover {
+    background-position: right center;
+}
+
+/* ===== Loading Indicator Enhancement ===== */
+#loadingIndicator {
+    backdrop-filter: blur(8px);
+}
+
+/* ===== Empty State Improvements ===== */
+#tableEmptyState {
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===== Success/Error Toast Improvements ===== */
+.swal2-toast {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-toast.color-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.swal2-toast.color-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.swal2-toast.color-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+/* ===== Breadcrumb Improvements ===== */
+nav[aria-label="Breadcrumb"] {
+    animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Card Stacking Effect ===== */
+.panel {
+    transform-style: preserve-3d;
+}
+
+.panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    z-index: -1;
+    transform: translateZ(-1px) scale(0.98);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+.panel:hover::after {
+    opacity: 0.5;
+}
+
+/* ===== Pagination Improvements ===== */
+.pagination-btn {
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+}
+
+.pagination-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pagination-btn.btn-primary {
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+/* ===== Filter Section Enhancement ===== */
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    transition: color 0.2s ease;
+}
+
+.form-group:focus-within label {
+    color: rgb(67, 97, 238);
+}
+
+/* ===== Sidebar Active Link Enhancement ===== */
+.sidebar-menu a.active {
+    background: linear-gradient(90deg, rgba(67, 97, 238, 0.1) 0%, transparent 100%);
+    border-left: 3px solid rgb(67, 97, 238);
+}
+
+/* ===== Header Enhancement ===== */
+header {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.dark header {
+    background: rgba(15, 23, 42, 0.95);
+}
+

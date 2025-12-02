@@ -356,12 +356,36 @@ document.addEventListener('alpine:init', () => {
 
                 const result = await ApiService.addTestimonial(formData);
 
+                // Clear form
                 this.name = '';
                 this.comment = '';
                 this.rating = '';
                 this.$refs.image.value = '';
+                
+                // Show success message
                 coloredToast('success', Alpine.store('i18n').t('add_testimonial_successful'));
+                
+                // Refresh table immediately
                 await Alpine.store('testimonialTable').refreshTable();
+                
+                // Retry refresh after delay to ensure data is updated
+                setTimeout(async () => {
+                    try {
+                        await Alpine.store('testimonialTable').refreshTable();
+                    } catch (error) {
+                        console.error('Delayed refresh error:', error);
+                    }
+                }, 500);
+                
+                // Another retry after 1 second
+                setTimeout(async () => {
+                    try {
+                        await Alpine.store('testimonialTable').refreshTable();
+                    } catch (error) {
+                        console.error('Second delayed refresh error:', error);
+                    }
+                }, 1000);
+                
             } catch (error) {
                 coloredToast('danger', error.message || Alpine.store('i18n').t('failed_to_add_testimonial'));
             } finally {
