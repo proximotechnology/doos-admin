@@ -57,6 +57,18 @@
                     errorData = { message: errorText || 'Request failed' };
                 }
 
+                // Check for 401 Unauthorized - user session expired or invalid token
+                if (response.status === 401) {
+                    // Clear token from localStorage
+                    localStorage.removeItem('authToken');
+                    
+                    // Redirect to login page
+                    window.location.href = 'auth-boxed-signin.html';
+                    
+                    // Throw error to stop further execution
+                    throw new Error('Session expired. Redirecting to login...');
+                }
+
                 // Log error details for debugging
                 const errorDetails = {
                     endpoint: endpoint,
