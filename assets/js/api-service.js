@@ -1382,7 +1382,7 @@
          * @param {number} notificationId - The ID of the notification to mark as read
          */
         async markNotificationAsRead(notificationId) {
-            return this.post(`/api/admin/notification/${notificationId}/markAsRead`, {});
+            return this.post(`/api/admin/notification/markAsRead/${notificationId}`, {});
         }
 
         // ==================== Whitelist/Blacklist APIs ====================

@@ -334,7 +334,7 @@ document.addEventListener('alpine:init', () => {
                         
                         // Wait for subscription to be ready
                         this.notificationChannel.bind('pusher:subscription_succeeded', () => {
-                            console.log(`✅ Successfully subscribed to ${channelName}`);
+                            // Successfully subscribed to notification channel
                         });
 
                         this.notificationChannel.bind('pusher:subscription_error', (error) => {
@@ -893,8 +893,7 @@ document.addEventListener('alpine:init', () => {
             localStorage.removeItem('currentUserId');
             localStorage.removeItem('chatData');
             localStorage.removeItem('userData');
-
-            },
+        },
     }));
     Alpine.store('i18n', {
         locale: localStorage.getItem('language') || 'en',
