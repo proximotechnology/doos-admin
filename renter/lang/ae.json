@@ -1285,6 +1285,16 @@
     "brand_country": "بلد العلامة التجارية",
     "make_id": "معرف الصنع",
     "click_to_view_full": "انقر لعرض الصورة بحجم كامل",
-
-    "car_image": "صورة السيارة"
+    "car_image": "صورة السيارة",
+    "discount_active": "خصم نشط",
+    "statistics_status": "الإحصائيات والحالة",
+    "rental_status": "حالة الإيجار",
+    "rented": "مؤجر",
+    "trip_count": "عدد الرحلات",
+    "favorites": "المفضلة",
+    "commission_rate": "نسبة العمولة",
+    "current_address": "العنوان الحالي",
+    "seasonal_price": "السعر الموسمي",
+    "valid_period": "الفترة الصالحة",
+    "title": "العنوان"
 }

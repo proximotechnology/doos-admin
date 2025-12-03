@@ -155,7 +155,7 @@
             </div>
         </div>
 
-        <div x-data="carDetails" x-init="init()">
+        <div x-data="carDetails" >
             <!-- Breadcrumb -->
             <nav class="mb-6 flex items-center space-x-2 rtl:space-x-reverse" aria-label="Breadcrumb">
                 <ol class="flex items-center space-x-2 rtl:space-x-reverse">
@@ -361,7 +361,7 @@
                                                         <svg class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <span x-text="$store.i18n.t('seasonal_price') || 'Seasonal Price'"></span>
+                                                        <span x-text="$store.i18n.t('seasonal_price')"></span>
                                                     </span>
                                                 </div>
                                                 <div class="flex items-center gap-3 flex-wrap">
@@ -432,7 +432,7 @@
                                                         <svg class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <span x-text="$store.i18n.t('discount_active') || 'Discount Active'"></span>
+                                                        <span x-text="$store.i18n.t('discount_active')"></span>
                                                     </span>
                                                 </div>
                                                 <div class="flex items-center gap-3 flex-wrap">
@@ -450,7 +450,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                     <span class="text-sm font-semibold text-success">
-                                                        <span x-text="$store.i18n.t('save') || 'Save'"></span>: 
+                                                        <span x-text="$store.i18n.t('save')"></span>: 
                                                         <span x-text="car.discount_info.discount_type === 'percentage' ? `${car.discount_info.discount_amount}%` : `${parseFloat(car.discount_info.discount_amount).toFixed(2)} ${$store.i18n.t('currency')}`"></span>
                                                     </span>
                                                 </div>
@@ -528,7 +528,7 @@
                                                     <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('condition_description') || 'Condition Description'"></p>
+                                                    <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('condition_description')"></p>
                                                 </div>
                                                 <p class="text-sm text-blue-900 dark:text-blue-100 leading-relaxed" x-text="car.description_condition"></p>
                                             </div>
@@ -543,7 +543,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <div>
-                                            <p class="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('created_at') || 'Created At'"></p>
+                                            <p class="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('created_at')"></p>
                                             <p class="text-sm font-semibold text-blue-900 dark:text-blue-100" x-text="formatDate(car.created_at)"></p>
                                         </div>
                                     </div>
@@ -612,7 +612,7 @@
                                             <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                                             </svg>
-                                            <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('license_image') || 'License Image'"></p>
+                                            <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('license_image')"></p>
                                         </div>
                                         <div class="relative overflow-hidden rounded-lg border-2 border-blue-300 dark:border-blue-700 shadow-md group/license bg-white dark:bg-gray-900">
                                             <img :src="car.image_license" :alt="$store.i18n.t('license_image')" class="w-full h-64 object-contain transition-transform duration-300 group-hover/license:scale-105" loading="lazy">
@@ -667,7 +667,7 @@
                                     </template>
                                     <template x-if="car.owner.current_address">
                                         <div>
-                                            <p class="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase mb-1" x-text="$store.i18n.t('current_address') || 'Current Address'"></p>
+                                            <p class="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase mb-1" x-text="$store.i18n.t('current_address')"></p>
                                             <p class="text-sm font-normal text-amber-900 dark:text-amber-100 leading-relaxed" x-text="car.owner.current_address"></p>
                                         </div>
                                     </template>
@@ -684,7 +684,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                             </div>
-                            <h3 class="text-2xl font-bold text-cyan-900 dark:text-cyan-100" x-text="$store.i18n.t('statistics_status') || 'Statistics & Status'"></h3>
+                            <h3 class="text-2xl font-bold text-cyan-900 dark:text-cyan-100" x-text="$store.i18n.t('statistics_status')"></h3>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -697,8 +697,8 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('rental_status') || 'Rental Status'"></p>
-                                        <p class="text-lg font-bold" :class="car.is_rented ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'" x-text="car.is_rented ? ($store.i18n.t('rented') || 'Rented') : ($store.i18n.t('available') || 'Available')"></p>
+                                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('rental_status')"></p>
+                                        <p class="text-lg font-bold" :class="car.is_rented ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'" x-text="car.is_rented ? $store.i18n.t('rented') : $store.i18n.t('available')"></p>
                                     </div>
                                 </div>
                             </div>
@@ -713,8 +713,8 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('driver_available') || 'Driver Available'"></p>
-                                            <p class="text-lg font-bold" :class="car.driver_available ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'" x-text="car.driver_available ? ($store.i18n.t('yes') || 'Yes') : ($store.i18n.t('no') || 'No')"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('driver_available')"></p>
+                                            <p class="text-lg font-bold" :class="car.driver_available ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'" x-text="car.driver_available ? $store.i18n.t('yes') : $store.i18n.t('no')"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -730,7 +730,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('available_fuel') || 'Available Fuel'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('available_fuel')"></p>
                                             <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400" x-text="`${parseFloat(car.available_fuel).toFixed(1)}%`"></p>
                                         </div>
                                     </div>
@@ -747,7 +747,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('fuel_capacity') || 'Fuel Capacity'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('fuel_capacity')"></p>
                                             <p class="text-lg font-bold text-amber-600 dark:text-amber-400" x-text="`${parseFloat(car.fuel_capacity).toFixed(2)} L`"></p>
                                         </div>
                                     </div>
@@ -764,7 +764,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('trip_count') || 'Trip Count'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('trip_count')"></p>
                                             <p class="text-lg font-bold text-purple-600 dark:text-purple-400" x-text="car.trip_count"></p>
                                         </div>
                                     </div>
@@ -781,10 +781,10 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('avg_rating') || 'Average Rating'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('avg_rating')"></p>
                                             <div class="flex items-center gap-2">
                                                 <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400" x-text="parseFloat(car.avg_rating).toFixed(1)"></p>
-                                                <span class="text-xs text-gray-500" x-text="`(${car.count_rating || 0} ${$store.i18n.t('reviews') || 'reviews'})`"></span>
+                                                <span class="text-xs text-gray-500" x-text="`(${car.count_rating || 0} ${$store.i18n.t('reviews')})`"></span>
                                             </div>
                                         </div>
                                     </div>

@@ -1366,5 +1366,16 @@
     "brand_country": "Brand Country",
     "make_id": "Make ID",
     "click_to_view_full": "Click to view full size",
-    "car_image": "Car Image"
+    "car_image": "Car Image",
+    "discount_active": "Discount Active",
+    "statistics_status": "Statistics & Status",
+    "rental_status": "Rental Status",
+    "rented": "Rented",
+    "trip_count": "Trip Count",
+    "favorites": "Favorites",
+    "commission_rate": "Commission Rate",
+    "current_address": "Current Address",
+    "seasonal_price": "Seasonal Price",
+    "valid_period": "Valid Period",
+    "title": "Title"
 }
