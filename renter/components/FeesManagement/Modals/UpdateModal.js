@@ -38,6 +38,7 @@ document.addEventListener('alpine:init', () => {
         feeData: {
             id: null,
             type: '',
+            price: '',
             is_active: false,
             description: ''
         },
@@ -57,6 +58,7 @@ document.addEventListener('alpine:init', () => {
             this.feeData = {
                 id: fee.id,
                 type: fee.type || 'fixed',
+                price: fee.price || '',
                 is_active: fee.is_active === true || fee.is_active === 1 || fee.is_active === '1' || fee.is_active === 1,
                 description: fee.description || ''
             };
@@ -75,6 +77,7 @@ document.addEventListener('alpine:init', () => {
             this.feeData = {
                 id: null,
                 type: '',
+                price: '',
                 is_active: false,
                 description: ''
             };
@@ -90,6 +93,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 const payload = {
                     type: feeData.type || 'fixed',
+                    price: feeData.price || 0,
                     is_active: feeData.is_active === true || feeData.is_active === 1 ? 1 : 0,
                     description: feeData.description || ''
                 };
