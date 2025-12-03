@@ -914,7 +914,7 @@
                                         </div>
                                         <div>
                                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('available_fuel')"></p>
-                                            <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400" x-text="`${parseFloat(car.available_fuel).toFixed(1)}%`"></p>
+                                            <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400" x-text="parseFloat(car.available_fuel).toFixed(2)"></p>
                                         </div>
                                     </div>
                                 </div>
