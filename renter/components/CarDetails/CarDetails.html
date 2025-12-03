@@ -392,7 +392,7 @@
                                                             </div>
                                                             <div class="flex-1 space-y-2">
                                                                 <div>
-                                                                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period') || 'Valid Period'"></p>
+                                                                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period')"></p>
                                                                     <div class="flex flex-wrap items-center gap-3">
                                                                         <div class="flex items-center gap-2">
                                                                             <svg class="h-4 w-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -413,7 +413,7 @@
                                                                 </div>
                                                                 <template x-if="car.season_pricing_info.season_pricing_data.title">
                                                                     <div class="flex items-center gap-2">
-                                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') || 'Title' + ':'"></span>
+                                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') + ':'"></span>
                                                                         <span class="text-xs text-gray-900 dark:text-white font-medium" x-text="car.season_pricing_info.season_pricing_data.title"></span>
                                                                     </div>
                                                                 </template>
@@ -466,7 +466,7 @@
                                                             </div>
                                                             <div class="flex-1 space-y-2">
                                                                 <div>
-                                                                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period') || 'Valid Period'"></p>
+                                                                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period')"></p>
                                                                     <div class="flex flex-wrap items-center gap-3">
                                                                         <div class="flex items-center gap-2">
                                                                             <svg class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -487,7 +487,7 @@
                                                                 </div>
                                                                 <template x-if="car.discount_info.discount_data.title">
                                                                     <div class="flex items-center gap-2">
-                                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') || 'Title' + ':'"></span>
+                                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') + ':'"></span>
                                                                         <span class="text-xs text-gray-900 dark:text-white font-medium" x-text="car.discount_info.discount_data.title"></span>
                                                                     </div>
                                                                 </template>
@@ -801,7 +801,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('favorites') || 'Favorites'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('favorites')"></p>
                                             <p class="text-lg font-bold" :class="car.is_favorite ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'" x-text="car.favorites_count"></p>
                                         </div>
                                     </div>
@@ -818,7 +818,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('commission_rate') || 'Commission Rate'"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase" x-text="$store.i18n.t('commission_rate')"></p>
                                             <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400" x-text="`${parseFloat(car.commission_rate).toFixed(2)}%`"></p>
                                         </div>
                                     </div>
@@ -836,7 +836,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                     </svg>
                                 </div>
-                                <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-100" x-text="$store.i18n.t('car_features') || 'Car Features'"></h3>
+                                <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-100" x-text="$store.i18n.t('car_features')"></h3>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -865,7 +865,7 @@
                                                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                                     </svg>
-                                                                    <span x-text="$store.i18n.t('yes') || 'Yes'"></span>
+                                                                    <span x-text="$store.i18n.t('yes')"></span>
                                                                 </span>
                                                             </template>
                                                             <template x-if="!isFeatureEnabled(value)">
@@ -873,7 +873,7 @@
                                                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                                     </svg>
-                                                                    <span x-text="$store.i18n.t('no') || 'No'"></span>
+                                                                    <span x-text="$store.i18n.t('no')"></span>
                                                                 </span>
                                                             </template>
                                                         </div>
@@ -908,7 +908,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                     </div>
-                                    <h3 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('pickup_location') || 'Pickup Location'"></h3>
+                                    <h3 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('pickup_location')"></h3>
                                 </div>
                                 <template x-if="car.address">
                                     <div class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
