@@ -366,6 +366,8 @@
     "delete_car": "Delete Car",
     "owner_info": "Owner Information",
     "verified_owner": "Verified Car Owner",
+    "show_per_page": "Show",
+    "entries": "entries",
     "is_company": "Is Company",
     "features_info": "Features Information",
     "mileage_range": "Mileage Range",

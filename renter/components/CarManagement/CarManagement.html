@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="p-6">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
                                 <!-- Status Filter -->
                                 <div class="form-group">
                                     <label class="form-label flex items-center gap-2">
@@ -80,6 +80,52 @@
                                             <option value="active" x-text="$store.i18n.t('active')"></option>
                                             <option value="inactive" x-text="$store.i18n.t('inactive')"></option>
                                             <option value="rejected" x-text="$store.i18n.t('rejected')"></option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Brand Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('brand')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <select class="form-select pr-10" x-model="filters.brand_car_id" @change="filterModelsByBrand(); applyFilters();">
+                                            <option value="" x-text="$store.i18n.t('all')"></option>
+                                            <template x-for="brand in brands" :key="brand.id">
+                                                <option :value="brand.id" x-text="brand.name"></option>
+                                            </template>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Model Filter -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('model')"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <select class="form-select pr-10" x-model="filters.model_car_id" @change="applyFilters()">
+                                            <option value="" x-text="$store.i18n.t('all')"></option>
+                                            <template x-for="model in models" :key="model.id">
+                                                <option :value="model.id" x-text="model.name"></option>
+                                            </template>
                                         </select>
                                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                             <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,6 +278,26 @@
                                         </button>
                                     </span>
                                 </template>
+                                <template x-if="filters.brand_car_id">
+                                    <span class="badge badge-success flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('brand') + ': ' + (brands.find(b => b.id == filters.brand_car_id)?.name || filters.brand_car_id)"></span>
+                                        <button @click="filters.brand_car_id = ''; filterModelsByBrand(); applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="filters.model_car_id">
+                                    <span class="badge badge-info flex items-center gap-1">
+                                        <span x-text="$store.i18n.t('model') + ': ' + (allModels.find(m => m.id == filters.model_car_id)?.name || filters.model_car_id)"></span>
+                                        <button @click="filters.model_car_id = ''; applyFilters()" class="ml-1 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </span>
+                                </template>
                                 <template x-if="filters.year_from">
                                     <span class="badge badge-info flex items-center gap-1">
                                         <span x-text="($store.i18n.t('year_from') || 'من السنة') + ': ' + filters.year_from"></span>
@@ -325,7 +391,27 @@
                             <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white" x-text="$store.i18n.t('no_cars')"></h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400" x-text="$store.i18n.t('no_cars_found') || 'No cars found'"></p>
                         </div>
-                        <!-- Pagination -->
+                        
+                        <!-- Pagination & Per Page Selector -->
+                        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <!-- Per Page Selector -->
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap" x-text="$store.i18n.t('show_per_page') || 'عرض'"></label>
+                                <select 
+                                    x-model.number="perPage" 
+                                    @change="changePerPage()" 
+                                    class="form-select w-20 py-1.5 text-sm border-gray-300 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-primary"
+                                >
+                                    <template x-for="option in perPageOptions" :key="option">
+                                        <option :value="option" x-text="option"></option>
+                                    </template>
+                                </select>
+                                <span class="text-sm text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('entries') || 'عنصر'"></span>
+                            </div>
+
+                            <!-- Pagination (generated dynamically by JavaScript) -->
+                            <div id="pagination-container" class="flex justify-center"></div>
+                        </div>
                     </div>
                 </div>
             </div>

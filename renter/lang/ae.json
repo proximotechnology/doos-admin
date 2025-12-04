@@ -371,6 +371,8 @@
     "delete_car": "حذف السيارة",
     "owner_info": "معلومات المالك",
     "verified_owner": "مالك السيارة الموثق",
+    "show_per_page": "عرض",
+    "entries": "عنصر",
     "is_company": "شركة",
     "features_info": "معلومات الميزات",
     "mileage_range": "نطاق الأميال",

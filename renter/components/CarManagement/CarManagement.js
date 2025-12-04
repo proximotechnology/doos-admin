@@ -117,13 +117,20 @@
         datatable1: null,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         currentPage: 1,
+        perPage: 10,
+        perPageOptions: [10, 20, 50, 100],
         filters: {
             status: '',
+            brand_car_id: '',
+            model_car_id: '',
             year_from: '',
             year_to: '',
             min_price: '',
             max_price: ''
         },
+        brands: [],
+        models: [],
+        allModels: [],
         _initialized: false,
 
         async initComponent() {
@@ -139,6 +146,10 @@
                 window.location.href = `CarDetails.html?id=${carIdFromUrl}`;
                 return;
             }
+
+            // Fetch brands and models for filters
+            await this.fetchBrands();
+            await this.fetchAllModels();
 
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.view-car-btn')) {
@@ -168,6 +179,44 @@
             await this.fetchCars(1);
         },
 
+        async fetchBrands() {
+            try {
+                const data = await ApiService.getBrands(1, { per_page: 1000 });
+                if (data.success && data.data && data.data.data) {
+                    this.brands = data.data.data;
+                }
+            } catch (error) {
+                console.error('Error fetching brands:', error);
+            }
+        },
+
+        async fetchAllModels() {
+            try {
+                const data = await ApiService.getModels(1, { per_page: 1000 });
+                if (data.success && data.data && data.data.data) {
+                    this.allModels = data.data.data;
+                    this.models = this.allModels;
+                }
+            } catch (error) {
+                console.error('Error fetching models:', error);
+            }
+        },
+
+        filterModelsByBrand() {
+            if (this.filters.brand_car_id) {
+                this.models = this.allModels.filter(model => 
+                    model.brand_car_id == this.filters.brand_car_id
+                );
+                // Reset model filter if selected model doesn't belong to selected brand
+                const selectedModel = this.models.find(m => m.id == this.filters.model_car_id);
+                if (!selectedModel) {
+                    this.filters.model_car_id = '';
+                }
+            } else {
+                this.models = this.allModels;
+            }
+        },
+
         async fetchCars(page = 1) {
             try {
                 loadingIndicator.showTableLoader();
@@ -181,7 +230,8 @@
                 }
 
                 const filters = {
-                    ...this.filters
+                    ...this.filters,
+                    per_page: this.perPage
                 };
                 
                 // Remove empty filters
@@ -238,16 +288,24 @@
         resetFilters() {
             this.filters = {
                 status: '',
+                brand_car_id: '',
+                model_car_id: '',
                 year_from: '',
                 year_to: '',
                 min_price: '',
                 max_price: ''
             };
+            this.models = this.allModels;
             this.applyFilters();
         },
 
         hasActiveFilters() {
-            return !!(this.filters.status || this.filters.year_from || this.filters.year_to || this.filters.min_price || this.filters.max_price);
+            return !!(this.filters.status || this.filters.brand_car_id || this.filters.model_car_id || 
+                     this.filters.year_from || this.filters.year_to || this.filters.min_price || this.filters.max_price);
+        },
+
+        changePerPage() {
+            this.fetchCars(1);
         },
 
         generatePaginationHTML() {
@@ -329,8 +387,9 @@
                         data: mappedData,
                     },
                     searchable: true,
-                    perPage: 10,
+                    perPage: this.tableData.length, // Show all data (we handle pagination server-side)
                     perPageSelect: false,
+                    paging: false, // Disable SimpleDatatables pagination
                     columns: [{ select: 0, sort: 'asc' }],
                     firstLast: true,
                     firstText: '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>',
@@ -340,7 +399,7 @@
                     labels: { perPage: '{select}' },
                     layout: {
                         top: '{search}',
-                        bottom: this.generatePaginationHTML() + '{info}{pager}',
+                        bottom: this.generatePaginationHTML() + '{info}',
                     },
                 });
             } catch (error) {
