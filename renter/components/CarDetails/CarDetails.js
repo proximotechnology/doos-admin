@@ -125,7 +125,7 @@
 
             getThumbnailGridCols() {
                 const imageCount = this.getImageCount();
-                if (imageCount <= 4) {
+                if (imageCount <= 2) {
                     return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-2';
                 } else if (imageCount <= 8) {
                     return 'grid-cols-4 sm:grid-cols-5 lg:grid-cols-4';
