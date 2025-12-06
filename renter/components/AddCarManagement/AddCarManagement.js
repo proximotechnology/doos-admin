@@ -456,8 +456,8 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 // VIN validation
-                if (this.vin && (this.vin.length < 5 || this.vin.length > 17)) {
-                    throw new Error(Alpine.store('i18n').t('vin_length_validation') || 'VIN must be between 5 and 17 characters');
+                if (this.vin && this.vin.length !== 17) {
+                    throw new Error(Alpine.store('i18n').t('vin_must_be_17_characters') || 'VIN must be exactly 17 characters');
                 }
                 
                 // License number validation

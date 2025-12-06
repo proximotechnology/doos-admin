@@ -306,15 +306,15 @@
                                     </label>
                                     <input 
                                         type="text" 
-                                        :placeholder="$store.i18n.t('enter_vin') || 'Enter VIN (5-17 characters)'" 
+                                        :placeholder="$store.i18n.t('enter_vin') || 'Enter VIN (17 characters)'" 
                                         class="form-input" 
                                         x-model="vin" 
                                         maxlength="17"
-                                        minlength="5"
-                                        pattern=".{5,17}"
+                                        minlength="17"
+                                        pattern=".{17}"
                                         required 
                                     />
-                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('vin_length_validation') || 'VIN must be between 5 and 17 characters'"></p>
+                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('vin_must_be_17_characters') || 'VIN must be exactly 17 characters'"></p>
                                 </div>
 
                                 <!-- License Number -->
