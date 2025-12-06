@@ -306,15 +306,15 @@
                                     </label>
                                     <input 
                                         type="text" 
-                                        :placeholder="$store.i18n.t('enter_vin') || 'Enter VIN (17 characters)'" 
+                                        :placeholder="$store.i18n.t('enter_vin') || 'Enter VIN (5-17 characters)'" 
                                         class="form-input" 
                                         x-model="vin" 
                                         maxlength="17"
-                                        minlength="17"
-                                        pattern=".{17}"
+                                        minlength="5"
+                                        pattern=".{5,17}"
                                         required 
                                     />
-                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('vin_must_be_17_characters') || 'VIN must be exactly 17 characters'"></p>
+                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('vin_length_validation') || 'VIN must be between 5 and 17 characters'"></p>
                                 </div>
 
                                 <!-- License Number -->
@@ -328,19 +328,45 @@
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                             />
                                         </svg>
-                                        <span x-text="$store.i18n.t('license_number') || 'License Number'"></span>
+                                        <span x-text="$store.i18n.t('vehicle_license_number') || 'License Number'"></span>
                                     </label>
                                     <input
                                         type="text"
-                                        :placeholder="$store.i18n.t('enter_license_number') || 'Enter License Number (17 characters)'"
+                                        :placeholder="$store.i18n.t('enter_license_number') || 'Enter License Number (5-17 characters)'"
                                         class="form-input"
                                         x-model="number_license"
                                         maxlength="17"
-                                        minlength="17"
-                                        pattern=".{17}"
+                                        minlength="5"
+                                        pattern=".{5,17}"
                                         required
                                     />
-                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('license_must_be_17_characters') || 'License number must be exactly 17 characters'"></p>
+                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('license_length_validation') || 'License number must be between 5 and 17 characters'"></p>
+                                </div>
+
+                                <!-- Plate Number -->
+                                <div class="form-group">
+                                    <label class="form-label flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                            />
+                                        </svg>
+                                        <span x-text="$store.i18n.t('plate_number') || 'Plate Number'"></span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        :placeholder="$store.i18n.t('enter_plate_number') || 'Enter Plate Number (5-17 characters)'"
+                                        class="form-input"
+                                        x-model="plate_number"
+                                        maxlength="17"
+                                        minlength="5"
+                                        pattern=".{5,17}"
+                                        required
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500" x-text="$store.i18n.t('plate_length_validation') || 'Plate number must be between 5 and 17 characters'"></p>
                                 </div>
 
                                 <!-- Min Day Trip -->

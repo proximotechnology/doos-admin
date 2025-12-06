@@ -255,6 +255,7 @@ document.addEventListener('alpine:init', () => {
         // Car Details
         vin: '',
         number_license: '',
+        plate_number: '',
         description_condition: '',
         advanced_notice: '',
         time_answer: '',
@@ -455,13 +456,18 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 // VIN validation
-                if (this.vin && this.vin.length !== 17) {
-                    throw new Error(Alpine.store('i18n').t('vin_must_be_17_characters') || 'VIN must be exactly 17 characters');
+                if (this.vin && (this.vin.length < 5 || this.vin.length > 17)) {
+                    throw new Error(Alpine.store('i18n').t('vin_length_validation') || 'VIN must be between 5 and 17 characters');
                 }
                 
                 // License number validation
-                if (this.number_license && this.number_license.length !== 17) {
-                    throw new Error(Alpine.store('i18n').t('license_must_be_17_characters') || 'License number must be exactly 17 characters');
+                if (this.number_license && (this.number_license.length < 5 || this.number_license.length > 17)) {
+                    throw new Error(Alpine.store('i18n').t('license_length_validation') || 'License number must be between 5 and 17 characters');
+                }
+                
+                // Plate number validation
+                if (this.plate_number && (this.plate_number.length < 5 || this.plate_number.length > 17)) {
+                    throw new Error(Alpine.store('i18n').t('plate_length_validation') || 'Plate number must be between 5 and 17 characters');
                 }
                 
                 // Advanced notice validation
@@ -503,6 +509,7 @@ document.addEventListener('alpine:init', () => {
                 // Car Details
                 formData.append('vin', this.vin);
                 formData.append('number_license', this.number_license);
+                formData.append('plate_number', this.plate_number);
                 if (this.description_condition) formData.append('description_condition', this.description_condition);
                 if (this.advanced_notice) formData.append('advanced_notice', this.advanced_notice);
                 if (this.time_answer) formData.append('time_answer', this.time_answer);

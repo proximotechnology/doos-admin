@@ -517,6 +517,12 @@
                                                 <p class="text-sm font-semibold text-black dark:text-white truncate" x-text="car.vin"></p>
                                             </div>
                                         </template>
+                                        <template x-if="car.plate_number">
+                                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-professional hover-lift card-professional">
+                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('plate_number')"></p>
+                                                <p class="text-sm font-semibold text-black dark:text-white truncate" x-text="car.plate_number"></p>
+                                            </div>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -758,7 +764,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <template x-if="car.number_license">
                                         <div>
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('license_number')"></p>
+                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('vehicle_license_number')"></p>
                                             <p class="text-sm font-normal text-black dark:text-white" x-text="car.number_license"></p>
                                         </div>
                                     </template>
