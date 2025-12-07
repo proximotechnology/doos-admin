@@ -577,7 +577,7 @@
          * Assign permissions to role
          */
         async assignPermissionsToRole(roleId, permissionIds) {
-            return this.post(`/api/admin/roles/${roleId}/permissions`, { permissions: permissionIds });
+            return this.post(`/api/admin/permissions/role`, { permissions: permissionIds });
         }
 
         /**
