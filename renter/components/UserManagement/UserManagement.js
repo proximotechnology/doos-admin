@@ -501,6 +501,16 @@ document.addEventListener('alpine:init', () => {
             this.selectedUser = null;
         },
 
+        getParsedAddress(addressData) {
+            if (!addressData) return {};
+            try {
+                return JSON.parse(addressData);
+            } catch (e) {
+                console.error('Error parsing address data:', e);
+                return {};
+            }
+        },
+
         async deleteUser(userId) {
             try {
                 const isConfirmed = await Swal.fire({
