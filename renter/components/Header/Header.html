@@ -295,7 +295,9 @@
             </div>
 
             <!-- horizontal menu -->
-            <div class="relative hidden lg:block" style="overflow: visible !important; clip-path: none !important; clip: unset !important;">
+            <div class="relative hidden lg:block" 
+                 x-show="$store.app.menu === 'horizontal'"
+                 style="overflow: visible !important; clip-path: none !important; clip: unset !important;">
                 <!-- Scroll Left Button with overlay -->
                 <div id="scrollLeftContainer" class="absolute left-0 top-0 z-10 h-full" style="display: none; width: 60px;">
                     <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-transparent dark:from-[#0e1726] dark:via-[#0e1726]/95"></div>
