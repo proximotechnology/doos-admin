@@ -501,7 +501,6 @@ document.addEventListener('alpine:init', () => {
             this.selectedUser = null;
         },
 
-
         async deleteUser(userId) {
             try {
                 const isConfirmed = await Swal.fire({
