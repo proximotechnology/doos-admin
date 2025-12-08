@@ -750,21 +750,26 @@
          * Get all tickets
          */
         async getTickets(page = 1, filters = {}) {
-            const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/tickets/get_all_tickets', params);
+            return this.get('/api/admin/support/ticket/all');
         }
 
         /**
          * Get ticket details
          */
         async getTicketDetails(ticketId) {
-            return this.get(`/api/admin/support/tickets/${ticketId}`);
+            return this.get(`/api/admin/support/ticket/${ticketId}`);
         }
 
         /**
          * Send ticket reply
+         * @param {number} ticketId - Ticket ID
+         * @param {Object} data - Reply data with message and attachments
+         * @param {boolean} isFormData - Whether to send as FormData (for file uploads)
          */
-        async sendTicketReply(ticketId, data) {
+        async sendTicketReply(ticketId, data, isFormData = false) {
+            if (isFormData) {
+                return this.post(`/api/admin/support/tickets/${ticketId}/reply`, data, true);
+            }
             return this.post(`/api/admin/support/tickets/${ticketId}/reply`, data);
         }
 
@@ -785,15 +790,15 @@
         /**
          * Update ticket priority
          */
-        async updateTicketPriority(ticketId, data) {
-            return this.put(`/api/admin/support/tickets/${ticketId}/priority`, data);
+        async updateTicketPriority(ticketId, priority) {
+            return this.post(`/api/admin/support/tickets/change_priority/${ticketId}`, { priority });
         }
 
         /**
          * Close ticket
          */
         async closeTicket(ticketId, data) {
-            return this.post(`/api/admin/support/tickets/${ticketId}/close`, data);
+            return this.post(`/api/admin/support/tickets/close/${ticketId}`, data);
         }
 
         /**
@@ -801,6 +806,29 @@
          */
         async reopenTicket(ticketId, data) {
             return this.post(`/api/admin/support/tickets/${ticketId}/reopen`, data);
+        }
+
+        /**
+         * Get ticket statistics
+         */
+        async getTicketStatistics(period = 30, groupBy = 'day') {
+            // Statistics endpoint not available yet, return empty data
+            return Promise.resolve({
+                status: 'success',
+                statistics: {
+                    overview: {
+                        total_tickets: 0,
+                        open_tickets: 0,
+                        in_progress_tickets: 0,
+                        closed_tickets: 0
+                    },
+                    priority_breakdown: {},
+                    status_breakdown: {},
+                    category_breakdown: [],
+                    time_series: [],
+                    performance: {}
+                }
+            });
         }
 
         // ==================== Wallet Management APIs ====================
@@ -1130,23 +1158,6 @@
          */
         async deleteCoupon(couponId) {
             return this.delete(`/api/admin/coupon/delete/${couponId}`);
-        }
-
-        // ==================== Ticket Management APIs ====================
-
-        /**
-         * Get all tickets (updated endpoint)
-         */
-        async getTickets(page = 1, filters = {}) {
-            const params = { page, per_page: 10, ...filters };
-            return this.get('/api/admin/support/tickets', params);
-        }
-
-        /**
-         * Get ticket statistics
-         */
-        async getTicketStatistics(period = 30, groupBy = 'day') {
-            return this.get('/api/admin/support/statistics', { period, group_by: groupBy });
         }
 
         // ==================== Wallet Management APIs ====================

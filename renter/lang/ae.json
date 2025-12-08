@@ -1347,5 +1347,11 @@
     "not_uploaded": "غير محمل",
     "user_type": "نوع المستخدم",
     "regular_user": "مستخدم عادي",
-    "address_details": "تفاصيل العنوان"
+    "address_details": "تفاصيل العنوان",
+    "record_audio": "تسجيل صوت",
+    "record_video": "تسجيل فيديو",
+    "take_photo": "التقاط صورة",
+    "capture": "التقاط",
+    "stop_recording": "إيقاف واستخدام",
+    "use_photo": "استخدام الصورة"
 }

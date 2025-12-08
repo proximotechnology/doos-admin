@@ -46,10 +46,13 @@ document.addEventListener('alpine:init', () => {
         // Data
         tickets: [],
         selectedTicket: null,
+        ticketMessages: [],
         searchTicket: '',
         statusFilter: '',
         priorityFilter: '',
         replyMessage: '',
+        attachments: [],
+        attachmentInput: null,
 
         // Statistics
         statistics: {
@@ -91,6 +94,11 @@ document.addEventListener('alpine:init', () => {
 
             await this.loadTickets();
             await this.loadStatistics();
+            
+            // Initialize attachment input after DOM is ready
+            this.$nextTick(() => {
+                this.initAttachmentInput();
+            });
         },
 
         async loadTickets() {
@@ -101,15 +109,26 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.show();
                 const data = await ApiService.getTickets();
 
-                if (data.status === 'success') {
-                    this.tickets = data.tickets.map(ticket => ({
-                        ...ticket,
-                        chats: ticket.chats || []
+                if (data.status === true && Array.isArray(data.data)) {
+                    this.tickets = data.data.map(ticket => ({
+                        id: ticket.id,
+                        ticket_number: ticket.ticket_number,
+                        title: ticket.title,
+                        subject: ticket.title, // For backward compatibility
+                        user_name: ticket.user_name,
+                        user: { name: ticket.user_name }, // For backward compatibility
+                        priority: ticket.priority,
+                        status: 'open', // Default, will be updated when details are loaded
+                        created_at: ticket.created_at_short,
+                        created_at_short: ticket.created_at_short,
+                        unread_messages_count: ticket.unread_messages_count || 0,
+                        chat_count: ticket.unread_messages_count || 0 // For backward compatibility
                     }));
-                    coloredToast('success', `${this.t('loaded_tickets').replace('{count}', this.tickets.length)}`);
+                    coloredToast('success', `${this.t('loaded_tickets')?.replace('{count}', this.tickets.length) || `Loaded ${this.tickets.length} tickets`}`);
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_load'));
+                console.error('Error loading tickets:', error);
+                coloredToast('danger', this.t('failed_to_load') || 'Failed to load tickets');
             } finally {
                 loadingIndicator.hide();
             }
@@ -151,18 +170,16 @@ document.addEventListener('alpine:init', () => {
         async selectTicket(ticket) {
             try {
                 loadingIndicator.show();
-                this.selectedTicket = { ...ticket };
                 this.isShowTicketDetail = true;
                 this.isShowTicketMenu = false;
 
-                // Load full ticket details if not already loaded
-                if (!this.selectedTicket.chats || this.selectedTicket.chats.length === 0) {
-                    await this.loadTicketDetails(ticket.id);
-                }
+                // Always load full ticket details
+                await this.loadTicketDetails(ticket.id);
 
-                coloredToast('success', `${this.t('ticket_selected').replace('{number}', ticket.ticket_number)}`);
+                coloredToast('success', `${this.t('ticket_selected')?.replace('{number}', ticket.ticket_number) || `Ticket ${ticket.ticket_number} selected`}`);
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_load_ticket_details'));
+                console.error('Error selecting ticket:', error);
+                coloredToast('danger', this.t('failed_to_load_ticket_details') || 'Failed to load ticket details');
             } finally {
                 loadingIndicator.hide();
             }
@@ -173,17 +190,55 @@ document.addEventListener('alpine:init', () => {
                 loadingIndicator.show();
                 const data = await ApiService.getTicketDetails(ticketId);
 
-                if (data.status === 'success') {
-                    this.selectedTicket = data.ticket;
+                if (data.status === true && data.ticket) {
+                    // Update selected ticket with ticket info
+                    this.selectedTicket = {
+                        id: data.ticket.id,
+                        ticket_number: `DSS-${data.ticket.id}`, // Fallback if not provided
+                        title: data.ticket.description?.substring(0, 50) || 'No title',
+                        subject: data.ticket.description?.substring(0, 50) || 'No title',
+                        user_name: data.ticket.user_name,
+                        user: { 
+                            name: data.ticket.user_name,
+                            email: data.ticket.user_name // Fallback
+                        },
+                        category: data.ticket.category,
+                        priority: data.ticket.priority?.toLowerCase() || 'medium',
+                        status: data.ticket.status || 'open',
+                        created_at: data.ticket.created_at,
+                        last_ativity: data.ticket.last_ativity,
+                        description: data.ticket.description,
+                        updated_at: data.ticket.last_ativity
+                    };
+
+                    // Load messages
+                    if (Array.isArray(data.messages)) {
+                        this.ticketMessages = data.messages.map(msg => ({
+                            id: msg.id,
+                            message: msg.message,
+                            attachments: msg.attachments || [],
+                            created_at: msg.created_at,
+                            sender: msg.sender, // "me" or "other"
+                            sender_id: msg.sender === 'me' ? this.loginUser.id : null,
+                            is_internal_note: msg.message?.startsWith('Priority changed') || msg.message?.startsWith('Resolution:')
+                        }));
+                    } else {
+                        this.ticketMessages = [];
+                    }
 
                     // Update the ticket in the list
                     const index = this.tickets.findIndex(t => t.id === ticketId);
                     if (index !== -1) {
-                        this.tickets[index] = { ...this.tickets[index], ...data.ticket };
+                        this.tickets[index] = { 
+                            ...this.tickets[index], 
+                            status: this.selectedTicket.status,
+                            priority: this.selectedTicket.priority
+                        };
                     }
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_load_ticket_details'));
+                console.error('Error loading ticket details:', error);
+                coloredToast('danger', this.t('failed_to_load_ticket_details') || 'Failed to load ticket details');
                 throw error;
             } finally {
                 loadingIndicator.hide();
@@ -192,46 +247,61 @@ document.addEventListener('alpine:init', () => {
 
         async sendReply() {
             if (!this.replyMessage.trim() || !this.selectedTicket) {
-                coloredToast('warning', this.t('please_enter_message'));
+                coloredToast('warning', this.t('please_enter_message') || 'Please enter a message');
                 return;
             }
 
             try {
                 loadingIndicator.show();
-                const data = await ApiService.sendTicketReply(this.selectedTicket.id, {
-                    message: this.replyMessage.trim(),
-                    is_internal_note: false,
-                    attachments: []
-                });
-
-                if (data.status === 'success') {
-                    // Add message to conversation
-                    if (!this.selectedTicket.chats) {
-                        this.selectedTicket.chats = [];
-                    }
-
-                    this.selectedTicket.chats.push({
-                        id: data.chat_message.id,
-                        sender_id: this.loginUser.id,
-                        receiver_id: this.selectedTicket.user_id,
+                
+                // Prepare form data if there are attachments
+                let requestData;
+                let isFormData = false;
+                
+                if (this.attachments.length > 0) {
+                    const formData = new FormData();
+                    formData.append('message', this.replyMessage.trim());
+                    
+                    // Add attachments
+                    this.attachments.forEach((file, index) => {
+                        formData.append(`attachments[${index}]`, file);
+                    });
+                    
+                    requestData = formData;
+                    isFormData = true;
+                } else {
+                    requestData = {
                         message: this.replyMessage.trim(),
+                        attachments: []
+                    };
+                }
+
+                const data = await ApiService.sendTicketReply(this.selectedTicket.id, requestData, isFormData);
+
+                if (data.status === 'success' || data.status === true) {
+                    // Add message to conversation
+                    this.ticketMessages.push({
+                        id: Date.now(), // Temporary ID
+                        message: this.replyMessage.trim(),
+                        attachments: this.attachments.map(f => ({ name: f.name, url: '' })),
                         created_at: new Date().toISOString(),
-                        sender: {
-                            id: this.loginUser.id,
-                            name: this.loginUser.name
-                        },
+                        sender: 'me',
+                        sender_id: this.loginUser.id,
                         is_internal_note: false
                     });
 
                     this.replyMessage = '';
+                    this.attachments = [];
+                    this.clearAttachmentInput();
                     this.scrollToBottom();
 
-                    // Refresh tickets list
-                    await this.loadTickets();
-                    coloredToast('success', this.t('message_sent'));
+                    // Reload ticket details to get updated messages
+                    await this.loadTicketDetails(this.selectedTicket.id);
+                    coloredToast('success', this.t('message_sent') || 'Message sent successfully');
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_send'));
+                console.error('Error sending reply:', error);
+                coloredToast('danger', this.t('failed_to_send') || 'Failed to send message');
             } finally {
                 loadingIndicator.hide();
             }
@@ -314,24 +384,32 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-                const data = await ApiService.updateTicketPriority(this.selectedTicket.id, {
-                    priority: priority,
-                    admin_notes: `${this.t('priority_changed_to').replace('{priority}', this.getPriorityLabel(priority))}`
-                });
+                const data = await ApiService.updateTicketPriority(this.selectedTicket.id, priority.toLowerCase());
 
-                if (data.status === 'success') {
-                    this.selectedTicket.priority = priority;
+                if (data.status === 'success' || data.status === true) {
+                    this.selectedTicket.priority = priority.toLowerCase();
 
                     // Update ticket in list
                     const index = this.tickets.findIndex(t => t.id === this.selectedTicket.id);
                     if (index !== -1) {
-                        this.tickets[index].priority = priority;
+                        this.tickets[index].priority = priority.toLowerCase();
                     }
 
-                    coloredToast('success', this.t('priority_updated'));
+                    // Add system message about priority change
+                    this.ticketMessages.push({
+                        id: Date.now(),
+                        message: `Priority changed to ${this.getPriorityLabel(priority)}`,
+                        attachments: [],
+                        created_at: new Date().toISOString(),
+                        sender: 'other',
+                        is_internal_note: false
+                    });
+
+                    coloredToast('success', this.t('priority_updated') || 'Priority updated successfully');
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_update'));
+                console.error('Error updating priority:', error);
+                coloredToast('danger', this.t('failed_to_update') || 'Failed to update priority');
             } finally {
                 loadingIndicator.hide();
             }
@@ -345,24 +423,24 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 const { value: formValues } = await Swal.fire({
-                    title: this.t('close_ticket'),
+                    title: this.t('close_ticket') || 'Close Ticket',
                     html: `
-                        <input id="swal-resolution" class="swal2-input" placeholder="${this.t('resolution_summary')}">
-                        <input id="swal-admin-notes" class="swal2-input" placeholder="${this.t('admin_notes')} (${this.t('optional')})">
+                        <input id="swal-resolution" class="swal2-input" placeholder="${this.t('resolution_summary') || 'Resolution Summary'}">
+                        <input id="swal-admin-notes" class="swal2-input" placeholder="${this.t('admin_notes') || 'Admin Notes'} (${this.t('optional') || 'Optional'})">
                     `,
                     focusConfirm: false,
                     showCancelButton: true,
-                    confirmButtonText: this.t('close_ticket'),
-                    cancelButtonText: this.t('cancel'),
+                    confirmButtonText: this.t('close_ticket') || 'Close Ticket',
+                    cancelButtonText: this.t('cancel') || 'Cancel',
                     preConfirm: () => {
                         const resolution = document.getElementById('swal-resolution').value;
                         if (!resolution) {
-                            Swal.showValidationMessage(this.t('please_enter_reason'));
+                            Swal.showValidationMessage(this.t('please_enter_reason') || 'Please enter a resolution');
                             return false;
                         }
                         return {
                             resolution: resolution,
-                            admin_notes: document.getElementById('swal-admin-notes').value
+                            admin_notes: document.getElementById('swal-admin-notes').value || ''
                         };
                     }
                 });
@@ -374,7 +452,7 @@ document.addEventListener('alpine:init', () => {
                         admin_notes: formValues.admin_notes
                     });
 
-                    if (data.status === 'success') {
+                    if (data.status === 'success' || data.status === true) {
                         this.selectedTicket.status = 'closed';
 
                         // Update ticket in list
@@ -383,12 +461,23 @@ document.addEventListener('alpine:init', () => {
                             this.tickets[index].status = 'closed';
                         }
 
+                        // Add system message about resolution
+                        this.ticketMessages.push({
+                            id: Date.now(),
+                            message: `Resolution: ${formValues.resolution}`,
+                            attachments: [],
+                            created_at: new Date().toISOString(),
+                            sender: 'other',
+                            is_internal_note: false
+                        });
+
                         await this.loadStatistics();
-                        coloredToast('success', this.t('ticket_closed'));
+                        coloredToast('success', this.t('ticket_closed') || 'Ticket closed successfully');
                     }
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_close'));
+                console.error('Error closing ticket:', error);
+                coloredToast('danger', this.t('failed_to_close') || 'Failed to close ticket');
             } finally {
                 loadingIndicator.hide();
             }
@@ -521,6 +610,421 @@ document.addEventListener('alpine:init', () => {
                     element.scrollTop = element.scrollHeight;
                 }
             }, 100);
+        },
+
+        // Attachment management
+        initAttachmentInput() {
+            this.attachmentInput = document.getElementById('attachmentInput');
+            if (this.attachmentInput) {
+                this.attachmentInput.addEventListener('change', (e) => {
+                    this.handleFileSelect(e.target.files);
+                });
+            }
+        },
+
+        handleFileSelect(files) {
+            Array.from(files).forEach(file => {
+                // Validate file size (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    coloredToast('warning', `File ${file.name} is too large. Maximum size is 10MB.`);
+                    return;
+                }
+                this.attachments.push(file);
+            });
+        },
+
+        removeAttachment(index) {
+            this.attachments.splice(index, 1);
+        },
+
+        clearAttachmentInput() {
+            if (this.attachmentInput) {
+                this.attachmentInput.value = '';
+            }
+        },
+
+        openFilePicker() {
+            if (this.attachmentInput) {
+                this.attachmentInput.click();
+            }
+        },
+
+        async openCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                coloredToast('warning', 'Camera not supported on this device');
+                return;
+            }
+
+            try {
+                // Show camera modal
+                const { value: photoConfirmed } = await Swal.fire({
+                    title: this.t('take_photo') || 'Take Photo',
+                    html: `
+                        <div class="flex flex-col items-center gap-4 p-4">
+                            <video id="cameraPreview" autoplay class="w-full max-h-96 rounded-lg bg-black"></video>
+                            <canvas id="photoCanvas" class="hidden"></canvas>
+                            <img id="capturedPhoto" class="hidden w-full max-h-96 rounded-lg"/>
+                        </div>
+                    `,
+                    width: '600px',
+                    showCancelButton: true,
+                    confirmButtonText: '<span id="captureButtonText">📷 ' + (this.t('capture') || 'Capture') + '</span>',
+                    cancelButtonText: this.t('cancel') || 'Cancel',
+                    didOpen: async () => {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ 
+                                video: { facingMode: 'environment' }
+                            });
+                            
+                            const videoPreview = document.getElementById('cameraPreview');
+                            if (videoPreview) {
+                                videoPreview.srcObject = stream;
+                            }
+
+                            window._cameraStream = stream;
+                            window._photoCapture = false;
+
+                        } catch (error) {
+                            console.error('Error accessing camera:', error);
+                            Swal.close();
+                            coloredToast('danger', 'Failed to access camera. Please allow camera permission.');
+                        }
+                    },
+                    preConfirm: () => {
+                        const videoPreview = document.getElementById('cameraPreview');
+                        const canvas = document.getElementById('photoCanvas');
+                        const capturedPhoto = document.getElementById('capturedPhoto');
+                        const captureButton = document.getElementById('captureButtonText');
+
+                        if (!window._photoCapture && videoPreview && canvas) {
+                            // First click: Capture photo
+                            canvas.width = videoPreview.videoWidth;
+                            canvas.height = videoPreview.videoHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(videoPreview, 0, 0);
+                            
+                            // Convert to blob
+                            canvas.toBlob((blob) => {
+                                window._capturedPhotoBlob = blob;
+                                const photoUrl = URL.createObjectURL(blob);
+                                
+                                if (capturedPhoto) {
+                                    capturedPhoto.src = photoUrl;
+                                    capturedPhoto.classList.remove('hidden');
+                                }
+                                if (videoPreview) {
+                                    videoPreview.classList.add('hidden');
+                                }
+                                if (captureButton) {
+                                    captureButton.innerHTML = '✓ ' + (this.t('use_photo') || 'Use Photo');
+                                }
+                            }, 'image/jpeg', 0.95);
+
+                            window._photoCapture = true;
+                            return false; // Don't close modal yet
+                        } else {
+                            // Second click: Confirm and use photo
+                            return true;
+                        }
+                    },
+                    willClose: () => {
+                        if (window._cameraStream) {
+                            window._cameraStream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                });
+
+                if (photoConfirmed && window._capturedPhotoBlob) {
+                    const photoFile = new File(
+                        [window._capturedPhotoBlob], 
+                        `photo_${Date.now()}.jpg`, 
+                        { type: 'image/jpeg' }
+                    );
+                    
+                    this.attachments.push(photoFile);
+                    coloredToast('success', 'Photo captured successfully');
+                    
+                    delete window._capturedPhotoBlob;
+                    delete window._cameraStream;
+                    delete window._photoCapture;
+                }
+
+            } catch (error) {
+                console.error('Error in photo capture:', error);
+                coloredToast('danger', 'Failed to capture photo');
+            }
+        },
+
+        async openVideoRecorder() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                coloredToast('warning', 'Video recording not supported on this device');
+                return;
+            }
+
+            try {
+                // Show recording modal
+                const { value: recordingConfirmed } = await Swal.fire({
+                    title: this.t('record_video') || 'Record Video',
+                    html: `
+                        <div class="flex flex-col items-center gap-4 p-4">
+                            <video id="videoPreview" autoplay muted class="w-full max-h-64 rounded-lg bg-black"></video>
+                            <div id="videoRecordingStatus" class="flex items-center gap-3">
+                                <div class="h-12 w-12 rounded-full bg-danger animate-pulse flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="8"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-bold text-danger">Recording...</p>
+                                    <p id="videoRecordingTimer" class="text-sm text-gray-500">00:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    width: '600px',
+                    showCancelButton: true,
+                    confirmButtonText: this.t('stop_recording') || 'Stop & Use',
+                    cancelButtonText: this.t('cancel') || 'Cancel',
+                    didOpen: async () => {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ 
+                                video: { width: 1280, height: 720 },
+                                audio: true 
+                            });
+                            
+                            const videoPreview = document.getElementById('videoPreview');
+                            if (videoPreview) {
+                                videoPreview.srcObject = stream;
+                            }
+
+                            const mediaRecorder = new MediaRecorder(stream);
+                            const videoChunks = [];
+                            let startTime = Date.now();
+                            let timerInterval;
+
+                            // Update timer
+                            timerInterval = setInterval(() => {
+                                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                                const minutes = Math.floor(elapsed / 60);
+                                const seconds = elapsed % 60;
+                                const timerElement = document.getElementById('videoRecordingTimer');
+                                if (timerElement) {
+                                    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                                }
+                            }, 1000);
+
+                            mediaRecorder.ondataavailable = (event) => {
+                                videoChunks.push(event.data);
+                            };
+
+                            mediaRecorder.onstop = () => {
+                                clearInterval(timerInterval);
+                                const videoBlob = new Blob(videoChunks, { type: 'video/webm' });
+                                window._recordedVideoBlob = videoBlob;
+                                stream.getTracks().forEach(track => track.stop());
+                            };
+
+                            mediaRecorder.start();
+                            window._videoMediaRecorder = mediaRecorder;
+                            window._videoTimerInterval = timerInterval;
+                            window._videoMediaStream = stream;
+
+                        } catch (error) {
+                            console.error('Error accessing camera:', error);
+                            Swal.close();
+                            coloredToast('danger', 'Failed to access camera. Please allow camera permission.');
+                        }
+                    },
+                    preConfirm: () => {
+                        if (window._videoMediaRecorder && window._videoMediaRecorder.state === 'recording') {
+                            window._videoMediaRecorder.stop();
+                            return new Promise((resolve) => {
+                                setTimeout(() => resolve(true), 500);
+                            });
+                        }
+                        return true;
+                    },
+                    willClose: () => {
+                        if (window._videoTimerInterval) {
+                            clearInterval(window._videoTimerInterval);
+                        }
+                        if (window._videoMediaStream) {
+                            window._videoMediaStream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                });
+
+                if (recordingConfirmed && window._recordedVideoBlob) {
+                    const videoFile = new File(
+                        [window._recordedVideoBlob], 
+                        `video_${Date.now()}.webm`, 
+                        { type: 'video/webm' }
+                    );
+                    
+                    this.attachments.push(videoFile);
+                    coloredToast('success', 'Video recorded successfully');
+                    
+                    delete window._recordedVideoBlob;
+                    delete window._videoMediaRecorder;
+                    delete window._videoTimerInterval;
+                    delete window._videoMediaStream;
+                }
+
+            } catch (error) {
+                console.error('Error in video recording:', error);
+                coloredToast('danger', 'Failed to record video');
+            }
+        },
+
+        async openAudioRecorder() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                coloredToast('warning', 'Audio recording not supported on this device');
+                return;
+            }
+
+            try {
+                // Show recording modal
+                const { value: recordingConfirmed } = await Swal.fire({
+                    title: this.t('record_audio') || 'Record Audio',
+                    html: `
+                        <div class="flex flex-col items-center gap-4 p-4">
+                            <div id="audioRecordingStatus" class="flex items-center gap-3">
+                                <div class="h-12 w-12 rounded-full bg-danger animate-pulse flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-bold text-danger">Recording...</p>
+                                    <p id="recordingTimer" class="text-sm text-gray-500">00:00</p>
+                                </div>
+                            </div>
+                            <audio id="audioPlayback" controls class="hidden w-full mt-4"></audio>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: this.t('stop_recording') || 'Stop & Use',
+                    cancelButtonText: this.t('cancel') || 'Cancel',
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    didOpen: async () => {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            const mediaRecorder = new MediaRecorder(stream);
+                            const audioChunks = [];
+                            let startTime = Date.now();
+                            let timerInterval;
+
+                            // Update timer
+                            timerInterval = setInterval(() => {
+                                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                                const minutes = Math.floor(elapsed / 60);
+                                const seconds = elapsed % 60;
+                                const timerElement = document.getElementById('recordingTimer');
+                                if (timerElement) {
+                                    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                                }
+                            }, 1000);
+
+                            mediaRecorder.ondataavailable = (event) => {
+                                audioChunks.push(event.data);
+                            };
+
+                            mediaRecorder.onstop = () => {
+                                clearInterval(timerInterval);
+                                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                                const audioUrl = URL.createObjectURL(audioBlob);
+                                
+                                // Show playback
+                                const statusDiv = document.getElementById('audioRecordingStatus');
+                                const playbackAudio = document.getElementById('audioPlayback');
+                                if (statusDiv && playbackAudio) {
+                                    statusDiv.classList.add('hidden');
+                                    playbackAudio.src = audioUrl;
+                                    playbackAudio.classList.remove('hidden');
+                                }
+
+                                // Store for later use
+                                window._recordedAudioBlob = audioBlob;
+                                
+                                // Stop all tracks
+                                stream.getTracks().forEach(track => track.stop());
+                            };
+
+                            mediaRecorder.start();
+
+                            // Store mediaRecorder for stop button
+                            window._mediaRecorder = mediaRecorder;
+                            window._timerInterval = timerInterval;
+                            window._mediaStream = stream;
+
+                        } catch (error) {
+                            console.error('Error accessing microphone:', error);
+                            Swal.close();
+                            coloredToast('danger', 'Failed to access microphone. Please allow microphone permission.');
+                        }
+                    },
+                    preConfirm: () => {
+                        if (window._mediaRecorder && window._mediaRecorder.state === 'recording') {
+                            window._mediaRecorder.stop();
+                            // Wait for onstop to complete
+                            return new Promise((resolve) => {
+                                setTimeout(() => resolve(true), 500);
+                            });
+                        }
+                        return true;
+                    },
+                    willClose: () => {
+                        // Cleanup
+                        if (window._timerInterval) {
+                            clearInterval(window._timerInterval);
+                        }
+                        if (window._mediaStream) {
+                            window._mediaStream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                });
+
+                if (recordingConfirmed && window._recordedAudioBlob) {
+                    // Convert blob to file
+                    const audioFile = new File(
+                        [window._recordedAudioBlob], 
+                        `audio_${Date.now()}.webm`, 
+                        { type: 'audio/webm' }
+                    );
+                    
+                    this.attachments.push(audioFile);
+                    coloredToast('success', 'Audio recorded successfully');
+                    
+                    // Cleanup
+                    delete window._recordedAudioBlob;
+                    delete window._mediaRecorder;
+                    delete window._timerInterval;
+                    delete window._mediaStream;
+                }
+
+            } catch (error) {
+                console.error('Error in audio recording:', error);
+                coloredToast('danger', 'Failed to record audio');
+            }
+        },
+
+        getFileIcon(file) {
+            const type = file.type || '';
+            if (type.startsWith('image/')) return 'image';
+            if (type.startsWith('video/')) return 'video';
+            if (type.startsWith('audio/')) return 'audio';
+            return 'file';
+        },
+
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         },
 
         // Additional translation keys for dynamic content

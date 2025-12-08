@@ -1426,5 +1426,11 @@
     "available": "Available",
     "not_uploaded": "Not Uploaded",
     "regular_user": "Regular User",
-    "address_details": "Address Details"
+    "address_details": "Address Details",
+    "record_audio": "Record Audio",
+    "record_video": "Record Video",
+    "take_photo": "Take Photo",
+    "capture": "Capture",
+    "stop_recording": "Stop & Use",
+    "use_photo": "Use Photo"
 }
