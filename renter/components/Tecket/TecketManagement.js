@@ -92,6 +92,9 @@ document.addEventListener('alpine:init', () => {
             if (this._initialized) return;
             this._initialized = true;
 
+            // Get logged in user info
+            await this.loadUserInfo();
+
             await this.loadTickets();
             await this.loadStatistics();
             
@@ -99,6 +102,62 @@ document.addEventListener('alpine:init', () => {
             this.$nextTick(() => {
                 this.initAttachmentInput();
             });
+        },
+
+        async loadUserInfo() {
+            try {
+                // Only check localStorage, don't call API
+                const userInfo = localStorage.getItem('userInfo');
+                if (userInfo) {
+                    try {
+                        const user = JSON.parse(userInfo);
+                        this.loginUser.id = user.id || user.user_id;
+                        this.loginUser.name = user.name || 'Admin User';
+                        console.log('User info loaded from localStorage:', this.loginUser);
+                        return;
+                    } catch (e) {
+                        console.warn('Failed to parse userInfo from localStorage:', e);
+                    }
+                }
+                
+                // If not found, don't fetch automatically
+                console.log('User info not found in localStorage. Will fetch when needed.');
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        },
+
+        async fetchUserInfoFromAPI() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    console.warn('No auth token found');
+                    return false;
+                }
+
+                // Use ApiService instead of direct fetch
+                const data = await ApiService.getProfile();
+
+                if (data.status === true && data.user) {
+                    this.loginUser.id = data.user.id;
+                    this.loginUser.name = data.user.name || 'Admin User';
+                    
+                    // Save to localStorage for future use
+                    localStorage.setItem('userInfo', JSON.stringify({
+                        id: data.user.id,
+                        name: data.user.name,
+                        email: data.user.email,
+                        type: data.user.type
+                    }));
+                    
+                    console.log('User info fetched from API:', this.loginUser);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error fetching user info from API:', error);
+                return false;
+            }
         },
 
         async loadTickets() {
@@ -117,8 +176,8 @@ document.addEventListener('alpine:init', () => {
                         subject: ticket.title, // For backward compatibility
                         user_name: ticket.user_name,
                         user: { name: ticket.user_name }, // For backward compatibility
-                        priority: ticket.priority,
-                        status: 'open', // Default, will be updated when details are loaded
+                        priority: ticket.priority ? ticket.priority.toLowerCase() : 'medium', // Convert to lowercase
+                        status: ticket.status ? ticket.status.toLowerCase() : 'open', // Read from API or default to 'open'
                         created_at: ticket.created_at_short,
                         created_at_short: ticket.created_at_short,
                         unread_messages_count: ticket.unread_messages_count || 0,
@@ -213,15 +272,30 @@ document.addEventListener('alpine:init', () => {
 
                     // Load messages
                     if (Array.isArray(data.messages)) {
-                        this.ticketMessages = data.messages.map(msg => ({
-                            id: msg.id,
-                            message: msg.message,
-                            attachments: msg.attachments || [],
-                            created_at: msg.created_at,
-                            sender: msg.sender, // "me" or "other"
-                            sender_id: msg.sender === 'me' ? this.loginUser.id : null,
-                            is_internal_note: msg.message?.startsWith('Priority changed') || msg.message?.startsWith('Resolution:')
-                        }));
+                        this.ticketMessages = data.messages.map(msg => {
+                            // Check if is_internal_note exists in API response
+                            let isInternalNote = 0;
+                            if (msg.is_internal_note !== undefined && msg.is_internal_note !== null) {
+                                // Use value from API
+                                isInternalNote = (msg.is_internal_note === 1 || msg.is_internal_note === '1' || msg.is_internal_note === true) ? 1 : 0;
+                            } else {
+                                // Fallback: detect from message content
+                                isInternalNote = (msg.message?.startsWith('Priority changed') || msg.message?.startsWith('Resolution:')) ? 1 : 0;
+                            }
+                            
+                            return {
+                                id: msg.id,
+                                message: msg.message,
+                                attachments: msg.attachments || [],
+                                created_at: msg.created_at,
+                                sender: msg.sender, // "me" or "other"
+                                sender_id: msg.sender === 'me' ? this.loginUser.id : null,
+                                is_internal_note: isInternalNote
+                            };
+                        });
+                        
+                        // Debug: log messages to console
+                        console.log('Loaded ticket messages:', this.ticketMessages);
                     } else {
                         this.ticketMessages = [];
                     }
@@ -245,7 +319,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async sendReply() {
+        async sendReply(isInternalNote = false) {
             if (!this.replyMessage.trim() || !this.selectedTicket) {
                 coloredToast('warning', this.t('please_enter_message') || 'Please enter a message');
                 return;
@@ -261,6 +335,7 @@ document.addEventListener('alpine:init', () => {
                 if (this.attachments.length > 0) {
                     const formData = new FormData();
                     formData.append('message', this.replyMessage.trim());
+                    formData.append('is_internal_note', isInternalNote ? '1' : '0');
                     
                     // Add attachments
                     this.attachments.forEach((file, index) => {
@@ -272,6 +347,7 @@ document.addEventListener('alpine:init', () => {
                 } else {
                     requestData = {
                         message: this.replyMessage.trim(),
+                        is_internal_note: isInternalNote ? 1 : 0,
                         attachments: []
                     };
                 }
@@ -284,10 +360,10 @@ document.addEventListener('alpine:init', () => {
                         id: Date.now(), // Temporary ID
                         message: this.replyMessage.trim(),
                         attachments: this.attachments.map(f => ({ name: f.name, url: '' })),
-                        created_at: new Date().toISOString(),
+                        created_at: 'just now',
                         sender: 'me',
                         sender_id: this.loginUser.id,
-                        is_internal_note: false
+                        is_internal_note: isInternalNote
                     });
 
                     this.replyMessage = '';
@@ -297,7 +373,11 @@ document.addEventListener('alpine:init', () => {
 
                     // Reload ticket details to get updated messages
                     await this.loadTicketDetails(this.selectedTicket.id);
-                    coloredToast('success', this.t('message_sent') || 'Message sent successfully');
+                    
+                    const successMessage = isInternalNote 
+                        ? (this.t('internal_note_added') || 'Internal note added successfully')
+                        : (this.t('message_sent') || 'Message sent successfully');
+                    coloredToast('success', successMessage);
                 }
             } catch (error) {
                 console.error('Error sending reply:', error);
@@ -308,46 +388,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         async addInternalNote() {
-            if (!this.replyMessage.trim() || !this.selectedTicket) {
-                coloredToast('warning', this.t('please_enter_message'));
-                return;
-            }
-
-            try {
-                loadingIndicator.show();
-                const data = await ApiService.addTicketInternalNote(this.selectedTicket.id, {
-                    message: this.replyMessage.trim(),
-                    is_internal_note: true
-                });
-
-                if (data.status === 'success') {
-                    // Add internal note to conversation
-                    if (!this.selectedTicket.chats) {
-                        this.selectedTicket.chats = [];
-                    }
-
-                    this.selectedTicket.chats.push({
-                        id: Date.now(), // Temporary ID
-                        sender_id: this.loginUser.id,
-                        receiver_id: this.selectedTicket.user_id,
-                        message: this.replyMessage.trim(),
-                        created_at: new Date().toISOString(),
-                        sender: {
-                            id: this.loginUser.id,
-                            name: this.loginUser.name
-                        },
-                        is_internal_note: true
-                    });
-
-                    this.replyMessage = '';
-                    this.scrollToBottom();
-                    coloredToast('success', this.t('internal_note_added'));
-                }
-            } catch (error) {
-                coloredToast('danger', this.t('failed_to_send'));
-            } finally {
-                loadingIndicator.hide();
-            }
+            // Use the same sendReply function with isInternalNote = true
+            await this.sendReply(true);
         },
 
         async updateStatus(status) {
@@ -355,12 +397,25 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 loadingIndicator.show();
-                const data = await ApiService.updateTicketStatus(this.selectedTicket.id, {
-                    status: status,
-                    admin_notes: `${this.t('status_changed_to').replace('{status}', this.getStatusLabel(status))}`
-                });
+                
+                // Ensure we have a valid user ID
+                if (!this.loginUser.id) {
+                    // Try to fetch from API only when needed
+                    const fetched = await this.fetchUserInfoFromAPI();
+                    if (!fetched || !this.loginUser.id) {
+                        coloredToast('danger', 'Could not load user information. Please login again.');
+                        loadingIndicator.hide();
+                        return;
+                    }
+                }
 
-                if (data.status === 'success') {
+                const data = await ApiService.updateTicketStatus(
+                    this.selectedTicket.id, 
+                    status,
+                    String(this.loginUser.id) // Convert to string as required by API
+                );
+
+                if (data.status === 'success' || data.status === true) {
                     this.selectedTicket.status = status;
 
                     // Update ticket in list
@@ -370,10 +425,11 @@ document.addEventListener('alpine:init', () => {
                     }
 
                     await this.loadStatistics();
-                    coloredToast('success', this.t('status_updated'));
+                    coloredToast('success', this.t('status_updated') || 'Status updated successfully');
                 }
             } catch (error) {
-                coloredToast('danger', this.t('failed_to_update'));
+                console.error('Error updating status:', error);
+                coloredToast('danger', this.t('failed_to_update') || 'Failed to update status');
             } finally {
                 loadingIndicator.hide();
             }
@@ -549,7 +605,6 @@ document.addEventListener('alpine:init', () => {
             const statusLabels = {
                 'open': this.t('open'),
                 'in_progress': this.t('in_progress'),
-                'resolved': this.t('resolved'),
                 'closed': this.t('closed')
             };
             return statusLabels[status] || status;
@@ -569,7 +624,6 @@ document.addEventListener('alpine:init', () => {
             const badgeClasses = {
                 'open': 'bg-success/20 text-success',
                 'in_progress': 'bg-warning/20 text-warning',
-                'resolved': 'bg-primary/20 text-primary',
                 'closed': 'bg-danger/20 text-danger'
             };
             return badgeClasses[status] || 'bg-gray-200 text-gray-800';

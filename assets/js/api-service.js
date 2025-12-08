@@ -783,8 +783,11 @@
         /**
          * Update ticket status
          */
-        async updateTicketStatus(ticketId, data) {
-            return this.put(`/api/admin/support/tickets/${ticketId}/status`, data);
+        async updateTicketStatus(ticketId, status, assignedTo) {
+            return this.post(`/api/admin/support/tickets/${ticketId}/assign`, {
+                status: status,
+                assigned_to: assignedTo
+            });
         }
 
         /**
