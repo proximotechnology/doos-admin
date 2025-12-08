@@ -195,12 +195,30 @@ document.addEventListener('alpine:init', () => {
 
         async loadStatistics() {
             try {
-                const data = await ApiService.getTicketStatistics(30, 'day');
-                if (data.status === 'success') {
-                    this.statistics = data.statistics;
+                const data = await ApiService.getTicketStatistics();
+                console.log('Statistics API Response:', data);
+                
+                if (data.status === true) {
+                    // Update statistics with new API structure
+                    this.statistics = {
+                        overview: {
+                            total_tickets: data.total_tickets || 0,
+                            open_tickets: data.open_tickets || 0,
+                            in_progress_tickets: data.in_progress_tickets || 0,
+                            closed_tickets: data.closed_tickets || 0
+                        },
+                        priority_breakdown: {},
+                        status_breakdown: {},
+                        category_breakdown: [],
+                        time_series: [],
+                        performance: {}
+                    };
+                    
+                    console.log('Statistics Updated:', this.statistics);
                 }
             } catch (error) {
-                }
+                console.error('Error loading statistics:', error);
+            }
         },
 
         filteredTickets() {

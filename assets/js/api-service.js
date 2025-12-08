@@ -814,24 +814,8 @@
         /**
          * Get ticket statistics
          */
-        async getTicketStatistics(period = 30, groupBy = 'day') {
-            // Statistics endpoint not available yet, return empty data
-            return Promise.resolve({
-                status: 'success',
-                statistics: {
-                    overview: {
-                        total_tickets: 0,
-                        open_tickets: 0,
-                        in_progress_tickets: 0,
-                        closed_tickets: 0
-                    },
-                    priority_breakdown: {},
-                    status_breakdown: {},
-                    category_breakdown: [],
-                    time_series: [],
-                    performance: {}
-                }
-            });
+        async getTicketStatistics() {
+            return this.get('/api/admin/support/tickets/statistics');
         }
 
         // ==================== Wallet Management APIs ====================
