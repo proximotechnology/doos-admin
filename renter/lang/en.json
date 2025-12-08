@@ -948,6 +948,7 @@
     "conversation": "Conversation",
     "internal_notes": "Internal Notes",
     "attachments": "Attachments",
+    "choose_what_to_attach": "Choose what to attach",
     "ticket_info": "Ticket Information",
     "customer_info": "Customer Information",
     "resolution_summary": "Resolution Summary",

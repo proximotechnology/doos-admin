@@ -37,6 +37,7 @@ document.addEventListener('alpine:init', () => {
         // State
         isShowTicketDetail: false,
         isShowTicketMenu: false,
+        attachmentMenuOpen: false,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         loginUser: {
             id: null,
@@ -686,15 +687,14 @@ document.addEventListener('alpine:init', () => {
 
         // Attachment management
         initAttachmentInput() {
-            this.attachmentInput = document.getElementById('attachmentInput');
-            if (this.attachmentInput) {
-                this.attachmentInput.addEventListener('change', (e) => {
-                    this.handleFileSelect(e.target.files);
-                });
-            }
+            // Not needed anymore - using @change in HTML
         },
 
         handleFileSelect(files) {
+            if (!files || files.length === 0) {
+                return;
+            }
+            
             Array.from(files).forEach(file => {
                 // Validate file size (max 10MB)
                 if (file.size > 10 * 1024 * 1024) {
@@ -703,6 +703,8 @@ document.addEventListener('alpine:init', () => {
                 }
                 this.attachments.push(file);
             });
+            
+            coloredToast('success', `${files.length} file(s) added`);
         },
 
         removeAttachment(index) {
@@ -715,9 +717,29 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        openFilePicker() {
-            if (this.attachmentInput) {
-                this.attachmentInput.click();
+        openFilePicker(type = 'all') {
+            // Get input element
+            const input = document.getElementById('attachmentInput');
+            
+            if (input) {
+                // Set accept attribute based on type
+                switch(type) {
+                    case 'image':
+                        input.setAttribute('accept', 'image/*');
+                        break;
+                    case 'video':
+                        input.setAttribute('accept', 'video/*');
+                        break;
+                    case 'document':
+                        input.setAttribute('accept', '.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx');
+                        break;
+                    default:
+                        input.setAttribute('accept', 'image/*,video/*,audio/*,.pdf,.doc,.docx,.txt');
+                }
+                
+                input.click();
+            } else {
+                coloredToast('danger', 'File picker not initialized. Please refresh the page.');
             }
         },
 
