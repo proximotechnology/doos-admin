@@ -31,17 +31,19 @@ document.addEventListener('alpine:init', () => {
     };
 
     function coloredToast(color, message) {
-        const icon = color === 'success' ? 'success' : 'error';
-        Swal.fire({
+        const toast = window.Swal.mixin({
             toast: true,
             position: 'bottom-start',
-            icon: icon,
-            title: message,
             showConfirmButton: false,
             timer: 3000,
+            showCloseButton: true,
             customClass: {
                 popup: `color-${color}`,
             },
+        });
+        toast.fire({
+            icon: color === 'success' ? 'success' : 'error',
+            title: message,
         });
     }
 
@@ -491,7 +493,9 @@ document.addEventListener('alpine:init', () => {
 
                 const result = await ApiService.addCoupon(payload);
 
-                if (!result.status) {
+                // Check for success (API returns success: true, not status: true)
+                const isSuccess = result.success === true || result.status === true;
+                if (!isSuccess) {
                     const errorMsg =
                         result.message ||
                         Object.values(result.errors || {})
@@ -509,10 +513,17 @@ document.addEventListener('alpine:init', () => {
                 this.date_end = '';
                 this.status = 'active';
 
-                coloredToast('success', Alpine.store('i18n').t('add_coupon_successful'));
-                const couponTable = Alpine.$data(document.querySelector('[x-data="couponTable"]'));
-                if (couponTable && couponTable.fetchCoupons) {
-                    await couponTable.fetchCoupons(1);
+                // Show success toast with green color
+                coloredToast('success', result.message || Alpine.store('i18n').t('add_coupon_successful'));
+                
+                // Refresh the coupon table - use direct access
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const tableElement = document.querySelector('[x-data="couponTable"]');
+                if (tableElement) {
+                    const tableComponent = Alpine.$data(tableElement);
+                    if (tableComponent && typeof tableComponent.fetchCoupons === 'function') {
+                        await tableComponent.fetchCoupons(1);
+                    }
                 }
             } catch (error) {
                 coloredToast('danger', error.message);

@@ -5,7 +5,6 @@
 
 ## الملفات المضافة
 
-1. **`assets/css/components.css`** - ملف CSS شامل يحتوي على جميع التنسيقات الموحدة
 2. **`assets/js/ui-enhancements.js`** - ملف JavaScript للتحسينات والتفاعلات
 
 ## الاستخدام
