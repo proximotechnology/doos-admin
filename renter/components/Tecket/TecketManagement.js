@@ -253,6 +253,9 @@ document.addEventListener('alpine:init', () => {
 
                 // Always load full ticket details
                 await this.loadTicketDetails(ticket.id);
+                
+                // Refresh all tickets list to get updated data
+                await this.loadTickets();
 
                 coloredToast('success', `${this.t('ticket_selected')?.replace('{number}', ticket.ticket_number) || `Ticket ${ticket.ticket_number} selected`}`);
             } catch (error) {
@@ -302,10 +305,24 @@ document.addEventListener('alpine:init', () => {
                                 isInternalNote = (msg.message?.startsWith('Priority changed') || msg.message?.startsWith('Resolution:')) ? 1 : 0;
                             }
                             
+                            // Process attachments from API format
+                            let processedAttachments = [];
+                            if (Array.isArray(msg.attachments) && msg.attachments.length > 0) {
+                                processedAttachments = msg.attachments.map(att => ({
+                                    id: att.id,
+                                    name: att.attachment_name || att.name,
+                                    url: att.attachment_path || att.url || att.path,
+                                    type: att.attachment_type || att.type,
+                                    mime_type: att.attachment_mime_type || att.mime_type,
+                                    size: att.attachment_size || att.size,
+                                    path: att.attachment_path || att.path || att.url
+                                }));
+                            }
+                            
                             return {
                                 id: msg.id,
                                 message: msg.message,
-                                attachments: msg.attachments || [],
+                                attachments: processedAttachments,
                                 created_at: msg.created_at,
                                 sender: msg.sender, // "me" or "other"
                                 sender_id: msg.sender === 'me' ? this.loginUser.id : null,
@@ -328,6 +345,9 @@ document.addEventListener('alpine:init', () => {
                             priority: this.selectedTicket.priority
                         };
                     }
+                    
+                    // Scroll to bottom after loading messages
+                    this.scrollToBottom();
                 }
             } catch (error) {
                 console.error('Error loading ticket details:', error);
@@ -339,8 +359,14 @@ document.addEventListener('alpine:init', () => {
         },
 
         async sendReply(isInternalNote = false) {
-            if (!this.replyMessage.trim() || !this.selectedTicket) {
-                coloredToast('warning', this.t('please_enter_message') || 'Please enter a message');
+            if (!this.selectedTicket) {
+                coloredToast('warning', this.t('please_select_ticket') || 'Please select a ticket');
+                return;
+            }
+
+            // Allow sending without message if there are attachments
+            if (!this.replyMessage.trim() && this.attachments.length === 0) {
+                coloredToast('warning', this.t('please_enter_message') || 'Please enter a message or attach a file');
                 return;
             }
 
@@ -353,7 +379,7 @@ document.addEventListener('alpine:init', () => {
                 
                 if (this.attachments.length > 0) {
                     const formData = new FormData();
-                    formData.append('message', this.replyMessage.trim());
+                    formData.append('message', this.replyMessage.trim() || '');
                     formData.append('is_internal_note', isInternalNote ? '1' : '0');
                     
                     // Add attachments
@@ -374,24 +400,14 @@ document.addEventListener('alpine:init', () => {
                 const data = await ApiService.sendTicketReply(this.selectedTicket.id, requestData, isFormData);
 
                 if (data.status === 'success' || data.status === true) {
-                    // Add message to conversation
-                    this.ticketMessages.push({
-                        id: Date.now(), // Temporary ID
-                        message: this.replyMessage.trim(),
-                        attachments: this.attachments.map(f => ({ name: f.name, url: '' })),
-                        created_at: 'just now',
-                        sender: 'me',
-                        sender_id: this.loginUser.id,
-                        is_internal_note: isInternalNote
-                    });
-
                     this.replyMessage = '';
                     this.attachments = [];
                     this.clearAttachmentInput();
-                    this.scrollToBottom();
 
-                    // Reload ticket details to get updated messages
+                    // Reload ticket details to get updated messages with proper attachments
                     await this.loadTicketDetails(this.selectedTicket.id);
+                    
+                    this.scrollToBottom();
                     
                     const successMessage = isInternalNote 
                         ? (this.t('internal_note_added') || 'Internal note added successfully')
@@ -678,11 +694,40 @@ document.addEventListener('alpine:init', () => {
 
         scrollToBottom() {
             setTimeout(() => {
-                const element = document.querySelector('.ticket-conversation-box');
-                if (element) {
-                    element.scrollTop = element.scrollHeight;
+                // Find the scrollable container (parent of ticket-conversation-box)
+                const conversationBox = document.querySelector('.ticket-conversation-box');
+                if (conversationBox) {
+                    // Find the parent element with overflow-y-auto or perfect-scrollbar
+                    let scrollContainer = conversationBox.parentElement;
+                    while (scrollContainer) {
+                        const hasOverflow = scrollContainer.classList.contains('overflow-y-auto') || 
+                                          scrollContainer.classList.contains('perfect-scrollbar') ||
+                                          getComputedStyle(scrollContainer).overflowY === 'auto';
+                        if (hasOverflow) {
+                            break;
+                        }
+                        scrollContainer = scrollContainer.parentElement;
+                        if (!scrollContainer || scrollContainer === document.body) {
+                            scrollContainer = null;
+                            break;
+                        }
+                    }
+                    
+                    if (scrollContainer) {
+                        // Scroll to bottom smoothly
+                        scrollContainer.scrollTo({
+                            top: scrollContainer.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        // Fallback: scroll the conversation box itself
+                        conversationBox.scrollTo({
+                            top: conversationBox.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
-            }, 100);
+            }, 300);
         },
 
         // Attachment management
