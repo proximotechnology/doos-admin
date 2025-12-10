@@ -413,15 +413,9 @@
                                      'has-many-images': getImageCount() > 4
                                  }">
                                 <div class="flex-1 flex flex-col min-h-0">
-                                    <div class="relative overflow-hidden rounded-xl border-2 border-primary/20 shadow-professional-lg bg-gray-100 dark:bg-gray-800 car-main-image flex-1 image-professional" 
-                                         :class="{
-                                             'dynamic-large': getImageCount() === 0 || getImageCount() === 1,
-                                             'dynamic-medium': getImageCount() > 1 && getImageCount() <= 4,
-                                             'dynamic-normal': getImageCount() > 4 && getImageCount() <= 8,
-                                             'dynamic-compact': getImageCount() > 8
-                                         }">
+                                    <div class="relative overflow-hidden rounded-xl border-2 border-primary/20 shadow-professional-lg bg-gray-100 dark:bg-gray-800 car-main-image image-professional" style="width: 100%; height: 400px; min-height: 400px; max-height: 400px;">
                                         <template x-if="getMainImage()">
-                                            <img :src="getMainImage()" :alt="car.make || 'Car'" class="w-full h-full object-cover transition-opacity duration-300" loading="lazy" style="object-fit: cover;">
+                                            <img :src="getMainImage()" :alt="car.make || 'Car'" class="w-full h-full object-cover transition-opacity duration-300" loading="lazy" style="object-fit: cover; width: 100%; height: 100%; min-height: 400px;">
                                         </template>
                                         <template x-if="!getMainImage()">
                                             <div class="flex h-full items-center justify-center">
@@ -438,10 +432,10 @@
                                             <template x-for="(image, index) in car.car_image" :key="index">
                                                 <div 
                                                     @click="selectImage(index)" 
-                                                    class="overflow-hidden rounded-lg border-2 cursor-pointer transition-all aspect-square"
+                                                    class="overflow-hidden rounded-lg border-2 cursor-pointer transition-all aspect-square h-20"
                                                     :class="selectedImageIndex === index ? 'border-primary shadow-lg scale-105' : 'border-gray-200 dark:border-gray-700 hover:border-primary'"
                                                 >
-                                                    <img :src="image.image" :alt="'Car Image ' + (index + 1)" class="w-full h-full object-cover" loading="lazy">
+                                                    <img :src="image.image" :alt="'Car Image ' + (index + 1)" class="w-full h-full object-cover" loading="lazy" style="object-fit: cover;">
                                                 </div>
                                             </template>
                                         </div>
@@ -809,8 +803,8 @@
                                             </svg>
                                             <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('license_image')"></p>
                                         </div>
-                                        <div class="relative overflow-hidden rounded-lg border-2 border-blue-300 dark:border-blue-700 shadow-professional-lg group/license bg-white dark:bg-gray-900 image-professional">
-                                            <img :src="car.image_license" :alt="$store.i18n.t('license_image')" class="w-full h-64 object-contain transition-transform duration-300 group-hover/license:scale-105" loading="lazy">
+                                        <div class="relative overflow-hidden rounded-lg border-2 border-blue-300 dark:border-blue-700 shadow-professional-lg group/license bg-white dark:bg-gray-900 image-professional" style="width: 100%; height: 400px; min-height: 400px; max-height: 400px;">
+                                            <img :src="car.image_license" :alt="$store.i18n.t('license_image')" class="w-full h-full object-contain transition-transform duration-300 group-hover/license:scale-105" loading="lazy" style="object-fit: contain; width: 100%; height: 100%; min-height: 400px;">
                                             <div class="absolute inset-0 bg-black/0 group-hover/license:bg-black/10 transition-colors duration-300"></div>
                                         </div>
                                     </div>
