@@ -90,6 +90,7 @@
             isLoading: true,
             error: null,
             feesData: [],
+            selectedImageIndex: 0,
             discountsData: null,
             seasonPricingData: null,
 
@@ -345,16 +346,36 @@
                 return 'bg-gray-500';
             },
 
+            selectImage(index) {
+                this.selectedImageIndex = index;
+            },
+
+            getMainImage() {
+                if (!this.booking || !this.booking.car || !this.booking.car.car_image || this.booking.car.car_image.length === 0) {
+                    return null;
+                }
+                return this.booking.car.car_image[this.selectedImageIndex]?.image || this.booking.car.car_image[0].image;
+            },
+
             formatBookingStatus(status) {
                 if (!status) return t('na') || 'N/A';
                 const statuses = {
+                    'draft': t('draft') || 'Draft',
                     'confirm': t('confirmed') || 'Confirmed',
                     'confirmed': t('confirmed') || 'Confirmed',
                     'pending': t('pending') || 'Pending',
                     'cancelled': t('cancelled') || 'Cancelled',
+                    'canceled': t('cancelled') || 'Cancelled',
                     'completed': t('completed') || 'Completed',
                     'picked_up': t('picked_up') || 'Picked Up',
-                    'returned': t('returned') || 'Returned'
+                    'pickedup': t('picked_up') || 'Picked Up',
+                    'returned': t('returned') || 'Returned',
+                    'rejected': t('rejected') || 'Rejected',
+                    'active': t('active') || 'Active',
+                    'inactive': t('inactive') || 'Inactive',
+                    'processing': t('processing') || 'Processing',
+                    'on_hold': t('on_hold') || 'On Hold',
+                    'refunded': t('refunded') || 'Refunded'
                 };
                 return statuses[status.toLowerCase()] || status;
             },
@@ -402,7 +423,7 @@
                     'cars_id', 'make_id', 'car_model_id', 'model_year_id', 'brand_id',
                     'user_plan_id', 'insurance_id', 'name', 'email', 'phone', 'country',
                     'city', 'current_address', 'brand', 'model', 'years', 'owner',
-                    'plate_number', 'vin', 'fuel_capacity'
+                    'plate_number', 'vin', 'fuel_capacity', 'extenal_image', 'external_image', 'car_image', 'image_license'
                 ];
                 
                 excludedKeys.push(...customExclusions);
