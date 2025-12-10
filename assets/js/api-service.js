@@ -682,6 +682,13 @@
             return this.post(`/api/admin/booking/change_is_paid/${bookingId}`, { is_paid: isPaid });
         }
 
+        /**
+         * Get booking details
+         */
+        async getBookingDetails(bookingId) {
+            return this.get(`/api/admin/cars/booking/booking_details/${bookingId}`);
+        }
+
         // ==================== Discount Management APIs ====================
 
         /**

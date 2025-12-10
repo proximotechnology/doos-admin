@@ -1433,5 +1433,19 @@
     "take_photo": "Take Photo",
     "capture": "Capture",
     "stop_recording": "Stop & Use",
-    "use_photo": "Use Photo"
+    "use_photo": "Use Photo",
+    "bookings": "Bookings",
+    "pricing_fees": "Pricing & Fees",
+    "user_otp": "User OTP",
+    "renter_otp": "Renter OTP",
+    "contract_items": "Contract Items",
+    "picked_up_images": "Picked Up Images",
+    "returned_images": "Returned Images",
+    "cancellation_info": "Cancellation Information",
+    "cancel_order_status": "Cancel Order Status",
+    "cancellation_images": "Cancellation Images",
+    "exception": "Exception",
+    "issue_type": "Issue Type",
+    "mismatch_type": "Mismatch Type",
+    "failed": "Failed"
 }

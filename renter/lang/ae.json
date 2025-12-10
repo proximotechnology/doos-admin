@@ -1354,5 +1354,19 @@
     "take_photo": "التقاط صورة",
     "capture": "التقاط",
     "stop_recording": "إيقاف واستخدام",
-    "use_photo": "استخدام الصورة"
+    "use_photo": "استخدام الصورة",
+    "bookings": "الحجوزات",
+    "pricing_fees": "التسعير والرسوم",
+    "user_otp": "رمز OTP للمستخدم",
+    "renter_otp": "رمز OTP للمؤجر",
+    "contract_items": "بنود العقد",
+    "picked_up_images": "صور الاستلام",
+    "returned_images": "صور الإرجاع",
+    "cancellation_info": "معلومات الإلغاء",
+    "cancel_order_status": "حالة إلغاء الطلب",
+    "cancellation_images": "صور الإلغاء",
+    "exception": "استثناء",
+    "issue_type": "نوع المشكلة",
+    "mismatch_type": "نوع عدم التطابق",
+    "failed": "فشل"
 }
