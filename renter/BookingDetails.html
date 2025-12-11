@@ -83,6 +83,9 @@
                 <div class="animate__animated p-6" :class="[$store.app.animation]">
                     <div id="booking-details-container"></div>
                 </div>
+                
+                <!-- Update Exception Status Modal -->
+                <div id="update-exception-status-modal-container"></div>
                 <!-- start footer section -->
                 <div class="mt-auto p-6 text-center dark:text-white-dark ltr:sm:text-left rtl:sm:text-right">
                     © <span id="footer-year">2025</span>. Developed By Proximotek Technology.
@@ -117,6 +120,7 @@
         
         <!-- Component scripts - loaded after dependencies -->
         <script src="../assets/js/performance-improvements.js"></script>
+        <script src="components/BookingDetails/Modals/UpdateExceptionStatusModal.js"></script>
         <script src="components/BookingDetails/BookingDetails.js"></script>
 
         <!-- MainLayout - uses ComponentLoader to load component HTML -->

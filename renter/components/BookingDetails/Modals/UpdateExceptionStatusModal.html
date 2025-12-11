@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <div
+            x-data="{
+                get sharedData() {
+                    if (!$store.global || !$store.global.sharedData) {
+                        return { status: '', admin_notes: '', damage_amount: '' };
+                    }
+                    return $store.global.sharedData;
+                },
+                set sharedData(value) {
+                    if (!$store.global) {
+                        Alpine.store('global', { sharedData: value });
+                    } else {
+                        $store.global.sharedData = value;
+                    }
+                }
+            }"
+            x-show="$store.updateExceptionStatusModal?.isOpen"
+            x-transition
+            class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            style="display: none"
+            x-cloak
+            @click.self="$store.updateExceptionStatusModal?.closeModal()"
+            x-init="$watch('$store.updateExceptionStatusModal.isOpen', value => { if (value) { $el.style.display = 'flex'; } else { $el.style.display = 'none'; } })"
+        >
+            <div class="flex min-h-screen items-start justify-center px-4 py-8">
+                <div
+                    class="modal-container animate__animated w-full max-w-2xl overflow-hidden rounded-lg border-0 shadow-2xl bg-white dark:bg-[#0e1726]"
+                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                    @click.stop
+                >
+                    <!-- Modal Header - Sticky -->
+                    <div class="modal-header sticky top-0 z-10 bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent px-6 py-4 dark:from-orange-500/20 dark:via-orange-500/10 border-b border-white-light/40 dark:border-[#191e3a]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20 text-orange-600 dark:text-orange-400">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white">
+                                        <span x-text="$store.i18n.t('update_exception_status') || 'Update Exception Status'"></span>
+                                    </h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span x-text="$store.i18n.t('exception') || 'Exception'"></span>
+                                        <span x-text="'#' + ($store.updateExceptionStatusModal.exceptionData?.id || '')"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                @click="$store.updateExceptionStatusModal.closeModal()" 
+                                class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            >
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Scrollable -->
+                    <div class="modal-body max-h-[calc(90vh-140px)] overflow-y-auto bg-white dark:bg-[#0e1726]">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <form @submit.prevent="$store.updateExceptionStatusModal.updateStatus()">
+                                <div class="p-6 space-y-5">
+                                    <!-- Current Status Info -->
+                                    <div class="rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-4">
+                                        <div class="flex items-start gap-3">
+                                            <svg class="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-1" x-text="$store.i18n.t('current_status') || 'Current Status'"></p>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning text-white">
+                                                    <span x-text="$store.i18n.t('pending') || 'Pending'"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Selection -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('status') || 'Status'"></span>
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                class="form-select pr-10"
+                                                x-model="sharedData.status"
+                                                required
+                                            >
+                                                <option value="" x-text="$store.i18n.t('select_status') || 'Select Status'"></option>
+                                                <option value="approved" x-text="$store.i18n.t('approved') || 'Approved'"></option>
+                                                <option value="rejected" x-text="$store.i18n.t('rejected') || 'Rejected'"></option>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Admin Notes -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('admin_notes') || 'Admin Notes'"></span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400" x-text="'(' + ($store.i18n.t('optional') || 'Optional') + ')'"></span>
+                                        </label>
+                                        <textarea
+                                            class="form-textarea resize-none"
+                                            rows="4"
+                                            :placeholder="$store.i18n.t('enter_admin_notes') || 'Enter admin notes (max 1000 characters)'"
+                                            x-model="sharedData.admin_notes"
+                                            maxlength="1000"
+                                        ></textarea>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            <span x-text="(sharedData.admin_notes || '').length"></span>
+                                            <span> / 1000 </span>
+                                            <span x-text="$store.i18n.t('characters') || 'characters'"></span>
+                                        </p>
+                                    </div>
+
+                                    <!-- Damage Amount (Only for Accident type) -->
+                                    <template x-if="$store.updateExceptionStatusModal.exceptionData?.type === 'Accident' || $store.updateExceptionStatusModal.exceptionData?.type === 'accident'">
+                                        <div class="form-group">
+                                            <label class="form-label flex items-center gap-2">
+                                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span x-text="$store.i18n.t('damage_amount') || 'Damage Amount'"></span>
+                                                <span class="text-xs text-gray-500 dark:text-gray-400" x-text="'(' + ($store.i18n.t('optional') || 'Optional') + ')'"></span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="form-input pr-16"
+                                                    :placeholder="$store.i18n.t('damage_amount') || 'Damage Amount'"
+                                                    x-model="sharedData.damage_amount"
+                                                />
+                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <span class="text-sm text-gray-500" x-text="$store.i18n.t('currency') || 'AED'"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer - Sticky -->
+                    <div class="modal-footer sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-xl border-t border-white-light/40 bg-gray-50/50 px-6 py-4 dark:border-[#191e3a] dark:bg-[#1a2941]/30">
+                        <button
+                            type="button"
+                            @click="$store.updateExceptionStatusModal.closeModal()"
+                            class="btn btn-outline-danger flex items-center gap-2"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span x-text="$store.i18n.t('cancel') || 'Cancel'"></span>
+                        </button>
+                        <button
+                            type="submit"
+                            @click="$store.updateExceptionStatusModal.updateStatus()"
+                            class="btn btn-primary flex items-center gap-2"
+                            :disabled="$store.updateExceptionStatusModal.isUpdating"
+                        >
+                            <span x-show="!$store.updateExceptionStatusModal.isUpdating" x-text="$store.i18n.t('save') || 'Save'"></span>
+                            <span x-show="$store.updateExceptionStatusModal.isUpdating" class="flex items-center">
+                                <svg
+                                    class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                <span x-text="$store.i18n.t('processing') || 'Processing...'"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

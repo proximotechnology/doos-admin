@@ -689,6 +689,13 @@
             return this.get(`/api/admin/cars/booking/booking_details/${bookingId}`);
         }
 
+        /**
+         * Update booking exception status
+         */
+        async updateBookingExceptionStatus(exceptionId, data) {
+            return this.put(`/api/admin/booking-exceptions/update-status/${exceptionId}`, data);
+        }
+
         // ==================== Discount Management APIs ====================
 
         /**

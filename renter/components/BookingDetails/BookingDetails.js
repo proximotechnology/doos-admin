@@ -195,6 +195,22 @@
                         });
                     }
 
+                    if (booking.cancel_order_status) {
+                        try {
+                            if (typeof booking.cancel_order_status === 'string') {
+                                booking.cancel_order_status = JSON.parse(booking.cancel_order_status);
+                            }
+                            if (!Array.isArray(booking.cancel_order_status)) {
+                                booking.cancel_order_status = [booking.cancel_order_status];
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse cancel_order_status:', e);
+                            if (!Array.isArray(booking.cancel_order_status)) {
+                                booking.cancel_order_status = [booking.cancel_order_status];
+                            }
+                        }
+                    }
+
                     if (!booking.contract) {
                         booking.contract = null;
                     }
@@ -396,6 +412,7 @@
                     'pending': t('pending') || 'Pending',
                     'resolved': t('resolved') || 'Resolved',
                     'completed': t('completed') || 'Completed',
+                    'approved': t('approved') || 'Approved',
                     'rejected': t('rejected') || 'Rejected',
                     'failed': t('failed') || 'Failed',
                     'in_progress': t('in_progress') || 'In Progress',
@@ -505,6 +522,206 @@
                 if (value === '1' || value === 1 || value === true) return t('yes') || 'Yes';
                 if (value === '0' || value === 0 || value === false) return t('no') || 'No';
                 return value;
+            },
+
+            getIssueTypeArray(issueType) {
+                if (!issueType) return [];
+                if (Array.isArray(issueType)) return issueType;
+                if (typeof issueType === 'string') {
+                    return issueType.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                }
+                return [];
+            },
+
+            async updateExceptionStatus(exception) {
+                if (!Alpine.store('updateExceptionStatusModal')) {
+                    coloredToast('danger', 'Modal not loaded. Please refresh the page.');
+                    return;
+                }
+
+                await Alpine.store('updateExceptionStatusModal').openModal(exception, async (updatedData) => {
+                    exception.status = updatedData.status;
+                    if (updatedData.admin_notes !== undefined) {
+                        exception.admin_notes = updatedData.admin_notes;
+                    }
+                    if (updatedData.damage_amount !== undefined) {
+                        exception.damage_amount = updatedData.damage_amount;
+                    }
+                });
+            },
+
+            async updateExceptionStatusOld(exception) {
+                try {
+                    if (exception.status && exception.status.toLowerCase() !== 'pending') {
+                        coloredToast('warning', t('can_only_update_pending_exception') || 'You can only update exceptions with pending status');
+                        return;
+                    }
+
+                    const { value: formValues } = await Swal.fire({
+                        title: `<div class="flex items-center gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">${t('update_exception_status') || 'Update Exception Status'}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${t('exception') || 'Exception'} #${exception.id || ''}</p>
+                            </div>
+                        </div>`,
+                        html: `
+                            <div class="text-left space-y-5 mt-6">
+                                <div class="rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 p-4">
+                                    <div class="flex items-start gap-3">
+                                        <svg class="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-1">${t('current_status') || 'Current Status'}</p>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning text-white">
+                                                ${t('pending') || 'Pending'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        ${t('status') || 'Status'} <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="swal-status" class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                                        <option value="">${t('select_status') || 'Select Status'}</option>
+                                        <option value="approved">${t('approved') || 'Approved'}</option>
+                                        <option value="rejected">${t('rejected') || 'Rejected'}</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        ${t('admin_notes') || 'Admin Notes'}
+                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">(${t('optional') || 'Optional'})</span>
+                                    </label>
+                                    <textarea id="swal-admin-notes" class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none" rows="4" placeholder="${t('enter_admin_notes') || 'Enter admin notes (max 1000 characters)'}" maxlength="1000">${exception.admin_notes || ''}</textarea>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span id="notes-char-count">${(exception.admin_notes || '').length}</span> / 1000 ${t('characters') || 'characters'}
+                                    </p>
+                                </div>
+
+                                ${exception.type === 'Accident' || exception.type === 'accident' ? `
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        ${t('damage_amount') || 'Damage Amount'}
+                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">(${t('optional') || 'Optional'})</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" id="swal-damage-amount" class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" min="0" step="0.01" value="${exception.damage_amount || ''}" placeholder="0.00">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">${t('currency') || 'AED'}</span>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `,
+                        width: '600px',
+                        padding: '2rem',
+                        showCancelButton: true,
+                        confirmButtonText: `
+                            <div class="flex items-center gap-2">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>${t('save') || 'Save'}</span>
+                            </div>
+                        `,
+                        cancelButtonText: `
+                            <div class="flex items-center gap-2">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span>${t('cancel') || 'Cancel'}</span>
+                            </div>
+                        `,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6b7280',
+                        customClass: {
+                            popup: 'rounded-xl shadow-2xl border-2 border-gray-200 dark:border-gray-700',
+                            title: 'p-0 mb-0',
+                            htmlContainer: 'text-left',
+                            confirmButton: 'px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all',
+                            cancelButton: 'px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-all'
+                        },
+                        focusConfirm: false,
+                        didOpen: () => {
+                            const notesTextarea = document.getElementById('swal-admin-notes');
+                            const charCount = document.getElementById('notes-char-count');
+                            if (notesTextarea && charCount) {
+                                notesTextarea.addEventListener('input', () => {
+                                    charCount.textContent = notesTextarea.value.length;
+                                });
+                            }
+                        },
+                        preConfirm: () => {
+                            const status = document.getElementById('swal-status').value;
+                            const adminNotes = document.getElementById('swal-admin-notes').value;
+                            const damageAmount = exception.type === 'Accident' || exception.type === 'accident' 
+                                ? document.getElementById('swal-damage-amount').value 
+                                : null;
+
+                            if (!status) {
+                                Swal.showValidationMessage(t('status_required') || 'Status is required');
+                                return false;
+                            }
+
+                            if (status !== 'approved' && status !== 'rejected') {
+                                Swal.showValidationMessage(t('invalid_status') || 'Invalid status. Must be approved or rejected');
+                                return false;
+                            }
+
+                            if (adminNotes && adminNotes.length > 1000) {
+                                Swal.showValidationMessage(t('admin_notes_max_length') || 'Admin notes cannot exceed 1000 characters');
+                                return false;
+                            }
+
+                            const data = { status };
+                            if (adminNotes && adminNotes.trim()) {
+                                data.admin_notes = adminNotes.trim();
+                            }
+                            if (damageAmount && (exception.type === 'Accident' || exception.type === 'accident')) {
+                                const amount = parseFloat(damageAmount);
+                                if (isNaN(amount) || amount < 0) {
+                                    Swal.showValidationMessage(t('invalid_damage_amount') || 'Invalid damage amount');
+                                    return false;
+                                }
+                                data.damage_amount = amount;
+                            }
+
+                            return data;
+                        }
+                    });
+
+                    if (formValues) {
+                        loadingIndicator.show();
+                        const result = await ApiService.updateBookingExceptionStatus(exception.id, formValues);
+                        
+                        if (result.status === true || result.success === true) {
+                            coloredToast('success', result.message || t('exception_status_updated') || 'Exception status updated successfully');
+                            
+                            exception.status = formValues.status;
+                            if (formValues.admin_notes !== undefined) {
+                                exception.admin_notes = formValues.admin_notes;
+                            }
+                            if (formValues.damage_amount !== undefined) {
+                                exception.damage_amount = formValues.damage_amount;
+                            }
+                        } else {
+                            throw new Error(result.message || t('failed_to_update_exception_status') || 'Failed to update exception status');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating exception status:', error);
+                    coloredToast('danger', error.message || t('failed_to_update_exception_status') || 'Failed to update exception status');
+                } finally {
+                    loadingIndicator.hide();
+                }
             },
 
             goBack() {

@@ -43,6 +43,13 @@ document.addEventListener('alpine:initialized', async function () {
                         options: { 
                             loadScript: false  // Script already loaded in BookingDetails.html
                         }
+                    },
+                    { 
+                        url: 'components/BookingDetails/Modals/UpdateExceptionStatusModal.html', 
+                        containerId: 'update-exception-status-modal-container',
+                        options: { 
+                            loadScript: false  // Script already loaded in BookingDetails.html
+                        }
                     }
                 ]);
             })

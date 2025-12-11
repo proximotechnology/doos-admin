@@ -219,7 +219,7 @@ document.addEventListener('alpine:init', () => {
                 }
             } catch (error) {
                 console.error('Error loading statistics:', error);
-            }
+                }
         },
 
         filteredTickets() {
@@ -252,8 +252,8 @@ document.addEventListener('alpine:init', () => {
                 this.isShowTicketMenu = false;
 
                 // Always load full ticket details
-                await this.loadTicketDetails(ticket.id);
-                
+                    await this.loadTicketDetails(ticket.id);
+
                 // Refresh all tickets list to get updated data
                 await this.loadTickets();
 

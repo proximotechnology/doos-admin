@@ -682,17 +682,17 @@
                                                 </div>
 
                                                 <div x-show="message.is_internal_note != 1" class="flex items-start gap-3 mb-4" :class="{'justify-end' : message.sender === 'me'}">
-                                                    <div class="max-w-[70%] space-y-2">
+                                                <div class="max-w-[70%] space-y-2">
                                                         <div class="flex items-center gap-3" :class="{'flex-row-reverse' : message.sender === 'me'}">
-                                                            <div
+                                                        <div
                                                                 x-show="message.message && message.message.trim()"
-                                                                class="break-words rounded-md p-4 py-2"
+                                                            class="break-words rounded-md p-4 py-2"
                                                                 :class="message.sender === 'me'
-                                                                    ? 'ltr:rounded-br-none rtl:rounded-bl-none !bg-primary text-white' 
+                                                                ? 'ltr:rounded-br-none rtl:rounded-bl-none !bg-primary text-white' 
                                                                     : 'ltr:rounded-bl-none rtl:rounded-br-none bg-black/10 dark:bg-gray-800'"
-                                                                x-text="message.message"
-                                                            ></div>
-                                                        </div>
+                                                            x-text="message.message"
+                                                        ></div>
+                                                    </div>
                                                         <template x-if="message.attachments && message.attachments.length > 0">
                                                             <div class="flex flex-wrap gap-2 mt-2">
                                                                 <template x-for="(attachment, idx) in message.attachments" :key="idx">
@@ -705,8 +705,8 @@
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                                            </div>
-                                                                        </template>
+                                                    </div>
+                                                    </template>
                                                                         <template x-if="attachment.type === 'video' || (attachment.mime_type && attachment.mime_type.startsWith('video/'))">
                                                                             <div class="relative group">
                                                                                 <video :src="attachment.url || attachment.path" controls class="max-w-[300px] max-h-[300px] rounded-lg border border-gray-200 dark:border-gray-700"></video>
@@ -715,7 +715,7 @@
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                                            </div>
+                                                </div>
                                                                         </template>
                                                                         <template x-if="attachment.type === 'audio' || (attachment.mime_type && attachment.mime_type.startsWith('audio/'))">
                                                                             <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
