@@ -610,12 +610,11 @@
                                 ${exception.type === 'Accident' || exception.type === 'accident' ? `
                                 <div class="space-y-2">
                                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        ${t('damage_amount') || 'Damage Amount'}
-                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">(${t('optional') || 'Optional'})</span>
+                                        ${t('damage_amount') || 'Damage Amount'} <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="number" id="swal-damage-amount" class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" min="0" step="0.01" value="${exception.damage_amount || ''}" placeholder="0.00">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">${t('currency') || 'AED'}</span>
+                                        <input type="number" id="swal-damage-amount" class="w-full px-4 py-3 pl-16 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" min="0" step="0.01" value="${exception.damage_amount || ''}" placeholder="0.00" required>
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-semibold">${t('currency') || 'AED'}</span>
                                     </div>
                                 </div>
                                 ` : ''}
@@ -685,7 +684,13 @@
                             if (adminNotes && adminNotes.trim()) {
                                 data.admin_notes = adminNotes.trim();
                             }
-                            if (damageAmount && (exception.type === 'Accident' || exception.type === 'accident')) {
+                            
+                            // Damage amount is required for accident type
+                            if (exception.type === 'Accident' || exception.type === 'accident') {
+                                if (!damageAmount || damageAmount.trim() === '') {
+                                    Swal.showValidationMessage(t('damage_amount_required') || 'Damage amount is required for accident type');
+                                    return false;
+                                }
                                 const amount = parseFloat(damageAmount);
                                 if (isNaN(amount) || amount < 0) {
                                     Swal.showValidationMessage(t('invalid_damage_amount') || 'Invalid damage amount');

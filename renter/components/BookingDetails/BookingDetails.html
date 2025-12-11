@@ -455,7 +455,7 @@
                                         </template>
                                         <template x-if="booking.total_after_coupon">
                                             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-professional hover:shadow-professional-lg transition-all">
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-2">Total After Coupon</p>
+                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-2" x-text="$store.i18n.t('total_after_coupon') || 'Total After Coupon'"></p>
                                                 <p class="text-sm font-semibold text-primary" x-text="formatPrice(booking.total_after_coupon)"></p>
                                             </div>
                                         </template>
@@ -581,7 +581,7 @@
                                         </template>
                                         <template x-if="getObjectFields(booking.car, true, ['brand', 'model', 'years', 'plate_number', 'vin', 'fuel_capacity', 'owner', 'car_image', 'image_license']).length > 0">
                                             <div class="mt-6 pt-6 border-t-2 border-indigo-200 dark:border-indigo-700">
-                                                <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-4 uppercase">Additional Car Details</h4>
+                                                <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-4 uppercase" x-text="$store.i18n.t('additional_car_details') || 'Additional Car Details'"></h4>
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <template x-for="field in getObjectFields(booking.car, true, ['brand', 'model', 'years', 'plate_number', 'vin', 'fuel_capacity', 'owner', 'car_image', 'image_license'])" :key="field.key">
                                                         <div>
@@ -664,10 +664,10 @@
                                                         <div class="flex items-center gap-2">
                                                             <span class="text-sm font-bold uppercase" :class="discount.applied ? 'text-success' : 'text-gray-500 dark:text-gray-400'" x-text="key.replace('_', ' ').replace('discount', '').replace('car', 'Car ').replace('coupon', 'Coupon ')"></span>
                                                             <template x-if="discount.applied">
-                                                                <span class="badge bg-success text-xs py-1 px-2">Applied</span>
+                                                                <span class="badge bg-success text-xs py-1 px-2" x-text="$store.i18n.t('applied') || 'Applied'"></span>
                                                             </template>
                                                             <template x-if="!discount.applied">
-                                                                <span class="badge bg-gray-400 text-xs py-1 px-2">Not Applied</span>
+                                                                <span class="badge bg-gray-400 text-xs py-1 px-2" x-text="$store.i18n.t('not_applied') || 'Not Applied'"></span>
                                                             </template>
                                                         </div>
                                                         <template x-if="discount.discount_amount && parseFloat(discount.discount_amount) > 0">
@@ -680,31 +680,31 @@
                                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
                                                         <template x-if="discount.original_price_per_day !== undefined && discount.original_price_per_day !== null">
                                                             <div>
-                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1">Original Price/Day</p>
+                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('original_price_per_day') || 'Original Price/Day'"></p>
                                                                 <p class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(discount.original_price_per_day)"></p>
                                                             </div>
                                                         </template>
                                                         <template x-if="discount.final_price_per_day !== undefined && discount.final_price_per_day !== null">
                                                             <div>
-                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1">Final Price/Day</p>
+                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('final_price_per_day') || 'Final Price/Day'"></p>
                                                                 <p class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(discount.final_price_per_day)"></p>
                                                             </div>
                                                         </template>
                                                         <template x-if="discount.total_before_discount !== undefined && discount.total_before_discount !== null">
                                                             <div>
-                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1">Total Before</p>
+                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('total_before') || 'Total Before'"></p>
                                                                 <p class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(discount.total_before_discount)"></p>
                                                             </div>
                                                         </template>
                                                         <template x-if="discount.total_after_discount !== undefined && discount.total_after_discount !== null">
                                                             <div>
-                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1">Total After</p>
+                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('total_after') || 'Total After'"></p>
                                                                 <p class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(discount.total_after_discount)"></p>
                                                             </div>
                                                         </template>
                                                         <template x-if="discount.for_owner !== undefined && discount.for_owner !== null">
                                                             <div>
-                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1">For Owner</p>
+                                                                <p class="text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('for_owner') || 'For Owner'"></p>
                                                                 <p class="font-semibold text-gray-900 dark:text-white" x-text="formatPrice(discount.for_owner)"></p>
                                                             </div>
                                                         </template>
@@ -715,7 +715,7 @@
                                         <template x-if="booking.discounts_data.total_discount_amount !== undefined">
                                             <div class="bg-gradient-to-r from-success/20 to-success/10 rounded-xl p-4 border-2 border-success/40 shadow-professional">
                                                 <div class="flex items-center justify-between">
-                                                    <span class="text-sm font-bold text-success uppercase">Total Discount Amount</span>
+                                                    <span class="text-sm font-bold text-success uppercase" x-text="$store.i18n.t('total_discount_amount') || 'Total Discount Amount'"></span>
                                                     <span class="text-lg font-bold text-success" x-text="formatPrice(booking.discounts_data.total_discount_amount)"></span>
                                                 </div>
                                             </div>
@@ -738,7 +738,7 @@
                                                         <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <span class="text-sm font-bold text-info uppercase">Has Season Pricing</span>
+                                                        <span class="text-sm font-bold text-info uppercase" x-text="$store.i18n.t('has_season_pricing') || 'Has Season Pricing'"></span>
                                                     </div>
                                                     <span class="text-base font-bold" :class="booking.season_pricing_data.has_season_pricing ? 'text-success' : 'text-gray-500'" x-text="booking.season_pricing_data.has_season_pricing ? ($store.i18n.t('yes') || 'Yes') : ($store.i18n.t('no') || 'No')"></span>
                                                 </div>
@@ -793,7 +793,7 @@
                                                         <svg class="h-5 w-5" :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                         </svg>
-                                                        <span class="text-sm font-bold uppercase" :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'">Season Adjustment Amount</span>
+                                                        <span class="text-sm font-bold uppercase" :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'" x-text="$store.i18n.t('season_adjustment_amount') || 'Season Adjustment Amount'"></span>
                                                     </div>
                                                     <span class="text-base font-bold" :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'" x-text="(parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? '+' : '') + formatPrice(booking.season_pricing_data.season_adjustment_amount)"></span>
                                                 </div>
@@ -804,7 +804,7 @@
                                                         <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                         </svg>
-                                                        <span class="text-sm font-bold text-info uppercase">Season Pricing Details</span>
+                                                        <span class="text-sm font-bold text-info uppercase" x-text="$store.i18n.t('season_pricing_details') || 'Season Pricing Details'"></span>
                                                     </div>
                                                     <div class="space-y-2">
                                                         <template x-if="booking.season_pricing_data.season_pricing_data.title">
@@ -892,7 +892,7 @@
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                     </svg>
-                                    <span>Payment Information</span>
+                                    <span x-text="$store.i18n.t('payment_information') || 'Payment Information'"></span>
                                 </h4>
                                 <div class="space-y-3">
                                     <template x-if="booking.payment.payment_method">
@@ -1420,7 +1420,7 @@
                                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                             <div class="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-red-50/50 to-transparent dark:from-red-900/10 dark:to-transparent rounded-lg border-l-4 border-red-500">
                                                                 <span class="text-xs font-semibold text-red-700 dark:text-red-300 uppercase" x-text="$store.i18n.t('damage_amount') || 'Damage Amount'"></span>
-                                                                <span class="text-sm font-bold text-red-900 dark:text-red-100" x-text="formatPrice(exception.financial_details.damage_amount || 0)"></span>
+                                                                <span class="text-sm font-bold text-red-900 dark:text-red-100" x-text="formatPrice(exception.financial_details.damage_amount || exception.damage_amount || 0)"></span>
                                                             </div>
                                                             
                                                             <div class="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-orange-50/50 to-transparent dark:from-orange-900/10 dark:to-transparent rounded-lg border-l-4 border-orange-500">

@@ -90,6 +90,20 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
+            // Damage amount is required for accident type
+            const damageAmount = Alpine.store('global').sharedData.damage_amount;
+            if (this.exceptionData.type === 'Accident' || this.exceptionData.type === 'accident') {
+                if (!damageAmount || damageAmount.toString().trim() === '') {
+                    coloredToast('danger', Alpine.store('i18n').t('damage_amount_required') || 'Damage amount is required for accident type');
+                    return;
+                }
+                const amount = parseFloat(damageAmount);
+                if (isNaN(amount) || amount < 0) {
+                    coloredToast('danger', Alpine.store('i18n').t('invalid_damage_amount') || 'Invalid damage amount');
+                    return;
+                }
+            }
+
             this.isUpdating = true;
             loadingIndicator.show();
 
@@ -99,12 +113,9 @@ document.addEventListener('alpine:init', () => {
                     data.admin_notes = adminNotes.trim();
                 }
                 
-                const damageAmount = Alpine.store('global').sharedData.damage_amount;
-                if (damageAmount && (this.exceptionData.type === 'Accident' || this.exceptionData.type === 'accident')) {
+                if (this.exceptionData.type === 'Accident' || this.exceptionData.type === 'accident') {
                     const amount = parseFloat(damageAmount);
-                    if (!isNaN(amount) && amount >= 0) {
-                        data.damage_amount = amount;
-                    }
+                    data.damage_amount = amount;
                 }
 
                 const result = await ApiService.updateBookingExceptionStatus(this.exceptionId, data);
