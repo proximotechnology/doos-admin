@@ -1208,7 +1208,7 @@
                     </div>
 
                     <template x-if="booking.contract">
-                        <div class="panel border-2 border-teal-200 dark:border-teal-800 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/10 dark:to-cyan-900/10 shadow-professional-xl hover-lift">
+                        <div class="panel border-2 border-teal-200 dark:border-teal-800 bg-gradient-to-br from-teal-50/50 to-cyan-50/50 dark:from-teal-900/10 dark:to-cyan-900/10 shadow-professional-xl hover-lift mt-6">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-teal-200 dark:border-teal-700 section-header">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-professional-lg icon-glow">
                                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1254,7 +1254,7 @@
 
 
                     <template x-if="booking.booking_exceptions && booking.booking_exceptions.length > 0">
-                        <div class="panel border-2 border-orange-200 dark:border-orange-800 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/10 dark:to-red-900/10 shadow-professional-xl hover-lift">
+                        <div class="panel border-2 border-orange-200 dark:border-orange-800 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/10 dark:to-red-900/10 shadow-professional-xl hover-lift mt-6">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-orange-200 dark:border-orange-700 section-header">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-professional-lg icon-glow">
                                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1580,7 +1580,7 @@
                     </template>
 
                     <template x-if="booking && ((booking.cancel_order_status && (Array.isArray(booking.cancel_order_status) ? booking.cancel_order_status.length > 0 : true)) || (booking.cancellation_images && booking.cancellation_images.length > 0))">
-                        <div class="panel border-2 border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10 shadow-professional-xl hover-lift">
+                        <div class="panel border-2 border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10 shadow-professional-xl hover-lift mt-6">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-red-200 dark:border-red-700 section-header">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-professional-lg icon-glow">
                                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1919,7 +1919,7 @@
                     </template>
 
                     <template x-if="booking && ((booking.picked_up_image && booking.picked_up_image.length > 0) || (booking.returned_image && booking.returned_image.length > 0))">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                             <template x-if="booking.picked_up_image && booking.picked_up_image.length > 0">
                                 <div class="panel border-2 border-green-200 dark:border-green-800">
                                     <div class="flex items-center gap-3 mb-4 pb-3 border-b-2 border-green-200 dark:border-green-700">
@@ -1962,7 +1962,8 @@
                         </div>
                     </template>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    <template x-if="booking && ((booking.lat && booking.lang && !isNaN(parseFloat(booking.lat)) && !isNaN(parseFloat(booking.lang))) || (booking.lat_return && booking.lang_return && !isNaN(parseFloat(booking.lat_return)) && !isNaN(parseFloat(booking.lang_return))))">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6" :class="{'mt-6': !(booking && ((booking.picked_up_image && booking.picked_up_image.length > 0) || (booking.returned_image && booking.returned_image.length > 0)))}">
                         <template x-if="booking && booking.lat && booking.lang && !isNaN(parseFloat(booking.lat)) && !isNaN(parseFloat(booking.lang))">
                             <div class="panel border-2 border-green-200 dark:border-green-800 flex flex-col h-full">
                                 <div class="flex items-center gap-3 mb-4 pb-3 border-b-2 border-green-200 dark:border-green-700">
@@ -2011,7 +2012,8 @@
                                 <div id="return-map" class="h-96 w-full min-h-[400px] rounded-xl border-2 border-teal-200 dark:border-teal-800 shadow-md flex-1"></div>
                             </div>
                         </template>
-                    </div>
+                        </div>
+                    </template>
                 </div>
             </template>
         </div>
