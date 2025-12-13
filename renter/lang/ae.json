@@ -1451,15 +1451,12 @@
     "all_insurances_will_be_updated": "سيتم تحديث جميع التأمينات بالحالة \"تأكيد\" والمبلغ الإجمالي المحدد.",
     "insurance_id_required": "معرف التأمين مطلوب",
     "total_amount_required": "المبلغ الإجمالي مطلوب ويجب أن يكون موجباً",
-    "insurance_updated_successfully": "تم تحديث التأمين بنجاح",
     "failed_to_update_insurance": "فشل تحديث التأمين",
     "all_insurances_updated_successfully": "تم تحديث جميع التأمينات بنجاح",
     "some_insurances_update_failed": "فشل تحديث بعض التأمينات",
     "failed_to_update_insurances": "فشل تحديث التأمينات",
     "invalid_amount": "مبلغ غير صحيح",
     "plan_required": "الخطة مطلوبة",
-    "select_plan": "اختر خطة",
     "insurance_required": "التأمين مطلوب",
-    "select_insurance": "اختر التأمين",
-    "insurance": "التأمين"
+    "select_insurance": "اختر التأمين"
 }

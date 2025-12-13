@@ -1532,6 +1532,5 @@
     "invalid_amount": "Invalid amount",
     "plan_required": "Plan is required",
     "insurance_required": "Insurance is required",
-    "select_insurance": "Select Insurance",
-    "insurance": "Insurance"
+    "select_insurance": "Select Insurance"
 }
