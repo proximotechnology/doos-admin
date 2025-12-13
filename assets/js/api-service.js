@@ -1094,6 +1094,22 @@
         }
 
         /**
+         * Get car insurances by car ID
+         */
+        async getCarInsurances(carId) {
+            return this.get(`/api/admin/car-insurances/by_car/${carId}`);
+        }
+
+        /**
+         * Update car insurance
+         * @param {number} insuranceId - Insurance ID
+         * @param {object} data - Update data { status: "confirm", total_amount: number, insurance_id: number }
+         */
+        async updateCarInsurance(insuranceId, data) {
+            return this.put(`/api/admin/car-insurances/update/${insuranceId}`, data);
+        }
+
+        /**
          * Update admin
          */
         async updateAdmin(adminId, data) {

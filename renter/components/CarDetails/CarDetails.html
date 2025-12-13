@@ -1171,6 +1171,266 @@
                         </div>
                     </template>
 
+                    <!-- Insurance Details -->
+                    <template x-if="insuranceData && insuranceData.insurances && insuranceData.insurances.length > 0">
+                        <div class="panel border-l-4 border-blue-500 dark:border-blue-400 bg-gradient-to-br from-blue-50/30 via-white to-white dark:from-blue-900/10 dark:via-gray-800/50 dark:to-gray-800/50 shadow-professional-xl hover-lift mt-6">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-blue-200/50 dark:border-blue-800/30">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-blue-900 dark:text-blue-100" x-text="$store.i18n.t('insurance_details') || 'Insurance Details'"></h3>
+                            </div>
+
+                            <div class="space-y-8">
+                                <template x-for="(insurance, index) in insuranceData.insurances" :key="index">
+                                    <div class="space-y-6">
+                                        <!-- Insurance Basic Information -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                            <template x-if="insurance.has_existing_insurance !== null && insurance.has_existing_insurance !== undefined">
+                                                <div class="pb-4 border-b border-blue-100 dark:border-blue-900/20">
+                                                    <div class="flex items-center gap-2 mb-3">
+                                                        <svg class="h-5 w-5 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="text-sm font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide" x-text="$store.i18n.t('has_existing_insurance') || 'Has Existing Insurance'"></p>
+                                                    </div>
+                                                    <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="formatBoolean(insurance.has_existing_insurance)"></p>
+                                                </div>
+                                            </template>
+
+                                            <template x-if="insurance.payment_way !== null && insurance.payment_way !== undefined">
+                                                <div class="pb-4 border-b border-indigo-100 dark:border-indigo-900/20">
+                                                    <div class="flex items-center gap-2 mb-3">
+                                                        <svg class="h-5 w-5 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                        <p class="text-sm font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide" x-text="$store.i18n.t('payment_way') || 'Payment Way'"></p>
+                                                    </div>
+                                                    <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="insurance.payment_way || 'N/A'"></p>
+                                                </div>
+                                            </template>
+
+                                            <template x-if="insurance.status">
+                                                <div class="pb-4 border-b border-green-100 dark:border-green-900/20">
+                                                    <div class="flex items-center gap-2 mb-3">
+                                                        <svg class="h-5 w-5 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="text-sm font-bold text-green-700 dark:text-green-300 uppercase tracking-wide" x-text="$store.i18n.t('status') || 'Status'"></p>
+                                                    </div>
+                                                    <span class="badge text-sm py-1.5 px-3 font-semibold text-white" :class="{
+                                                        'bg-success': insurance.status === 'paid',
+                                                        'bg-warning': insurance.status === 'pending',
+                                                        'bg-danger': insurance.status === 'failed' || insurance.status === 'rejected',
+                                                        'bg-info': insurance.status === 'confirm' || insurance.status === 'confirmed'
+                                                    }" x-text="formatInsuranceStatus(insurance.status)"></span>
+                                                </div>
+                                            </template>
+
+                                            <template x-if="insurance.total_amount">
+                                                <div class="pb-4 border-b border-amber-100 dark:border-amber-900/20">
+                                                    <div class="flex items-center gap-2 mb-3">
+                                                        <svg class="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="text-sm font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wide" x-text="$store.i18n.t('total_amount') || 'Total Amount'"></p>
+                                                    </div>
+                                                    <p class="text-lg font-bold text-gray-900 dark:text-white" x-text="formatPrice(insurance.total_amount) + ' ' + ($store.i18n.t('currency') || 'AED')"></p>
+                                                </div>
+                                            </template>
+
+                                            <template x-if="insurance.insurance_policy_file">
+                                                <div class="pb-4 border-b border-purple-100 dark:border-purple-900/20">
+                                                    <div class="flex items-center gap-2 mb-3">
+                                                        <svg class="h-5 w-5 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                        <p class="text-sm font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wide" x-text="$store.i18n.t('policy_file') || 'Policy File'"></p>
+                                                    </div>
+                                                    <a :href="insurance.insurance_policy_file" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors">
+                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                        </svg>
+                                                        <span x-text="$store.i18n.t('view_policy') || 'View Policy'"></span>
+                                                    </a>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Update Insurance Button (Only if status is pending) -->
+                                        <template x-if="insurance.status && insurance.status.toLowerCase() === 'pending'">
+                                            <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                <button @click="openUpdateInsuranceModal(insurance)" type="button" class="btn btn-primary flex items-center gap-2">
+                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    <span x-text="$store.i18n.t('update_insurance') || 'Update Insurance'"></span>
+                                                </button>
+                                            </div>
+                                        </template>
+
+                                        <!-- Plan Information -->
+                                        <template x-if="insurance.plan">
+                                            <div class="pt-6 border-t-2 border-blue-200 dark:border-blue-800/50">
+                                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-blue-200/50 dark:border-blue-800/30">
+                                                    <svg class="h-6 w-6 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    <h4 class="text-xl font-bold text-blue-900 dark:text-blue-100" x-text="$store.i18n.t('plan_information') || 'Plan Information'"></h4>
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <template x-if="insurance.plan.name">
+                                                        <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('plan_name') || 'Plan Name'"></p>
+                                                            <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="insurance.plan.name"></p>
+                                                        </div>
+                                                    </template>
+
+                                                    <template x-if="insurance.plan.key">
+                                                        <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('plan_key') || 'Plan Key'"></p>
+                                                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm font-semibold" x-text="insurance.plan.key"></span>
+                                                        </div>
+                                                    </template>
+
+                                                    <template x-if="insurance.plan.price">
+                                                        <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('plan_price') || 'Plan Price'"></p>
+                                                            <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="formatPrice(insurance.plan.price) + ' ' + ($store.i18n.t('currency') || 'AED')"></p>
+                                                        </div>
+                                                    </template>
+
+                                                    <template x-if="insurance.plan.description">
+                                                        <div class="pb-4 border-b border-gray-200 dark:border-gray-700 md:col-span-2">
+                                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('description') || 'Description'"></p>
+                                                            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed" x-text="insurance.plan.description"></p>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Payment Information -->
+                                        <template x-if="insurance.payment">
+                                            <div class="pt-6 border-t-2 border-green-200 dark:border-green-800/50">
+                                                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-green-200/50 dark:border-green-800/30">
+                                                    <svg class="h-6 w-6 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                    <h4 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('payment_information') || 'Payment Information'"></h4>
+                                                </div>
+                                                <div class="space-y-6">
+                                                    <div class="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                        <div>
+                                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 tracking-wide" x-text="$store.i18n.t('payment_status') || 'Payment Status'"></p>
+                                                            <template x-if="insurance.payment.total_payments">
+                                                                <p class="text-sm text-gray-600 dark:text-gray-400">Total Payments: <span class="font-semibold text-gray-900 dark:text-white" x-text="insurance.payment.total_payments"></span></p>
+                                                            </template>
+                                                        </div>
+                                                        <span class="badge text-sm py-2 px-4 font-semibold" :class="insurance.payment.is_paid ? 'bg-success' : 'bg-warning'" x-text="insurance.payment.is_paid ? ($store.i18n.t('paid') || 'Paid') : ($store.i18n.t('not_paid') || 'Not Paid')"></span>
+                                                    </div>
+
+                                                    <template x-if="insurance.payment.latest_payment">
+                                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                            <div class="flex items-center gap-2 mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                                                <svg class="h-5 w-5 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <h5 class="text-lg font-bold text-green-900 dark:text-green-100 uppercase tracking-wide" x-text="$store.i18n.t('latest_payment') || 'Latest Payment'"></h5>
+                                                            </div>
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                                <template x-if="insurance.payment.latest_payment.amount">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('amount') || 'Amount'"></p>
+                                                                        <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="formatPrice(insurance.payment.latest_payment.amount) + ' ' + ($store.i18n.t('currency') || 'AED')"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.latest_payment.status">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('status') || 'Status'"></p>
+                                                                        <span class="badge text-sm py-1.5 px-3 font-semibold" :class="{
+                                                                            'bg-success': insurance.payment.latest_payment.status === 'success',
+                                                                            'bg-danger': insurance.payment.latest_payment.status === 'failed',
+                                                                            'bg-warning': insurance.payment.latest_payment.status === 'pending'
+                                                                        }" x-text="insurance.payment.latest_payment.status"></span>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.latest_payment.payment_method">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('payment_method') || 'Payment Method'"></p>
+                                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="insurance.payment.latest_payment.payment_method"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.latest_payment.transaction_id">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700 md:col-span-2 lg:col-span-3">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('transaction_id') || 'Transaction ID'"></p>
+                                                                        <p class="text-sm font-mono text-gray-900 dark:text-white break-all" x-text="insurance.payment.latest_payment.transaction_id"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.latest_payment.paid_at">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('paid_at') || 'Paid At'"></p>
+                                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="formatDate(insurance.payment.latest_payment.paid_at)"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.latest_payment.created_at">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('created_at') || 'Created At'"></p>
+                                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="formatDate(insurance.payment.latest_payment.created_at)"></p>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+
+                                                    <template x-if="insurance.payment.successful_payment">
+                                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                            <div class="flex items-center gap-2 mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                                                <svg class="h-5 w-5 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <h5 class="text-lg font-bold text-emerald-900 dark:text-emerald-100 uppercase tracking-wide" x-text="$store.i18n.t('successful_payment') || 'Successful Payment'"></h5>
+                                                            </div>
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                                <template x-if="insurance.payment.successful_payment.amount">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('amount') || 'Amount'"></p>
+                                                                        <p class="text-base font-semibold text-gray-900 dark:text-white" x-text="formatPrice(insurance.payment.successful_payment.amount) + ' ' + ($store.i18n.t('currency') || 'AED')"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.successful_payment.transaction_id">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700 md:col-span-2">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('transaction_id') || 'Transaction ID'"></p>
+                                                                        <p class="text-sm font-mono text-gray-900 dark:text-white break-all" x-text="insurance.payment.successful_payment.transaction_id"></p>
+                                                                    </div>
+                                                                </template>
+
+                                                                <template x-if="insurance.payment.successful_payment.paid_at">
+                                                                    <div class="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide" x-text="$store.i18n.t('paid_at') || 'Paid At'"></p>
+                                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white" x-text="formatDate(insurance.payment.successful_payment.paid_at)"></p>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
                     <!-- Location Maps -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <!-- Pickup Location -->
@@ -1226,7 +1486,175 @@
                     </div>
                 </div>
             </template>
-        </div>
+
+        <!-- Update Insurance Modal -->
+        <template x-if="updateInsuranceModalData">
+            <div
+                x-show="updateInsuranceModalData.isOpen"
+                x-transition
+                class="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm overflow-y-auto"
+                style="display: none"
+                x-cloak
+                @click.self="closeUpdateInsuranceModal()"
+                x-init="$watch('updateInsuranceModalData.isOpen', value => { 
+                    if (value) { 
+                        $el.style.display = 'block';
+                        const scrollTop = updateInsuranceModalData.scrollTop || (window.pageYOffset || document.documentElement.scrollTop);
+                        $el.scrollTop = scrollTop;
+                        const modalContent = $el.querySelector('.modal-content-wrapper');
+                        if (modalContent) {
+                            const viewportHeight = window.innerHeight;
+                            const modalHeight = modalContent.querySelector('.modal-container')?.offsetHeight || 400;
+                            const topOffset = Math.max(20, scrollTop + 100);
+                            modalContent.style.marginTop = topOffset + 'px';
+                            modalContent.style.marginBottom = '40px';
+                        }
+                    } else { 
+                        $el.style.display = 'none'; 
+                    } 
+                })"
+            >
+                <div class="w-full max-w-md mx-auto modal-content-wrapper" style="padding: 20px 0;">
+                    <div
+                        class="modal-container animate__animated w-full max-h-[90vh] overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800"
+                        :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInLeft' : 'animate__fadeInRight'"
+                        @click.stop
+                    >
+                    <!-- Modal Header - Sticky -->
+                    <div class="modal-header sticky top-0 z-10 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent px-6 py-4 dark:from-blue-500/20 dark:via-blue-500/10 border-b border-white-light/40 dark:border-[#191e3a]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-900 dark:text-white">
+                                        <span x-text="$store.i18n.t('update_insurance') || 'Update Insurance'"></span>
+                                    </h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span x-text="$store.i18n.t('update_insurance_description') || 'Update insurance status and total amount'"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                @click="closeUpdateInsuranceModal()" 
+                                class="close-modal-btn flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            >
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Scrollable -->
+                    <div class="modal-body max-h-[calc(90vh-140px)] overflow-y-auto bg-white dark:bg-[#0e1726]">
+                        <div class="text-base font-medium text-[#1f2937] dark:text-white-dark/70">
+                            <form @submit.prevent="submitUpdateInsurance()">
+                                <div class="p-6 space-y-5">
+                                    <!-- Info Box -->
+                                    <div class="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
+                                        <div class="flex items-start gap-3">
+                                            <svg class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1" x-text="$store.i18n.t('note') || 'Note'"></p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200">
+                                                    <span x-text="$store.i18n.t('insurance_status_will_be_confirm') || 'Status will be set to confirm automatically.'"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Insurance Selection -->
+                                    <div class="form-group">
+                                        <label class="form-label flex items-center gap-2">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                            <span x-text="$store.i18n.t('insurance') || 'Insurance'"></span>
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                class="form-select pr-10"
+                                                x-model="updateInsuranceModalData.insuranceId"
+                                                required
+                                            >
+                                                <option value="" x-text="$store.i18n.t('select_insurance') || 'Select Insurance'"></option>
+                                                <template x-for="insurance in insurancePlans" :key="insurance.id">
+                                                    <option :value="insurance.id" x-text="(insurance.name || insurance.title || 'Insurance #' + insurance.id) + (insurance.price ? ' - ' + insurance.price + ' ' + ($store.i18n.t('currency') || 'AED') : '')"></option>
+                                                </template>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Total Amount (Only if has_existing_insurance is false) -->
+                                    <template x-if="!updateInsuranceModalData.insurance || updateInsuranceModalData.insurance.has_existing_insurance !== true">
+                                        <div class="form-group">
+                                            <label class="form-label flex items-center gap-2">
+                                                <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span x-text="$store.i18n.t('total_amount') || 'Total Amount'"></span>
+                                                <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="form-input pr-16"
+                                                    :placeholder="$store.i18n.t('total_amount') || 'Total Amount'"
+                                                    x-model="updateInsuranceModalData.totalAmount"
+                                                    :required="!updateInsuranceModalData.insurance || updateInsuranceModalData.insurance.has_existing_insurance !== true"
+                                                />
+                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <span class="text-sm text-gray-500 font-semibold" x-text="$store.i18n.t('currency') || 'AED'"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer - Sticky -->
+                    <div class="modal-footer sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-xl border-t border-white-light/40 bg-gray-50/50 px-6 py-4 dark:border-[#191e3a] dark:bg-[#1a2941]/30">
+                        <button
+                            type="button"
+                            @click="closeUpdateInsuranceModal()"
+                            class="btn btn-outline-danger flex items-center gap-2"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span x-text="$store.i18n.t('cancel') || 'Cancel'"></span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="submitUpdateInsurance()"
+                            class="btn btn-primary flex items-center gap-2"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span x-text="$store.i18n.t('save') || 'Save'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
     </body>
 </html>
 

@@ -115,7 +115,7 @@ document.addEventListener('alpine:init', () => {
                 
                 if (this.exceptionData.type === 'Accident' || this.exceptionData.type === 'accident') {
                     const amount = parseFloat(damageAmount);
-                    data.damage_amount = amount;
+                        data.damage_amount = amount;
                 }
 
                 const result = await ApiService.updateBookingExceptionStatus(this.exceptionId, data);

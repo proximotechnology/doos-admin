@@ -105,6 +105,16 @@
             isLoading: true,
             error: null,
             selectedImageIndex: 0,
+            insuranceData: null,
+            isLoadingInsurance: false,
+            updateInsuranceModalData: {
+                isOpen: false,
+                insurance: null,
+                totalAmount: '',
+                insuranceId: '',
+                scrollTop: 0
+            },
+            insurancePlans: [],
 
             getImageCount() {
                 return this.car && this.car.car_image ? this.car.car_image.length : 0;
@@ -179,6 +189,9 @@
 
                     this.car = car;
 
+                    // Fetch insurance data
+                    await this.fetchInsuranceDetails();
+
                     // Initialize maps after data is loaded
                     await this.$nextTick();
                     setTimeout(() => {
@@ -190,6 +203,246 @@
                     coloredToast('danger', this.error);
                 } finally {
                     this.isLoading = false;
+                    loadingIndicator.hide();
+                }
+            },
+
+            async fetchInsuranceDetails() {
+                try {
+                    this.isLoadingInsurance = true;
+                    const data = await ApiService.getCarInsurances(this.carId);
+                    if (data && data.success && data.data) {
+                        this.insuranceData = data.data;
+                    }
+                } catch (error) {
+                    console.error('Error fetching insurance details:', error);
+                    // Don't show error toast for insurance, it's optional data
+                } finally {
+                    this.isLoadingInsurance = false;
+                }
+            },
+
+            async fetchInsurancePlans() {
+                try {
+                    const data = await ApiService.getInsurances();
+                    if (data && data.success && data.data) {
+                        this.insurancePlans = data.data || [];
+                    }
+                } catch (error) {
+                    console.error('Error fetching insurance plans:', error);
+                }
+            },
+
+            async openUpdateInsuranceModal(insurance) {
+                this.updateInsuranceModalData.insurance = insurance;
+                this.updateInsuranceModalData.totalAmount = insurance.total_amount || '';
+                this.updateInsuranceModalData.insuranceId = insurance.plan?.id || insurance.insurance_id || '';
+                this.updateInsuranceModalData.isOpen = true;
+                // Store current scroll position to position modal near user's current view
+                this.updateInsuranceModalData.scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                // Fetch insurance plans if not already loaded
+                if (this.insurancePlans.length === 0) {
+                    await this.fetchInsurancePlans();
+                }
+            },
+
+            closeUpdateInsuranceModal() {
+                this.updateInsuranceModalData.isOpen = false;
+                this.updateInsuranceModalData.insurance = null;
+                this.updateInsuranceModalData.totalAmount = '';
+                this.updateInsuranceModalData.insuranceId = '';
+            },
+
+            async submitUpdateInsurance() {
+                if (!this.updateInsuranceModalData.insurance) return;
+
+                const insurance = this.updateInsuranceModalData.insurance;
+                
+                // If has_existing_insurance is true, only insurance_id is required
+                if (insurance.has_existing_insurance === true) {
+                    if (!this.updateInsuranceModalData.insuranceId) {
+                        coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                        return;
+                    }
+                    await this.updateInsurance(insurance, null, this.updateInsuranceModalData.insuranceId);
+                } else {
+                    // If has_existing_insurance is false, total_amount and insurance_id are required
+                    const totalAmount = parseFloat(this.updateInsuranceModalData.totalAmount);
+                    if (!this.updateInsuranceModalData.totalAmount || isNaN(totalAmount) || totalAmount < 0) {
+                        coloredToast('danger', t('total_amount_required') || 'Total amount is required and must be positive');
+                        return;
+                    }
+                    if (!this.updateInsuranceModalData.insuranceId) {
+                        coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                        return;
+                    }
+                    await this.updateInsurance(insurance, totalAmount, this.updateInsuranceModalData.insuranceId);
+                }
+                this.closeUpdateInsuranceModal();
+            },
+
+            async updateInsurance(insurance, totalAmount, insuranceId) {
+                try {
+                    if (!insurance || !insurance.id) {
+                        coloredToast('danger', t('insurance_id_required') || 'Insurance ID is required');
+                        return;
+                    }
+
+                    // If has_existing_insurance is true, update only insurance_id for this insurance
+                    // Otherwise, update total_amount and insurance_id for this insurance
+                    const updateData = {
+                        status: 'confirm',
+                        insurance_id: insurance.id
+                    };
+
+                    if (insurance.has_existing_insurance === true) {
+                        // Only insurance_id is required
+                        if (!insuranceId) {
+                            coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                            return;
+                        }
+                        updateData.insurance_id = insuranceId;
+                    } else {
+                        // total_amount and insurance_id are required
+                        if (!totalAmount || parseFloat(totalAmount) < 0) {
+                            coloredToast('danger', t('total_amount_required') || 'Total amount is required and must be positive');
+                            return;
+                        }
+                        if (!insuranceId) {
+                            coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                            return;
+                        }
+                        updateData.total_amount = parseFloat(totalAmount);
+                        updateData.insurance_id = insuranceId;
+                    }
+
+                    const carInsuranceId = insurance.id;
+
+                    loadingIndicator.show();
+                    const response = await ApiService.updateCarInsurance(carInsuranceId, updateData);
+                    
+                    if (response && response.success) {
+                        coloredToast('success', t('insurance_updated_successfully') || 'Insurance updated successfully');
+                        // Refresh insurance data
+                        await this.fetchInsuranceDetails();
+                    } else {
+                        coloredToast('danger', response?.message || t('failed_to_update_insurance') || 'Failed to update insurance');
+                    }
+                } catch (error) {
+                    console.error('Error updating insurance:', error);
+                    coloredToast('danger', error?.response?.data?.message || t('failed_to_update_insurance') || 'Failed to update insurance');
+                } finally {
+                    loadingIndicator.hide();
+                }
+            },
+
+            updateAllInsurancesModal() {
+                const t = (key) => Alpine.store('i18n').t(key) || key;
+                
+                Swal.fire({
+                    title: `<div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">${t('update_all_insurances') || 'Update All Insurances'}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${t('update_all_insurances_description') || 'Update all insurances with the same total amount'}</p>
+                        </div>
+                    </div>`,
+                    html: `
+                        <div class="text-left space-y-4 mt-4">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    ${t('total_amount') || 'Total Amount'} <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="swal-all-total-amount" class="w-full px-4 py-3 pl-16 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" min="0" step="0.01" placeholder="0.00" required>
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-semibold">${t('currency') || 'AED'}</span>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-3">
+                                <p class="text-sm text-indigo-800 dark:text-indigo-200">
+                                    <strong>${t('note') || 'Note'}:</strong> ${t('all_insurances_will_be_updated') || 'All insurances will be updated with status "confirm" and the specified total amount.'}
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    width: '600px',
+                    padding: '2rem',
+                    showCancelButton: true,
+                    confirmButtonText: `
+                        <div class="flex items-center gap-2">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>${t('save') || 'Save'}</span>
+                        </div>
+                    `,
+                    cancelButtonText: t('cancel') || 'Cancel',
+                    confirmButtonColor: '#6366f1',
+                    cancelButtonColor: '#6b7280',
+                    preConfirm: () => {
+                        const totalAmount = document.getElementById('swal-all-total-amount').value;
+                        if (!totalAmount || parseFloat(totalAmount) < 0) {
+                            Swal.showValidationMessage(t('total_amount_required') || 'Total amount is required and must be positive');
+                            return false;
+                        }
+                        const amount = parseFloat(totalAmount);
+                        if (isNaN(amount)) {
+                            Swal.showValidationMessage(t('invalid_amount') || 'Invalid amount');
+                            return false;
+                        }
+                        return amount;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed && result.value !== false) {
+                        this.updateAllInsurances(result.value);
+                    }
+                });
+            },
+
+            async updateAllInsurances(totalAmount) {
+                try {
+                    if (!totalAmount || parseFloat(totalAmount) < 0) {
+                        coloredToast('danger', t('total_amount_required') || 'Total amount is required and must be positive');
+                        return;
+                    }
+
+                    if (!this.insuranceData || !this.insuranceData.insurances || this.insuranceData.insurances.length === 0) {
+                        coloredToast('danger', t('no_insurances_found') || 'No insurances found');
+                        return;
+                    }
+
+                    // Update all insurances
+                    const updatePromises = this.insuranceData.insurances.map(insurance => {
+                        const updateData = {
+                            status: 'confirm',
+                            total_amount: parseFloat(totalAmount),
+                            insurance_id: insurance.id
+                        };
+                        return ApiService.updateCarInsurance(insurance.id, updateData);
+                    });
+
+                    loadingIndicator.show();
+                    const responses = await Promise.all(updatePromises);
+                    
+                    const allSuccess = responses.every(response => response && response.success);
+                    
+                    if (allSuccess) {
+                        coloredToast('success', t('all_insurances_updated_successfully') || 'All insurances updated successfully');
+                        // Refresh insurance data
+                        await this.fetchInsuranceDetails();
+                    } else {
+                        coloredToast('warning', t('some_insurances_update_failed') || 'Some insurances failed to update');
+                        // Still refresh to show updated data
+                        await this.fetchInsuranceDetails();
+                    }
+                } catch (error) {
+                    console.error('Error updating all insurances:', error);
+                    coloredToast('danger', error?.response?.data?.message || t('failed_to_update_insurances') || 'Failed to update insurances');
+                } finally {
                     loadingIndicator.hide();
                 }
             },
@@ -530,6 +783,50 @@
                 if (Array.isArray(value)) {
                     return value.join(', ');
                 }
+                return value;
+            },
+
+            formatPrice(price) {
+                if (!price) return '0.00';
+                const num = parseFloat(price);
+                if (isNaN(num)) return price;
+                return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+
+            formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (e) {
+                    return dateString;
+                }
+            },
+
+            formatInsuranceStatus(status) {
+                if (!status) return 'N/A';
+                const statusMap = {
+                    'paid': 'Paid',
+                    'pending': 'Pending',
+                    'confirm': 'Confirm',
+                    'confirmed': 'Confirm',
+                    'failed': 'Failed',
+                    'rejected': 'Rejected'
+                };
+                return statusMap[status.toLowerCase()] || status;
+            },
+
+            formatBoolean(value) {
+                if (value === null || value === undefined) return 'N/A';
+                if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+                if (value === 1 || value === '1' || value === true) return 'Yes';
+                if (value === 0 || value === '0' || value === false) return 'No';
                 return value;
             },
 
