@@ -383,12 +383,20 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
+            // Store attachments and message before clearing
+            const attachmentsToSend = [...this.attachments];
+            const messageToSend = this.replyMessage.trim();
+
+            // Clear attachments immediately from preview area
+            this.attachments = [];
+            this.clearAttachmentInput();
+
             // Create temporary message with loading state
             const tempMessageId = 'temp-' + Date.now();
             const tempMessage = {
                 id: tempMessageId,
-                message: this.replyMessage.trim(),
-                attachments: this.attachments.map((file, idx) => ({
+                message: messageToSend,
+                attachments: attachmentsToSend.map((file, idx) => ({
                     id: `temp-att-${idx}`,
                     name: file.name,
                     url: URL.createObjectURL(file),
@@ -418,13 +426,13 @@ document.addEventListener('alpine:init', () => {
                 let requestData;
                 let isFormData = false;
                 
-                if (this.attachments.length > 0) {
+                if (attachmentsToSend.length > 0) {
                     const formData = new FormData();
-                    formData.append('message', this.replyMessage.trim() || '');
+                    formData.append('message', messageToSend || '');
                     formData.append('is_internal_note', isInternalNote ? '1' : '0');
                     
                     // Add attachments
-                    this.attachments.forEach((file, index) => {
+                    attachmentsToSend.forEach((file, index) => {
                         formData.append(`attachments[${index}]`, file);
                     });
                     
@@ -432,7 +440,7 @@ document.addEventListener('alpine:init', () => {
                     isFormData = true;
                 } else {
                     requestData = {
-                        message: this.replyMessage.trim(),
+                        message: messageToSend,
                         is_internal_note: isInternalNote ? 1 : 0,
                         attachments: []
                     };
@@ -441,31 +449,69 @@ document.addEventListener('alpine:init', () => {
                 const data = await ApiService.sendTicketReply(this.selectedTicket.id, requestData, isFormData);
 
                 if (data.status === 'success' || data.status === true) {
-                    // Remove temporary message
+                    // Find and update temporary message with actual data
                     const tempIndex = this.ticketMessages.findIndex(m => m.id === tempMessageId);
+                    
+                    // Process the message from API response or use sent data
+                    let processedAttachments = [];
+                    
+                    if (data.message && Array.isArray(data.message.attachments) && data.message.attachments.length > 0) {
+                        // Process attachments from API format (same as loadTicketDetails)
+                        processedAttachments = data.message.attachments.map(att => ({
+                            id: att.id,
+                            name: att.attachment_name || att.name,
+                            url: att.attachment_path || att.url || att.path,
+                            type: att.attachment_type || att.type,
+                            mime_type: att.attachment_mime_type || att.mime_type,
+                            size: att.attachment_size || att.size,
+                            path: att.attachment_path || att.path || att.url
+                        }));
+                    } else if (attachmentsToSend.length > 0 && tempIndex !== -1) {
+                        // Fallback: use attachments from temporary message (they're already there with Object URLs)
+                        const tempMsg = this.ticketMessages[tempIndex];
+                        processedAttachments = tempMsg.attachments || [];
+                    }
+                    
                     if (tempIndex !== -1) {
-                        this.ticketMessages.splice(tempIndex, 1);
+                        // Update the temporary message with actual data, preserving attachments
+                        const tempMsg = this.ticketMessages[tempIndex];
+                        this.ticketMessages[tempIndex] = {
+                            id: data.message?.id || Date.now(),
+                            message: data.message?.message || messageToSend,
+                            attachments: processedAttachments.length > 0 ? processedAttachments : (tempMsg.attachments || []),
+                            created_at: data.message?.created_at || new Date().toISOString(),
+                            sender: 'me',
+                            sender_id: this.loginUser.id,
+                            is_internal_note: isInternalNote ? 1 : 0,
+                            isLoading: false
+                        };
+                    } else {
+                        // If temp message not found, add new message
+                        const newMessage = {
+                            id: data.message?.id || Date.now(),
+                            message: data.message?.message || messageToSend,
+                            attachments: processedAttachments,
+                            created_at: data.message?.created_at || new Date().toISOString(),
+                            sender: 'me',
+                            sender_id: this.loginUser.id,
+                            is_internal_note: isInternalNote ? 1 : 0,
+                            isLoading: false
+                        };
+                        this.ticketMessages.push(newMessage);
                     }
 
+                    // Clear message input
                     this.replyMessage = '';
-                    this.attachments = [];
-                    this.clearAttachmentInput();
-
-                    // Reload ticket details to get updated messages with proper attachments
-                    await this.loadTicketDetails(this.selectedTicket.id);
                     
                     this.scrollToBottom();
-                    
-                    const successMessage = isInternalNote 
-                        ? (this.t('internal_note_added') || 'Internal note added successfully')
-                        : (this.t('message_sent') || 'Message sent successfully');
-                    coloredToast('success', successMessage);
                 } else {
                     // Remove temporary message on error
                     const tempIndex = this.ticketMessages.findIndex(m => m.id === tempMessageId);
                     if (tempIndex !== -1) {
                         this.ticketMessages.splice(tempIndex, 1);
                     }
+                    // Restore attachments on error
+                    this.attachments = attachmentsToSend;
                     coloredToast('danger', this.t('failed_to_send') || 'Failed to send message');
                 }
             } catch (error) {
@@ -1130,25 +1176,45 @@ document.addEventListener('alpine:init', () => {
                 const { value: recordingConfirmed } = await Swal.fire({
                     title: this.t('record_audio') || 'Record Audio',
                     html: `
-                        <div class="flex flex-col items-center gap-4 p-4">
-                            <div id="audioRecordingStatus" class="flex items-center gap-3">
-                                <div class="h-12 w-12 rounded-full bg-danger animate-pulse flex items-center justify-center">
-                                    <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                                    </svg>
+                        <div class="flex flex-col items-center gap-6 p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-lg">
+                            <!-- Recording Status -->
+                            <div id="audioRecordingStatus" class="flex flex-col items-center gap-4 w-full">
+                                <div class="relative">
+                                    <div class="h-20 w-20 rounded-full bg-danger animate-pulse flex items-center justify-center shadow-lg">
+                                        <svg class="h-10 w-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute -top-2 -right-2 h-6 w-6 bg-danger rounded-full animate-ping"></div>
                                 </div>
-                                <div>
-                                    <p class="text-lg font-bold text-danger">Recording...</p>
-                                    <p id="recordingTimer" class="text-sm text-gray-500">00:00</p>
+                                <div class="text-center">
+                                    <p class="text-xl font-bold text-danger mb-2">Recording...</p>
+                                    <p id="recordingTimer" class="text-2xl font-mono font-semibold text-gray-700 dark:text-gray-300">00:00</p>
                                 </div>
                             </div>
-                            <audio id="audioPlayback" controls class="hidden w-full mt-4"></audio>
+                            
+                            <!-- Playback Preview -->
+                            <div id="audioPlaybackContainer" class="hidden w-full">
+                                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border-2 border-primary/20">
+                                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">Preview Recording</h3>
+                                    <div class="flex flex-col items-center gap-4">
+                                        <div class="w-full max-w-md">
+                                            <audio id="audioPlayback" controls class="w-full"></audio>
+                                        </div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 text-center">Listen to your recording before adding it</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: this.t('stop_recording') || 'Stop & Use',
+                    confirmButtonText: this.t('add_recording') || 'Add Recording',
                     cancelButtonText: this.t('cancel') || 'Cancel',
+                    width: '600px',
+                    backdrop: 'rgba(0,0,0,0.8)',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                     showClass: {
                         popup: 'animate__animated animate__fadeInDown'
                     },
@@ -1180,13 +1246,15 @@ document.addEventListener('alpine:init', () => {
                                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                                 const audioUrl = URL.createObjectURL(audioBlob);
                                 
-                                // Show playback
+                                // Show playback preview
                                 const statusDiv = document.getElementById('audioRecordingStatus');
+                                const playbackContainer = document.getElementById('audioPlaybackContainer');
                                 const playbackAudio = document.getElementById('audioPlayback');
-                                if (statusDiv && playbackAudio) {
+                                if (statusDiv && playbackContainer && playbackAudio) {
                                     statusDiv.classList.add('hidden');
+                                    playbackContainer.classList.remove('hidden');
                                     playbackAudio.src = audioUrl;
-                                    playbackAudio.classList.remove('hidden');
+                                    playbackAudio.load();
                                 }
 
                                 // Store for later use
@@ -1210,13 +1278,25 @@ document.addEventListener('alpine:init', () => {
                         }
                     },
                     preConfirm: () => {
+                        // If still recording, stop it first
                         if (window._mediaRecorder && window._mediaRecorder.state === 'recording') {
                             window._mediaRecorder.stop();
-                            // Wait for onstop to complete
+                            // Wait for onstop to complete and show preview
                             return new Promise((resolve) => {
-                                setTimeout(() => resolve(true), 500);
+                                setTimeout(() => {
+                                    // Check if preview is shown, if yes, allow adding, if no, prevent
+                                    const playbackContainer = document.getElementById('audioPlaybackContainer');
+                                    if (playbackContainer && !playbackContainer.classList.contains('hidden')) {
+                                        // Preview is shown, allow adding
+                                        resolve(true);
+                                    } else {
+                                        // Still recording, wait more
+                                        setTimeout(() => resolve(true), 1000);
+                                    }
+                                }, 500);
                             });
                         }
+                        // Already stopped, allow adding
                         return true;
                     },
                     willClose: () => {
