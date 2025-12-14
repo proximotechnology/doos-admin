@@ -581,7 +581,7 @@
                             <div class="h-px w-full border-b border-[#e0e6ed] dark:border-[#1b2e4b]"></div>
 
                             <div class="perfect-scrollbar relative h-full overflow-y-auto" style="max-height: calc(100vh - 350px); z-index: 1;">
-                                <div class="ticket-conversation-box min-h-[400px] space-y-5 p-4" style="padding-bottom: 2rem;">
+                                <div class="ticket-conversation-box min-h-[400px] space-y-5 p-4" style="padding-bottom: 2rem; position: relative; z-index: 1;">
                                     <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                             <div>
@@ -627,7 +627,7 @@
                                                                     <div class="relative">
                                                                         <template x-if="attachment.type === 'image' || (attachment.mime_type && attachment.mime_type.startsWith('image/'))">
                                                                             <div class="relative group">
-                                                                                <img :src="attachment.url || attachment.path" :alt="attachment.name" class="max-w-[200px] max-h-[200px] rounded-lg border border-warning/30 cursor-pointer hover:opacity-90 transition-opacity" @click="window.open(attachment.url || attachment.path, '_blank')" />
+                                                                                <img :src="attachment.url || attachment.path" :alt="attachment.name" class="w-[200px] h-[200px] object-cover rounded-lg border border-warning/30 cursor-pointer hover:opacity-90 transition-opacity" @click="window.open(attachment.url || attachment.path, '_blank')" />
                                                                                 <a :href="attachment.url || attachment.path" target="_blank" class="absolute top-2 right-2 bg-warning/80 hover:bg-warning rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                                     <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -637,7 +637,7 @@
                                                                         </template>
                                                                         <template x-if="attachment.type === 'video' || (attachment.mime_type && attachment.mime_type.startsWith('video/'))">
                                                                             <div class="relative group">
-                                                                                <video :src="attachment.url || attachment.path" controls class="max-w-[300px] max-h-[300px] rounded-lg border border-warning/30"></video>
+                                                                                <video :src="attachment.url || attachment.path" controls class="w-[200px] h-[200px] object-cover rounded-lg border border-warning/30"></video>
                                                                                 <a :href="attachment.url || attachment.path" target="_blank" class="absolute top-2 right-2 bg-warning/80 hover:bg-warning rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                                     <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -681,9 +681,19 @@
                                                     </div>
                                                 </div>
 
-                                                <div x-show="message.is_internal_note != 1" class="flex items-start gap-3 mb-4" :class="{'justify-end' : message.sender === 'me'}">
-                                                <div class="max-w-[70%] space-y-2">
-                                                        <div class="flex items-center gap-3" :class="{'flex-row-reverse' : message.sender === 'me'}">
+                                                <div x-show="message.is_internal_note != 1" class="flex items-start gap-3 mb-4" :class="{'justify-end' : message.sender === 'me'}" :id="'message-' + message.id">
+                                                <div class="max-w-[70%] space-y-2 relative">
+                                                    <!-- Loading indicator for message -->
+                                                    <div x-show="message.isLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-md z-10">
+                                                        <div class="flex items-center gap-2 text-primary">
+                                                            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            <span class="text-sm" x-text="$store.i18n.t('sending') || 'Sending...'"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-3" :class="{'flex-row-reverse' : message.sender === 'me'}">
                                                         <div
                                                                 x-show="message.message && message.message.trim()"
                                                             class="break-words rounded-md p-4 py-2"
@@ -694,53 +704,72 @@
                                                         ></div>
                                                     </div>
                                                         <template x-if="message.attachments && message.attachments.length > 0">
-                                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                            <div class="flex flex-wrap gap-2 mt-2" :class="{'justify-end' : message.sender === 'me'}">
                                                                 <template x-for="(attachment, idx) in message.attachments" :key="idx">
-                                                                    <div class="relative">
+                                                                    <div class="relative group">
                                                                         <template x-if="attachment.type === 'image' || (attachment.mime_type && attachment.mime_type.startsWith('image/'))">
-                                                                            <div class="relative group">
-                                                                                <img :src="attachment.url || attachment.path" :alt="attachment.name" class="max-w-[200px] max-h-[200px] rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity" @click="window.open(attachment.url || attachment.path, '_blank')" />
-                                                                                <a :href="attachment.url || attachment.path" target="_blank" class="absolute top-2 right-2 bg-black/50 hover:bg-black/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                            <div class="relative">
+                                                                                <img :src="attachment.url || attachment.path" :alt="attachment.name" 
+                                                                                    class="w-[250px] h-[250px] object-cover rounded-xl border-2 cursor-pointer hover:opacity-90 transition-all shadow-md hover:shadow-lg" 
+                                                                                    :class="message.sender === 'me' ? 'border-primary/30' : 'border-gray-300 dark:border-gray-600'"
+                                                                                    @click="window.open(attachment.url || attachment.path, '_blank')" />
+                                                                                <a :href="attachment.url || attachment.path" target="_blank" 
+                                                                                    class="absolute top-2 right-2 bg-black/60 hover:bg-black/80 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                                                                                     <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                    </div>
-                                                    </template>
+                                                                            </div>
+                                                                        </template>
                                                                         <template x-if="attachment.type === 'video' || (attachment.mime_type && attachment.mime_type.startsWith('video/'))">
-                                                                            <div class="relative group">
-                                                                                <video :src="attachment.url || attachment.path" controls class="max-w-[300px] max-h-[300px] rounded-lg border border-gray-200 dark:border-gray-700"></video>
-                                                                                <a :href="attachment.url || attachment.path" target="_blank" class="absolute top-2 right-2 bg-black/50 hover:bg-black/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                            <div class="relative">
+                                                                                <video :src="attachment.url || attachment.path" controls 
+                                                                                    class="w-[250px] h-[250px] object-cover rounded-xl border-2 shadow-md hover:shadow-lg" 
+                                                                                    :class="message.sender === 'me' ? 'border-primary/30' : 'border-gray-300 dark:border-gray-600'"></video>
+                                                                                <a :href="attachment.url || attachment.path" target="_blank" 
+                                                                                    class="absolute top-2 right-2 bg-black/60 hover:bg-black/80 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                                                                                     <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                </div>
+                                                                            </div>
                                                                         </template>
                                                                         <template x-if="attachment.type === 'audio' || (attachment.mime_type && attachment.mime_type.startsWith('audio/'))">
-                                                                            <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
-                                                                                <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <div class="flex items-center gap-3 rounded-xl border-2 p-3 shadow-md w-[250px]" 
+                                                                                :class="message.sender === 'me' 
+                                                                                    ? 'border-primary/30 bg-primary/5 dark:bg-primary/10' 
+                                                                                    : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800'">
+                                                                                <svg class="h-10 w-10 shrink-0" :class="message.sender === 'me' ? 'text-primary' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                                                                                 </svg>
-                                                                                <div class="flex-1">
-                                                                                    <p class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="attachment.name"></p>
+                                                                                <div class="flex-1 min-w-0">
+                                                                                    <p class="text-xs font-medium truncate" 
+                                                                                        :class="message.sender === 'me' ? 'text-primary' : 'text-gray-700 dark:text-gray-300'"
+                                                                                        x-text="attachment.name"></p>
                                                                                     <audio :src="attachment.url || attachment.path" controls class="w-full mt-1"></audio>
                                                                                 </div>
-                                                                                <a :href="attachment.url || attachment.path" target="_blank" class="text-primary hover:underline">
-                                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <a :href="attachment.url || attachment.path" target="_blank" 
+                                                                                    :class="message.sender === 'me' ? 'text-primary hover:text-primary/80' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'">
+                                                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
                                                                             </div>
                                                                         </template>
                                                                         <template x-if="!attachment.type || (attachment.type !== 'image' && attachment.type !== 'video' && attachment.type !== 'audio' && (!attachment.mime_type || (!attachment.mime_type.startsWith('image/') && !attachment.mime_type.startsWith('video/') && !attachment.mime_type.startsWith('audio/'))))">
-                                                                            <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-800">
-                                                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <div class="flex items-center gap-3 rounded-xl border-2 p-3 shadow-md w-[250px]" 
+                                                                                :class="message.sender === 'me' 
+                                                                                    ? 'border-primary/30 bg-primary/5 dark:bg-primary/10' 
+                                                                                    : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800'">
+                                                                                <svg class="h-6 w-6 shrink-0" :class="message.sender === 'me' ? 'text-primary' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                                                                 </svg>
-                                                                                <span class="text-xs text-gray-700 dark:text-gray-300" x-text="attachment.name"></span>
-                                                                                <a :href="attachment.url || attachment.path" target="_blank" class="text-primary hover:underline">
-                                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <span class="text-sm font-medium truncate flex-1" 
+                                                                                    :class="message.sender === 'me' ? 'text-primary' : 'text-gray-700 dark:text-gray-300'"
+                                                                                    x-text="attachment.name"></span>
+                                                                                <a :href="attachment.url || attachment.path" target="_blank" 
+                                                                                    :class="message.sender === 'me' ? 'text-primary hover:text-primary/80' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'">
+                                                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
@@ -750,7 +779,8 @@
                                                                 </template>
                                                             </div>
                                                         </template>
-                                                        <div class="flex items-center justify-between text-xs text-white-dark">
+                                                        <div class="flex items-center justify-between text-xs" 
+                                                            :class="message.sender === 'me' ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'">
                                                             <span x-text="message.sender === 'me' ? 'You' : (selectedTicket.user_name || 'User')"></span>
                                                             <span x-text="message.created_at"></span>
                                                         </div>
@@ -771,14 +801,14 @@
                                 </div>
                             </div>
 
-                            <div class="absolute bottom-0 left-0 w-full border-t border-[#e0e6ed] bg-white p-4 dark:border-[#1b2e4b] dark:bg-[#0e1726]">
+                            <div class="absolute bottom-0 left-0 w-full border-t border-[#e0e6ed] bg-white p-4 dark:border-[#1b2e4b] dark:bg-[#0e1726]" style="z-index: 10;">
                                 <template x-if="attachments.length > 0">
-                                    <div class="mb-3 space-y-2">
+                                    <div class="mb-3 space-y-2" id="attachments-preview">
                                         <template x-for="(file, index) in attachments" :key="index">
                                             <div class="relative rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
                                                 <template x-if="file.type && file.type.startsWith('image/')">
                                                     <div class="relative">
-                                                        <img :src="URL.createObjectURL(file)" :alt="file.name" class="max-w-[200px] max-h-[150px] rounded-lg object-cover" />
+                                                        <img :src="URL.createObjectURL(file)" :alt="file.name" class="w-[250px] h-[250px] rounded-lg object-cover" />
                                                         <button type="button" @click="removeAttachment(index)" class="absolute -top-2 -right-2 bg-danger text-white rounded-full p-1 hover:bg-danger-dark transition-colors">
                                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -789,7 +819,7 @@
                                                 </template>
                                                 <template x-if="file.type && file.type.startsWith('video/')">
                                                     <div class="relative">
-                                                        <video :src="URL.createObjectURL(file)" controls class="max-w-[300px] max-h-[200px] rounded-lg"></video>
+                                                        <video :src="URL.createObjectURL(file)" controls class="w-[250px] h-[250px] object-cover rounded-lg"></video>
                                                         <button type="button" @click="removeAttachment(index)" class="absolute -top-2 -right-2 bg-danger text-white rounded-full p-1 hover:bg-danger-dark transition-colors">
                                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -799,12 +829,12 @@
                                                     </div>
                                                 </template>
                                                 <template x-if="file.type && file.type.startsWith('audio/')">
-                                                    <div class="flex items-center gap-3">
+                                                    <div class="flex items-center gap-3 w-[250px]">
                                                         <svg class="h-10 w-10 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                                                         </svg>
-                                                        <div class="flex-1">
-                                                            <p class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="file.name"></p>
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate" x-text="file.name"></p>
                                                             <p class="text-xs text-gray-500" x-text="formatFileSize(file.size)"></p>
                                                             <audio :src="URL.createObjectURL(file)" controls class="w-full mt-1"></audio>
                                                         </div>
@@ -816,13 +846,13 @@
                                                     </div>
                                                 </template>
                                                 <template x-if="!file.type || (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/'))">
-                                                    <div class="flex items-center gap-2">
+                                                    <div class="flex items-center gap-2 w-[250px]">
                                                         <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                                         </svg>
-                                                        <div class="flex-1">
-                                                            <span class="text-xs text-gray-700 dark:text-gray-300" x-text="file.name"></span>
-                                                            <span class="text-xs text-gray-500 ml-2" x-text="formatFileSize(file.size)"></span>
+                                                        <div class="flex-1 min-w-0">
+                                                            <span class="text-xs text-gray-700 dark:text-gray-300 truncate block" x-text="file.name"></span>
+                                                            <span class="text-xs text-gray-500" x-text="formatFileSize(file.size)"></span>
                                                         </div>
                                                         <button type="button" @click="removeAttachment(index)" class="text-danger hover:text-danger-dark">
                                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

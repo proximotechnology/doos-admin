@@ -32,6 +32,12 @@
             users: [],
 
             async init() {
+                // Reset unread notifications count immediately when notification page is opened
+                // This must happen before fetching to ensure count is reset first
+                if (window.headerInstance && window.headerInstance.resetUnreadNotificationsCount) {
+                    window.headerInstance.resetUnreadNotificationsCount();
+                }
+
                 await this.fetchNotifications();
                 await this.fetchUnreadCount();
                 await this.fetchUsers();

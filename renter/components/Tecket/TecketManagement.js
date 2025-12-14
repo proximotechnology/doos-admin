@@ -383,9 +383,37 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
+            // Create temporary message with loading state
+            const tempMessageId = 'temp-' + Date.now();
+            const tempMessage = {
+                id: tempMessageId,
+                message: this.replyMessage.trim(),
+                attachments: this.attachments.map((file, idx) => ({
+                    id: `temp-att-${idx}`,
+                    name: file.name,
+                    url: URL.createObjectURL(file),
+                    type: file.type?.startsWith('image/') ? 'image' : file.type?.startsWith('video/') ? 'video' : file.type?.startsWith('audio/') ? 'audio' : 'file',
+                    mime_type: file.type,
+                    size: file.size,
+                    path: URL.createObjectURL(file),
+                    isTemp: true
+                })),
+                created_at: new Date().toISOString(),
+                sender: 'me',
+                sender_id: this.loginUser.id,
+                is_internal_note: isInternalNote ? 1 : 0,
+                isLoading: true
+            };
+
+            // Add temporary message to display
+            this.ticketMessages.push(tempMessage);
+            
+            // Scroll to bottom to show the new message
+            this.$nextTick(() => {
+                this.scrollToBottom();
+            });
+
             try {
-                loadingIndicator.show();
-                
                 // Prepare form data if there are attachments
                 let requestData;
                 let isFormData = false;
@@ -413,6 +441,12 @@ document.addEventListener('alpine:init', () => {
                 const data = await ApiService.sendTicketReply(this.selectedTicket.id, requestData, isFormData);
 
                 if (data.status === 'success' || data.status === true) {
+                    // Remove temporary message
+                    const tempIndex = this.ticketMessages.findIndex(m => m.id === tempMessageId);
+                    if (tempIndex !== -1) {
+                        this.ticketMessages.splice(tempIndex, 1);
+                    }
+
                     this.replyMessage = '';
                     this.attachments = [];
                     this.clearAttachmentInput();
@@ -426,12 +460,21 @@ document.addEventListener('alpine:init', () => {
                         ? (this.t('internal_note_added') || 'Internal note added successfully')
                         : (this.t('message_sent') || 'Message sent successfully');
                     coloredToast('success', successMessage);
+                } else {
+                    // Remove temporary message on error
+                    const tempIndex = this.ticketMessages.findIndex(m => m.id === tempMessageId);
+                    if (tempIndex !== -1) {
+                        this.ticketMessages.splice(tempIndex, 1);
+                    }
+                    coloredToast('danger', this.t('failed_to_send') || 'Failed to send message');
                 }
             } catch (error) {
-                console.error('Error sending reply:', error);
+                // Remove temporary message on error
+                const tempIndex = this.ticketMessages.findIndex(m => m.id === tempMessageId);
+                if (tempIndex !== -1) {
+                    this.ticketMessages.splice(tempIndex, 1);
+                }
                 coloredToast('danger', this.t('failed_to_send') || 'Failed to send message');
-            } finally {
-                loadingIndicator.hide();
             }
         },
 
@@ -742,6 +785,39 @@ document.addEventListener('alpine:init', () => {
                 }
             }, 300);
         },
+        
+        scrollToAttachments() {
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    const attachmentsPreview = document.getElementById('attachments-preview');
+                    if (attachmentsPreview) {
+                        // Find the scrollable container
+                        const conversationBox = document.querySelector('.ticket-conversation-box');
+                        if (conversationBox) {
+                            let scrollContainer = conversationBox.parentElement;
+                            while (scrollContainer) {
+                                const hasOverflow = scrollContainer.classList.contains('overflow-y-auto') || 
+                                                  scrollContainer.classList.contains('perfect-scrollbar') ||
+                                                  getComputedStyle(scrollContainer).overflowY === 'auto';
+                                if (hasOverflow) {
+                                    // Scroll to bottom to show attachments preview
+                                    scrollContainer.scrollTo({
+                                        top: scrollContainer.scrollHeight,
+                                        behavior: 'smooth'
+                                    });
+                                    break;
+                                }
+                                scrollContainer = scrollContainer.parentElement;
+                                if (!scrollContainer || scrollContainer === document.body) {
+                                    scrollContainer = null;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }, 100);
+            });
+        },
 
         // Attachment management
         initAttachmentInput() {
@@ -763,6 +839,11 @@ document.addEventListener('alpine:init', () => {
             });
             
             coloredToast('success', `${files.length} file(s) added`);
+            
+            // Scroll to attachments preview area
+            this.$nextTick(() => {
+                this.scrollToAttachments();
+            });
         },
 
         removeAttachment(index) {
@@ -896,6 +977,11 @@ document.addEventListener('alpine:init', () => {
                     this.attachments.push(photoFile);
                     coloredToast('success', 'Photo captured successfully');
                     
+                    // Scroll to attachments preview area
+                    this.$nextTick(() => {
+                        this.scrollToAttachments();
+                    });
+                    
                     delete window._capturedPhotoBlob;
                     delete window._cameraStream;
                     delete window._photoCapture;
@@ -1015,6 +1101,11 @@ document.addEventListener('alpine:init', () => {
                     
                     this.attachments.push(videoFile);
                     coloredToast('success', 'Video recorded successfully');
+                    
+                    // Scroll to attachments preview area
+                    this.$nextTick(() => {
+                        this.scrollToAttachments();
+                    });
                     
                     delete window._recordedVideoBlob;
                     delete window._videoMediaRecorder;
@@ -1149,6 +1240,11 @@ document.addEventListener('alpine:init', () => {
                     
                     this.attachments.push(audioFile);
                     coloredToast('success', 'Audio recorded successfully');
+                    
+                    // Scroll to attachments preview area
+                    this.$nextTick(() => {
+                        this.scrollToAttachments();
+                    });
                     
                     // Cleanup
                     delete window._recordedAudioBlob;
@@ -1330,13 +1426,10 @@ document.addEventListener('alpine:init', () => {
                 // Add message to ticket messages
                 this.ticketMessages.push(newMessage);
                 
-                // Scroll to bottom
-                this.$nextTick(() => {
-                    const conversationBox = document.querySelector('.ticket-conversation-box');
-                    if (conversationBox) {
-                        conversationBox.scrollTop = conversationBox.scrollHeight;
-                    }
-                });
+                // Scroll to bottom immediately when new message arrives
+                setTimeout(() => {
+                    this.scrollToBottom();
+                }, 100);
             } catch (error) {
                 // Error adding ticket message real-time
             }

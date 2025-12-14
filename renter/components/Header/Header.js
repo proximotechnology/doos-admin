@@ -48,6 +48,15 @@ document.addEventListener('alpine:init', () => {
 
             // Load unread tickets count from localStorage
             this.loadUnreadTicketsCount();
+            
+            // Load unread notifications count from localStorage
+            this.loadUnreadNotificationsCount();
+            
+            // Reset notifications count immediately if on notification page (before fetching)
+            if (window.location.pathname.includes('Notification.html')) {
+                this.unreadNotificationsCount = 0;
+                this.saveUnreadNotificationsCount(0);
+            }
 
             this.loadChatData();
 
@@ -62,6 +71,9 @@ document.addEventListener('alpine:init', () => {
 
             // Setup ticket link click handler to reset unread count
             this.setupTicketLinkHandler();
+            
+            // Setup notification link click handler to reset unread count
+            this.setupNotificationLinkHandler();
         },
         
         setupSubMenuPositioning() {
@@ -681,6 +693,85 @@ document.addEventListener('alpine:init', () => {
             setTimeout(updateUI, 0);
             requestAnimationFrame(updateUI);
         },
+
+        loadUnreadNotificationsCount() {
+            try {
+                const savedCount = localStorage.getItem('unreadNotificationsCount');
+                if (savedCount !== null) {
+                    const count = parseInt(savedCount, 10);
+                    if (!isNaN(count) && count >= 0) {
+                        this.unreadNotificationsCount = count;
+                        // Update UI if count > 0
+                        if (count > 0) {
+                            this.updateNotificationIndicator();
+                        }
+                    }
+                }
+            } catch (error) {
+                // Error loading from localStorage
+            }
+        },
+
+        saveUnreadNotificationsCount(count) {
+            try {
+                localStorage.setItem('unreadNotificationsCount', String(count));
+            } catch (error) {
+                // Error saving to localStorage
+            }
+        },
+
+        setupNotificationLinkHandler() {
+            // Reset unread count when clicking on notification link
+            const notificationLink = document.querySelector('a[href="Notification.html"]');
+            if (notificationLink) {
+                notificationLink.addEventListener('click', () => {
+                    this.resetUnreadNotificationsCount();
+                });
+            }
+
+            // Also reset when notification page is loaded
+            if (window.location.pathname.includes('Notification.html')) {
+                this.resetUnreadNotificationsCount();
+            }
+        },
+
+        resetUnreadNotificationsCount() {
+            // Prevent multiple calls
+            if (this._resettingNotifications) {
+                return;
+            }
+            this._resettingNotifications = true;
+            
+            // Reset count immediately
+            this.unreadNotificationsCount = 0;
+            
+            // Clear from localStorage
+            this.saveUnreadNotificationsCount(0);
+            
+            // Mark all notifications as read in store
+            if (Alpine.store('notifications')) {
+                Alpine.store('notifications').markAllAsRead();
+            }
+            
+            // Mark all local notifications as read
+            this.notifications.forEach(notification => {
+                notification.isRead = true;
+            });
+            
+            // Update notification indicator
+            this.updateNotificationIndicator();
+            
+            // Call API to mark all as read (only once)
+            if (typeof ApiService !== 'undefined' && ApiService.markAllNotificationsAsRead) {
+                ApiService.markAllNotificationsAsRead().catch(() => {
+                    // Silent fail
+                }).finally(() => {
+                    this._resettingNotifications = false;
+                });
+            } else {
+                this._resettingNotifications = false;
+            }
+        },
         
         async fetchUserNotifications() {
             try {
@@ -738,6 +829,9 @@ document.addEventListener('alpine:init', () => {
                     
                     // Update unread count
                     this.updateUnreadCount();
+                    
+                    // Save unread notifications count to localStorage
+                    this.saveUnreadNotificationsCount(this.unreadNotificationsCount);
                     
                     // Update notification indicator
                     this.updateNotificationIndicator();
@@ -907,7 +1001,13 @@ document.addEventListener('alpine:init', () => {
         
         async markNotificationsAsRead() {
             try {
-                // Call API to mark all as read
+                // Prevent multiple calls
+                if (this._markingAllAsRead) {
+                    return;
+                }
+                this._markingAllAsRead = true;
+                
+                // Call API to mark all as read (only once)
                 if (typeof ApiService !== 'undefined') {
                     await ApiService.markAllNotificationsAsRead();
                 }
@@ -922,8 +1022,15 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 this.unreadNotificationsCount = 0;
+                
+                // Save to localStorage
+                this.saveUnreadNotificationsCount(0);
+                
                 this.updateNotificationIndicator();
+                
+                this._markingAllAsRead = false;
             } catch (error) {
+                this._markingAllAsRead = false;
                 // Error marking all notifications as read
             }
         },
