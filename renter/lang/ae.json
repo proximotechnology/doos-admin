@@ -1458,5 +1458,9 @@
     "invalid_amount": "مبلغ غير صحيح",
     "plan_required": "الخطة مطلوبة",
     "insurance_required": "التأمين مطلوب",
-    "select_insurance": "اختر التأمين"
+    "select_insurance": "اختر التأمين",
+    "resend_insurance_email": "إعادة إرسال إيميل التأمين",
+    "insurance_email_sent_successfully": "تم إرسال إيميل التأكيد بنجاح",
+    "failed_to_resend_insurance_email": "فشل إعادة إرسال إيميل التأمين",
+    "insurance_not_found": "التأمين غير موجود"
 }

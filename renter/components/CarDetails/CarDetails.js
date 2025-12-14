@@ -809,6 +809,41 @@
                 }
             },
 
+            async resendInsuranceEmail(insurance) {
+                const t = (key) => Alpine.store('i18n').t(key) || key;
+                
+                if (!insurance || !insurance.id) {
+                    coloredToast('warning', t('insurance_not_found') || 'Insurance not found');
+                    return;
+                }
+
+                try {
+                    loadingIndicator.show();
+                    
+                    // Update insurance status to confirm and resend email
+                    const updateData = {
+                        status: 'confirm',
+                        insurance_id: insurance.insurance_id || insurance.plan?.id || insurance.id
+                    };
+
+                    const result = await ApiService.updateCarInsurance(insurance.id, updateData);
+                    
+                    if (result && (result.status === true || result.success === true)) {
+                        coloredToast('success', result.message || t('insurance_email_sent_successfully') || 'Insurance confirmation email sent successfully');
+                        
+                        // Refresh insurance data to get updated status
+                        await this.fetchInsuranceDetails();
+                    } else {
+                        throw new Error(result?.message || t('failed_to_resend_insurance_email') || 'Failed to resend insurance email');
+                    }
+                } catch (error) {
+                    console.error('Error resending insurance email:', error);
+                    coloredToast('danger', error.message || t('failed_to_resend_insurance_email') || 'Failed to resend insurance email');
+                } finally {
+                    loadingIndicator.hide();
+                }
+            },
+
             formatInsuranceStatus(status) {
                 if (!status) return 'N/A';
                 const statusMap = {

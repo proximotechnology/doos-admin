@@ -1271,6 +1271,20 @@
                                             </div>
                                         </template>
 
+                                        <!-- Resend Email Button (Only if status is confirmed) -->
+                                        <template x-if="insurance.status && (insurance.status.toLowerCase() === 'confirmed' || insurance.status.toLowerCase() === 'confirm')">
+                                            <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                <button @click="resendInsuranceEmail(insurance)" type="button" class="btn btn-outline-primary flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                                    </svg>
+                                                    <span x-text="$store.i18n.t('resend_insurance_email') || 'Resend Insurance Email'"></span>
+                                                </button>
+                                            </div>
+                                        </template>
+
                                         <!-- Plan Information -->
                                         <template x-if="insurance.plan">
                                             <div class="pt-6 border-t-2 border-blue-200 dark:border-blue-800/50">

@@ -1532,5 +1532,9 @@
     "invalid_amount": "Invalid amount",
     "plan_required": "Plan is required",
     "insurance_required": "Insurance is required",
-    "select_insurance": "Select Insurance"
+    "select_insurance": "Select Insurance",
+    "resend_insurance_email": "Resend Insurance Email",
+    "insurance_email_sent_successfully": "Insurance confirmation email sent successfully",
+    "failed_to_resend_insurance_email": "Failed to resend insurance email",
+    "insurance_not_found": "Insurance not found"
 }
