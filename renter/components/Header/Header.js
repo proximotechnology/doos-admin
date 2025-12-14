@@ -17,9 +17,11 @@ document.addEventListener('alpine:init', () => {
         pusher: null,
         channel: null,
         notificationChannel: null,
+        ticketChannel: null,
         unreadCount: 0,
         notifications: [],
         unreadNotificationsCount: 0,
+        unreadTicketsCount: 0,
         apiBaseUrl: API_CONFIG.BASE_URL_Renter,
         chatData: null,
 
@@ -44,6 +46,9 @@ document.addEventListener('alpine:init', () => {
             // Setup sub-menu positioning
             this.setupSubMenuPositioning();
 
+            // Load unread tickets count from localStorage
+            this.loadUnreadTicketsCount();
+
             this.loadChatData();
 
             this.setupChatDataListener();
@@ -52,7 +57,11 @@ document.addEventListener('alpine:init', () => {
                 this.fetchUserNotifications();
                 this.initializePusher();
                 this.initializeNotificationsPusher();
+                this.initializeTicketPusher();
             }
+
+            // Setup ticket link click handler to reset unread count
+            this.setupTicketLinkHandler();
         },
         
         setupSubMenuPositioning() {
@@ -240,9 +249,19 @@ document.addEventListener('alpine:init', () => {
 
         initPusher(userId) {
             try {
+                const token = localStorage.getItem('authToken');
+                
                 this.pusher = new Pusher(API_CONFIG.PUSHER.APP_KEY, {
                     cluster: API_CONFIG.PUSHER.CLUSTER,
-                    encrypted: true
+                    encrypted: true,
+                    authEndpoint: ApiService.getPusherAuthEndpoint(),
+                    auth: {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    }
                 });
 
                 const channelName = `${API_CONFIG.PUSHER.CHANNEL_PREFIX}-${userId}`;
@@ -253,7 +272,8 @@ document.addEventListener('alpine:init', () => {
                 });
 
             } catch (error) {
-                }
+                // Error initializing Pusher
+            }
         },
         
         initializeNotificationsPusher() {
@@ -308,7 +328,7 @@ document.addEventListener('alpine:init', () => {
                                 encrypted: true,
                                 enabledTransports: ['ws', 'wss'],
                                 forceTLS: true,
-                                authEndpoint: `${this.apiBaseUrl}/pusher/auth`,
+                                authEndpoint: ApiService.getPusherAuthEndpoint(),
                                 auth: {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
@@ -354,6 +374,312 @@ document.addEventListener('alpine:init', () => {
             } catch (error) {
                 // Error in initNotificationsPusher
             }
+        },
+
+        async initializeTicketPusher() {
+            try {
+                if (typeof Pusher === 'undefined' || typeof API_CONFIG === 'undefined') {
+                    return;
+                }
+                
+                // Get user ID from localStorage or current user
+                let userId = this.getCurrentUserId();
+                
+                // If no user ID found, try to fetch from API
+                if (!userId && typeof ApiService !== 'undefined') {
+                    try {
+                        const profileData = await ApiService.getProfile();
+                        if (profileData && profileData.status === true && profileData.user && profileData.user.id) {
+                            userId = profileData.user.id;
+                            // Save to localStorage for future use
+                            localStorage.setItem('userInfo', JSON.stringify({
+                                id: profileData.user.id,
+                                name: profileData.user.name,
+                                email: profileData.user.email,
+                                type: profileData.user.type
+                            }));
+                        }
+                    } catch (error) {
+                        // Error fetching user profile
+                    }
+                }
+                
+                if (!userId) {
+                    return;
+                }
+                
+                this.initTicketPusher(userId);
+                
+            } catch (error) {
+                // Error initializing ticket Pusher
+            }
+        },
+
+        initTicketPusher(userId) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    return;
+                }
+                
+                // Use ticket-specific app key if configured, otherwise use default
+                const ticketAppKey = API_CONFIG.PUSHER.TICKET_APP_KEY || API_CONFIG.PUSHER.APP_KEY;
+                
+                // Use existing pusher instance or create new one
+                if (!this.pusher || !this.pusher.connection || this.pusher.connection.state !== 'connected') {
+                    this.pusher = new Pusher(ticketAppKey, {
+                        cluster: API_CONFIG.PUSHER.CLUSTER,
+                        encrypted: true,
+                        enabledTransports: ['ws', 'wss'],
+                        forceTLS: true,
+                        authEndpoint: ApiService.getPusherAuthEndpoint(),
+                        auth: {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    });
+                }
+
+                // Subscribe to ticket channel using config prefix
+                const channelName = `${API_CONFIG.PUSHER.TICKET_CHANNEL_PREFIX}${userId}`;
+                
+                // Unsubscribe from previous channel if exists
+                if (this.ticketChannel) {
+                    try {
+                        const oldChannelName = this.ticketChannel.name;
+                        this.pusher.unsubscribe(oldChannelName);
+                    } catch (e) {
+                        // Ignore unsubscribe errors
+                    }
+                }
+                
+                this.ticketChannel = this.pusher.subscribe(channelName);
+
+                // Channel subscription events
+                this.ticketChannel.bind('pusher:subscription_succeeded', () => {
+                    // Subscription succeeded
+                });
+
+                this.ticketChannel.bind('pusher:subscription_error', (error) => {
+                    if (error.type === 'AuthError') {
+                        if (error.status === 0) {
+                            return; // Silently ignore CORS errors
+                        }
+                        return;
+                    }
+                });
+
+                // Bind to ticket chat event using config event name
+                const eventName = API_CONFIG.PUSHER.TICKET_EVENT || "chat.ticket";
+                
+                // Unbind previous listener if exists to avoid duplicates
+                try {
+                    this.ticketChannel.unbind(eventName);
+                } catch (e) {
+                    // Ignore if no previous binding
+                }
+                
+                // Bind the event listener
+                this.ticketChannel.bind(eventName, (data) => {
+                    if (this && this.handleTicketMessage) {
+                        this.handleTicketMessage(data);
+                    }
+                });
+
+            } catch (error) {
+                // Error initializing Ticket Pusher
+            }
+        },
+
+        handleTicketMessage(data) {
+            try {
+                if (!data) {
+                    return;
+                }
+                
+                const { support_ticket_id, message, sender_id, receiver_id, created_at, id } = data;
+                
+                // Get current user ID to check if message is for current user
+                const currentUserId = this.getCurrentUserId();
+                
+                // Convert IDs to strings for comparison
+                const currentUserIdStr = currentUserId ? currentUserId.toString() : null;
+                const senderIdStr = sender_id ? sender_id.toString() : null;
+                const receiverIdStr = receiver_id ? receiver_id.toString() : null;
+                
+                // Don't show notification for messages sent by current user
+                if (senderIdStr && senderIdStr === currentUserIdStr) {
+                    return;
+                }
+                
+                // If receiver_id is specified and doesn't match current user, ignore
+                // If receiver_id is null/undefined, accept the message (broadcast to all admins)
+                if (receiverIdStr && receiverIdStr !== currentUserIdStr) {
+                    return;
+                }
+                
+                // Increment unread tickets count - ensure it's a number
+                const currentCount = Number(this.unreadTicketsCount) || 0;
+                const newCount = currentCount + 1;
+                
+                // Update the value - Alpine.js should detect this change
+                this.unreadTicketsCount = newCount;
+                
+                // Save to localStorage to persist across page refreshes
+                this.saveUnreadTicketsCount(newCount);
+                
+                // Force Alpine.js reactivity by accessing the Alpine component directly
+                const headerElement = document.querySelector('[x-data="header"]');
+                if (headerElement && typeof Alpine !== 'undefined') {
+                    try {
+                        // Get Alpine component instance
+                        const alpineData = Alpine.$data(headerElement);
+                        if (alpineData) {
+                            alpineData.unreadTicketsCount = newCount;
+                        }
+                    } catch (e) {
+                        // Fallback if Alpine.$data is not available
+                    }
+                }
+                
+                // Update UI
+                this.updateTicketUI(newCount);
+                
+                // Update header notification
+                this.updateHeaderNotification();
+                
+                // Show notification toast
+                this.showTicketNotification(support_ticket_id, message, sender_id);
+                
+                // Update page title
+                this.updatePageTitle();
+                
+                // If ticket page is open and this ticket is selected, add message in real-time
+                if (window.ticketInstance && window.ticketInstance.selectedTicket && 
+                    window.ticketInstance.selectedTicket.id === support_ticket_id) {
+                    window.ticketInstance.addTicketMessageRealTime(data);
+                    // Keep count - don't reset until user clicks on ticket link or opens ticket page
+                }
+                
+            } catch (error) {
+                // Error handling ticket message
+            }
+        },
+
+        showTicketNotification(ticketId, message, senderId) {
+            // Show browser notification if permission granted
+            if (Notification.permission === 'granted') {
+                new Notification('New Ticket Message', {
+                    body: message,
+                    icon: '/assets/images/logo.svg'
+                });
+            }
+        },
+
+        setupTicketLinkHandler() {
+            // Reset unread count when clicking on ticket link
+            const ticketLink = document.querySelector('a[href="Tecket.html"]');
+            if (ticketLink) {
+                ticketLink.addEventListener('click', () => {
+                    this.resetUnreadTicketsCount();
+                });
+            }
+
+            // Also reset when ticket page is loaded
+            if (window.location.pathname.includes('Tecket.html')) {
+                this.resetUnreadTicketsCount();
+            }
+        },
+
+        loadUnreadTicketsCount() {
+            try {
+                const savedCount = localStorage.getItem('unreadTicketsCount');
+                if (savedCount !== null) {
+                    const count = parseInt(savedCount, 10);
+                    if (!isNaN(count) && count >= 0) {
+                        this.unreadTicketsCount = count;
+                        // Update UI if count > 0
+                        if (count > 0) {
+                            this.updateTicketUI(count);
+                        }
+                    }
+                }
+            } catch (error) {
+                // Error loading from localStorage
+            }
+        },
+
+        saveUnreadTicketsCount(count) {
+            try {
+                localStorage.setItem('unreadTicketsCount', String(count));
+            } catch (error) {
+                // Error saving to localStorage
+            }
+        },
+
+        resetUnreadTicketsCount() {
+            this.unreadTicketsCount = 0;
+            
+            // Clear from localStorage
+            this.saveUnreadTicketsCount(0);
+            
+            // Update Alpine.js reactivity
+            const headerElement = document.querySelector('[x-data="header"]');
+            if (headerElement && typeof Alpine !== 'undefined') {
+                try {
+                    const alpineData = Alpine.$data(headerElement);
+                    if (alpineData) {
+                        alpineData.unreadTicketsCount = 0;
+                    }
+                } catch (e) {
+                    // Fallback if Alpine.$data is not available
+                }
+            }
+
+            // Update DOM directly
+            this.updateTicketUI(0);
+        },
+
+        updateTicketUI(count) {
+            const updateUI = () => {
+                const ticketIndicator = document.querySelector('.ticket-indicator');
+                const ticketCountBadge = ticketIndicator?.querySelector('.relative span[x-text]');
+                const ticketLink = document.querySelector('a[href="Tecket.html"]');
+                
+                if (count > 0) {
+                    // Show indicator
+                    if (ticketIndicator) {
+                        ticketIndicator.classList.remove('hidden');
+                        ticketIndicator.style.display = '';
+                    }
+                    // Update count badge
+                    if (ticketCountBadge) {
+                        ticketCountBadge.textContent = count > 99 ? '99+' : String(count);
+                    }
+                    // Update link classes for visual feedback (warning colors)
+                    if (ticketLink) {
+                        ticketLink.classList.remove('bg-white-light/40', 'text-gray-700', 'dark:text-gray-300');
+                        ticketLink.classList.add('bg-warning/10', 'text-warning', 'hover:bg-warning/20', 'dark:bg-warning/20', 'dark:hover:bg-warning/30');
+                    }
+                } else {
+                    // Hide indicator
+                    if (ticketIndicator) {
+                        ticketIndicator.classList.add('hidden');
+                    }
+                    // Reset link classes
+                    if (ticketLink) {
+                        ticketLink.classList.remove('bg-warning/10', 'text-warning', 'hover:bg-warning/20', 'dark:bg-warning/20', 'dark:hover:bg-warning/30');
+                        ticketLink.classList.add('bg-white-light/40', 'text-gray-700', 'dark:text-gray-300');
+                    }
+                }
+            };
+
+            updateUI();
+            setTimeout(updateUI, 0);
+            requestAnimationFrame(updateUI);
         },
         
         async fetchUserNotifications() {
@@ -710,14 +1036,37 @@ document.addEventListener('alpine:init', () => {
         },
 
         getCurrentUserId() {
-            if (this.chatData && this.chatData.loginUser) {
+            // Try chatData first
+            if (this.chatData && this.chatData.loginUser && this.chatData.loginUser.id) {
                 return this.chatData.loginUser.id;
             }
 
-            return localStorage.getItem('currentUserId');
+            // Try localStorage userInfo (from TecketManagement)
+            try {
+                const userInfo = localStorage.getItem('userInfo');
+                if (userInfo) {
+                    const parsed = JSON.parse(userInfo);
+                    if (parsed.id) {
+                        return parsed.id;
+                    }
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
+
+            // Try currentUserId from localStorage
+            const currentUserId = localStorage.getItem('currentUserId');
+            if (currentUserId) {
+                return currentUserId;
+            }
+
+            // If still no user ID, try to fetch from API (async, but return null for now)
+            // The caller should handle the null case and retry
+            return null;
         },
 
         updateHeaderNotification() {
+            // Update chat notification
             const chatIcon = document.getElementById('chat-header-icon');
             const indicator = chatIcon?.querySelector('.chat-indicator');
             const countElement = indicator?.querySelector('.notification-count');
@@ -739,6 +1088,20 @@ document.addEventListener('alpine:init', () => {
                     chatIcon.classList.remove('has-notifications');
                 }
             }
+
+            // Update ticket notification - force Alpine.js reactivity
+            this.$nextTick(() => {
+                // Alpine.js will automatically update the UI when unreadTicketsCount changes
+                // But we need to ensure the change is detected
+                const ticketIndicator = document.querySelector('.ticket-indicator');
+                if (ticketIndicator) {
+                    if (this.unreadTicketsCount > 0) {
+                        ticketIndicator.classList.remove('hidden');
+                    } else {
+                        ticketIndicator.classList.add('hidden');
+                    }
+                }
+            });
         },
 
         showHeaderNotification(userName, message) {

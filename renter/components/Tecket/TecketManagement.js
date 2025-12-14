@@ -54,6 +54,8 @@ document.addEventListener('alpine:init', () => {
         replyMessage: '',
         attachments: [],
         attachmentInput: null,
+        pusher: null,
+        ticketChannel: null,
 
         // Statistics
         statistics: {
@@ -93,6 +95,11 @@ document.addEventListener('alpine:init', () => {
             if (this._initialized) return;
             this._initialized = true;
 
+            // Reset unread tickets count when ticket page is opened
+            if (window.headerInstance && window.headerInstance.resetUnreadTicketsCount) {
+                window.headerInstance.resetUnreadTicketsCount();
+            }
+
             // Get logged in user info
             await this.loadUserInfo();
 
@@ -103,6 +110,12 @@ document.addEventListener('alpine:init', () => {
             this.$nextTick(() => {
                 this.initAttachmentInput();
             });
+
+            // Store instance globally for real-time updates
+            window.ticketInstance = this;
+
+            // Initialize Pusher for real-time ticket messages
+            this.initializeTicketPusher();
         },
 
         async loadUserInfo() {
@@ -1190,6 +1203,143 @@ document.addEventListener('alpine:init', () => {
                     text: this.t('quick_replies_text.follow_up')
                 }
             ];
+        },
+
+        initializeTicketPusher() {
+            try {
+                if (typeof Pusher === 'undefined' || typeof API_CONFIG === 'undefined' || !this.loginUser.id) {
+                    return;
+                }
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    return;
+                }
+                
+                // Use ticket-specific app key if configured, otherwise use default
+                const ticketAppKey = API_CONFIG.PUSHER.TICKET_APP_KEY || API_CONFIG.PUSHER.APP_KEY;
+                
+                // Use existing pusher instance from header or create new one
+                if (window.headerInstance && window.headerInstance.pusher && 
+                    window.headerInstance.pusher.connection && 
+                    window.headerInstance.pusher.connection.state === 'connected') {
+                    this.pusher = window.headerInstance.pusher;
+                } else {
+                    this.pusher = new Pusher(ticketAppKey, {
+                        cluster: API_CONFIG.PUSHER.CLUSTER,
+                        encrypted: true,
+                        enabledTransports: ['ws', 'wss'],
+                        forceTLS: true,
+                        authEndpoint: ApiService.getPusherAuthEndpoint(),
+                        auth: {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    });
+                }
+
+                // Subscribe to ticket channel using config prefix
+                const channelName = `${API_CONFIG.PUSHER.TICKET_CHANNEL_PREFIX}${this.loginUser.id}`;
+                
+                this.ticketChannel = this.pusher.subscribe(channelName);
+
+                // Channel subscription events
+                this.ticketChannel.bind('pusher:subscription_succeeded', () => {
+                    // Subscription succeeded
+                });
+
+                this.ticketChannel.bind('pusher:subscription_error', (error) => {
+                    if (error.type === 'AuthError') {
+                        if (error.status === 0) {
+                            return; // Silently ignore CORS errors
+                        }
+                        return;
+                    }
+                });
+
+                // Bind to ticket chat event using config event name
+                const eventName = API_CONFIG.PUSHER.TICKET_EVENT || "chat.ticket";
+                
+                this.ticketChannel.bind(eventName, (data) => {
+                    this.handleTicketMessageRealTime(data);
+                });
+
+            } catch (error) {
+                // Error initializing Ticket Pusher
+            }
+        },
+
+        handleTicketMessageRealTime(data) {
+            try {
+                const { support_ticket_id, message, sender_id, receiver_id, created_at, id, attachments = [] } = data;
+                
+                // If this ticket is currently selected, add message in real-time
+                if (this.selectedTicket && this.selectedTicket.id === support_ticket_id) {
+                    this.addTicketMessageRealTime(data);
+                }
+                
+                // Update ticket in list if exists
+                const ticketIndex = this.tickets.findIndex(t => t.id === support_ticket_id);
+                if (ticketIndex !== -1) {
+                    // Update last message preview
+                    this.tickets[ticketIndex].last_message = message;
+                    this.tickets[ticketIndex].last_message_time = created_at;
+                }
+                
+            } catch (error) {
+                console.error('Error handling ticket message real-time:', error);
+            }
+        },
+
+        addTicketMessageRealTime(data) {
+            try {
+                const { message, sender_id, receiver_id, created_at, id, attachments = [], is_read = 0 } = data;
+                
+                // Determine if message is from current user
+                const isFromMe = sender_id === this.loginUser.id;
+                
+                // Process attachments
+                let processedAttachments = [];
+                if (Array.isArray(attachments) && attachments.length > 0) {
+                    processedAttachments = attachments.map(att => ({
+                        id: att.id || att.attachment_id,
+                        name: att.attachment_name || att.name,
+                        url: att.attachment_path || att.url || att.path,
+                        type: att.attachment_type || att.type,
+                        mime_type: att.attachment_mime_type || att.mime_type,
+                        size: att.attachment_size || att.size,
+                        path: att.attachment_path || att.path || att.url
+                    }));
+                }
+                
+                // Create message object
+                const newMessage = {
+                    id: id,
+                    message: message,
+                    attachments: processedAttachments,
+                    created_at: created_at,
+                    sender: isFromMe ? 'me' : 'other',
+                    sender_id: sender_id,
+                    is_internal_note: 0,
+                    is_read: is_read
+                };
+                
+                // Add message to ticket messages
+                this.ticketMessages.push(newMessage);
+                
+                // Scroll to bottom
+                this.$nextTick(() => {
+                    const conversationBox = document.querySelector('.ticket-conversation-box');
+                    if (conversationBox) {
+                        conversationBox.scrollTop = conversationBox.scrollHeight;
+                    }
+                });
+            } catch (error) {
+                // Error adding ticket message real-time
+            }
         }
     }));
 });

@@ -1539,6 +1539,14 @@
         async deletePrivacyPolicy(id) {
             return this.delete(`/api/admin/privacy-policy/${id}`);
         }
+
+        /**
+         * Get Pusher authentication endpoint URL
+         * @returns {string} The broadcasting/auth endpoint URL
+         */
+        getPusherAuthEndpoint() {
+            return `${this.baseUrl}/broadcasting/auth`;
+        }
     }
 
     // Initialize and expose API service

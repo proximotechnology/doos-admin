@@ -21,6 +21,9 @@ window.API_CONFIG = {
         APP_KEY: window.ENV?.PUSHER_APP_KEY || '300f5928f422763f16ed',
         CLUSTER: window.ENV?.PUSHER_CLUSTER || 'mt1',
         CHANNEL_PREFIX: window.ENV?.PUSHER_CHANNEL_PREFIX || 'chat-private-channel',
+        TICKET_CHANNEL_PREFIX: window.ENV?.PUSHER_TICKET_CHANNEL_PREFIX || 'admin',
+        TICKET_APP_KEY: window.ENV?.PUSHER_TICKET_APP_KEY || '992cf05af72bfbe2f2e8',
+        TICKET_EVENT: 'chat.ticket',
     },
 
     // Google Maps

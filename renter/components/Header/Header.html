@@ -194,6 +194,32 @@
                         </ul>
                     </div>
 
+                    <!-- Tickets Icon -->
+                    <a href="Tecket.html"
+                        class="relative block rounded-full bg-white-light/40 p-2 transition-all duration-300 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
+                        :class="{
+                            'bg-warning/10 text-warning hover:bg-warning/20 dark:bg-warning/20 dark:hover:bg-warning/30': unreadTicketsCount > 0,
+                            'bg-white-light/40 text-gray-700 dark:text-gray-300': unreadTicketsCount === 0
+                        }">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.5"
+                                d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z"
+                                stroke="currentColor" stroke-width="1.5" />
+                            <path d="M7 8L17 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            <path d="M7 12L17 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            <path d="M7 16L12 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        </svg>
+                        <span class="ticket-indicator absolute -right-1 -top-1" :class="{'hidden': unreadTicketsCount === 0}">
+                            <span class="flex items-center justify-center">
+                                <span
+                                    class="absolute inline-flex h-3.5 w-3.5 animate-ping rounded-full bg-warning opacity-75"></span>
+                                <span
+                                    class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-warning text-[10px] font-bold text-white shadow-lg"
+                                    x-text="unreadTicketsCount > 99 ? '99+' : unreadTicketsCount"></span>
+                            </span>
+                        </span>
+                    </a>
+
                     <div class="dropdown flex-shrink-0" x-data="dropdown" @click.outside="open = false">
                         <a href="javascript:;" class="group relative" @click="toggle()">
                             <span><img class="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100"
