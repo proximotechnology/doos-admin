@@ -200,7 +200,8 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                const data = await ApiService.getSeasonalPricing(page);
+                // Fetch all seasons including inactive ones
+                const data = await ApiService.getSeasonalPricing(page, { include_inactive: true });
                 
                 if (data.success && data.data && data.data.SeasonPricing) {
                     this.tableData = data.data.SeasonPricing || [];
@@ -341,6 +342,8 @@ document.addEventListener('alpine:init', () => {
                 return `<span class="badge bg-success">${Alpine.store('i18n').t('active')}</span>`;
             } else if (status === 'pending') {
                 return `<span class="badge bg-warning">${Alpine.store('i18n').t('pending')}</span>`;
+            } else if (status === 'inactive') {
+                return `<span class="badge bg-danger">${Alpine.store('i18n').t('inactive') || 'Inactive'}</span>`;
             } else {
                 return `<span class="badge bg-gray-500">${status || 'N/A'}</span>`;
             }
@@ -351,26 +354,34 @@ document.addEventListener('alpine:init', () => {
             
             // Only show deactivate button if status is active
             const toggleButton = isActive ? `
-                <button class="btn btn-sm btn-warning toggle-status-btn rounded-md px-3 py-1" data-id="${seasonId}" data-status="${status}">
-                    ${Alpine.store('i18n').t('deactivate')}
+                <button class="btn btn-sm btn-outline-warning toggle-status-btn" data-id="${seasonId}" data-status="${status}" title="${Alpine.store('i18n').t('deactivate')}">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
                 </button>
             ` : '';
             
             const manageBrandsButton = isBrand ? `
-                <button class="btn btn-sm btn-info manage-brands-btn rounded-md px-3 py-1" data-id="${seasonId}" data-brands='${JSON.stringify(brands)}'>
-                    ${Alpine.store('i18n').t('manage_brands') || 'Manage Brands'}
+                <button class="btn btn-sm btn-outline-info manage-brands-btn" data-id="${seasonId}" data-brands='${JSON.stringify(brands)}' title="${Alpine.store('i18n').t('manage_brands') || 'Manage Brands'}">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
                 </button>
             ` : '';
             
             return `
-                <div class="flex items-center justify-center gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-primary update-btn rounded-md px-3 py-1" data-id="${seasonId}">
-                        ${Alpine.store('i18n').t('edit')}
+                <div class="flex items-center gap-2">
+                    <button class="btn btn-sm btn-outline-primary update-btn" data-id="${seasonId}" title="${Alpine.store('i18n').t('edit')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                     </button>
                     ${manageBrandsButton}
                     ${toggleButton}
-                    <button class="btn btn-sm btn-danger delete-btn rounded-md px-3 py-1" data-id="${seasonId}">
-                        ${Alpine.store('i18n').t('delete')}
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${seasonId}" title="${Alpine.store('i18n').t('delete')}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                     </button>
                 </div>`;
         },
@@ -434,13 +445,8 @@ document.addEventListener('alpine:init', () => {
 
                 loadingIndicator.show();
 
-                // Prepare data for update - pass 'inactive' as status
+                // Only send status for deactivation - cannot update title, type, value, date_from for active seasons
                 const formData = {
-                    title: season.title || '',
-                    date_from: season.date_from ? (season.date_from.includes(' ') ? season.date_from.split(' ')[0] : season.date_from) : '',
-                    date_end: season.date_end ? (season.date_end.includes(' ') ? season.date_end.split(' ')[0] : season.date_end) : '',
-                    type: season.type || 'percentage',
-                    value: season.value || '',
                     status: 'inactive'
                 };
 
@@ -448,7 +454,8 @@ document.addEventListener('alpine:init', () => {
 
                 if (response.success) {
                     coloredToast('success', Alpine.store('i18n').t('seasonal_pricing_updated_success') || 'Seasonal pricing updated successfully');
-                    await this.fetchSeasonalPricing(this.currentPage);
+                    // Refresh table to show inactive seasons
+                    await this.fetchSeasonalPricing(1);
                 } else {
                     throw new Error(response.message || Alpine.store('i18n').t('failed_to_update_seasonal_pricing'));
                 }
