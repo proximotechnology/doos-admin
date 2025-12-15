@@ -1390,6 +1390,7 @@
     "cancel_order_status": "حالة إلغاء الطلب",
     "cancellation_images": "صور الإلغاء",
     "exception": "استثناء",
+    "exception_images": "صور الاستثناء",
     "issue_type": "نوع المشكلة",
     "mismatch_type": "نوع عدم التطابق",
     "failed": "فشل",

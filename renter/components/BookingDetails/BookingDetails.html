@@ -8,49 +8,49 @@
             * {
                 scroll-behavior: smooth;
             }
-
+            
             .glass-effect {
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
-
+            
             .dark .glass-effect {
                 background: rgba(0, 0, 0, 0.2);
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
-
+            
             .direction-ltr {
                 direction: ltr !important;
                 text-align: left !important;
             }
-
+            
             .shadow-professional {
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.05);
             }
-
+            
             .shadow-professional-lg {
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05);
             }
-
+            
             .shadow-professional-xl {
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05);
             }
-
+            
             .hover-lift {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-
+            
             .hover-lift:hover {
                 transform: translateY(-4px);
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
-
+            
             .gradient-overlay {
                 position: relative;
             }
-
+            
             .gradient-overlay::before {
                 content: '';
                 position: absolute;
@@ -64,11 +64,11 @@
                 pointer-events: none;
                 border-radius: inherit;
             }
-
+            
             .gradient-overlay:hover::before {
                 opacity: 1;
             }
-
+            
             .card-professional {
                 background: white;
                 border-radius: 16px;
@@ -76,26 +76,26 @@
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 border: 1px solid rgba(0, 0, 0, 0.05);
             }
-
+            
             .dark .card-professional {
                 background: rgba(31, 41, 55, 0.8);
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
-
+            
             .card-professional:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             }
-
+            
             .icon-glow {
                 filter: drop-shadow(0 0 8px currentColor);
                 transition: filter 0.3s ease;
             }
-
+            
             .icon-glow:hover {
                 filter: drop-shadow(0 0 12px currentColor);
             }
-
+            
             .badge-professional {
                 padding: 0.5rem 1rem;
                 border-radius: 9999px;
@@ -107,18 +107,18 @@
                 transition: all 0.3s ease;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-
+            
             .badge-professional:hover {
                 transform: scale(1.05);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
-
+            
             .image-professional {
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
                 overflow: hidden;
             }
-
+            
             .image-professional::after {
                 content: '';
                 position: absolute;
@@ -130,20 +130,20 @@
                 opacity: 0;
                 transition: opacity 0.3s ease;
             }
-
+            
             .image-professional:hover::after {
                 opacity: 1;
             }
-
+            
             .image-professional:hover {
                 transform: scale(1.02);
             }
-
+            
             .section-header {
                 position: relative;
                 padding-bottom: 1rem;
             }
-
+            
             .section-header::after {
                 content: '';
                 position: absolute;
@@ -154,23 +154,23 @@
                 background: linear-gradient(90deg, #6366f1, #a855f7);
                 border-radius: 9999px;
             }
-
+            
             .responsive-padding {
                 padding: 1rem;
             }
-
+            
             @media (min-width: 640px) {
                 .responsive-padding {
                     padding: 1.5rem;
                 }
             }
-
+            
             .panel-equal {
                 display: flex;
                 flex-direction: column;
                 height: 100%;
             }
-
+            
             .panel-equal > *:last-child {
                 flex: 1;
             }
@@ -478,8 +478,8 @@
                                         <template x-if="booking.car.car_image.length > 1">
                                             <div class="mt-4 grid flex-shrink-0 grid-cols-4 gap-2">
                                                 <template x-for="(image, index) in booking.car.car_image" :key="index">
-                                                    <div
-                                                        @click="selectImage(index)"
+                                                    <div 
+                                                        @click="selectImage(index)" 
                                                         class="aspect-square h-20 cursor-pointer overflow-hidden rounded-lg border-2 transition-all"
                                                         :class="selectedImageIndex === index ? 'border-primary shadow-lg scale-105' : 'border-gray-200 dark:border-gray-700 hover:border-primary'"
                                                     >
@@ -892,27 +892,27 @@
                                     <div
                                         class="shadow-professional-lg icon-glow flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white"
                                     >
-                                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                                 stroke-width="2"
                                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                             />
-                                        </svg>
-                                    </div>
+                                    </svg>
+                                </div>
                                     <h3
                                         class="text-2xl font-bold text-amber-900 dark:text-amber-100"
                                         x-text="$store.i18n.t('pricing_fees') || 'Pricing & Fees'"
                                     ></h3>
-                                </div>
+                            </div>
                                 <div class="flex flex-1 flex-col space-y-4">
-                                    <template x-if="booking.fee_percentage">
+                                <template x-if="booking.fee_percentage">
                                         <div
                                             class="shadow-professional hover:shadow-professional-lg rounded-xl border-2 border-amber-200 bg-white p-4 transition-all dark:border-amber-800/50 dark:bg-gray-800/80"
                                         >
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center gap-2">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="h-5 w-5 text-amber-600 dark:text-amber-400"
                                                         fill="none"
@@ -925,31 +925,31 @@
                                                             stroke-width="2"
                                                             d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span
                                                         class="text-sm font-bold text-amber-900 dark:text-amber-100"
                                                         x-text="$store.i18n.t('fee_percentage') || 'Fee Percentage'"
                                                     ></span>
-                                                </div>
-                                                <span class="text-base font-bold text-primary" x-text="formatPrice(booking.fee_percentage)"></span>
                                             </div>
+                                            <span class="text-base font-bold text-primary" x-text="formatPrice(booking.fee_percentage)"></span>
                                         </div>
-                                    </template>
+                                    </div>
+                                </template>
 
-                                    <template x-if="booking.fees_data && booking.fees_data.length > 0">
-                                        <div class="space-y-3">
+                                <template x-if="booking.fees_data && booking.fees_data.length > 0">
+                                    <div class="space-y-3">
                                             <h4 class="mb-3 flex items-center gap-2 text-sm font-bold uppercase text-amber-700 dark:text-amber-300">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                                                     />
-                                                </svg>
-                                                <span x-text="$store.i18n.t('fees') || 'Fees'"></span>
-                                            </h4>
-                                            <template x-for="(fee, index) in booking.fees_data" :key="index">
+                                            </svg>
+                                            <span x-text="$store.i18n.t('fees') || 'Fees'"></span>
+                                        </h4>
+                                        <template x-for="(fee, index) in booking.fees_data" :key="index">
                                                 <div
                                                     class="shadow-professional hover:shadow-professional-lg rounded-xl border-2 border-amber-200 bg-white p-4 transition-all hover:border-amber-400 dark:border-amber-800/50 dark:bg-gray-800/80 dark:hover:border-amber-600"
                                                 >
@@ -958,73 +958,73 @@
                                                             class="text-sm font-bold text-amber-900 dark:text-amber-100"
                                                             x-text="fee.fee_name || fee.fee_description"
                                                         ></span>
-                                                        <span class="text-base font-bold text-primary" x-text="formatPrice(fee.fee_amount)"></span>
-                                                    </div>
-                                                    <template x-if="fee.fuel_details">
-                                                        <p class="mt-2 text-xs text-amber-700 dark:text-amber-300" x-text="fee.fuel_details"></p>
-                                                    </template>
+                                                    <span class="text-base font-bold text-primary" x-text="formatPrice(fee.fee_amount)"></span>
                                                 </div>
-                                            </template>
-                                        </div>
-                                    </template>
+                                                <template x-if="fee.fuel_details">
+                                                        <p class="mt-2 text-xs text-amber-700 dark:text-amber-300" x-text="fee.fuel_details"></p>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
 
-                                    <template x-if="booking.discounts_data && Object.keys(booking.discounts_data).length > 0">
+                                <template x-if="booking.discounts_data && Object.keys(booking.discounts_data).length > 0">
                                         <div class="space-y-4 border-t-2 border-amber-200 pt-4 dark:border-amber-700">
                                             <h4 class="mb-3 flex items-center gap-2 text-sm font-bold uppercase text-amber-700 dark:text-amber-300">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                     />
-                                                </svg>
-                                                <span x-text="$store.i18n.t('discounts') || 'Discounts'"></span>
-                                            </h4>
-                                            <template x-for="(discount, key) in booking.discounts_data" :key="key">
-                                                <template x-if="key !== 'total_discount_amount'">
+                                            </svg>
+                                            <span x-text="$store.i18n.t('discounts') || 'Discounts'"></span>
+                                        </h4>
+                                        <template x-for="(discount, key) in booking.discounts_data" :key="key">
+                                            <template x-if="key !== 'total_discount_amount'">
                                                     <div
                                                         class="shadow-professional hover:shadow-professional-lg rounded-xl border-2 bg-white p-4 transition-all dark:bg-gray-800/50"
                                                         :class="discount.applied ? 'border-success/40 from-success/20 to-success/10 bg-gradient-to-r' : 'border-gray-200 dark:border-gray-700'"
                                                     >
                                                         <div class="mb-3 flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
-                                                            <div class="flex items-center gap-2">
+                                                        <div class="flex items-center gap-2">
                                                                 <span
                                                                     class="text-sm font-bold uppercase"
                                                                     :class="discount.applied ? 'text-success' : 'text-gray-500 dark:text-gray-400'"
                                                                     x-text="key.replace('_', ' ').replace('discount', '').replace('car', 'Car ').replace('coupon', 'Coupon ')"
                                                                 ></span>
-                                                                <template x-if="discount.applied">
+                                                            <template x-if="discount.applied">
                                                                     <span
                                                                         class="badge bg-success px-2 py-1 text-xs"
                                                                         x-text="$store.i18n.t('applied') || 'Applied'"
                                                                     ></span>
-                                                                </template>
-                                                                <template x-if="!discount.applied">
+                                                            </template>
+                                                            <template x-if="!discount.applied">
                                                                     <span
                                                                         class="badge bg-gray-400 px-2 py-1 text-xs"
                                                                         x-text="$store.i18n.t('not_applied') || 'Not Applied'"
                                                                     ></span>
-                                                                </template>
-                                                            </div>
-                                                            <template x-if="discount.discount_amount && parseFloat(discount.discount_amount) > 0">
+                                                            </template>
+                                                        </div>
+                                                        <template x-if="discount.discount_amount && parseFloat(discount.discount_amount) > 0">
                                                                 <span
                                                                     class="text-base font-bold text-success"
                                                                     x-text="'-' + formatPrice(discount.discount_amount)"
                                                                 ></span>
-                                                            </template>
-                                                            <template x-if="!discount.discount_amount || parseFloat(discount.discount_amount) === 0">
+                                                        </template>
+                                                        <template x-if="!discount.discount_amount || parseFloat(discount.discount_amount) === 0">
                                                                 <span
                                                                     class="text-sm font-medium text-gray-400 dark:text-gray-500"
                                                                     x-text="$store.i18n.t('na') || 'N/A'"
                                                                 ></span>
-                                                            </template>
-                                                        </div>
+                                                        </template>
+                                                    </div>
                                                         <div class="grid grid-cols-2 gap-3 text-xs md:grid-cols-3">
                                                             <template
                                                                 x-if="discount.original_price_per_day !== undefined && discount.original_price_per_day !== null"
                                                             >
-                                                                <div>
+                                                            <div>
                                                                     <p
                                                                         class="mb-1 uppercase text-gray-500 dark:text-gray-400"
                                                                         x-text="$store.i18n.t('original_price_per_day') || 'Original Price/Day'"
@@ -1033,12 +1033,12 @@
                                                                         class="font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatPrice(discount.original_price_per_day)"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
+                                                            </div>
+                                                        </template>
                                                             <template
                                                                 x-if="discount.final_price_per_day !== undefined && discount.final_price_per_day !== null"
                                                             >
-                                                                <div>
+                                                            <div>
                                                                     <p
                                                                         class="mb-1 uppercase text-gray-500 dark:text-gray-400"
                                                                         x-text="$store.i18n.t('final_price_per_day') || 'Final Price/Day'"
@@ -1047,12 +1047,12 @@
                                                                         class="font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatPrice(discount.final_price_per_day)"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
+                                                            </div>
+                                                        </template>
                                                             <template
                                                                 x-if="discount.total_before_discount !== undefined && discount.total_before_discount !== null"
                                                             >
-                                                                <div>
+                                                            <div>
                                                                     <p
                                                                         class="mb-1 uppercase text-gray-500 dark:text-gray-400"
                                                                         x-text="$store.i18n.t('total_before') || 'Total Before'"
@@ -1061,12 +1061,12 @@
                                                                         class="font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatPrice(discount.total_before_discount)"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
+                                                            </div>
+                                                        </template>
                                                             <template
                                                                 x-if="discount.total_after_discount !== undefined && discount.total_after_discount !== null"
                                                             >
-                                                                <div>
+                                                            <div>
                                                                     <p
                                                                         class="mb-1 uppercase text-gray-500 dark:text-gray-400"
                                                                         x-text="$store.i18n.t('total_after') || 'Total After'"
@@ -1075,10 +1075,10 @@
                                                                         class="font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatPrice(discount.total_after_discount)"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="discount.for_owner !== undefined && discount.for_owner !== null">
-                                                                <div>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="discount.for_owner !== undefined && discount.for_owner !== null">
+                                                            <div>
                                                                     <p
                                                                         class="mb-1 uppercase text-gray-500 dark:text-gray-400"
                                                                         x-text="$store.i18n.t('for_owner') || 'For Owner'"
@@ -1087,17 +1087,17 @@
                                                                         class="font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatPrice(discount.for_owner)"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
-                                                        </div>
+                                                            </div>
+                                                        </template>
                                                     </div>
-                                                </template>
+                                                </div>
                                             </template>
-                                            <template x-if="booking.discounts_data.total_discount_amount !== undefined">
+                                        </template>
+                                        <template x-if="booking.discounts_data.total_discount_amount !== undefined">
                                                 <div
                                                     class="shadow-professional rounded-xl border-2 border-success/40 bg-gradient-to-r from-success/20 to-success/10 p-4"
                                                 >
-                                                    <div class="flex items-center justify-between">
+                                                <div class="flex items-center justify-between">
                                                         <span
                                                             class="text-sm font-bold uppercase text-success"
                                                             x-text="$store.i18n.t('total_discount_amount') || 'Total Discount Amount'"
@@ -1106,54 +1106,54 @@
                                                             class="text-lg font-bold text-success"
                                                             x-text="formatPrice(booking.discounts_data.total_discount_amount)"
                                                         ></span>
-                                                    </div>
                                                 </div>
-                                            </template>
-                                        </div>
-                                    </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
 
-                                    <template x-if="booking.season_pricing_data">
+                                <template x-if="booking.season_pricing_data">
                                         <div class="border-t-2 border-amber-200 pt-4 dark:border-amber-700">
                                             <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase text-amber-700 dark:text-amber-300">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                                     />
-                                                </svg>
-                                                <span x-text="$store.i18n.t('seasonal_pricing') || 'Seasonal Pricing'"></span>
-                                            </h4>
-                                            <div class="space-y-3">
+                                            </svg>
+                                            <span x-text="$store.i18n.t('seasonal_pricing') || 'Seasonal Pricing'"></span>
+                                        </h4>
+                                        <div class="space-y-3">
                                                 <template
                                                     x-if="booking.season_pricing_data.has_season_pricing !== null && booking.season_pricing_data.has_season_pricing !== undefined"
                                                 >
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
-                                                            <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path
                                                                     stroke-linecap="round"
                                                                     stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-info"
                                                                 x-text="$store.i18n.t('has_season_pricing') || 'Has Season Pricing'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold"
                                                             :class="booking.season_pricing_data.has_season_pricing ? 'text-success' : 'text-gray-500'"
                                                             x-text="booking.season_pricing_data.has_season_pricing ? ($store.i18n.t('yes') || 'Yes') : ($store.i18n.t('no') || 'No')"
                                                         ></span>
-                                                    </div>
-                                                </template>
-                                                <template x-if="booking.season_pricing_data.original_price_per_day">
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
+                                                </div>
+                                            </template>
+                                            <template x-if="booking.season_pricing_data.original_price_per_day">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
                                                             <svg
                                                                 class="h-5 w-5 text-amber-600 dark:text-amber-400"
                                                                 fill="none"
@@ -1166,45 +1166,45 @@
                                                                     stroke-width="2"
                                                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-amber-600 dark:text-amber-400"
                                                                 x-text="$store.i18n.t('original_price_per_day') || 'Original Price/Day'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold text-primary"
                                                             x-text="formatPrice(booking.season_pricing_data.original_price_per_day)"
                                                         ></span>
-                                                    </div>
-                                                </template>
-                                                <template x-if="booking.season_pricing_data.final_price_per_day">
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
-                                                            <svg class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                </div>
+                                            </template>
+                                            <template x-if="booking.season_pricing_data.final_price_per_day">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path
                                                                     stroke-linecap="round"
                                                                     stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-success"
                                                                 x-text="$store.i18n.t('final_price_per_day') || 'Final Price/Day'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold text-success"
                                                             x-text="formatPrice(booking.season_pricing_data.final_price_per_day)"
                                                         ></span>
-                                                    </div>
-                                                </template>
+                                                </div>
+                                            </template>
                                                 <template
                                                     x-if="booking.season_pricing_data.total_before_season !== null && booking.season_pricing_data.total_before_season !== undefined"
                                                 >
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
                                                             <svg
                                                                 class="h-5 w-5 text-gray-600 dark:text-gray-400"
                                                                 fill="none"
@@ -1217,47 +1217,47 @@
                                                                     stroke-width="2"
                                                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-gray-600 dark:text-gray-400"
                                                                 x-text="$store.i18n.t('total_before_discount') || 'Total Before Season'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold text-gray-700 dark:text-gray-300"
                                                             x-text="formatPrice(booking.season_pricing_data.total_before_season)"
                                                         ></span>
-                                                    </div>
-                                                </template>
+                                                </div>
+                                            </template>
                                                 <template
                                                     x-if="booking.season_pricing_data.total_after_season !== null && booking.season_pricing_data.total_after_season !== undefined"
                                                 >
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
-                                                            <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path
                                                                     stroke-linecap="round"
                                                                     stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-info"
                                                                 x-text="$store.i18n.t('total_after_discount') || 'Total After Season'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold text-info"
                                                             x-text="formatPrice(booking.season_pricing_data.total_after_season)"
                                                         ></span>
-                                                    </div>
-                                                </template>
+                                                </div>
+                                            </template>
                                                 <template
                                                     x-if="booking.season_pricing_data.season_adjustment_amount !== null && booking.season_pricing_data.season_adjustment_amount !== undefined"
                                                 >
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
                                                             <svg
                                                                 class="h-5 w-5"
                                                                 :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'"
@@ -1271,68 +1271,68 @@
                                                                     stroke-width="2"
                                                                     d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase"
                                                                 :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'"
                                                                 x-text="$store.i18n.t('season_adjustment_amount') || 'Season Adjustment Amount'"
                                                             ></span>
-                                                        </div>
+                                                    </div>
                                                         <span
                                                             class="text-base font-bold"
                                                             :class="parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? 'text-success' : parseFloat(booking.season_pricing_data.season_adjustment_amount) < 0 ? 'text-danger' : 'text-gray-500'"
                                                             x-text="(parseFloat(booking.season_pricing_data.season_adjustment_amount) > 0 ? '+' : '') + formatPrice(booking.season_pricing_data.season_adjustment_amount)"
                                                         ></span>
-                                                    </div>
-                                                </template>
-                                                <template x-if="booking.season_pricing_data.season_pricing_data">
+                                                </div>
+                                            </template>
+                                            <template x-if="booking.season_pricing_data.season_pricing_data">
                                                     <div
                                                         class="mt-3 rounded-xl border-2 border-info/30 bg-gradient-to-r from-info/10 to-info/5 p-4 dark:from-info/20 dark:to-info/10"
                                                     >
                                                         <div class="mb-3 flex items-center gap-2">
-                                                            <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path
                                                                     stroke-linecap="round"
                                                                     stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-info"
                                                                 x-text="$store.i18n.t('season_pricing_details') || 'Season Pricing Details'"
                                                             ></span>
-                                                        </div>
-                                                        <div class="space-y-2">
-                                                            <template x-if="booking.season_pricing_data.season_pricing_data.title">
-                                                                <div class="flex items-center justify-between">
+                                                    </div>
+                                                    <div class="space-y-2">
+                                                        <template x-if="booking.season_pricing_data.season_pricing_data.title">
+                                                            <div class="flex items-center justify-between">
                                                                     <span class="text-xs font-medium uppercase text-gray-600 dark:text-gray-400">Title</span>
                                                                     <span
                                                                         class="text-sm font-semibold text-gray-900 dark:text-white"
                                                                         x-text="booking.season_pricing_data.season_pricing_data.title"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="booking.season_pricing_data.season_pricing_data.value">
-                                                                <div class="flex items-center justify-between">
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="booking.season_pricing_data.season_pricing_data.value">
+                                                            <div class="flex items-center justify-between">
                                                                     <span class="text-xs font-medium uppercase text-gray-600 dark:text-gray-400">Value</span>
                                                                     <span
                                                                         class="text-sm font-semibold text-primary"
                                                                         x-text="formatPrice(booking.season_pricing_data.season_pricing_data.value)"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="booking.season_pricing_data.season_pricing_data.type">
-                                                                <div class="flex items-center justify-between">
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="booking.season_pricing_data.season_pricing_data.type">
+                                                            <div class="flex items-center justify-between">
                                                                     <span class="text-xs font-medium uppercase text-gray-600 dark:text-gray-400">Type</span>
                                                                     <span
                                                                         class="text-sm font-semibold text-gray-900 dark:text-white"
                                                                         x-text="booking.season_pricing_data.season_pricing_data.type"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="booking.season_pricing_data.season_pricing_data.date_from">
-                                                                <div class="flex items-center justify-between">
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="booking.season_pricing_data.season_pricing_data.date_from">
+                                                            <div class="flex items-center justify-between">
                                                                     <span class="text-xs font-medium uppercase text-gray-600 dark:text-gray-400"
                                                                         >Date From</span
                                                                     >
@@ -1340,39 +1340,39 @@
                                                                         class="text-sm font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatDate(booking.season_pricing_data.season_pricing_data.date_from)"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
-                                                            <template x-if="booking.season_pricing_data.season_pricing_data.date_end">
-                                                                <div class="flex items-center justify-between">
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="booking.season_pricing_data.season_pricing_data.date_end">
+                                                            <div class="flex items-center justify-between">
                                                                     <span class="text-xs font-medium uppercase text-gray-600 dark:text-gray-400">Date End</span>
                                                                     <span
                                                                         class="text-sm font-semibold text-gray-900 dark:text-white"
                                                                         x-text="formatDate(booking.season_pricing_data.season_pricing_data.date_end)"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
-                                                        </div>
+                                                            </div>
+                                                        </template>
                                                     </div>
-                                                </template>
-                                            </div>
+                                                </div>
+                                            </template>
                                         </div>
-                                    </template>
+                                    </div>
+                                </template>
 
-                                    <template x-if="booking.insurance || booking.insurancePrice">
+                                <template x-if="booking.insurance || booking.insurancePrice">
                                         <div class="border-t-2 border-amber-200 pt-4 dark:border-amber-700">
                                             <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase text-amber-700 dark:text-amber-300">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                     />
-                                                </svg>
-                                                <span x-text="$store.i18n.t('insurance') || 'Insurance'"></span>
-                                            </h4>
-                                            <div class="space-y-3">
-                                                <template x-if="booking.insurance && booking.insurance.insurance">
+                                            </svg>
+                                            <span x-text="$store.i18n.t('insurance') || 'Insurance'"></span>
+                                        </h4>
+                                        <div class="space-y-3">
+                                            <template x-if="booking.insurance && booking.insurance.insurance">
                                                     <div class="flex items-start gap-3 border-b border-amber-100 py-3 dark:border-amber-900/30">
                                                         <div class="mt-0.5 flex-shrink-0">
                                                             <svg
@@ -1387,9 +1387,9 @@
                                                                     stroke-width="2"
                                                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                                 />
-                                                            </svg>
-                                                        </div>
-                                                        <div class="flex-1">
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flex-1">
                                                             <p
                                                                 class="mb-1 text-xs font-bold uppercase text-blue-600 dark:text-blue-400"
                                                                 x-text="$store.i18n.t('insurance') || 'Insurance Package'"
@@ -1398,18 +1398,18 @@
                                                                 class="mb-1 text-base font-semibold text-gray-900 dark:text-white"
                                                                 x-text="booking.insurance.insurance.name || 'N/A'"
                                                             ></p>
-                                                            <template x-if="booking.insurance.insurance.description">
+                                                        <template x-if="booking.insurance.insurance.description">
                                                                 <p
                                                                     class="text-xs leading-relaxed text-gray-600 dark:text-gray-400"
                                                                     x-text="booking.insurance.insurance.description"
                                                                 ></p>
-                                                            </template>
-                                                        </div>
+                                                        </template>
                                                     </div>
-                                                </template>
-                                                <template x-if="booking.insurancePrice">
-                                                    <div class="flex items-center justify-between py-2">
-                                                        <div class="flex items-center gap-2">
+                                                </div>
+                                            </template>
+                                            <template x-if="booking.insurancePrice">
+                                                <div class="flex items-center justify-between py-2">
+                                                    <div class="flex items-center gap-2">
                                                             <svg
                                                                 class="h-5 w-5 text-blue-600 dark:text-blue-400"
                                                                 fill="none"
@@ -1422,38 +1422,38 @@
                                                                     stroke-width="2"
                                                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <span
                                                                 class="text-sm font-bold uppercase text-blue-600 dark:text-blue-400"
                                                                 x-text="$store.i18n.t('insurance_price') || 'Insurance Price'"
                                                             ></span>
-                                                        </div>
-                                                        <span class="text-lg font-bold text-primary" x-text="formatPrice(booking.insurancePrice)"></span>
                                                     </div>
-                                                </template>
-                                            </div>
+                                                    <span class="text-lg font-bold text-primary" x-text="formatPrice(booking.insurancePrice)"></span>
+                                                </div>
+                                            </template>
                                         </div>
-                                    </template>
-                                </div>
+                                    </div>
+                                </template>
                             </div>
+                        </div>
 
-                            <template x-if="booking.payment">
+                        <template x-if="booking.payment">
                                 <div class="mt-6 border-t-2 border-amber-200 pt-6 dark:border-amber-700">
                                     <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase text-emerald-700 dark:text-emerald-300">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                                 stroke-width="2"
                                                 d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                                             />
-                                        </svg>
+                                    </svg>
                                         <span x-text="$store.i18n.t('payment_information') || 'Payment Information'"></span>
-                                    </h4>
-                                    <div class="space-y-3">
-                                        <template x-if="booking.payment.payment_method">
+                                </h4>
+                                <div class="space-y-3">
+                                    <template x-if="booking.payment.payment_method">
                                             <div class="flex items-center justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30">
-                                                <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
                                                         fill="none"
@@ -1466,21 +1466,21 @@
                                                             stroke-width="2"
                                                             d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span
                                                         class="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-400"
                                                         x-text="$store.i18n.t('payment_method') || 'Payment Method'"
                                                     ></span>
-                                                </div>
+                                            </div>
                                                 <span
                                                     class="text-base font-bold text-gray-900 dark:text-white"
                                                     x-text="formatPaymentMethod(booking.payment.payment_method)"
                                                 ></span>
-                                            </div>
-                                        </template>
-                                        <template x-if="booking.payment.amount">
+                                        </div>
+                                    </template>
+                                    <template x-if="booking.payment.amount">
                                             <div class="flex items-center justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30">
-                                                <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
                                                         fill="none"
@@ -1493,18 +1493,18 @@
                                                             stroke-width="2"
                                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span
                                                         class="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-400"
                                                         x-text="$store.i18n.t('amount') || 'Amount'"
                                                     ></span>
-                                                </div>
-                                                <span class="text-lg font-bold text-primary" x-text="formatPrice(booking.payment.amount)"></span>
                                             </div>
-                                        </template>
-                                        <template x-if="booking.payment.status">
+                                            <span class="text-lg font-bold text-primary" x-text="formatPrice(booking.payment.amount)"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="booking.payment.status">
                                             <div class="flex items-center justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30">
-                                                <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
                                                         fill="none"
@@ -1517,12 +1517,12 @@
                                                             stroke-width="2"
                                                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span
                                                         class="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-400"
                                                         x-text="$store.i18n.t('status') || 'Status'"
                                                     ></span>
-                                                </div>
+                                            </div>
                                                 <span
                                                     class="badge px-4 py-2 text-sm"
                                                     :class="{
@@ -1532,11 +1532,11 @@
                                             }"
                                                     x-text="booking.payment.status"
                                                 ></span>
-                                            </div>
-                                        </template>
-                                        <template x-if="booking.payment.transaction_id">
+                                        </div>
+                                    </template>
+                                    <template x-if="booking.payment.transaction_id">
                                             <div class="flex items-start justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30">
-                                                <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
                                                         fill="none"
@@ -1549,18 +1549,18 @@
                                                             stroke-width="2"
                                                             d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114-4m-4 4a2 2 0 104 4m-4-4v3m0 0v3m0-3h3m-3 0H6"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span class="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-400">Transaction ID</span>
-                                                </div>
+                                            </div>
                                                 <span
                                                     class="max-w-[60%] break-all text-right text-sm font-semibold text-gray-900 dark:text-white"
                                                     x-text="booking.payment.transaction_id"
                                                 ></span>
-                                            </div>
-                                        </template>
-                                        <template x-if="booking.payment.paid_at">
+                                        </div>
+                                    </template>
+                                    <template x-if="booking.payment.paid_at">
                                             <div class="flex items-center justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30">
-                                                <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2">
                                                     <svg
                                                         class="h-5 w-5 text-emerald-600 dark:text-emerald-400"
                                                         fill="none"
@@ -1573,18 +1573,18 @@
                                                             stroke-width="2"
                                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                         />
-                                                    </svg>
+                                                </svg>
                                                     <span
                                                         class="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-400"
                                                         x-text="$store.i18n.t('paid_at') || 'Paid At'"
                                                     ></span>
-                                                </div>
+                                            </div>
                                                 <span
                                                     class="text-sm font-semibold text-gray-900 dark:text-white"
                                                     x-text="formatDate(booking.payment.paid_at)"
                                                 ></span>
-                                            </div>
-                                        </template>
+                                        </div>
+                                    </template>
                                         <template
                                             x-if="getObjectFields(booking.payment, true, ['payment_method', 'amount', 'status', 'transaction_id', 'paid_at']).length > 0"
                                         >
@@ -1592,7 +1592,7 @@
                                                 <h5 class="mb-3 text-xs font-bold uppercase text-emerald-700 dark:text-emerald-300">
                                                     Additional Payment Details
                                                 </h5>
-                                                <div class="space-y-2">
+                                            <div class="space-y-2">
                                                     <template
                                                         x-for="field in getObjectFields(booking.payment, true, ['payment_method', 'amount', 'status', 'transaction_id', 'paid_at'])"
                                                         :key="field.key"
@@ -1600,7 +1600,7 @@
                                                         <div
                                                             class="flex items-start justify-between border-b border-emerald-100 py-2 dark:border-emerald-900/30"
                                                         >
-                                                            <div class="flex items-center gap-2">
+                                                        <div class="flex items-center gap-2">
                                                                 <svg
                                                                     class="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
                                                                     fill="none"
@@ -1613,34 +1613,34 @@
                                                                         stroke-width="2"
                                                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                     />
-                                                                </svg>
+                                                            </svg>
                                                                 <span
                                                                     class="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400"
                                                                     x-text="field.formattedKey"
                                                                 ></span>
-                                                            </div>
-                                                            <template x-if="field.type === 'image'">
+                                                        </div>
+                                                        <template x-if="field.type === 'image'">
                                                                 <img
                                                                     :src="field.value"
                                                                     :alt="field.key"
                                                                     class="h-24 w-24 rounded-lg border border-gray-200 object-cover dark:border-gray-700"
                                                                 />
-                                                            </template>
-                                                            <template x-if="field.type !== 'image'">
+                                                        </template>
+                                                        <template x-if="field.type !== 'image'">
                                                                 <span
                                                                     class="max-w-[60%] break-words text-right text-xs font-semibold text-gray-900 dark:text-white"
                                                                     x-text="field.value"
                                                                 ></span>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
                                             </div>
-                                        </template>
-                                    </div>
+                                        </div>
+                                    </template>
                                 </div>
-                            </template>
-                        </div>
+                            </div>
+                        </template>
+                    </div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -2167,21 +2167,21 @@
                                                         </div>
                                                         <div>
                                                             <h4 class="mb-1 text-xl font-bold text-orange-900 dark:text-orange-100">
-                                                                <span x-text="$store.i18n.t('exception') || 'Exception'"></span>
+                                                            <span x-text="$store.i18n.t('exception') || 'Exception'"></span>
                                                                 <span
                                                                     class="ml-2 font-normal text-orange-600 dark:text-orange-400"
                                                                     x-text="'#' + (index + 1)"
                                                                 ></span>
-                                                            </h4>
+                                                        </h4>
                                                             <div class="flex flex-wrap items-center gap-2">
-                                                                <template x-if="exception.type">
+                                                        <template x-if="exception.type_label || exception.type">
                                                                     <span
                                                                         class="inline-flex items-center rounded-lg border border-orange-300 bg-gradient-to-r from-orange-100 to-orange-200 px-3 py-1 text-xs font-bold text-orange-800 shadow-sm dark:border-orange-700 dark:from-orange-900/40 dark:to-orange-800/40 dark:text-orange-200"
                                                                     >
-                                                                        <span x-text="exception.type.replace('_', ' ')"></span>
-                                                                    </span>
-                                                                </template>
-                                                                <template x-if="exception.status">
+                                                                <span x-text="exception.type_label || exception.type.replace('_', ' ')"></span>
+                                                            </span>
+                                                        </template>
+                                                        <template x-if="exception.status_label || exception.status">
                                                                     <span
                                                                         class="badge px-3 py-1.5 text-xs font-semibold shadow-sm"
                                                                         :class="{
@@ -2190,11 +2190,11 @@
                                                                 'bg-danger': exception.status === 'rejected' || exception.status === 'failed',
                                                                 'bg-info': exception.status === 'in_progress' || exception.status === 'processing'
                                                             }"
-                                                                        x-text="formatExceptionStatus(exception.status)"
+                                                                        x-text="exception.status_label || formatExceptionStatus(exception.status)"
                                                                     ></span>
-                                                                </template>
-                                                            </div>
-                                                        </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
                                                     </div>
                                                 </div>
                                                 <div class="ml-4 flex items-center gap-3">
@@ -2211,7 +2211,7 @@
                                                         </div>
                                                     </template>
                                                     <template x-if="!exception.status || exception.status.toLowerCase() === 'pending'">
-                                                        <button
+                                                        <button 
                                                             @click="updateExceptionStatus(exception)"
                                                             class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-primary/90 hover:to-primary/80 hover:shadow-xl"
                                                         >
@@ -2227,9 +2227,9 @@
                                                         </button>
                                                     </template>
                                                 </div>
+                                                </div>
                                             </div>
-                                        </div>
-
+                                            
                                         <!-- Content Section -->
                                         <div class="space-y-5 p-6">
                                             <!-- Issue Type -->
@@ -2254,17 +2254,17 @@
                                                             x-text="$store.i18n.t('issue_type') || 'Issue Type'"
                                                         ></p>
                                                     </div>
-                                                    <div class="flex flex-wrap gap-2">
-                                                        <template x-for="(issue, idx) in getIssueTypeArray(exception.issue_type)" :key="idx">
+                                                            <div class="flex flex-wrap gap-2">
+                                                                <template x-for="(issue, idx) in getIssueTypeArray(exception.issue_type)" :key="idx">
                                                             <span
                                                                 class="inline-flex items-center rounded-lg border border-orange-300 bg-gradient-to-r from-orange-100 to-orange-200 px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm transition-shadow hover:shadow-md dark:border-orange-700 dark:from-orange-900/30 dark:to-orange-800/30 dark:text-orange-200"
                                                             >
-                                                                <span x-text="issue"></span>
-                                                            </span>
-                                                        </template>
+                                                                        <span x-text="issue"></span>
+                                                                    </span>
+                                                                </template>
                                                     </div>
-                                                </div>
-                                            </template>
+                                                            </div>
+                                                        </template>
 
                                             <!-- Description -->
                                             <template x-if="exception.description">
@@ -2288,7 +2288,7 @@
                                                         x-text="exception.description"
                                                     ></p>
                                                 </div>
-                                            </template>
+                                                        </template>
 
                                             <!-- Admin Notes -->
                                             <template x-if="exception.admin_notes">
@@ -2349,7 +2349,7 @@
                                                                 >
                                                                     <span x-text="type"></span>
                                                                 </span>
-                                                            </template>
+                                                        </template>
                                                         </div>
                                                     </template>
                                                     <template x-if="!Array.isArray(exception.mismatch_type)">
@@ -2357,8 +2357,8 @@
                                                             class="pl-7 text-sm font-medium text-gray-800 dark:text-gray-200"
                                                             x-text="exception.mismatch_type"
                                                         ></p>
-                                                    </template>
-                                                </div>
+                                                        </template>
+                                                    </div>
                                             </template>
 
                                             <!-- Financial Details: Show different layout based on exception type -->
@@ -2380,7 +2380,7 @@
                                                             class="text-base font-bold uppercase tracking-wide text-red-600 dark:text-red-400"
                                                             x-text="$store.i18n.t('accident_financial_details') || 'Accident Financial Details'"
                                                         ></p>
-                                                    </div>
+                                                </div>
 
                                                     <div class="space-y-4">
                                                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -2495,8 +2495,8 @@
                                                                     stroke-width="2"
                                                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                                 />
-                                                            </svg>
-                                                        </div>
+                                                        </svg>
+                                                    </div>
                                                         <p
                                                             class="text-base font-bold uppercase tracking-wide text-yellow-600 dark:text-yellow-400"
                                                             x-text="$store.i18n.t('car_mismatch_financial_details') || 'Car Mismatch Financial Details'"
@@ -2549,7 +2549,7 @@
                                                                         >
                                                                             <span x-text="type"></span>
                                                                         </span>
-                                                                    </template>
+                                                        </template>
                                                                 </div>
                                                             </div>
                                                         </template>
@@ -2579,8 +2579,8 @@
                                                                     class="text-base font-bold text-amber-900 dark:text-amber-100"
                                                                     x-text="formatPrice(exception.financial_details.owner_charge || 0)"
                                                                 ></span>
-                                                            </div>
-                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                                                             <template x-if="exception.financial_details.owner_penalty_fee">
@@ -2595,7 +2595,7 @@
                                                                         class="text-sm font-bold text-red-900 dark:text-red-100"
                                                                         x-text="formatPrice(exception.financial_details.owner_penalty_fee || 0)"
                                                                     ></span>
-                                                                </div>
+                                                        </div>
                                                             </template>
 
                                                             <template x-if="exception.financial_details.owner_pending_amount">
@@ -2610,7 +2610,7 @@
                                                                         class="text-sm font-bold text-orange-900 dark:text-orange-100"
                                                                         x-text="formatPrice(exception.financial_details.owner_pending_amount || 0)"
                                                                     ></span>
-                                                                </div>
+                                                        </div>
                                                             </template>
 
                                                             <template x-if="exception.financial_details.fee_percentage">
@@ -2625,8 +2625,8 @@
                                                                         class="text-sm font-bold text-blue-900 dark:text-blue-100"
                                                                         x-text="(exception.financial_details.fee_percentage || 0) + '%'"
                                                                     ></span>
-                                                                </div>
-                                                            </template>
+                                                    </div>
+                                                </template>
                                                         </div>
 
                                                         <template
@@ -2647,8 +2647,8 @@
                                                                 }"
                                                                     x-text="(exception.financial_details.fee_applied === true || exception.financial_details.fee_applied === 'true' || exception.financial_details.fee_applied === 1) ? ($store.i18n.t('yes') || 'Yes') : ($store.i18n.t('no') || 'No')"
                                                                 ></span>
-                                                            </div>
-                                                        </template>
+                                                        </div>
+                                                            </template>
 
                                                         <template x-if="exception.financial_details.result">
                                                             <div
@@ -2663,9 +2663,9 @@
                                                                     x-text="exception.financial_details.result"
                                                                 ></p>
                                                             </div>
-                                                        </template>
+                                                            </template>
+                                                        </div>
                                                     </div>
-                                                </div>
                                             </template>
 
                                             <!-- For non-Accident and non-car_mismatch types: Show direct fields (damage_amount, refund_amount, owner_charge) -->
@@ -2686,10 +2686,10 @@
                                                                     class="text-base font-bold text-red-900 dark:text-red-100"
                                                                     x-text="formatPrice(exception.damage_amount)"
                                                                 ></span>
-                                                            </div>
+                                                        </div>
                                                         </template>
 
-                                                        <template x-if="exception.refund_amount">
+                                                            <template x-if="exception.refund_amount">
                                                             <div
                                                                 class="flex items-center justify-between rounded-lg border-l-4 border-green-500 bg-gradient-to-r from-green-50/50 to-transparent px-4 py-3 dark:from-green-900/10 dark:to-transparent"
                                                             >
@@ -2702,7 +2702,7 @@
                                                                     x-text="formatPrice(exception.refund_amount)"
                                                                 ></span>
                                                             </div>
-                                                        </template>
+                                                            </template>
 
                                                         <template x-if="exception.owner_charge">
                                                             <div
@@ -2716,6 +2716,71 @@
                                                                     class="text-base font-bold text-amber-900 dark:text-amber-100"
                                                                     x-text="formatPrice(exception.owner_charge)"
                                                                 ></span>
+                                                            </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                            </template>
+
+                                            <!-- Exception Images -->
+                                            <template x-if="exception.images && Array.isArray(exception.images) && exception.images.length > 0">
+                                                <div class="border-t-2 border-orange-200 pt-5 dark:border-orange-800">
+                                                    <div class="mb-5 flex items-center gap-3 border-b border-orange-200/50 pb-3 dark:border-orange-800/30">
+                                                        <div class="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-2 shadow-md">
+                                                            <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                />
+                                                            </svg>
+                                                        </div>
+                                                        <p
+                                                            class="text-base font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400"
+                                                            x-text="$store.i18n.t('exception_images') || 'Exception Images'"
+                                                        ></p>
+                                                        <span
+                                                            class="ml-auto rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                            x-text="exception.images.length + ' ' + ($store.i18n.t('images') || 'images')"
+                                                        ></span>
+                                                    </div>
+                                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                                        <template x-for="(image, imgIndex) in exception.images" :key="imgIndex">
+                                                            <div
+                                                                class="group relative overflow-hidden rounded-xl border-2 border-orange-200 bg-gray-100 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:border-orange-800 dark:bg-gray-800"
+                                                            >
+                                                                <img
+                                                                    :src="image.image_path"
+                                                                    :alt="'Exception Image ' + (imgIndex + 1)"
+                                                                    class="h-48 w-full cursor-pointer object-cover transition-transform duration-300 group-hover:scale-110"
+                                                                    @click="openImageModal(image.image_path, exception.images, imgIndex)"
+                                                                    loading="lazy"
+                                                                />
+                                                                <div
+                                                                    class="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/20"
+                                                                >
+                                                                    <svg
+                                                                        class="h-8 w-8 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                    >
+                                                                        <path
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            stroke-width="2"
+                                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                                                                        />
+                                                                    </svg>
+                                                                </div>
+                                                                <template x-if="image.created_at">
+                                                                    <div
+                                                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                                                    >
+                                                                        <p class="text-xs font-semibold" x-text="formatDate(image.created_at)"></p>
+                                                                    </div>
+                                                                </template>
                                                             </div>
                                                         </template>
                                                     </div>
@@ -2740,8 +2805,8 @@
                                 >
                                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </div>
+                                                            </svg>
+                                                        </div>
                                 <h3
                                     class="text-2xl font-bold text-red-900 dark:text-red-100"
                                     x-text="$store.i18n.t('cancellation_info') || 'Cancellation Information'"
@@ -2788,7 +2853,7 @@
                                                             x-text="cancelStatus.previous_status"
                                                         ></span>
                                                     </div>
-                                                </template>
+                                                            </template>
                                             </div>
 
                                             <!-- Main Information Grid -->
@@ -2821,7 +2886,7 @@
                                                             x-text="cancelStatus.cancellation_type"
                                                         ></p>
                                                     </div>
-                                                </template>
+                                                            </template>
 
                                                 <template x-if="cancelStatus.total_amount">
                                                     <div
@@ -2875,7 +2940,7 @@
                                                                 class="text-xs font-bold uppercase text-amber-600 dark:text-amber-400"
                                                                 x-text="$store.i18n.t('cancellation_fee') || 'Cancellation Fee'"
                                                             ></p>
-                                                        </div>
+                                                </div>
                                                         <p
                                                             class="text-xl font-bold text-amber-900 dark:text-amber-100"
                                                             x-text="formatPrice(cancelStatus.cancellation_fee)"
@@ -2900,18 +2965,18 @@
                                                                     stroke-width="2"
                                                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                                                 />
-                                                            </svg>
+                                                        </svg>
                                                             <p
                                                                 class="text-xs font-bold uppercase text-green-600 dark:text-green-400"
                                                                 x-text="$store.i18n.t('refund_amount') || 'Refund Amount'"
                                                             ></p>
-                                                        </div>
+                                                    </div>
                                                         <p
                                                             class="text-xl font-bold text-green-900 dark:text-green-100"
                                                             x-text="formatPrice(cancelStatus.refund_amount)"
                                                         ></p>
                                                     </div>
-                                                </template>
+                                                            </template>
 
                                                 <template x-if="cancelStatus.owner_withdrawn">
                                                     <div
@@ -2941,7 +3006,7 @@
                                                             x-text="formatPrice(cancelStatus.owner_withdrawn)"
                                                         ></p>
                                                     </div>
-                                                </template>
+                                                            </template>
 
                                                 <template x-if="cancelStatus.cancelled_at">
                                                     <div
@@ -2971,7 +3036,7 @@
                                                             x-text="formatDate(cancelStatus.cancelled_at)"
                                                         ></p>
                                                     </div>
-                                                </template>
+                                                        </template>
 
                                                 <template x-if="cancelStatus.created_at">
                                                     <div
@@ -3001,8 +3066,8 @@
                                                             x-text="formatDate(cancelStatus.created_at)"
                                                         ></p>
                                                     </div>
-                                                </template>
-                                            </div>
+                                                        </template>
+                                                    </div>
 
                                             <template x-if="cancelStatus.cancellation_reason">
                                                 <div
@@ -3041,7 +3106,7 @@
                                                                 class="text-sm font-bold uppercase text-red-600 dark:text-red-400"
                                                                 x-text="$store.i18n.t('financial_details') || 'Financial Details'"
                                                             ></p>
-                                                        </div>
+                                            </div>
 
                                                         <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                                                             <template x-if="cancelStatus.financial_details.exception_id">
@@ -3056,7 +3121,7 @@
                                                                         class="text-sm font-semibold text-blue-900 dark:text-blue-100"
                                                                         x-text="cancelStatus.financial_details.exception_id"
                                                                     ></p>
-                                                                </div>
+                                        </div>
                                                             </template>
 
                                                             <template x-if="cancelStatus.financial_details.exception_type">
@@ -3071,8 +3136,8 @@
                                                                         class="text-sm font-semibold text-indigo-900 dark:text-indigo-100"
                                                                         x-text="cancelStatus.financial_details.exception_type"
                                                                     ></p>
-                                                                </div>
-                                                            </template>
+                                    </div>
+                                </template>
                                                         </div>
 
                                                         <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -3115,9 +3180,9 @@
                                                                 ></p>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </template>
+                            </div>
+                        </div>
+                    </template>
 
                                             <template x-if="cancelStatus.cancelled_by_user_id">
                                                 <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20">
@@ -3129,9 +3194,9 @@
                                                         class="text-sm font-semibold text-amber-900 dark:text-amber-100"
                                                         x-text="cancelStatus.cancelled_by_user_id"
                                                     ></p>
-                                                </div>
+                                </div>
                                             </template>
-                                        </div>
+                            </div>
                                     </template>
                                 </template>
 
@@ -3190,7 +3255,7 @@
                                                         />
                                                     </svg>
                                                 </div>
-                                                <div>
+                                    <div>
                                                     <p
                                                         class="text-sm font-bold uppercase text-red-600 dark:text-red-400"
                                                         x-text="$store.i18n.t('cancel_order_status') || 'Cancel Order Status'"
@@ -3493,22 +3558,22 @@
                             <template x-if="booking && booking.lat && booking.lang && !isNaN(parseFloat(booking.lat)) && !isNaN(parseFloat(booking.lang))">
                                 <div class="panel flex h-full flex-col border-2 border-green-200 dark:border-green-800">
                                     <div class="mb-4 flex items-center gap-3 border-b-2 border-green-200 pb-3 dark:border-green-700">
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-600">
-                                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-600">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
                                                     stroke-width="2"
                                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                 />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                        </div>
-                                        <h3 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('pickup_location')"></h3>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
                                     </div>
-                                    <template x-if="booking.address">
+                                    <h3 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('pickup_location')"></h3>
+                                </div>
+                                <template x-if="booking.address">
                                         <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-700 dark:bg-green-900/20">
-                                            <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2">
                                                 <svg
                                                     class="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600 dark:text-green-400"
                                                     fill="none"
@@ -3521,38 +3586,38 @@
                                                         stroke-width="2"
                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                     />
-                                                </svg>
+                                            </svg>
                                                 <p class="text-sm font-medium leading-relaxed text-green-900 dark:text-green-100" x-text="booking.address"></p>
-                                            </div>
                                         </div>
-                                    </template>
+                                    </div>
+                                </template>
                                     <div
                                         id="pickup-map"
                                         class="h-96 min-h-[400px] w-full rounded-xl border-2 border-green-200 shadow-md dark:border-green-800"
                                     ></div>
-                                </div>
-                            </template>
+                            </div>
+                        </template>
 
                             <template
                                 x-if="booking && booking.lat_return && booking.lang_return && !isNaN(parseFloat(booking.lat_return)) && !isNaN(parseFloat(booking.lang_return))"
                             >
                                 <div class="panel flex h-full flex-col border-2 border-teal-200 dark:border-teal-800">
                                     <div class="mb-4 flex items-center gap-3 border-b-2 border-teal-200 pb-3 dark:border-teal-700">
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/20 text-teal-600">
-                                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/20 text-teal-600">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
                                                     stroke-width="2"
                                                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                                                 />
-                                            </svg>
-                                        </div>
-                                        <h3 class="text-xl font-bold text-teal-900 dark:text-teal-100" x-text="$store.i18n.t('return_location')"></h3>
+                                        </svg>
                                     </div>
-                                    <template x-if="booking.address_return">
+                                    <h3 class="text-xl font-bold text-teal-900 dark:text-teal-100" x-text="$store.i18n.t('return_location')"></h3>
+                                </div>
+                                <template x-if="booking.address_return">
                                         <div class="mb-4 rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-700 dark:bg-teal-900/20">
-                                            <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2">
                                                 <svg
                                                     class="mt-0.5 h-4 w-4 flex-shrink-0 text-teal-600 dark:text-teal-400"
                                                     fill="none"
@@ -3565,21 +3630,21 @@
                                                         stroke-width="2"
                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                     />
-                                                </svg>
+                                            </svg>
                                                 <p
                                                     class="text-sm font-medium leading-relaxed text-teal-900 dark:text-teal-100"
                                                     x-text="booking.address_return"
                                                 ></p>
-                                            </div>
                                         </div>
-                                    </template>
+                                    </div>
+                                </template>
                                     <div
                                         id="return-map"
                                         class="h-96 min-h-[400px] w-full flex-1 rounded-xl border-2 border-teal-200 shadow-md dark:border-teal-800"
                                     ></div>
-                                </div>
-                            </template>
-                        </div>
+                            </div>
+                        </template>
+                    </div>
                     </template>
                 </div>
             </template>

@@ -690,6 +690,13 @@
         }
 
         /**
+         * Get booking exception details
+         */
+        async getBookingExceptionDetails(exceptionId) {
+            return this.get(`/api/admin/booking-exceptions/show/${exceptionId}`);
+        }
+
+        /**
          * Update booking exception status
          */
         async updateBookingExceptionStatus(exceptionId, data) {

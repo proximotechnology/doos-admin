@@ -285,7 +285,7 @@ document.addEventListener('alpine:init', () => {
 
             } catch (error) {
                 // Error initializing Pusher
-            }
+                }
         },
         
         initializeNotificationsPusher() {

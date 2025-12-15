@@ -187,12 +187,42 @@
                     }
 
                     if (booking.booking_exceptions && Array.isArray(booking.booking_exceptions)) {
-                        booking.booking_exceptions = booking.booking_exceptions.map(exception => {
-                            if (exception.issue_type && Array.isArray(exception.issue_type)) {
-                                exception.issue_type = exception.issue_type.join(', ');
-                            }
-                            return exception;
-                        });
+                        // Fetch detailed exception data for each exception
+                        booking.booking_exceptions = await Promise.all(
+                            booking.booking_exceptions.map(async (exception) => {
+                                try {
+                                    if (exception.id) {
+                                        const exceptionDetails = await ApiService.getBookingExceptionDetails(exception.id);
+                                        if (exceptionDetails && exceptionDetails.status === true && exceptionDetails.data && exceptionDetails.data.exception) {
+                                            // Merge the detailed data with the original exception
+                                            const detailedException = exceptionDetails.data.exception;
+                                            
+                                            // Preserve original fields and merge with detailed data
+                                            const mergedException = {
+                                                ...exception,
+                                                ...detailedException,
+                                                // Ensure images array is properly set
+                                                images: detailedException.images || exception.images || [],
+                                                // Preserve user and booking objects
+                                                user: detailedException.user || exception.user,
+                                                booking: detailedException.booking || exception.booking,
+                                                // Ensure financial_details is preserved
+                                                financial_details: detailedException.financial_details || exception.financial_details
+                                            };
+                                            
+                                            // Handle issue_type - keep as is (can be string or array, getIssueTypeArray handles both)
+                                            return mergedException;
+                                        }
+                                    }
+                                    // If API call fails, return original exception
+                                    return exception;
+                                } catch (error) {
+                                    console.warn(`Failed to fetch exception details for ID ${exception.id}:`, error);
+                                    // Return original exception if API call fails
+                                    return exception;
+                                }
+                            })
+                        );
                     }
 
                     if (booking.cancel_order_status) {
@@ -727,6 +757,91 @@
                 } finally {
                     loadingIndicator.hide();
                 }
+            },
+
+            openImageModal(imageUrl, imagesArray = null, currentIndex = 0) {
+                if (!imageUrl) return;
+                
+                const images = imagesArray || [imageUrl];
+                const imageUrls = images.map(img => typeof img === 'string' ? img : (img.image_path || img));
+                
+                Swal.fire({
+                    title: t('exception_images') || 'Exception Images',
+                    html: `
+                        <div style="text-align: center; max-width: 90vw; max-height: 80vh;">
+                            <img 
+                                src="${imageUrls[currentIndex]}" 
+                                style="max-width: 100%; max-height: 70vh; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" 
+                                alt="Exception Image"
+                            />
+                            ${images.length > 1 ? `
+                                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                                    ${images.map((img, idx) => `
+                                        <button 
+                                            onclick="window.currentImageIndex = ${idx}; window.updateModalImage('${imageUrls[idx]}');"
+                                            style="
+                                                padding: 8px 12px; 
+                                                border: 2px solid ${idx === currentIndex ? '#3085d6' : '#ddd'}; 
+                                                background: ${idx === currentIndex ? '#3085d6' : 'white'}; 
+                                                color: ${idx === currentIndex ? 'white' : '#333'}; 
+                                                border-radius: 6px; 
+                                                cursor: pointer;
+                                                font-size: 14px;
+                                                font-weight: ${idx === currentIndex ? 'bold' : 'normal'};
+                                            "
+                                        >
+                                            ${idx + 1}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                                    <button 
+                                        onclick="window.navigateImage(-1, ${images.length})"
+                                        style="padding: 10px 20px; background: #3085d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;"
+                                    >
+                                        ← ${t('previous') || 'Previous'}
+                                    </button>
+                                    <button 
+                                        onclick="window.navigateImage(1, ${images.length})"
+                                        style="padding: 10px 20px; background: #3085d6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;"
+                                    >
+                                        ${t('next') || 'Next'} →
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `,
+                    width: '90%',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'image-modal-popup'
+                    },
+                    didOpen: () => {
+                        window.currentImageIndex = currentIndex;
+                        window.imageUrls = imageUrls;
+                        window.updateModalImage = (url) => {
+                            const img = Swal.getHtmlContainer().querySelector('img');
+                            if (img) {
+                                img.src = url;
+                                window.currentImageIndex = imageUrls.indexOf(url);
+                                // Update button styles
+                                Swal.getHtmlContainer().querySelectorAll('button').forEach((btn, idx) => {
+                                    if (idx < images.length) {
+                                        btn.style.border = idx === window.currentImageIndex ? '2px solid #3085d6' : '2px solid #ddd';
+                                        btn.style.background = idx === window.currentImageIndex ? '#3085d6' : 'white';
+                                        btn.style.color = idx === window.currentImageIndex ? 'white' : '#333';
+                                        btn.style.fontWeight = idx === window.currentImageIndex ? 'bold' : 'normal';
+                                    }
+                                });
+                            }
+                        };
+                        window.navigateImage = (direction, total) => {
+                            window.currentImageIndex = (window.currentImageIndex + direction + total) % total;
+                            window.updateModalImage(imageUrls[window.currentImageIndex]);
+                        };
+                    }
+                });
             },
 
             goBack() {

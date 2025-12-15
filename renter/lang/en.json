@@ -1467,6 +1467,7 @@
     "cancel_order_status": "Cancel Order Status",
     "cancellation_images": "Cancellation Images",
     "exception": "Exception",
+    "exception_images": "Exception Images",
     "issue_type": "Issue Type",
     "mismatch_type": "Mismatch Type",
     "failed": "Failed",

@@ -693,7 +693,7 @@
                                                             <span class="text-sm" x-text="$store.i18n.t('sending') || 'Sending...'"></span>
                                                         </div>
                                                     </div>
-                                                    <div class="flex items-center gap-3" :class="{'flex-row-reverse' : message.sender === 'me'}">
+                                                        <div class="flex items-center gap-3" :class="{'flex-row-reverse' : message.sender === 'me'}">
                                                         <div
                                                                 x-show="message.message && message.message.trim()"
                                                             class="break-words rounded-md p-4 py-2"
@@ -706,7 +706,7 @@
                                                         <template x-if="message.attachments && message.attachments.length > 0">
                                                             <div class="flex flex-wrap gap-2 mt-2" :class="{'justify-end' : message.sender === 'me'}">
                                                                 <template x-for="(attachment, idx) in message.attachments" :key="idx">
-                                                                    <div class="relative group">
+                                                                            <div class="relative group">
                                                                         <template x-if="attachment.type === 'image' || (attachment.mime_type && attachment.mime_type.startsWith('image/'))">
                                                                             <div class="relative">
                                                                                 <img :src="attachment.url || attachment.path" :alt="attachment.name" 
@@ -719,8 +719,8 @@
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                                            </div>
-                                                                        </template>
+                                                    </div>
+                                                    </template>
                                                                         <template x-if="attachment.type === 'video' || (attachment.mime_type && attachment.mime_type.startsWith('video/'))">
                                                                             <div class="relative">
                                                                                 <video :src="attachment.url || attachment.path" controls 
@@ -732,7 +732,7 @@
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                                                                     </svg>
                                                                                 </a>
-                                                                            </div>
+                                                </div>
                                                                         </template>
                                                                         <template x-if="attachment.type === 'audio' || (attachment.mime_type && attachment.mime_type.startsWith('audio/'))">
                                                                             <div class="flex items-center gap-3 rounded-xl border-2 p-3 shadow-md w-[250px]" 
