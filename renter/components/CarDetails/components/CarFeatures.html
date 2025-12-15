@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Features</title>
+</head>
+<body>
+<!-- Car Features Component -->
+<template x-if="car.cars_features">
+    <div class="panel border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 w-full shadow-professional-xl hover-lift">
+        <div class="flex items-center gap-3 mb-6 pb-4 border-b-2 border-indigo-200 dark:border-indigo-700 section-header">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-professional-lg icon-glow">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-indigo-900 dark:text-indigo-100" x-text="$store.i18n.t('car_features')"></h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <template x-for="(value, key) in car.cars_features" :key="key">
+                <template x-if="!key.toLowerCase().includes('id') && !key.toLowerCase().includes('created_at') && !key.toLowerCase().includes('updated_at') && value !== null && value !== undefined && value !== ''">
+                    <div class="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl p-4 border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all duration-300 shadow-professional hover-lift card-professional">
+                        <!-- Decorative corner accent -->
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-bl-full transform translate-x-6 -translate-y-6 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-300"></div>
+                        
+                        <div class="relative flex items-start gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all">
+                                    <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getFeatureIcon(key)" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-wider mb-2" x-text="formatFieldName(key)"></h4>
+                                
+                                <!-- Boolean/Number feature -->
+                                <template x-if="typeof value === 'boolean' || typeof value === 'number' && (value === 0 || value === 1)">
+                                    <div class="flex items-center gap-2">
+                                        <template x-if="isFeatureEnabled(value)">
+                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs font-semibold">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span x-text="$store.i18n.t('yes')"></span>
+                                            </span>
+                                        </template>
+                                        <template x-if="!isFeatureEnabled(value)">
+                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs font-semibold">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                                <span x-text="$store.i18n.t('no')"></span>
+                                            </span>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- String/Number/Array feature -->
+                                <template x-if="typeof value !== 'boolean' && !(typeof value === 'number' && (value === 0 || value === 1))">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100 text-sm font-semibold">
+                                            <span x-text="formatFeatureValue(value)"></span>
+                                        </span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>
+</body>
+</html>
+

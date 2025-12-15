@@ -219,7 +219,7 @@
                                 } catch (error) {
                                     console.warn(`Failed to fetch exception details for ID ${exception.id}:`, error);
                                     // Return original exception if API call fails
-                                    return exception;
+                            return exception;
                                 }
                             })
                         );

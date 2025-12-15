@@ -112,9 +112,42 @@
                 insurance: null,
                 totalAmount: '',
                 insuranceId: '',
-                scrollTop: 0
+                scrollTop: 0,
+                isLoading: false,
+                error: null
             },
             insurancePlans: [],
+            loadedComponents: {},
+            heroSectionHTML: '',
+            basicInfoHTML: '',
+            ownerInfoHTML: '',
+            statsHTML: '',
+            featuresHTML: '',
+            insuranceHTML: '',
+            locationHTML: '',
+
+            // Load component HTML
+            async loadComponent(componentName) {
+                if (this.loadedComponents[componentName]) {
+                    return this.loadedComponents[componentName];
+                }
+                try {
+                    // Extract body content from component HTML
+                    const response = await fetch(`components/CarDetails/components/${componentName}.html`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load component: ${componentName}`);
+                    }
+                    const fullHtml = await response.text();
+                    // Extract body content (remove DOCTYPE, html, head, body tags)
+                    const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+                    const html = bodyMatch ? bodyMatch[1].trim() : fullHtml;
+                    this.loadedComponents[componentName] = html;
+                    return html;
+                } catch (error) {
+                    console.error(`Error loading component ${componentName}:`, error);
+                    return `<div class="text-red-500">Error loading component: ${componentName}</div>`;
+                }
+            },
 
             getImageCount() {
                 return this.car && this.car.car_image ? this.car.car_image.length : 0;
@@ -192,7 +225,17 @@
                     // Fetch insurance data
                     await this.fetchInsuranceDetails();
 
-                    // Initialize maps after data is loaded
+                    // Load components after data is loaded
+                    await this.$nextTick();
+                    this.heroSectionHTML = await this.loadComponent('CarHeroSection');
+                    this.basicInfoHTML = await this.loadComponent('CarBasicInfo');
+                    this.ownerInfoHTML = await this.loadComponent('CarOwnerInfo');
+                    this.statsHTML = await this.loadComponent('CarStats');
+                    this.featuresHTML = await this.loadComponent('CarFeatures');
+                    this.insuranceHTML = await this.loadComponent('CarInsurance');
+                    this.locationHTML = await this.loadComponent('CarLocation');
+
+                    // Initialize maps after components are loaded
                     await this.$nextTick();
                     setTimeout(() => {
                         this.initMaps();
@@ -234,15 +277,31 @@
             },
 
             async openUpdateInsuranceModal(insurance) {
-                this.updateInsuranceModalData.insurance = insurance;
-                this.updateInsuranceModalData.totalAmount = insurance.total_amount || '';
-                this.updateInsuranceModalData.insuranceId = insurance.plan?.id || insurance.insurance_id || '';
+                const t = (key) => Alpine.store('i18n').t(key) || key;
+                
+                // Show loader while fetching insurance plans
+                this.updateInsuranceModalData.isLoading = true;
                 this.updateInsuranceModalData.isOpen = true;
+                
                 // Store current scroll position to position modal near user's current view
                 this.updateInsuranceModalData.scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                // Fetch insurance plans if not already loaded
-                if (this.insurancePlans.length === 0) {
-                    await this.fetchInsurancePlans();
+                
+                try {
+                    // Fetch insurance plans if not already loaded
+                    if (this.insurancePlans.length === 0) {
+                        await this.fetchInsurancePlans();
+                    }
+
+                    // Store insurance data for later use
+                    this.updateInsuranceModalData.insurance = insurance;
+                    this.updateInsuranceModalData.totalAmount = insurance.total_amount || '';
+                    this.updateInsuranceModalData.insuranceId = insurance.plan?.id || insurance.insurance_id || '';
+                } catch (error) {
+                    console.error('Error opening update insurance modal:', error);
+                    coloredToast('danger', error?.message || t('failed_to_load_insurance_plans') || 'Failed to load insurance plans');
+                    this.closeUpdateInsuranceModal();
+                } finally {
+                    this.updateInsuranceModalData.isLoading = false;
                 }
             },
 
@@ -251,6 +310,8 @@
                 this.updateInsuranceModalData.insurance = null;
                 this.updateInsuranceModalData.totalAmount = '';
                 this.updateInsuranceModalData.insuranceId = '';
+                this.updateInsuranceModalData.isLoading = false;
+                this.updateInsuranceModalData.error = null;
             },
 
             async submitUpdateInsurance() {
@@ -282,9 +343,16 @@
             },
 
             async updateInsurance(insurance, totalAmount, insuranceId) {
+                const t = (key) => Alpine.store('i18n').t(key) || key;
+                
+                // Clear previous error
+                this.updateInsuranceModalData.error = null;
+                
                 try {
                     if (!insurance || !insurance.id) {
-                        coloredToast('danger', t('insurance_id_required') || 'Insurance ID is required');
+                        const errorMsg = t('insurance_id_required') || 'Insurance ID is required';
+                        this.updateInsuranceModalData.error = errorMsg;
+                        coloredToast('danger', errorMsg);
                         return;
                     }
 
@@ -298,18 +366,24 @@
                     if (insurance.has_existing_insurance === true) {
                         // Only insurance_id is required
                         if (!insuranceId) {
-                            coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                            const errorMsg = t('insurance_required') || 'Insurance is required';
+                            this.updateInsuranceModalData.error = errorMsg;
+                            coloredToast('danger', errorMsg);
                             return;
                         }
                         updateData.insurance_id = insuranceId;
                     } else {
                         // total_amount and insurance_id are required
                         if (!totalAmount || parseFloat(totalAmount) < 0) {
-                            coloredToast('danger', t('total_amount_required') || 'Total amount is required and must be positive');
+                            const errorMsg = t('total_amount_required') || 'Total amount is required and must be positive';
+                            this.updateInsuranceModalData.error = errorMsg;
+                            coloredToast('danger', errorMsg);
                             return;
                         }
                         if (!insuranceId) {
-                            coloredToast('danger', t('insurance_required') || 'Insurance is required');
+                            const errorMsg = t('insurance_required') || 'Insurance is required';
+                            this.updateInsuranceModalData.error = errorMsg;
+                            coloredToast('danger', errorMsg);
                             return;
                         }
                         updateData.total_amount = parseFloat(totalAmount);
@@ -325,12 +399,26 @@
                         coloredToast('success', t('insurance_updated_successfully') || 'Insurance updated successfully');
                         // Refresh insurance data
                         await this.fetchInsuranceDetails();
+                        // Close modal on success
+                        this.closeUpdateInsuranceModal();
                     } else {
-                        coloredToast('danger', response?.message || t('failed_to_update_insurance') || 'Failed to update insurance');
+                        const errorMsg = response?.message || response?.error || t('failed_to_update_insurance') || 'Failed to update insurance';
+                        this.updateInsuranceModalData.error = errorMsg;
+                        coloredToast('danger', errorMsg);
                     }
                 } catch (error) {
                     console.error('Error updating insurance:', error);
-                    coloredToast('danger', error?.response?.data?.message || t('failed_to_update_insurance') || 'Failed to update insurance');
+                    // Extract error message from different error formats
+                    let errorMsg = t('failed_to_update_insurance') || 'Failed to update insurance';
+                    if (error?.message) {
+                        errorMsg = error.message;
+                    } else if (error?.response?.data?.message) {
+                        errorMsg = error.response.data.message;
+                    } else if (error?.response?.data?.error) {
+                        errorMsg = error.response.data.error;
+                    }
+                    this.updateInsuranceModalData.error = errorMsg;
+                    coloredToast('danger', errorMsg);
                 } finally {
                     loadingIndicator.hide();
                 }

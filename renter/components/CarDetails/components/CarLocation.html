@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Location Maps</title>
+</head>
+<body>
+<!-- Car Location Maps Component -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+    <!-- Pickup Location -->
+    <template x-if="!isNaN(parseFloat(car.lat)) && !isNaN(parseFloat(car.lang))">
+        <div class="panel border-2 border-green-200 dark:border-green-800 flex flex-col h-full">
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b-2 border-green-200 dark:border-green-700">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-green-900 dark:text-green-100" x-text="$store.i18n.t('pickup_location')"></h3>
+            </div>
+            <template x-if="car.address">
+                <div class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                    <div class="flex items-start gap-2">
+                        <svg class="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
+                        <p class="text-sm font-medium text-green-900 dark:text-green-100 leading-relaxed" x-text="car.address"></p>
+                    </div>
+                </div>
+            </template>
+            <div id="car-location-map" class="h-96 w-full min-h-[400px] rounded-xl border-2 border-green-200 dark:border-green-800 shadow-md"></div>
+        </div>
+    </template>
+
+    <!-- Return Location -->
+    <template x-if="!isNaN(parseFloat(car.lat_return)) && !isNaN(parseFloat(car.lang_return))">
+        <div class="panel border-2 border-teal-200 dark:border-teal-800 flex flex-col h-full">
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b-2 border-teal-200 dark:border-teal-700">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/20 text-teal-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-teal-900 dark:text-teal-100" x-text="$store.i18n.t('return_location')"></h3>
+            </div>
+            <template x-if="car.address_return">
+                <div class="mb-4 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-700">
+                    <div class="flex items-start gap-2">
+                        <svg class="h-4 w-4 text-teal-600 dark:text-teal-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
+                        <p class="text-sm font-medium text-teal-900 dark:text-teal-100 leading-relaxed" x-text="car.address_return"></p>
+                    </div>
+                </div>
+            </template>
+            <div id="car-return-map" class="h-96 w-full min-h-[400px] rounded-xl border-2 border-teal-200 dark:border-teal-800 shadow-md flex-1"></div>
+        </div>
+    </template>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Hero Section</title>
+</head>
+<body>
+<!-- Car Hero Section Component -->
+<div class="panel overflow-hidden border-2 border-primary/20 shadow-professional-xl hover-lift">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 responsive-padding hero-grid">
+        <!-- Main Image Gallery -->
+        <div class="image-gallery-wrapper space-y-4 h-full" 
+             :class="{
+                 'has-few-images': getImageCount() <= 4,
+                 'has-many-images': getImageCount() > 4
+             }">
+            <div class="flex-1 flex flex-col min-h-0">
+                <div class="relative overflow-hidden rounded-xl border-2 border-primary/20 shadow-professional-lg bg-gray-100 dark:bg-gray-800 car-main-image image-professional" style="width: 100%; height: 400px; min-height: 400px; max-height: 400px;">
+                    <template x-if="getMainImage()">
+                        <img :src="getMainImage()" :alt="car.make || 'Car'" class="w-full h-full object-cover transition-opacity duration-300" loading="lazy" style="object-fit: cover; width: 100%; height: 100%; min-height: 400px;">
+                    </template>
+                    <template x-if="!getMainImage()">
+                        <div class="flex h-full items-center justify-center">
+                            <svg class="h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Image Thumbnails -->
+                <template x-if="car.car_image && car.car_image.length > 1">
+                    <div class="grid gap-2 mt-4 flex-shrink-0" :class="getThumbnailGridCols()">
+                        <template x-for="(image, index) in car.car_image" :key="index">
+                            <div 
+                                @click="selectImage(index)" 
+                                class="overflow-hidden rounded-lg border-2 cursor-pointer transition-all aspect-square h-20"
+                                :class="selectedImageIndex === index ? 'border-primary shadow-lg scale-105' : 'border-gray-200 dark:border-gray-700 hover:border-primary'"
+                            >
+                                <img :src="image.image" :alt="'Car Image ' + (index + 1)" class="w-full h-full object-cover" loading="lazy" style="object-fit: cover;">
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Brand, Model, Year Info -->
+            <div class="grid grid-cols-1 gap-3 mt-4 flex-shrink-0" :class="getImageCount() <= 1 ? 'mt-auto' : ''">
+                <!-- Brand -->
+                <template x-if="car.brand">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-3 border-2 border-purple-200 dark:border-purple-800 shadow-professional hover-lift gradient-overlay">
+                        <div class="flex items-center gap-3">
+                            <template x-if="car.brand.image">
+                                <img :src="car.brand.image" :alt="car.brand.name" class="w-12 h-12 object-contain rounded-lg border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-900 p-1 flex-shrink-0">
+                            </template>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase mb-1" x-text="$store.i18n.t('brand')"></p>
+                                <p class="text-base font-bold text-purple-900 dark:text-purple-100 truncate" x-text="car.brand.name"></p>
+                                <template x-if="car.brand.country">
+                                    <p class="text-xs text-purple-600 dark:text-purple-400 flex items-center gap-1 mt-1">
+                                        <svg class="h-3 w-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                        </svg>
+                                        <span class="truncate" x-text="car.brand.country"></span>
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Model -->
+                <template x-if="car.model">
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-3 border-2 border-blue-200 dark:border-blue-800 shadow-professional hover-lift gradient-overlay">
+                        <div class="flex items-center gap-3">
+                            <template x-if="car.model.image">
+                                <img :src="car.model.image" :alt="car.model.name" class="w-12 h-12 object-cover rounded-lg border-2 border-blue-300 dark:border-blue-700 flex-shrink-0">
+                            </template>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase mb-1" x-text="$store.i18n.t('model')"></p>
+                                <p class="text-base font-bold text-blue-900 dark:text-blue-100 truncate" x-text="car.model.name"></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Year -->
+                <template x-if="car.years">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-3 border-2 border-green-200 dark:border-green-800 shadow-professional hover-lift gradient-overlay">
+                        <div class="flex items-center gap-3">
+                            <template x-if="car.years.image">
+                                <img :src="car.years.image" :alt="car.years.year" class="w-12 h-12 object-cover rounded-lg border-2 border-green-300 dark:border-green-700 flex-shrink-0">
+                            </template>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-medium text-green-700 dark:text-green-300 uppercase mb-1" x-text="$store.i18n.t('year')"></p>
+                                <p class="text-base font-bold text-green-900 dark:text-green-100" x-text="car.years.year"></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Quick Stats Grid -->
+                <div class="grid grid-cols-2 gap-2">
+                    <template x-if="car.number">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-professional hover-lift card-professional">
+                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('number')"></p>
+                            <p class="text-sm font-semibold text-black dark:text-white truncate" x-text="car.number"></p>
+                        </div>
+                    </template>
+                    <template x-if="car.vin">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-professional hover-lift card-professional">
+                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('vin')"></p>
+                            <p class="text-sm font-semibold text-black dark:text-white truncate" x-text="car.vin"></p>
+                        </div>
+                    </template>
+                    <template x-if="car.plate_number">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-professional hover-lift card-professional">
+                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('plate_number')"></p>
+                            <p class="text-sm font-semibold text-black dark:text-white truncate" x-text="car.plate_number"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="flex flex-col h-full space-y-4">
+            <!-- Header Section -->
+            <div class="flex-shrink-0">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3 leading-tight">
+                    <span x-text="car.make || car.brand?.name || 'N/A'"></span>
+                    <span x-text="car.model ? car.model.name : ''"></span>
+                    <span x-text="car.years?.year || ''"></span>
+                </h1>
+                <div class="flex items-center gap-3 flex-wrap mb-4">
+                    <span class="badge text-sm py-2 px-4" :class="{
+                        'bg-success': car.status === 'active',
+                        'bg-danger': car.status === 'rejected',
+                        'bg-warning': car.status !== 'active' && car.status !== 'rejected'
+                    }" x-text="$store.i18n.t(car.status)"></span>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="flex-shrink-0">
+                <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-xl p-5 border-2 border-primary/30 space-y-4">
+                    <!-- Season Price Active -->
+                    <template x-if="car.season_pricing_info && car.season_pricing_info.has_season_pricing">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="badge bg-info text-white text-xs py-1 px-3 badge-professional">
+                                    <svg class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('seasonal_price')"></span>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg text-gray-500 dark:text-gray-400 line-through" x-text="parseFloat(car.season_pricing_info.original_price).toFixed(2) + ' ' + $store.i18n.t('currency')"></span>
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                                <span class="text-3xl font-bold text-info" x-text="parseFloat(car.season_pricing_info.final_price).toFixed(2) + ' ' + $store.i18n.t('currency')"></span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">/ <span x-text="$store.i18n.t('day')"></span></span>
+                            </div>
+                            <div class="flex items-center gap-2 bg-info/10 px-3 py-2 rounded-lg">
+                                <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                                <span class="text-sm font-semibold text-info" x-text="`${car.season_pricing_info.is_price_increased ? '+' : '-'} ${parseFloat(car.season_pricing_info.price_adjustment).toFixed(2)} ${$store.i18n.t('currency')}`"></span>
+                            </div>
+                            
+                            <!-- Season Price Dates -->
+                            <template x-if="car.season_pricing_info.season_pricing_data">
+                                <div class="mt-4 pt-4 border-t border-info/20">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <svg class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 space-y-2">
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period')"></p>
+                                                <div class="flex flex-wrap items-center gap-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-4 w-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4 4 4m0 6l-4 4-4-4" />
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="formatDate(car.season_pricing_info.season_pricing_data.date_from)"></span>
+                                                    </div>
+                                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                    </svg>
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-4 w-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4 4-4 4m6-6l-4 4 4 4" />
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="formatDate(car.season_pricing_info.season_pricing_data.date_end)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <template x-if="car.season_pricing_info.season_pricing_data.title">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') + ':'"></span>
+                                                    <span class="text-xs text-gray-900 dark:text-white font-medium" x-text="car.season_pricing_info.season_pricing_data.title"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Discount Active -->
+                    <template x-if="car.discount_info && car.discount_info.has_discount">
+                        <div class="space-y-3" :class="car.season_pricing_info && car.season_pricing_info.has_season_pricing ? 'pt-4 border-t-2 border-primary/20' : ''">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="badge bg-success text-white text-xs py-1 px-3 badge-professional">
+                                    <svg class="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span x-text="$store.i18n.t('discount_active')"></span>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg text-gray-500 dark:text-gray-400 line-through" x-text="parseFloat(car.discount_info.original_price).toFixed(2) + ' ' + $store.i18n.t('currency')"></span>
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                                <span class="text-3xl font-bold text-success" x-text="parseFloat(car.discount_info.final_price).toFixed(2) + ' ' + $store.i18n.t('currency')"></span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">/ <span x-text="$store.i18n.t('day')"></span></span>
+                            </div>
+                            <div class="flex items-center gap-2 bg-success/10 px-3 py-2 rounded-lg">
+                                <svg class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-success">
+                                    <span x-text="$store.i18n.t('save')"></span>: 
+                                    <span x-text="car.discount_info.discount_type === 'percentage' ? `${car.discount_info.discount_amount}%` : `${parseFloat(car.discount_info.discount_amount).toFixed(2)} ${$store.i18n.t('currency')}`"></span>
+                                </span>
+                            </div>
+                            
+                            <!-- Discount Dates -->
+                            <template x-if="car.discount_info.discount_data">
+                                <div class="mt-4 pt-4 border-t border-success/20">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <svg class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 space-y-2">
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1" x-text="$store.i18n.t('valid_period')"></p>
+                                                <div class="flex flex-wrap items-center gap-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4 4 4m0 6l-4 4-4-4" />
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="formatDate(car.discount_info.discount_data.date_from)"></span>
+                                                    </div>
+                                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                    </svg>
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4 4-4 4m6-6l-4 4 4 4" />
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="formatDate(car.discount_info.discount_data.date_end)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <template x-if="car.discount_info.discount_data.title">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" x-text="$store.i18n.t('title') + ':'"></span>
+                                                    <span class="text-xs text-gray-900 dark:text-white font-medium" x-text="car.discount_info.discount_data.title"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Regular Price (no season price or discount) -->
+                    <template x-if="(!car.season_pricing_info || !car.season_pricing_info.has_season_pricing) && (!car.discount_info || !car.discount_info.has_discount)">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl font-bold text-primary" x-text="parseFloat(car.price).toFixed(2) + ' ' + $store.i18n.t('currency')"></span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">/ <span x-text="$store.i18n.t('day')"></span></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <template x-if="car.description || car.description_condition">
+                <div class="space-y-3">
+                    <template x-if="car.description">
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                                </svg>
+                                <p class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase" x-text="$store.i18n.t('description')"></p>
+                            </div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed" x-text="car.description"></p>
+                        </div>
+                    </template>
+                    <template x-if="car.description_condition">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('condition_description')"></p>
+                            </div>
+                            <p class="text-sm text-blue-900 dark:text-blue-100 leading-relaxed" x-text="car.description_condition"></p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Created At -->
+            <template x-if="car.created_at">
+                <div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase" x-text="$store.i18n.t('created_at')"></p>
+                        <p class="text-sm font-semibold text-blue-900 dark:text-blue-100" x-text="formatDate(car.created_at)"></p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
